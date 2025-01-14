@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import logo from './logo.png'; // Ensure your logo file is in the public folder or adjust the path accordingly.
+import { FaGlobe } from 'react-icons/fa'; // Import the globe icon
+import logo from './images/logo.png';
 
 function Navbar() {
   return (
@@ -15,7 +16,12 @@ function Navbar() {
         `}
       </style>
 
-      <nav className="navbar navbar-expand-lg bg-secondary">
+      <nav
+        className="navbar navbar-expand-lg bg-white"
+        style={{
+          borderBottom: '2px solid orange', // Thin orange bottom border
+        }}
+      >
         <div className="container">
           {/* Logo and Brand Name */}
           <Link className="navbar-brand d-flex align-items-center" to="/">
@@ -40,22 +46,21 @@ function Navbar() {
           <div className="collapse navbar-collapse justify-content-center" id="navbarNav">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <Link className="nav-link text-dark fw-normal mx-2" to="/">Trang chủ</Link>
+                <Link className="nav-link fw-bold text-dark mx-3" to="/">Trang chủ</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link text-dark fw-normal mx-2" to="/jobs">Công việc</Link>
+                <Link className="nav-link fw-bold text-dark mx-3" to="/about">Giới thiệu</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link text-dark fw-normal mx-2" to="/helpers">Người giúp việc</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link text-dark fw-normal mx-2" to="/faq">FAQ</Link>
+                <Link className="nav-link fw-bold text-dark mx-3" to="/how-it-works">Cách hoạt động</Link>
               </li>
             </ul>
           </div>
 
           {/* Buttons */}
-          <div className="d-flex">
+          <div className="d-flex align-items-center">
+            {/* Globe Icon */}
+            <FaGlobe className="text-black me-2" size={14} />
             <Link
               className="btn btn-outline-warning text-warning fw-bold mx-2 login-btn"
               to="/login"
