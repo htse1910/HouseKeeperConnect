@@ -1,143 +1,53 @@
-import { FaFacebook, FaTwitter, FaInstagram, FaTelegram, FaGoogle } from "react-icons/fa";
+import React from 'react';
+import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
 
 function Footer() {
   return (
-    <footer
-      className="bg-light"
-      style={{
-        borderTop: "4px solid orange",
-        paddingTop: "3rem",
-        paddingBottom: "1rem",
-      }}
-    >
+    <footer style={{ backgroundColor: 'white', padding: '3rem 0', borderTop: '2px solid orange' }}>
       <div className="container">
-        <div className="row align-items-start">
-          {/* Left Section: Header, Search Bar, and Social Media Icons */}
+        <div className="row">
+          {/* Quick Links */}
           <div className="col-md-4">
-            <h2 className="fw-bold">Chúc bạn một ngày mới không nhuốm bụi trần.</h2>
-            <div
-              className="mt-4"
-              style={{
-                border: "1px solid black",
-                borderRadius: "5px",
-                display: "flex",
-                overflow: "hidden",
-              }}
-            >
+            <h5 className="fw-bold text-warning">Đường dẫn nhanh</h5>
+            <ul className="list-unstyled mt-3">
+              <li><a href="#" className="text-muted" style={{ textDecoration: 'none' }}>Giới thiệu</a></li>
+              <li><a href="#" className="text-muted" style={{ textDecoration: 'none' }}>FAQs</a></li>
+              <li><a href="#" className="text-muted" style={{ textDecoration: 'none' }}>Phương thức liên lạc</a></li>
+              <li><a href="#" className="text-muted" style={{ textDecoration: 'none' }}>Điều khoản sử dụng</a></li>
+              <li><a href="#" className="text-muted" style={{ textDecoration: 'none' }}>Chính sách bảo mật</a></li>
+            </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div className="col-md-4 text-center">
+            <h5 className="fw-bold text-warning">Nhận thông tin và ưu đãi mới nhất từ PCHWF</h5>
+            <div className="mt-3 d-flex justify-content-center align-items-center">
               <input
                 type="email"
-                className="form-control border-0"
-                placeholder="Để lại email của bạn"
-                style={{
-                  height: "46px",
-                  fontSize: "14px",
-                  borderRight: "1px solid black",
-                }}
+                className="form-control"
+                placeholder="Nhập email của bạn để được thông báo"
+                style={{ border: '1px solid orange', borderRadius: '5px', marginRight: '10px' }}
               />
-              <button
-                className="btn btn-warning text-white"
-                style={{
-                  height: "46px",
-                  padding: "0 16px",
-                  fontSize: "14px",
-                  border: "none",
-                }}
-              >
-                Nhận tư vấn
-              </button>
-            </div>
-            {/* Social Media Icons */}
-            <div className="d-flex mt-3 gap-3">
-              <FaFacebook size={24} color="orange" />
-              <FaTwitter size={24} color="orange" />
-              <FaInstagram size={24} color="orange" />
-              <FaTelegram size={24} color="orange" />
-              <FaGoogle size={24} color="orange" />
+              <button className="btn btn-warning text-white fw-bold">Theo dõi</button>
             </div>
           </div>
 
-          {/* Right Section: Two Vertical Lists */}
-          <div className="col-md-7 d-flex justify-content-end gap-5">
-            <div>
-              <h5 className="fw-bold text-warning">PCHWF</h5>
-              <ul className="list-unstyled">
-                <li>
-                  <a href="#" className="text-muted" style={{ textDecoration: "none" }}>
-                    Giới thiệu
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted" style={{ textDecoration: "none" }}>
-                    Phương thức liên lạc
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted" style={{ textDecoration: "none" }}>
-                    Điều khoản sử dụng
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted" style={{ textDecoration: "none" }}>
-                    Chính sách bảo mật
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted" style={{ textDecoration: "none" }}>
-                    FAQ
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="fw-bold text-warning">Dịch vụ</h5>
-              <ul className="list-unstyled">
-                <li>
-                  <a href="#" className="text-muted" style={{ textDecoration: "none" }}>
-                    Tìm người giúp việc
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted" style={{ textDecoration: "none" }}>
-                    Tìm công việc
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted" style={{ textDecoration: "none" }}>
-                    Yêu cầu hỗ trợ
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-muted" style={{ textDecoration: "none" }}>
-                    Khiếu nại
-                  </a>
-                </li>
-              </ul>
+          {/* Social Media */}
+          <div className="col-md-4 text-end">
+            <h5 className="fw-bold text-warning">Liên hệ với chúng tôi</h5>
+            <div className="mt-3 d-flex justify-content-end gap-3">
+              <FaFacebook size={24} color="orange" />
+              <FaInstagram size={24} color="orange" />
+              <FaTwitter size={24} color="orange" />
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Thin Black Border */}
-      <div
-        style={{
-          width: "100%",
-          height: "1px",
-          backgroundColor: "black",
-          margin: "2rem 0", // Spacing between content and button
-        }}
-      ></div>
-
-      {/* Contact Us Button */}
-      <div className="d-flex justify-content-end container">
-        <button
-          className="btn btn-outline-warning fw-bold"
-          style={{
-            padding: "10px 20px",
-            fontSize: "14px",
-          }}
-        >
-          Liên hệ với chúng tôi
-        </button>
+        {/* Footer Bottom */}
+        <div className="mt-4 text-center">
+          <hr style={{ border: '1px solid orange' }} />
+          <p className="text-muted mt-3">© 2025 Housekeeping Platform. All rights reserved.</p>
+        </div>
       </div>
     </footer>
   );
