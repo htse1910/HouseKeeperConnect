@@ -181,6 +181,52 @@ function RegisterForm({ role, onRoleChange, formData, onInputChange, onSubmit })
           Đăng ký ngay
         </button>
       </form>
+
+      {/* Divider */}
+      <div className="text-center text-muted mt-3 mb-3">
+        <hr />
+        Hoặc đăng ký với
+      </div>
+
+      {/* Social Login Buttons */}
+      <div className="d-flex justify-content-between">
+        <button
+          type="button"
+          className="btn btn-outline-secondary d-flex align-items-center justify-content-center w-50 me-2"
+          style={{
+            height: '50px',
+            transition: 'background-color 0.3s, color 0.3s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#FF7F00';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '';
+            e.currentTarget.style.color = '';
+          }}
+        >
+          <FaGoogle style={{ color: '#DB4437' }} className="me-2" /> Google
+        </button>
+        <button
+          type="button"
+          className="btn btn-outline-secondary d-flex align-items-center justify-content-center w-50"
+          style={{
+            height: '50px',
+            transition: 'background-color 0.3s, color 0.3s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#FF7F00';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '';
+            e.currentTarget.style.color = '';
+          }}
+        >
+          <FaFacebook style={{ color: '#1877F2' }} className="me-2" /> Facebook
+        </button>
+      </div>
     </div>
   );
 }

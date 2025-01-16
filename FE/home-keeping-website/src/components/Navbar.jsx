@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FaGlobe } from 'react-icons/fa'; // Import the globe icon
+import { FaSearch } from 'react-icons/fa'; // Import the globe icon
 import logo from './images/logo.png';
 
 function Navbar() {
@@ -52,7 +52,7 @@ function Navbar() {
                 <Link className="nav-link fw-bold text-dark mx-3" to="/about">Giới thiệu</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link fw-bold text-dark mx-3" to="/how-it-works">Cách hoạt động</Link>
+                <Link className="nav-link fw-bold text-dark mx-3" to="/frequent-questions">Câu hỏi thường xuyên</Link>
               </li>
             </ul>
           </div>
@@ -60,7 +60,19 @@ function Navbar() {
           {/* Buttons */}
           <div className="d-flex align-items-center">
             {/* Globe Icon */}
-            <FaGlobe className="text-black me-2" size={14} />
+            <button
+              type="button"
+              className="btn btn-light p-2 border"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '5px',
+              }}
+              onClick={() => alert('Search button clicked!')} // Replace this with your actual functionality
+            >
+              <FaSearch className="text-black" size={14} />
+            </button>
             <Link
               className="btn btn-outline-warning text-warning fw-bold mx-2 login-btn"
               to="/login"
