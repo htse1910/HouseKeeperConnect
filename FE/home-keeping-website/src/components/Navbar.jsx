@@ -1,17 +1,24 @@
 import { Link } from 'react-router-dom';
-import { FaSearch } from 'react-icons/fa'; // Import the globe icon
+import { FaSearch, FaUserCircle } from 'react-icons/fa'; // Import necessary icons
 import logo from './images/logo.png';
 
 function Navbar() {
+  const userRole = localStorage.getItem('userRole'); // Get the user role from localStorage
+
+  const handleLogout = () => {
+    // Clear localStorage and redirect to login page
+    localStorage.clear();
+    window.location.href = '/login';
+  };
+
   return (
     <>
-      {/* Inline styles for hover effect */}
       <style>
         {`
           .login-btn:hover {
-            background-color: #ffc107; /* Yellow background */
-            color: #ffffff !important; /* White text */
-            border-color: #ffc107; /* Match border to the background */
+            background-color: #ffc107;
+            color: #ffffff !important;
+            border-color: #ffc107;
           }
         `}
       </style>
@@ -19,7 +26,7 @@ function Navbar() {
       <nav
         className="navbar navbar-expand-lg bg-white"
         style={{
-          borderBottom: '2px solid orange', // Thin orange bottom border
+          borderBottom: '2px solid orange',
         }}
       >
         <div className="container">
@@ -48,40 +55,74 @@ function Navbar() {
               <li className="nav-item">
                 <Link className="nav-link fw-bold text-dark mx-3" to="/">Trang chủ</Link>
               </li>
+
+              {userRole === 'Người giúp việc' && (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/find-jobs">Tìm công việc</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">Công việc của tôi</Link>
+                  </li>
+                </>
+              )}
+
+              {userRole === 'Gia đình' && (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/post-jobs">Đăng công việc</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/posted-jobs">Công việc đã đăng</Link>
+                  </li>
+                </>
+              )}
+
               <li className="nav-item">
-                <Link className="nav-link fw-bold text-dark mx-3" to="/about">Giới thiệu</Link>
+                <Link className="nav-link fw-bold text-dark mx-3" to="/messages">Tin nhắn</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link fw-bold text-dark mx-3" to="/frequent-questions">Câu hỏi thường xuyên</Link>
+                <Link className="nav-link fw-bold text-dark mx-3" to="/support">Hỗ trợ</Link>
               </li>
             </ul>
           </div>
 
-          {/* Buttons */}
+          {/* Conditional Rendering */}
           <div className="d-flex align-items-center">
-            {/* Globe Icon */}
-            <button
-              type="button"
-              className="btn btn-light p-2 border"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '5px',
-              }}
-              onClick={() => alert('Search button clicked!')} // Replace this with your actual functionality
-            >
-              <FaSearch className="text-black" size={14} />
-            </button>
-            <Link
-              className="btn btn-outline-warning text-warning fw-bold mx-2 login-btn"
-              to="/login"
-            >
-              Đăng nhập
-            </Link>
-            <Link className="btn btn-warning text-white fw-bold" to="/register">
-              Đăng ký
-            </Link>
+            {userRole ? (
+              <div className="dropdown">
+                <button
+                  className="btn btn-light dropdown-toggle d-flex align-items-center"
+                  type="button"
+                  id="accountDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  style={{ border: '1px solid #ddd', borderRadius: '50%' }}
+                >
+                  <FaUserCircle size={24} />
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                  <li>
+                    <Link className="dropdown-item" to="/profile">Profile</Link>
+                  </li>
+                  <li>
+                    <button className="dropdown-item" onClick={handleLogout}>Logout</button>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              <>
+                <Link
+                  className="btn btn-outline-warning text-warning fw-bold mx-2 login-btn"
+                  to="/login"
+                >
+                  Đăng nhập
+                </Link>
+                <Link className="btn btn-warning text-white fw-bold" to="/register">
+                  Đăng ký
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>

@@ -4,12 +4,15 @@ import FamilyImage from '../components/images/family.png';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 function LoginPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -28,11 +31,35 @@ function LoginPage() {
       );
 
       if (user) {
-        toast.success('Login successful!', {
-          position: 'top-center',
-          autoClose: 3000,
-        });
+        // Store role in localStorage
+        localStorage.setItem('userRole', user.role);
+
+        // Display role-based Toastify notification
+        if (user.role === 'Gia đình') {
+          toast.success(`Welcome ${user.fullName}! You are logged in as a Family member.`, {
+            position: 'top-center',
+            autoClose: 3000,
+          });
+        } else if (user.role === 'Người giúp việc') {
+          toast.success(`Welcome ${user.fullName}! You are logged in as a Helper.`, {
+            position: 'top-center',
+            autoClose: 3000,
+          });
+        } else {
+          toast.success(`Welcome ${user.fullName}!`, {
+            position: 'top-center',
+            autoClose: 3000,
+          });
+        }
+
+        // Redirect to HomePage after a short delay
+        setTimeout(() => {
+          navigate('/'); // Redirect to HomePage
+        }, 3000);
       } else {
+        // Clear role in case of failed login
+        localStorage.removeItem('userRole');
+
         toast.error('Invalid email or password.', {
           position: 'top-center',
           autoClose: 3000,
@@ -45,7 +72,7 @@ function LoginPage() {
       });
     }
   };
-
+  
   return (
     <div
       className="d-flex align-items-center justify-content-center vh-100"
