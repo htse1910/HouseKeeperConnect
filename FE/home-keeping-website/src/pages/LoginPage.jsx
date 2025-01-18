@@ -34,32 +34,24 @@ function LoginPage() {
         // Store role in localStorage
         localStorage.setItem('userRole', user.role);
 
-        // Display role-based Toastify notification
-        if (user.role === 'Gia đình') {
-          toast.success(`Welcome ${user.fullName}! You are logged in as a Family member.`, {
-            position: 'top-center',
-            autoClose: 3000,
-          });
-        } else if (user.role === 'Người giúp việc') {
-          toast.success(`Welcome ${user.fullName}! You are logged in as a Helper.`, {
-            position: 'top-center',
-            autoClose: 3000,
-          });
+        // Display success message
+        toast.success(`Welcome ${user.fullName}!`, {
+          position: 'top-center',
+          autoClose: 3000,
+        });
+
+        // Redirect based on role
+        if (user.role === 'Người giúp việc') {
+          navigate('/housekeeper-dashboard');
+        } else if (user.role === 'Gia đình') {
+          navigate('/family-dashboard');
         } else {
-          toast.success(`Welcome ${user.fullName}!`, {
+          toast.error('Invalid role. Please contact support.', {
             position: 'top-center',
             autoClose: 3000,
           });
         }
-
-        // Redirect to HomePage after a short delay
-        setTimeout(() => {
-          navigate('/'); // Redirect to HomePage
-        }, 3000);
       } else {
-        // Clear role in case of failed login
-        localStorage.removeItem('userRole');
-
         toast.error('Invalid email or password.', {
           position: 'top-center',
           autoClose: 3000,

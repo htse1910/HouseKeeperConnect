@@ -87,8 +87,24 @@ function Navbar() {
             </ul>
           </div>
 
-          {/* Conditional Rendering */}
+          {/* Search and Account Options */}
           <div className="d-flex align-items-center">
+            {/* Search Button - Always Visible */}
+            <button
+              type="button"
+              className="btn btn-light p-2 border me-2"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '5px',
+              }}
+              onClick={() => alert('Search button clicked!')} // Replace with actual functionality
+            >
+              <FaSearch className="text-black" size={14} />
+            </button>
+
+            {/* Conditional Rendering for Account Options */}
             {userRole ? (
               <div className="dropdown">
                 <button
