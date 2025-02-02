@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom';
-import { FaSearch, FaUserCircle } from 'react-icons/fa'; // Import necessary icons
+import { FaSearch, FaUserCircle } from 'react-icons/fa';
 import logo from './images/logo.png';
 
 function Navbar() {
   const userRole = localStorage.getItem('userRole'); // Get the user role from localStorage
 
   const handleLogout = () => {
-    // Clear localStorage and redirect to login page
     localStorage.clear();
     window.location.href = '/login';
   };
@@ -25,9 +24,7 @@ function Navbar() {
 
       <nav
         className="navbar navbar-expand-lg bg-white"
-        style={{
-          borderBottom: '2px solid orange',
-        }}
+        style={{ borderBottom: '2px solid orange' }}
       >
         <div className="container">
           {/* Logo and Brand Name */}
@@ -53,43 +50,56 @@ function Navbar() {
           <div className="collapse navbar-collapse justify-content-center" id="navbarNav">
             <ul className="navbar-nav">
               <li className="nav-item">
-                <Link className="nav-link fw-bold text-dark mx-3" to="/">Trang chủ</Link>
+                <Link className="nav-link fw-bold text-dark mx-3" to="/">TRANG CHỦ</Link>
               </li>
 
-              {userRole === 'Người giúp việc' && (
+              {/* Dynamic Navbar Based on User Role */}
+              {userRole === 'Người giúp việc' ? (
                 <>
                   <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/find-jobs">Tìm công việc</Link>
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/find-jobs">TÌM CÔNG VIỆC</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">Công việc của tôi</Link>
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">CÔNG VIỆC CỦA TÔI</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">TIN NHẮN</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">HỖ TRỢ</Link>
+                  </li>
+                </>
+              ) : userRole === 'Gia đình' ? (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/post-jobs">ĐĂNG CÔNG VIỆC</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/posted-jobs">CÔNG VIỆC ĐÃ ĐĂNG</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">TIN NHẮN</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">HỖ TRỢ</Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/about">GIỚI THIỆU</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/faq">CÂU HỎI THƯỜNG GẶP</Link>
                   </li>
                 </>
               )}
-
-              {userRole === 'Gia đình' && (
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/post-jobs">Đăng công việc</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/posted-jobs">Công việc đã đăng</Link>
-                  </li>
-                </>
-              )}
-
-              <li className="nav-item">
-                <Link className="nav-link fw-bold text-dark mx-3" to="/messages">Tin nhắn</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link fw-bold text-dark mx-3" to="/support">Hỗ trợ</Link>
-              </li>
             </ul>
           </div>
 
           {/* Search and Account Options */}
           <div className="d-flex align-items-center">
-            {/* Search Button - Always Visible */}
+            {/* Search Button */}
             <button
               type="button"
               className="btn btn-light p-2 border me-2"
@@ -99,7 +109,7 @@ function Navbar() {
                 justifyContent: 'center',
                 borderRadius: '5px',
               }}
-              onClick={() => alert('Search button clicked!')} // Replace with actual functionality
+              onClick={() => alert('Search button clicked!')}
             >
               <FaSearch className="text-black" size={14} />
             </button>
@@ -128,10 +138,7 @@ function Navbar() {
               </div>
             ) : (
               <>
-                <Link
-                  className="btn btn-outline-warning text-warning fw-bold mx-2 login-btn"
-                  to="/login"
-                >
+                <Link className="btn btn-outline-warning text-warning fw-bold mx-2 login-btn" to="/login">
                   Đăng nhập
                 </Link>
                 <Link className="btn btn-warning text-white fw-bold" to="/register">
