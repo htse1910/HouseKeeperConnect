@@ -1,6 +1,23 @@
-﻿namespace Repositories
+﻿using BusinessObject.DTO;
+using BusinessObject.Models;
+using BusinessObject.Models.JWTToken;
+using DataAccess;
+using Repositories.Interface;
+
+namespace Repositories
 {
-    internal class AccountRepository
+    public class AccountRepository : IAccountRepository
     {
+        public async Task<string> Login(JWTLoginModel model) => await AccountDAO.Instance.Login(model);
+        public async Task<List<Account>> GetAllAccountsAsync() => await AccountDAO.Instance.GetAllAccountsAsync();
+        public async Task<List<Account>> SearchAccountsByNameAsync(string name) => await AccountDAO.Instance.SearchAccountsByNameAsync(name);
+        public async Task<Account> GetAccountByIDAsync(Guid uID) => await AccountDAO.Instance.GetAccountByIDAsync(uID);
+        public async Task AddAccountAsync(Account Account) => await AccountDAO.Instance.AddAccountAsync(Account);
+        public async Task DeleteAccountAsync(Guid id) => await AccountDAO.Instance.DeleteAccountAsync(id);
+        public async Task UpdateAccountAsync(Account Account) => await AccountDAO.Instance.UpdateAccountAsync(Account);
+        public async Task<bool> IsEmailExistsAsync(string email) => await AccountDAO.Instance.IsEmailExistsAsync(email);
+        public async Task ChangeAccountStatusAsync(Guid AccountId) => await AccountDAO.Instance.ChangeAccountStatusAsync(AccountId);
+        public async Task<string> ValidateAccountAsync(AccountRegisterDTO AccountRegisterDTO) => await AccountDAO.Instance.ValidateAccountAsync(AccountRegisterDTO);
+        public async Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO) => await AccountDAO.Instance.ValidateUpdateAccountAsync(AccountUpdateDTO);
     }
 }

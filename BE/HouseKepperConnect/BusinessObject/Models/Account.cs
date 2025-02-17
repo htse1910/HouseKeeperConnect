@@ -8,8 +8,9 @@
         public string Email { get; set; }
         public string Phone { get; set; }
         public int RoleID { get; set; }
-        public DateTime CreateAt { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public int Status { get; set; }
+        public virtual Role Role { get; set; }
     }
 }
