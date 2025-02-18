@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    [Migration("20250216201129_v1")]
-    partial class v1
+    [Migration("20250218032135_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,13 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.Account", b =>
                 {
-                    b.Property<Guid>("AccountID")
+                    b.Property<int>("AccountID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("CreateAt")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountID"));
+
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
@@ -81,6 +83,28 @@ namespace BusinessObject.Migrations
                     b.HasKey("RoleID");
 
                     b.ToTable("Role");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleID = 1,
+                            RoleName = "HouseKeeper"
+                        },
+                        new
+                        {
+                            RoleID = 2,
+                            RoleName = "Family"
+                        },
+                        new
+                        {
+                            RoleID = 3,
+                            RoleName = "Staff"
+                        },
+                        new
+                        {
+                            RoleID = 4,
+                            RoleName = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Account", b =>

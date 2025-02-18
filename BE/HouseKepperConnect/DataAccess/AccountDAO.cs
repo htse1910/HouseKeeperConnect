@@ -72,7 +72,7 @@ namespace DataAccess
             var claims = new[]
             {
                 new Claim(UserClaimTypes.AccountID, model.AccountID.ToString()),
-                new Claim(UserClaimTypes.FullName, model.FullName),
+                new Claim(UserClaimTypes.Name, model.Name),
                 new Claim(UserClaimTypes.Email, model.Email),
                 new Claim(UserClaimTypes.RoleID, model.RoleID.ToString()),
             };
@@ -169,7 +169,7 @@ namespace DataAccess
             return list;
         }
 
-        public async Task<Account> GetAccountByIDAsync(Guid uID)
+        public async Task<Account> GetAccountByIDAsync(int uID)
         {
             Account Account;
             try
@@ -202,7 +202,7 @@ namespace DataAccess
             }
         }
 
-        public async Task DeleteAccountAsync(Guid id)
+        public async Task DeleteAccountAsync(int id)
         {
             var Account = await GetAccountByIDAsync(id);
             if (Account != null)
@@ -315,7 +315,7 @@ namespace DataAccess
             return phoneStr.Length == 9 && phoneStr.All(char.IsDigit);
         }
 
-        public async Task ChangeAccountStatusAsync(Guid AccountId)
+        public async Task ChangeAccountStatusAsync(int AccountId)
         {
             try
             {

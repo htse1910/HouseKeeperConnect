@@ -15,7 +15,7 @@ using static BusinessObject.Models.Enum;
 namespace HouseKeeperConnect_API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    /*[ApiController]*/
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
@@ -32,6 +32,13 @@ namespace HouseKeeperConnect_API.Controllers
             var random = new Random();
             return new string(Enumerable.Range(0, length)
                 .Select(_ => Characters[random.Next(Characters.Length)]).ToArray());
+        }
+
+        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<Account> passwordHasher)
+        {
+            _accountService = accountService;
+            _mapper = mapper;
+            _passwordHasher = passwordHasher;
         }
 
        
@@ -77,7 +84,7 @@ namespace HouseKeeperConnect_API.Controllers
         // GET api/<AccountController>/5
         [HttpGet("Getaccount/{id}")]
         [Authorize]
-        public async Task<ActionResult<AccountDisplayDTO>> GetaccountByID(Guid id)
+        public async Task<ActionResult<AccountDisplayDTO>> GetaccountByID(int id)
         {
             var account = await _accountService.GetAccountByIDAsync(id);
             if (account == null)
@@ -181,7 +188,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("ChangeStatus/{id}")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> ToggleStatus(Guid id)
+        public async Task<IActionResult> ToggleStatus(int id)
         {
             try
             {
