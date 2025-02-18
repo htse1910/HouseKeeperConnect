@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using BusinessObject.DTO;
 using BusinessObject.Mapping;
 using BusinessObject.Models;
 using BusinessObject.Models.JWTToken;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,7 +13,7 @@ using System.Text;
 
 namespace DataAccess
 {
-    internal class AccountDAO
+    public class AccountDAO
     {
         private readonly IMapper _mapper;
         private readonly JwtConfig _jwtConfig;
@@ -97,13 +99,13 @@ namespace DataAccess
                 {
                     Name = "admin",
                     Email = "admin@gmail.com",
-                    RoleID = 1
+                    RoleID = 4
                 };
                 tokenizedData = _mapper.Map<TokenModel>(aAccount);
             }
             else
             {
-                using (var db = new TicketDBContext())
+                using (var db = new PCHWFDBContext())
                 {
                     var Account = await db.Account.FirstOrDefaultAsync(x => x.Email == loginAccount.Email);
                     if (Account == null)
@@ -138,7 +140,7 @@ namespace DataAccess
             var list = new List<Account>();
             try
             {
-                using (var context = new TicketDBContext())
+                using (var context = new PCHWFDBContext())
                 {
                     list = await context.Account.ToListAsync();
                 }
@@ -155,9 +157,9 @@ namespace DataAccess
             var list = new List<Account>();
             try
             {
-                using (var context = new TicketDBContext())
+                using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Account.Where(u => u.FullName.Contains(name)).ToListAsync();
+                    list = await context.Account.Where(u => u.Name.Contains(name)).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -172,7 +174,7 @@ namespace DataAccess
             Account Account;
             try
             {
-                using (var context = new TicketDBContext())
+                using (var context = new PCHWFDBContext())
                 {
                     Account = await context.Account.SingleOrDefaultAsync(x => x.AccountID == uID);
                 }
@@ -188,7 +190,7 @@ namespace DataAccess
         {
             try
             {
-                using (var context = new TicketDBContext())
+                using (var context = new PCHWFDBContext())
                 {
                     context.Account.Add(Account);
                     await context.SaveChangesAsync();
@@ -205,7 +207,7 @@ namespace DataAccess
             var Account = await GetAccountByIDAsync(id);
             if (Account != null)
             {
-                using (var context = new TicketDBContext())
+                using (var context = new PCHWFDBContext())
                 {
                     context.Account.Remove(Account);
                     await context.SaveChangesAsync();
@@ -217,7 +219,7 @@ namespace DataAccess
         {
             try
             {
-                using (var context = new TicketDBContext())
+                using (var context = new PCHWFDBContext())
                 {
                     context.Entry(Account).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                     await context.SaveChangesAsync();
@@ -233,7 +235,7 @@ namespace DataAccess
         {
             try
             {
-                using (var context = new TicketDBContext())
+                using (var context = new PCHWFDBContext())
                 {
                     return await context.Account.AnyAsync(u => u.Email.Equals(email));
                 }
@@ -246,7 +248,7 @@ namespace DataAccess
 
         public async Task<string> ValidateAccountAsync(AccountRegisterDTO AccountRegisterDTO)
         {
-            if (string.IsNullOrWhiteSpace(AccountRegisterDTO.FullName))
+            if (string.IsNullOrWhiteSpace(AccountRegisterDTO.Name))
             {
                 return "Full Name is required.";
             }
@@ -271,7 +273,7 @@ namespace DataAccess
 
         public async Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO)
         {
-            if (string.IsNullOrWhiteSpace(AccountUpdateDTO.FullName))
+            if (string.IsNullOrWhiteSpace(AccountUpdateDTO.Name))
             {
                 return "Full Name is required.";
             }
@@ -317,7 +319,7 @@ namespace DataAccess
         {
             try
             {
-                using (var context = new TicketDBContext())
+                using (var context = new PCHWFDBContext())
                 {
                     var Account = await context.Account.SingleOrDefaultAsync(u => u.AccountID == AccountId);
                     if (Account != null)
