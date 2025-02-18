@@ -2,8 +2,8 @@
 {
     public class TokenModel
     {
-        public Guid AccountID { get; set; }
-        public string FullName { get; set; }
+        public int AccountID { get; set; }
+        public string Name { get; set; }
         public string Email { get; set; }
         public int RoleID { get; set; }
     }

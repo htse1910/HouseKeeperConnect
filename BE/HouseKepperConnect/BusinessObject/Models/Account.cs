@@ -1,11 +1,17 @@
-﻿namespace BusinessObject.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BusinessObject.Models
 {
     public class Account
     {
-        public Guid AccountID { get; set; }
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int AccountID { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
+        [EmailAddress]
         public string Email { get; set; }
+        [Phone]
         public string Phone { get; set; }
         public int RoleID { get; set; }
         public DateTime CreatedAt { get; set; }

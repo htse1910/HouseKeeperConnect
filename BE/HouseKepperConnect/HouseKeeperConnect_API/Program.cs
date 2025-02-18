@@ -1,5 +1,7 @@
 using BusinessObject.Mapping;
+using BusinessObject.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories;
@@ -79,6 +81,7 @@ builder.Services.AddSwaggerGen(option =>
 
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
 
 
 
