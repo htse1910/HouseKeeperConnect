@@ -54,7 +54,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var accountList = await _accountService.GetAllAccountsAsync();
                 if (accountList.Count == 0)
                 {
-                    return NotFound("account list is empty!");
+                    return NotFound("Account list is empty!");
                 }
 
                 var list = _mapper.Map<List<AccountDisplayDTO>>(accountList);
@@ -82,7 +82,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         // GET api/<AccountController>/5
-        [HttpGet("Getaccount/{id}")]
+        [HttpGet("GetAccount/{id}")]
         [Authorize]
         public async Task<ActionResult<AccountDisplayDTO>> GetaccountByID(int id)
         {
