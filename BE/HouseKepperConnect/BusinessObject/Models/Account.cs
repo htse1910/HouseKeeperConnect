@@ -18,5 +18,6 @@ namespace BusinessObject.Models
         public DateTime UpdatedAt { get; set; }
         public int Status { get; set; }
         public virtual Role Role { get; set; }
+        public virtual Wallet Wallet { get; set; }
     }
 }
