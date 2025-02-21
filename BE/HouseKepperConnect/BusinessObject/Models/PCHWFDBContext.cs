@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Client;
-
 
 namespace BusinessObject.Models
 {
     public class PCHWFDBContext : DbContext
     {
-        public PCHWFDBContext() { }
+        public PCHWFDBContext()
+        { }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var builder = new ConfigurationBuilder()
@@ -19,6 +19,9 @@ namespace BusinessObject.Models
 
         public virtual DbSet<Account> Account { get; set; }
         public virtual DbSet<Role> Role { get; set; }
+        public virtual DbSet<Transaction> Transaction { get; set; }
+        public virtual DbSet<Wallet> Wallet { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().HasData(
@@ -27,10 +30,6 @@ namespace BusinessObject.Models
                 new Role { RoleID = 3, RoleName = "Staff" },
                 new Role { RoleID = 4, RoleName = "Admin" }
                 );
-
-
         }
-
-
     }
 }

@@ -7,19 +7,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using static BusinessObject.Models.Enum;
-
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace HouseKeeperConnect_API.Controllers
 {
     [Route("api/[controller]")]
-    /*[ApiController]*/
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        
+
         private readonly IMapper _mapper;
         private string Message;
         private readonly IPasswordHasher<Account> _passwordHasher;
@@ -40,9 +37,6 @@ namespace HouseKeeperConnect_API.Controllers
             _mapper = mapper;
             _passwordHasher = passwordHasher;
         }
-
-       
-
 
         // GET: api/<AccountController>
         [HttpGet("AccountList")]
@@ -131,7 +125,6 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             var account = _mapper.Map<Account>(accountRegisterDTO);
-            
 
             account.RoleID = 1;
             account.Status = (int)AccountStatus.Active;
@@ -139,10 +132,7 @@ namespace HouseKeeperConnect_API.Controllers
             account.UpdatedAt = DateTime.Now;
             account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
 
-            
-
             await _accountService.AddAccountAsync(account);
-            
 
             Message = "New Account Added!";
             return Ok(Message);
