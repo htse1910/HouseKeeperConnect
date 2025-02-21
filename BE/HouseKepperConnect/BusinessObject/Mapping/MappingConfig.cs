@@ -18,10 +18,12 @@ namespace BusinessObject.Mapping
         {
             CreateMap<Account, AccountRegisterDTO>().ReverseMap();
         }
+
         private void Map_List_Update_Account()
         {
             CreateMap<Account, AccountUpdateDTO>().ReverseMap();
         }
+
         private void Map_JWT_Login()
         {
             CreateMap<Account, TokenModel>().ReverseMap();

@@ -12,10 +12,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-
-
 // Add services to the container.
 
 builder.Services.AddAuthentication(options =>
@@ -37,9 +33,6 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true
     };
 });
-
-
-
 
 builder.Services.AddAuthorization(options =>
 {
@@ -77,15 +70,12 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-
-
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
-
-
-
-
+builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+builder.Services.AddScoped<IWalletService, WalletService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
