@@ -1,8 +1,8 @@
 ﻿using BusinessObject.Models;
 
-namespace Repositories.Interface
+namespace Services.Interface
 {
-    public interface ITransactionRepository
+    public interface ITransactionService
     {
         Task<List<Transaction>> GetAllTransactionsAsync();
 
