@@ -1,14 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BusinessObject.Models
+namespace BusinessObject.DTO
 {
-    public class Transaction
+    public class TransactionCreateDTO
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int TransactionID { get; set; }
-
-        [Required]
         public int TransactionType { get; set; }
 
         [Required]
@@ -26,11 +21,5 @@ namespace BusinessObject.Models
         public decimal Fee { get; set; }
 
         public string Description { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
-        public int Status { get; set; }
-
-        public virtual Wallet Wallet { get; set; }
-        public virtual Account Account { get; set; }
     }
 }

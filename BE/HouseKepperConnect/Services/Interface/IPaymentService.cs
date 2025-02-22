@@ -7,6 +7,6 @@ namespace Services.Interface
     {
         Task<string> CreatePaymentLink(CreatePaymentLinkRequest request);
 
-        Task<PaymentLinkInformation> GetPaymentStatus(long orderID);
+        Task<PaymentLinkInformation> GetPaymentStatus(int orderID);
     }
 }

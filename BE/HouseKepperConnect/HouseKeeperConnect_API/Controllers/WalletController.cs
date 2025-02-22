@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
+using BusinessObject.Models.PayOS;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -15,15 +16,17 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IWalletService _walletService;
         private readonly IPaymentService _paymentService;
         private readonly IAccountService _accountService;
+        private readonly ITransactionService _transactionService;
         private readonly IMapper _mapper;
         private string Message;
 
-        public WalletController(IWalletService walletService, IPaymentService paymentService, IMapper mapper, IAccountService accountService)
+        public WalletController(IWalletService walletService, IPaymentService paymentService, IMapper mapper, IAccountService accountService, ITransactionService transactionService)
         {
             _walletService = walletService;
             _mapper = mapper;
             _paymentService = paymentService;
             _accountService = accountService;
+            _transactionService = transactionService;
         }
 
         // GET: api/<WalletController>
@@ -105,14 +108,31 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(Message);
             }
 
-
             if (balance < 0 || balance == 0 || balance < 1000)
             {
                 Message = "Deposit atleast 1000 VND!";
                 return BadRequest(Message);
             }
-            /*int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+            int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
             int expiredAt = (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (60 * 5));
+
+            /*var nFee = balance * (10m / 100m);*/
+
+            var trans = new Transaction
+            {
+                TransactionID = orderCode,
+                WalletID = wallet.WalletID,
+                AccountID = acc.AccountID,
+                Amount = balance,
+                Fee = 0,
+                CreatedDate = DateTime.Now,
+                Description = "Nạp tiền vào ví",
+                UpdatedDate = DateTime.Now,
+                TransactionType = (int)TransactionType.Deposit,
+                Status = (int)TransactionStatus.Pending,
+            };
+
+            await _transactionService.AddTransactionAsync(trans);
 
             var paymentData = new CreatePaymentLinkRequest(
 
@@ -124,23 +144,31 @@ namespace HouseKeeperConnect_API.Controllers
                 expiredAt
                 );
 
-            var paymentUrl = await _paymentService.CreatePaymentLink(paymentData);*/
+            var paymentUrl = await _paymentService.CreatePaymentLink(paymentData);
 
-            /*wallet.OnHold += balance;*/
-            wallet.Balance += balance;
+            wallet.OnHold += balance;
+            /*wallet.Balance += balance;*/
             wallet.UpdatedAt = DateTime.Now;
-            Message = "Deposited " + balance + " VND" + " to wallet.";
+            Message = "Deposited " + balance + " VND" + " to onHold!";
 
             await _walletService.UpdateWalletAsync(wallet);
 
-            return Ok(Message);
+            return Ok(paymentUrl);
         }
 
         [HttpPut("Withdraw")]
         [Authorize]
-        public async Task<IActionResult> Withdraw(int id, decimal balance)
+        public async Task<IActionResult> Withdraw(int accountID, decimal balance)
         {
-            var wallet = await _walletService.GetWalletByIDAsync(id);
+            var acc = await _accountService.GetAccountByIDAsync(accountID);
+
+            if (acc == null)
+            {
+                Message = "Account not found!";
+                return NotFound(Message);
+            }
+
+            var wallet = await _walletService.GetWalletByUserAsync(acc.AccountID);
             if (wallet == null)
             {
                 Message = "Wallet not found";
@@ -159,8 +187,27 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "Not enough money to withdraw";
                 return BadRequest(Message);
             }
+
+            int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+
+            var trans = new Transaction
+            {
+                TransactionID = orderCode,
+                WalletID = wallet.WalletID,
+                AccountID = acc.AccountID,
+                Amount = balance,
+                Fee = 0,
+                CreatedDate = DateTime.Now,
+                Description = "Rút tiền từ ví",
+                UpdatedDate = DateTime.Now,
+                TransactionType = (int)TransactionType.Withdrawal,
+                Status = (int)TransactionStatus.Pending,
+            };
+
             wallet.UpdatedAt = DateTime.Now;
             Message = "Withdrawed " + balance + " VND" + " from wallet.";
+
+            await _transactionService.AddTransactionAsync(trans);
 
             await _walletService.UpdateWalletAsync(wallet);
 
