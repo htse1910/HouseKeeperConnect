@@ -1,12 +1,13 @@
 ﻿using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.JWTToken;
+using Google.Apis.Auth;
 
 namespace Repositories.Interface
 {
     public interface IAccountRepository
     {
-        Task<string> Login(JWTLoginModel model);
+        Task<LoginInfoDTO> Login(JWTLoginModel model);
 
         Task<List<Account>> GetAllAccountsAsync();
 
@@ -27,5 +28,6 @@ namespace Repositories.Interface
         Task<string> ValidateAccountAsync(AccountRegisterDTO AccountRegisterDTO);
 
         Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO);
+        Task<GoogleJsonWebSignature.Payload> LoginWithGoogleAsync(string googleToken);
     }
 }
