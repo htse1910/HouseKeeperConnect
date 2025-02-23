@@ -12,6 +12,6 @@ namespace BusinessObject.Models
         public int HouseKeeperID { get; set; }
         public int Status { get; set; }
 
-        public virtual HousekeeperProfile HouseKepper { get; set; }
+        public virtual Housekeeper HouseKepper { get; set; }
     }
 }
