@@ -1,7 +1,7 @@
 ﻿namespace BusinessObject.Models.PayOS
 {
     public record CreatePaymentLinkRequest(
-    long orderId,
+    long transID,
     string description,
     int price,
     string buyerName,
