@@ -1,11 +1,6 @@
 ﻿using BusinessObject.Models;
 using Repositories.Interface;
 using Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services
 {
@@ -17,6 +12,7 @@ namespace Services
         {
             _transactionRepository = transactionRepository;
         }
+
         public async Task AddTransactionAsync(Transaction Transaction) => await _transactionRepository.AddTransactionAsync(Transaction);
 
         public async Task DeleteTransactionAsync(int id) => await _transactionRepository.DeleteTransactionAsync(id);

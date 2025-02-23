@@ -12,6 +12,7 @@ namespace BusinessObject.Mapping
             Map_List_Register();
             Map_List_Update_Account();
             Map_JWT_Login();
+            Map_List_Display_Account();
         }
 
         private void Map_List_Register()
@@ -27,6 +28,11 @@ namespace BusinessObject.Mapping
         private void Map_JWT_Login()
         {
             CreateMap<Account, TokenModel>().ReverseMap();
+        }
+
+        private void Map_List_Display_Account()
+        {
+            CreateMap<Account, AccountDisplayDTO>().ReverseMap();
         }
     }
 }

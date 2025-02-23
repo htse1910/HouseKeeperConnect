@@ -23,8 +23,8 @@ namespace BusinessObject.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string? GoogleId { get; set; }  // Lưu Google ID
-        public string Provider { get; set; } // "Google" hoặc "Local"
-        public string ProfilePicture { get; set; } // Ảnh đại diện Google
+        public string? Provider { get; set; } // "Google" hoặc "Local"
+        public string? ProfilePicture { get; set; } // Ảnh đại diện Google
         public int Status { get; set; }
         public virtual Role Role { get; set; }
         public virtual Wallet Wallet { get; set; }
