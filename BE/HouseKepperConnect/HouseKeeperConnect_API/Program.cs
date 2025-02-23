@@ -12,7 +12,8 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
+})
+.AddJwtBearer(o =>
 {
     o.TokenValidationParameters = new TokenValidationParameters
     {
@@ -20,11 +21,26 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["JwtConfig:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey
         (Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"])),
-        ValidateIssuer = string.IsNullOrEmpty(builder.Configuration["JwtConfig:Issuer"]),
-        ValidateAudience = string.IsNullOrEmpty(builder.Configuration["JwtConfig:Audience"]),
+
+        ValidateIssuer = !string.IsNullOrEmpty(builder.Configuration["JwtConfig:Issuer"]),
+        ValidateAudience = !string.IsNullOrEmpty(builder.Configuration["JwtConfig:Audience"]),
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true
     };
+})
+.AddGoogle(googleOptions =>
+{
+
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Housekeeper", policy => policy.RequireClaim("RoleID", "1"));
+    options.AddPolicy("Family", policy => policy.RequireClaim("RoleID", "2"));
+    options.AddPolicy("Staff", policy => policy.RequireClaim("RoleID", "3"));
+    options.AddPolicy("Admin", policy => policy.RequireClaim("RoleID", "4"));
 });
 
 builder.Services.AddCustomServices();
@@ -45,9 +61,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

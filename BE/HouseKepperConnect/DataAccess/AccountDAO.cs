@@ -3,6 +3,7 @@ using BusinessObject.DTO;
 using BusinessObject.Mapping;
 using BusinessObject.Models;
 using BusinessObject.Models.JWTToken;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -128,12 +129,20 @@ namespace DataAccess
             return tokenizedData;
         }
 
-        public async Task<string> Login(JWTLoginModel model)
+        public async Task<LoginInfoDTO> Login(JWTLoginModel model)
         {
             var tokenModel = await LoginAsync(model);
             var token = GenerateToken(tokenModel);
-            return token;
+
+            return new LoginInfoDTO
+            {
+                AccountID = tokenModel.AccountID,
+                FullName = tokenModel.Name,
+                RoleID = tokenModel.RoleID,              
+                Token = token
+            };
         }
+
 
         public async Task<List<Account>> GetAllAccountsAsync()
         {
@@ -338,5 +347,16 @@ namespace DataAccess
                 throw new Exception("Error while changing Account status: " + ex.Message);
             }
         }
+        public async Task<GoogleJsonWebSignature.Payload> LoginWithGoogleAsync(string googleToken)
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new List<string> { "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com" }
+            };
+
+            return await GoogleJsonWebSignature.ValidateAsync(googleToken, settings);
+        }
+
     }
+
 }

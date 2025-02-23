@@ -6,6 +6,7 @@ using BusinessObject.Models.JWTToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -60,9 +61,9 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
-        [HttpGet("SearchAccount/{name}")]
+        [HttpGet("SearchAccount")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<AccountDisplayDTO>>> SearchByName(string name)
+        public async Task<ActionResult<IEnumerable<AccountDisplayDTO>>> SearchByName([FromQuery] string name)
         {
             var list = await _accountService.SearchAccountsByNameAsync(name);
             var nList = _mapper.Map<List<AccountDisplayDTO>>(list);
@@ -76,9 +77,9 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         // GET api/<AccountController>/5
-        [HttpGet("GetAccount/{id}")]
+        [HttpGet("GetAccount")]
         [Authorize]
-        public async Task<ActionResult<AccountDisplayDTO>> GetaccountByID(int id)
+        public async Task<ActionResult<AccountDisplayDTO>> GetaccountByID([FromQuery] int id)
         {
             var account = await _accountService.GetAccountByIDAsync(id);
             if (account == null)
@@ -90,7 +91,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("Login")]
-        public async Task<ActionResult<string>> Login(string email, string password)
+        public async Task<ActionResult<LoginInfoDTO>> Login([FromQuery] string email, [FromQuery] string password)
         {
             try
             {
@@ -99,14 +100,16 @@ namespace HouseKeeperConnect_API.Controllers
                     Email = email,
                     Password = password
                 };
-                var token = await _accountService.Login(model);
-                return Ok(token);
+
+                var loginInfo = await _accountService.Login(model);
+                return Ok(loginInfo);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
+
 
         // POST api/<AccountController>
         [HttpPost("Register")]
@@ -176,9 +179,9 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok("Account Updated!");
         }
 
-        [HttpPut("ChangeStatus/{id}")]
+        [HttpPut("ChangeStatus")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> ToggleStatus(int id)
+        public async Task<IActionResult> ToggleStatus([FromQuery] int id)
         {
             try
             {
@@ -195,5 +198,47 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("LoginWithGoogle")]
+        public async Task<IActionResult> LoginWithGoogle([FromBody] GoogleLoginDTO googleLoginDTO)
+        {
+            if (string.IsNullOrEmpty(googleLoginDTO.GoogleToken))
+            {
+                return BadRequest("Google Token is required.");
+            }
+
+            var payload = await _accountService.LoginWithGoogleAsync(googleLoginDTO.GoogleToken);
+            if (payload == null)
+            {
+                return Unauthorized("Invalid Google Token.");
+            }
+
+            using (var db = new PCHWFDBContext())
+            {
+                var account = await db.Account.FirstOrDefaultAsync(a => a.Email == payload.Email);
+                if (account == null)
+                {
+                    account = new Account
+                    {
+                        Name = payload.Name,
+                        Email = payload.Email,
+                        GoogleId = payload.Subject,
+                        Provider = "Google",
+                        ProfilePicture = payload.Picture,
+                        RoleID = 1,
+                        Status = (int)AccountStatus.Active,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+
+                    db.Account.Add(account);
+                    await db.SaveChangesAsync();
+                }
+
+                var tokenizedData = _mapper.Map<TokenModel>(account);
+                return Ok(tokenizedData);
+            }
+        }
+
+
     }
 }
