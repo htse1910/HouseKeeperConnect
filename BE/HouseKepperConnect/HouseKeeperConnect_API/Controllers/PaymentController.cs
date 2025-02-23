@@ -5,6 +5,7 @@ using Services.Interface;
 namespace HouseKeeperConnect_API.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class PaymentController : ControllerBase
     {
         private readonly ITransactionService _transactionService;

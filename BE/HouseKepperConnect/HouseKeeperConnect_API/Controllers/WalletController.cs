@@ -62,12 +62,13 @@ namespace HouseKeeperConnect_API.Controllers
         {
             Wallet nWallet = new Wallet();
             var acc = await _accountService.GetAccountByIDAsync(id);
-            if (acc != null)
+            /*if (acc != null)
             {
                 Message = "Wallet already existed!";
                 return BadRequest(Message);
             }
-            else if (acc == null)
+            else*/
+            if (acc == null)
             {
                 Message = "Account not found!";
                 return NotFound(Message);
