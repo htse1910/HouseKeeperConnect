@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessObject.Models
 {
@@ -16,14 +11,15 @@ namespace BusinessObject.Models
 
         [ForeignKey("Gender")]
         public int? GenderID { get; set; }
-        public Gender Gender { get; set; }
 
         [ForeignKey("Language")]
         public int? LanguageID { get; set; }
-        public Language Language { get; set; }
 
         [ForeignKey("HouseKeeperSkill")]
         public int? SkillID { get; set; }
-        public HouseKeeperSkill HouseKeeperSkill { get; set; }
+
+        public virtual Gender Gender { get; set; }
+        public virtual Language Language { get; set; }
+        public virtual HouseKeeperSkill HouseKeeperSkill { get; set; }
     }
 }

@@ -11,15 +11,12 @@ namespace BusinessObject.Models
 
         [ForeignKey("Account")]
         public int AccountID { get; set; }
-        public Account Account { get; set; }
 
         [ForeignKey("HouseKeeperSkill")]
         public int HouseKeeperSkillID { get; set; }
-        public HouseKeeperSkill HouseKeeperSkill { get; set; }
 
         [ForeignKey("Violation")]
         public int? ViolationID { get; set; }
-        public Violation Violation { get; set; }
 
         [StringLength(255)]
         public string Review { get; set; }
@@ -30,8 +27,12 @@ namespace BusinessObject.Models
 
         public int JobCompleted { get; set; }
 
-        [ForeignKey("IDNumber")]
+        [ForeignKey("IDVerification")]
         public int IDNumber { get; set; }
-        public IDNumber IDNumberEntity { get; set; }
+
+        public virtual Account Account { get; set; }
+        public virtual HouseKeeperSkill HouseKeeperSkill { get; set; }
+        public virtual Violation Violation { get; set; }
+        public virtual IDVerification IDVerification { get; set; }
     }
 }
