@@ -145,7 +145,7 @@ function NotificationsTransactions() {
 
 function FamilyDashboard() {
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 mb-4"> {/* Added mb-4 for bottom margin */}
       <DashboardCard />
       <QuickActions />
       <NotificationsTransactions />
