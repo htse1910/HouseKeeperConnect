@@ -1,4 +1,4 @@
-namespace HouseKeeperConnect_API
+namespace API
 {
     public class WeatherForecast
     {

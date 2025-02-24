@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace HouseKeeperConnect_API.Controllers
+namespace API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
