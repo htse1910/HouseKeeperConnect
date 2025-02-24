@@ -10,12 +10,8 @@ namespace BusinessObject.Models
         [ForeignKey("Family")]
         public int FamilyID { get; set; }
         public virtual Family Family { get; set; }
-
-        [ForeignKey("Housekeeper")]
         public int HousekeeperID { get; set; }
         public virtual Housekeeper Housekeeper { get; set; }
-
-        [ForeignKey("PaymentMethod")]
         public int PaymentMethodID { get; set; }
         public virtual PaymentMethod PaymentMethod { get; set; }
 
