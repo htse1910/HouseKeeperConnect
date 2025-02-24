@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace DataAccess
 {
@@ -62,19 +63,21 @@ namespace DataAccess
             return transaction;
         }
 
-        public async Task<Transaction> GetTransactionByUserAsync(int uId)
+        public async Task<List<Transaction>> GetTransactionsByUserAsync(int uId)
         {
+            var trans = new List<Transaction>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    return await context.Transaction.SingleOrDefaultAsync(t => t.AccountID == uId);
+                    trans= await context.Transaction.Where(t=> t.AccountID==uId).ToListAsync();
                 }
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
+            return trans;
         }
 
         public async Task AddTransactionAsync(Transaction trans)

@@ -8,7 +8,7 @@ namespace Services.Interface
 
         Task<Transaction> GetTransactionByIDAsync(int id);
 
-        Task<Transaction> GetTransactionByUserAsync(int uId);
+        Task<List<Transaction>> GetTransactionsByUserAsync(int uId);
 
         Task AddTransactionAsync(Transaction Transaction);
 

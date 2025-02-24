@@ -159,7 +159,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("Withdraw")]
         [Authorize]
-        public async Task<IActionResult> Withdraw(int accountID, decimal balance)
+        public async Task<IActionResult> Withdraw([FromQuery]int accountID, decimal balance, string bankID)
         {
             var acc = await _accountService.GetAccountByIDAsync(accountID);
 
