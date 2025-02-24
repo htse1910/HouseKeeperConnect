@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessObject.Models
+namespace BusinessObject.DTO
 {
-    public class PaymentMethod
+    public class GoogleLoginDTO
     {
+        public string GoogleToken { get; set; }
     }
 }
