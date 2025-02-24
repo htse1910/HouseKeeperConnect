@@ -21,7 +21,7 @@ namespace Services
 
         public async Task<Transaction> GetTransactionByIDAsync(int id) => await _transactionRepository.GetTransactionByIDAsync(id);
 
-        public async Task<Transaction> GetTransactionByUserAsync(int uId) => await _transactionRepository.GetTransactionByUserAsync(uId);
+        public async Task<List<Transaction>> GetTransactionsByUserAsync(int uId) => await _transactionRepository.GetTransactionsByUserAsync(uId);
 
         public async Task UpdateTransactionAsync(Transaction Transaction) => await _transactionRepository.UpdateTransactionAsync(Transaction);
     }

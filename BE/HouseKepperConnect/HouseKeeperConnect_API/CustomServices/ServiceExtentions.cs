@@ -18,6 +18,15 @@ public static class ServiceExtentions
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<ITransactionService, TransactionService>();
+        services.AddHttpContextAccessor();
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                policy =>
+                {
+                    policy.WithOrigins("*").AllowAnyHeader().AllowAnyMethod();
+                });
+        });
 
         services.AddAuthorization(options =>
         {
