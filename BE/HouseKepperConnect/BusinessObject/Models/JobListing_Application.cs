@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace BusinessObject.Models
 {
-    internal class JobListing_Application
+    public class JobListing_Application
     {
+
     }
 }

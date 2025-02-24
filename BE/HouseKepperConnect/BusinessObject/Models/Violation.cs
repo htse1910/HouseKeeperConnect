@@ -10,5 +10,6 @@ namespace BusinessObject.Models
 
         public int HouseKeeperID { get; set; }
         public int Times { get; set; }
+        public string Description { get; set; }
     }
 }

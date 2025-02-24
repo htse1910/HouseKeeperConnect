@@ -1,12 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BusinessObject.Models
+[Table("PaymentMethod")]
+public class PaymentMethod
 {
-    public class PaymentMethod
-    {
-    }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int PaymentMethodID { get; set; }
+
+    [Required]
+    [StringLength(100)]
+    public string PaymentName { get; set; }
+
+    [StringLength(255)]
+    public string PaymentDetail { get; set; }
 }
