@@ -28,6 +28,6 @@ namespace Repositories.Interface
         Task<string> ValidateAccountAsync(AccountRegisterDTO AccountRegisterDTO);
 
         Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO);
-        Task<GoogleJsonWebSignature.Payload> LoginWithGoogleAsync(string googleToken);
+        Task<TokenModel> LoginWithGoogleAsync(string googleToken);
     }
 }

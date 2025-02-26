@@ -24,8 +24,11 @@ namespace BusinessObject.Models
         public int? Rating { get; set; }
 
         public bool IsVerified { get; set; }
+        public string BankAccountNumber { get; set; }
 
         public int JobCompleted { get; set; }
+
+        public int JobsApplied { get; set;}
 
         [ForeignKey("IDVerification")]
         public int IDNumber { get; set; }

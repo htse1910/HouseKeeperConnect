@@ -27,8 +27,11 @@ namespace BusinessObject.Mapping
 
         private void Map_JWT_Login()
         {
-            CreateMap<Account, TokenModel>().ReverseMap();
+            CreateMap<Account, TokenModel>()
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role != null ? src.Role.RoleName : "Unknown"))
+                .ReverseMap();
         }
+
 
         private void Map_List_Display_Account()
         {

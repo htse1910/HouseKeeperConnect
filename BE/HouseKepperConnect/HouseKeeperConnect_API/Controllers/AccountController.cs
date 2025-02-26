@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Services;
 using Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -21,6 +22,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IMapper _mapper;
         private string Message;
         private readonly IPasswordHasher<Account> _passwordHasher;
+        private readonly IWalletService _walletService;
 
         private static readonly char[] Characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
@@ -32,11 +34,12 @@ namespace HouseKeeperConnect_API.Controllers
                 .Select(_ => Characters[random.Next(Characters.Length)]).ToArray());
         }
 
-        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<Account> passwordHasher)
+        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<Account> passwordHasher, IWalletService walletService)
         {
             _accountService = accountService;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
+            _walletService = walletService;
         }
 
         // GET: api/<AccountController>
@@ -126,17 +129,25 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "Email already exists!";
                 return Conflict(Message);
             }
-
+            if (accountRegisterDTO.RoleID != 1 && accountRegisterDTO.RoleID != 2)
+            {
+                return BadRequest("Invalid role selection!");
+            }
             var account = _mapper.Map<Account>(accountRegisterDTO);
-
-            account.RoleID = 1;
             account.Status = (int)AccountStatus.Active;
             account.CreatedAt = DateTime.Now;
             account.UpdatedAt = DateTime.Now;
             account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
 
-            await _accountService.AddAccountAsync(account);
+            var wallet = new Wallet();
+            wallet.AccountID = account.AccountID;
+            wallet.CreatedAt = DateTime.Now;
+            wallet.UpdatedAt = DateTime.Now;
+            wallet.Status = 1;
 
+            await _accountService.AddAccountAsync(account); // Lưu account trước
+            wallet.AccountID = account.AccountID; // Lấy AccountID sau khi account đã được lưu
+            await _walletService.AddWalletAsync(wallet);
             Message = "New Account Added!";
             return Ok(Message);
         }
@@ -199,46 +210,21 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
         [HttpPost("LoginWithGoogle")]
-        public async Task<IActionResult> LoginWithGoogle([FromBody] GoogleLoginDTO googleLoginDTO)
+        public async Task<IActionResult> LoginWithGoogle([FromQuery] GoogleLoginDTO googleLoginDTO)
         {
             if (string.IsNullOrEmpty(googleLoginDTO.GoogleToken))
             {
                 return BadRequest("Google Token is required.");
             }
 
-            var payload = await _accountService.LoginWithGoogleAsync(googleLoginDTO.GoogleToken);
-            if (payload == null)
+            var tokenModel = await _accountService.LoginWithGoogleAsync(googleLoginDTO.GoogleToken);
+            if (tokenModel == null)
             {
                 return Unauthorized("Invalid Google Token.");
             }
 
-            using (var db = new PCHWFDBContext())
-            {
-                var account = await db.Account.FirstOrDefaultAsync(a => a.Email == payload.Email);
-                if (account == null)
-                {
-                    account = new Account
-                    {
-                        Name = payload.Name,
-                        Email = payload.Email,
-                        GoogleId = payload.Subject,
-                        Provider = "Google",
-                        ProfilePicture = payload.Picture,
-                        RoleID = 1,
-                        Status = (int)AccountStatus.Active,
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now
-                    };
-
-                    db.Account.Add(account);
-                    await db.SaveChangesAsync();
-                }
-
-                var tokenizedData = _mapper.Map<TokenModel>(account);
-                return Ok(tokenizedData);
-            }
+            return Ok(tokenModel);
         }
-
-
     }
+    
 }
