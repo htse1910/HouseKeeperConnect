@@ -21,6 +21,13 @@ namespace BusinessObject.Models
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<Wallet> Wallet { get; set; }
+        public virtual DbSet<Housekeeper> Housekeeper { get; set; }
+        public virtual DbSet<HouseKeeperSkill> HouseKeeperSkill { get; set; }
+        public virtual DbSet<Schedule> Schedule { get; set; }
+        public virtual DbSet<ScheduleType> ScheduleType { get; set; }
+        public virtual DbSet<Slot> Slot { get; set; }
+        public virtual DbSet<IDVerification> IDVerification { get; set; }
+        public virtual DbSet<Violation> Violation { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
