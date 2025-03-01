@@ -28,6 +28,9 @@ namespace BusinessObject.Models
         public virtual DbSet<Slot> Slot { get; set; }
         public virtual DbSet<IDVerification> IDVerification { get; set; }
         public virtual DbSet<Violation> Violation { get; set; }
+        public virtual DbSet<Family> Family { get; set; }
+        
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
