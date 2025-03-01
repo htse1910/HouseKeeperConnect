@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObject.Models
 {
@@ -29,5 +25,8 @@ namespace BusinessObject.Models
         [Required]
         [MaxLength(50)]
         public string BookingStatus { get; set; }
+
+        public virtual Job Job { get; set; }
+        public virtual Housekeeper Housekeeper { get; set; }
     }
 }

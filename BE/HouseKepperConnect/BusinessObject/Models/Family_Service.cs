@@ -19,6 +19,7 @@ namespace BusinessObject.Models
 
         [ForeignKey("Service")]
         public int ServiceID { get; set; }
-        public Service Service { get; set; }
+
+        public virtual Service Service { get; set; }
     }
 }
