@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessObject.Models
 {
@@ -16,11 +12,9 @@ namespace BusinessObject.Models
 
         [ForeignKey("Family")]
         public int FamilyID { get; set; }
-        public Family Family { get; set; }
 
         [ForeignKey("HouseKeeper")]
         public int HouseKeeperID { get; set; }
-        public Housekeeper Housekeeper {  get; set; } 
 
         [Required]
         [MaxLength(500)]
@@ -31,5 +25,8 @@ namespace BusinessObject.Models
 
         [Required]
         public DateTime CreateAt { get; set; }
+
+        public virtual Family Family { get; set; }
+        public virtual Housekeeper Housekeeper { get; set; }
     }
 }

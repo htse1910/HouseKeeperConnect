@@ -9,7 +9,6 @@
         public DateTime CreateAt { get; set; }
         public string ReportStatus { get; set; }
 
-        // Navigation properties
         public virtual Booking Booking { get; set; }
         public virtual Account Account { get; set; }
     }
