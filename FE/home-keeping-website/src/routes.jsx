@@ -6,6 +6,9 @@ import ConfirmAccountPage from './pages/ConfirmAccountPage'; // Import ConfirmAc
 import HouseKeeperDashboard from './pages/HouseKeeperDashboard'; // Import HouseKeeperDashboard
 import FamilyDashboard from './pages/FamilyDashboard'; // Import FamilyDashboard
 import Layout from './components/Layout';
+import FindJobsPage from './pages/FindJobsPage';
+import JobDetailsPage from './pages/JobDetailsPage';
+import ProfilePage from './pages/ProfilePage';
 
 function AppRoutes() {
   return (
@@ -21,6 +24,9 @@ function AppRoutes() {
           {/* Role-Based Dashboard Routes */}
           <Route path="/housekeeper-dashboard" element={<HouseKeeperDashboard />} />
           <Route path="/family-dashboard" element={<FamilyDashboard />} />
+          <Route path="/find-jobs" element={<FindJobsPage />} /> {/* Add Find Jobs Page */}
+          <Route path="/job/:id" element={<JobDetailsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </Layout>
     </Router>

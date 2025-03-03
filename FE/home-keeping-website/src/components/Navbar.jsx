@@ -3,7 +3,7 @@ import { FaSearch, FaUserCircle } from 'react-icons/fa';
 import logo from './images/logo.png';
 
 function Navbar() {
-  const userRole = localStorage.getItem('userRole'); // Get the user role from localStorage
+  const userRoleID = localStorage.getItem('userRoleID'); // Get the user role ID from localStorage
 
   const handleLogout = () => {
     localStorage.clear();
@@ -54,7 +54,8 @@ function Navbar() {
               </li>
 
               {/* Dynamic Navbar Based on User Role */}
-              {userRole === 'Người giúp việc' ? (
+              {userRoleID === '1' ? (
+                // Housekeeper
                 <>
                   <li className="nav-item">
                     <Link className="nav-link fw-bold text-dark mx-3" to="/find-jobs">TÌM CÔNG VIỆC</Link>
@@ -63,13 +64,14 @@ function Navbar() {
                     <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">CÔNG VIỆC CỦA TÔI</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">TIN NHẮN</Link>
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/messages">TIN NHẮN</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">HỖ TRỢ</Link>
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/support">HỖ TRỢ</Link>
                   </li>
                 </>
-              ) : userRole === 'Gia đình' ? (
+              ) : userRoleID === '2' ? (
+                // Family
                 <>
                   <li className="nav-item">
                     <Link className="nav-link fw-bold text-dark mx-3" to="/post-jobs">ĐĂNG CÔNG VIỆC</Link>
@@ -78,13 +80,34 @@ function Navbar() {
                     <Link className="nav-link fw-bold text-dark mx-3" to="/posted-jobs">CÔNG VIỆC ĐÃ ĐĂNG</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">TIN NHẮN</Link>
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/messages">TIN NHẮN</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">HỖ TRỢ</Link>
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/support">HỖ TRỢ</Link>
+                  </li>
+                </>
+              ) : userRoleID === '3' ? (
+                // Staff
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/manage-users">QUẢN LÝ NGƯỜI DÙNG</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/reports">BÁO CÁO</Link>
+                  </li>
+                </>
+              ) : userRoleID === '4' ? (
+                // Admin
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/admin-dashboard">QUẢN TRỊ</Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/system-settings">CÀI ĐẶT HỆ THỐNG</Link>
                   </li>
                 </>
               ) : (
+                // Guest Links
                 <>
                   <li className="nav-item">
                     <Link className="nav-link fw-bold text-dark mx-3" to="/about">GIỚI THIỆU</Link>
@@ -115,7 +138,7 @@ function Navbar() {
             </button>
 
             {/* Conditional Rendering for Account Options */}
-            {userRole ? (
+            {userRoleID ? (
               <div className="dropdown">
                 <button
                   className="btn btn-light dropdown-toggle d-flex align-items-center"
