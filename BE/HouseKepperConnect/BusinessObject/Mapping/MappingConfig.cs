@@ -13,6 +13,9 @@ namespace BusinessObject.Mapping
             Map_List_Update_Account();
             Map_JWT_Login();
             Map_List_Display_Account();
+            Map_Add_Family_Profile();
+            Mapp_List_Display_Family();
+            Mapp_Update_Family();
         }
 
         private void Map_List_Register()
@@ -36,6 +39,20 @@ namespace BusinessObject.Mapping
         private void Map_List_Display_Account()
         {
             CreateMap<Account, AccountDisplayDTO>().ReverseMap();
+        }
+
+        private void Map_Add_Family_Profile()
+        {
+            CreateMap<Family, AddFamilyProfileDTO>().ReverseMap();
+        }
+
+        private void Mapp_List_Display_Family()
+        {
+            CreateMap<Family, FamilyDisplayDTO>().ReverseMap();
+        }
+        private void Mapp_Update_Family()
+        {
+            CreateMap<Family, FamilyUpdateDTO>().ReverseMap();
         }
     }
 }
