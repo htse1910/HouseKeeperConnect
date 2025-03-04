@@ -18,6 +18,8 @@ public static class ServiceExtentions
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<ITransactionService, TransactionService>();
+        services.AddScoped<IHouseKeeperRepository, HouseKeeperRepository>();
+        services.AddScoped<IHouseKeeperService, HouseKeeperService>();
         services.AddScoped<IFamilyProfileRepository, FamilyProfileRepository>();
         services.AddScoped<IFamilyProfileService, FamilyProfileService>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();

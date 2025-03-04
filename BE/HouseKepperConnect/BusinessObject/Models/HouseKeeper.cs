@@ -18,9 +18,6 @@ namespace BusinessObject.Models
         [ForeignKey("Violation")]
         public int? ViolationID { get; set; }
 
-        [StringLength(255)]
-        public string Review { get; set; }
-
         public int? Rating { get; set; }
 
         public bool IsVerified { get; set; }
@@ -31,7 +28,7 @@ namespace BusinessObject.Models
         public int JobsApplied { get; set;}
 
         [ForeignKey("IDVerification")]
-        public int IDNumber { get; set; }
+        public int? VerifyID { get; set; }
 
         public virtual Account Account { get; set; }
         public virtual HouseKeeperSkill HouseKeeperSkill { get; set; }

@@ -12,7 +12,11 @@ namespace BusinessObject.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int VerifyID { get; set; }
+        [Required]
         public int IDNumber { get; set; }
+        public int RealName {  get; set; }
+        public DateTime DateOfBirth { get; set; }
 
         [Required]
         public byte[] FrontPhoto { get; set; }
@@ -23,7 +27,10 @@ namespace BusinessObject.Models
         [Required]
         public byte[] FacePhoto { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
         [Required]
-        public bool Status { get; set; }
+        public int Status { get; set; }
     }
 }
