@@ -20,6 +20,8 @@ public static class ServiceExtentions
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IFamilyProfileRepository, FamilyProfileRepository>();
         services.AddScoped<IFamilyProfileService, FamilyProfileService>();
+        services.AddScoped<IScheduleRepository, ScheduleRepository>();
+        services.AddScoped<IScheduleService, ScheduleService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {
