@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaLock, FaPhone, FaEnvelope } from 'react-icons/fa';
+import { FaLock, FaPhone, FaEnvelope, FaUser } from 'react-icons/fa';
 
 function RegisterForm({ formData, onInputChange, onSubmit }) {
   return (
@@ -12,14 +12,17 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
         {/* Full Name */}
         <div className="mb-4">
           <label htmlFor="fullName" className="form-label">Họ và tên</label>
-          <input
-            id="fullName"
-            type="text"
-            value={formData.fullName}
-            onChange={onInputChange}
-            className="form-control"
-            required
-          />
+          <div className="input-group">
+            <span className="input-group-text bg-white border-end-0"><FaUser /></span>
+            <input
+              id="fullName"
+              type="text"
+              value={formData.fullName}
+              onChange={onInputChange}
+              className="form-control border-start-0"
+              required
+            />
+          </div>
         </div>
 
         {/* Email */}
@@ -84,6 +87,22 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
               required
             />
           </div>
+        </div>
+
+        {/* Role Selection */}
+        <div className="mb-4">
+          <label htmlFor="roleID" className="form-label">Vai trò</label>
+          <select
+            id="roleID"
+            className="form-select"
+            value={formData.roleID}
+            onChange={onInputChange}
+            required
+          >
+            <option value="">Chọn vai trò</option>
+            <option value="1">Người giúp việc</option>
+            <option value="2">Gia đình</option>
+          </select>
         </div>
 
         {/* Submit Button */}

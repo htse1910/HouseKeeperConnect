@@ -1,3 +1,4 @@
+import React from 'react';
 import FamilyImage from '../components/images/family.png';
 import { FaCheckCircle, FaShieldAlt, FaHeadset } from 'react-icons/fa';
 
@@ -7,7 +8,7 @@ function RegisterInfo({ role }) {
       className="p-4 shadow rounded text-center d-flex flex-column justify-content-center"
       style={{ width: '100%', maxWidth: '400px', backgroundColor: '#fff', height: '100%' }}
     >
-      {role === 'Gia đình' ? (
+      {role === 'Family' ? (
         <>
           <img
             src={FamilyImage}
