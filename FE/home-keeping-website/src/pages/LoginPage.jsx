@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { FaGoogle, FaFacebook, FaLock, FaEnvelope } from 'react-icons/fa';
+import { FaLock, FaEnvelope } from 'react-icons/fa';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 
-const GOOGLE_CLIENT_ID = "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com"; // Replace with your actual client ID
+const GOOGLE_CLIENT_ID = "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com"; // Replace with actual Client ID
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const navigate = useNavigate();
 
+  // Handle input changes
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  // Handle email/password login
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -33,47 +35,51 @@ function LoginPage() {
 
         toast.success(`Welcome ${loginData.name}!`, { position: 'top-center', autoClose: 3000 });
 
-        switch (loginData.roleID) {
-          case 1: navigate('/housekeeper-dashboard'); break;
-          case 2: navigate('/family-dashboard'); break;
-          case 3: navigate('/staff-dashboard'); break;
-          case 4: navigate('/admin-dashboard'); break;
-          default: toast.error('Invalid role. Please contact support.');
-        }
+        redirectUser(loginData.roleID);
       }
     } catch (error) {
       toast.error('Invalid email or password.', { position: 'top-center', autoClose: 3000 });
     }
   };
 
-  const handleGoogleLoginSuccess = async (credentialResponse) => {
+  // Handle Google login
+  const handleGoogleLoginSuccess = async (googleToken) => {
+    console.log("Google Token received:", googleToken); // Debugging step
+  
     try {
       const response = await axios.post(
-        'http://localhost:5280/api/Account/LoginWithGoogle',
-        { googleToken: credentialResponse.credential },
-        { headers: { 'Content-Type': 'application/json' } }
+        `http://localhost:5280/api/Account/LoginWithGoogle?GoogleToken=${encodeURIComponent(googleToken)}`, // Send as query param
+        null, // No request body
+        { headers: { 'Accept': 'application/json' } } // Accept JSON response
       );
-
+  
       if (response.status === 200) {
         const userData = response.data;
-
+  
         localStorage.setItem('authToken', userData.token);
         localStorage.setItem('userRoleID', userData.roleID);
         localStorage.setItem('userName', userData.name);
-        localStorage.setItem('userProfilePicture', userData.profilePicture);
-
-        toast.success(`Welcome ${userData.name}!`, { position: 'top-center', autoClose: 3000 });
-
-        switch (userData.roleID) {
-          case 1: navigate('/housekeeper-dashboard'); break;
-          case 2: navigate('/family-dashboard'); break;
-          case 3: navigate('/staff-dashboard'); break;
-          case 4: navigate('/admin-dashboard'); break;
-          default: toast.error('Invalid role. Please contact support.');
+        if (userData.profilePicture) {
+          localStorage.setItem('userProfilePicture', userData.profilePicture);
         }
+  
+        toast.success(`Welcome ${userData.name}!`, { position: "top-center", autoClose: 3000 });
+  
+        redirectUser(userData.roleID);
       }
     } catch (error) {
-      toast.error('Google login failed.', { position: 'top-center', autoClose: 3000 });
+      toast.error(error.response?.data || "Google login failed.", { position: "top-center" });
+    }
+  };
+
+  // Redirect user based on role
+  const redirectUser = (roleID) => {
+    switch (roleID) {
+      case 1: navigate("/housekeeper-dashboard"); break;
+      case 2: navigate("/family-dashboard"); break;
+      case 3: navigate("/staff-dashboard"); break;
+      case 4: navigate("/admin-dashboard"); break;
+      default: toast.error("Invalid role. Please contact support.");
     }
   };
 
@@ -85,6 +91,7 @@ function LoginPage() {
           <h2 className="fw-bold text-center" style={{ color: '#FF7F00', marginBottom: '20px' }}>ĐĂNG NHẬP</h2>
 
           <form onSubmit={handleSubmit}>
+            {/* Email Input */}
             <div className="mb-4">
               <label htmlFor="email" className="form-label">Email</label>
               <div className="input-group">
@@ -93,6 +100,7 @@ function LoginPage() {
               </div>
             </div>
 
+            {/* Password Input */}
             <div className="mb-4">
               <label htmlFor="password" className="form-label">Mật khẩu</label>
               <div className="input-group">
@@ -101,11 +109,22 @@ function LoginPage() {
               </div>
             </div>
 
+            {/* Submit Button */}
             <button type="submit" className="btn btn-warning text-white fw-bold w-100 mb-3">Đăng nhập</button>
 
             <div className="text-center text-muted mb-3">Hoặc đăng nhập với</div>
 
-            <GoogleLogin onSuccess={handleGoogleLoginSuccess} onError={() => toast.error('Google login failed.')} />
+            {/* Google Login */}
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                if (!credentialResponse.credential) {
+                  toast.error("Google login failed: No token received.", { position: "top-center" });
+                  return;
+                }
+                handleGoogleLoginSuccess(credentialResponse.credential);
+              }}
+              onError={() => toast.error("Google login failed.", { position: "top-center" })}
+            />
           </form>
         </div>
       </div>
