@@ -32,29 +32,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddGoogle(googleOptions =>
 {
-
     googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
     googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-});
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Housekeeper", policy => policy.RequireClaim("RoleID", "1"));
-    options.AddPolicy("Family", policy => policy.RequireClaim("RoleID", "2"));
-    options.AddPolicy("Staff", policy => policy.RequireClaim("RoleID", "3"));
-    options.AddPolicy("Admin", policy => policy.RequireClaim("RoleID", "4"));
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:5173") // Allow frontend
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        });
 });
 
 builder.Services.AddCustomServices();

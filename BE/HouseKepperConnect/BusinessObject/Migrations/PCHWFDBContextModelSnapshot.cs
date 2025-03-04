@@ -122,11 +122,11 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.Housekeeper", b =>
                 {
-                    b.Property<int>("HouseKeeperID")
+                    b.Property<int>("HousekeeperID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HouseKeeperID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HousekeeperID"));
 
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
@@ -136,9 +136,6 @@ namespace BusinessObject.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("HouseKeeperSkillID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IDNumber")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsVerified")
@@ -153,21 +150,19 @@ namespace BusinessObject.Migrations
                     b.Property<int?>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<string>("Review")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                    b.Property<int?>("VerifyID")
+                        .HasColumnType("int");
 
                     b.Property<int?>("ViolationID")
                         .HasColumnType("int");
 
-                    b.HasKey("HouseKeeperID");
+                    b.HasKey("HousekeeperID");
 
                     b.HasIndex("AccountID");
 
                     b.HasIndex("HouseKeeperSkillID");
 
-                    b.HasIndex("IDNumber");
+                    b.HasIndex("VerifyID");
 
                     b.HasIndex("ViolationID");
 
@@ -176,15 +171,21 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.IDVerification", b =>
                 {
-                    b.Property<int>("IDNumber")
+                    b.Property<int>("VerifyID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IDNumber"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VerifyID"));
 
                     b.Property<byte[]>("BackPhoto")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
 
                     b.Property<byte[]>("FacePhoto")
                         .IsRequired()
@@ -194,10 +195,20 @@ namespace BusinessObject.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
+                    b.Property<int>("IDNumber")
+                        .HasColumnType("int");
 
-                    b.HasKey("IDNumber");
+                    b.Property<string>("RealName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("VerifyID");
 
                     b.ToTable("IDVerification");
                 });
@@ -453,9 +464,7 @@ namespace BusinessObject.Migrations
 
                     b.HasOne("BusinessObject.Models.IDVerification", "IDVerification")
                         .WithMany()
-                        .HasForeignKey("IDNumber")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("VerifyID");
 
                     b.HasOne("BusinessObject.Models.Violation", "Violation")
                         .WithMany()

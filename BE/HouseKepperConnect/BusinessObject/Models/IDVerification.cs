@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessObject.Models
 {
@@ -12,7 +7,11 @@ namespace BusinessObject.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int VerifyID { get; set; }
+
         public int IDNumber { get; set; }
+        public string RealName { get; set; }
+        public DateTime DateOfBirth { get; set; }
 
         [Required]
         public byte[] FrontPhoto { get; set; }
@@ -23,7 +22,10 @@ namespace BusinessObject.Models
         [Required]
         public byte[] FacePhoto { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
         [Required]
-        public bool Status { get; set; }
+        public int Status { get; set; }
     }
 }

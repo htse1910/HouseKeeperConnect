@@ -1,6 +1,5 @@
 ﻿using BusinessObject.DTO;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 using System.Transactions;
@@ -38,10 +37,10 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult<Transaction>> getTransByID([FromQuery] int id)
         {
             var trans = await _transactionService.GetTransactionByIDAsync(id);
-            if(trans == null)
+            if (trans == null)
             {
                 Message = "No Records!";
-                    return NotFound(Message);
+                return NotFound(Message);
             }
             return Ok(trans);
         }
@@ -65,7 +64,7 @@ namespace HouseKeeperConnect_API.Controllers
         {
             var trans = await _transactionService.GetTransactionByIDAsync(transactionUpdateDTO.TransactionID);
 
-            if( trans == null)
+            if (trans == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
@@ -76,8 +75,6 @@ namespace HouseKeeperConnect_API.Controllers
             await _transactionService.UpdateTransactionAsync(trans);
             Message = "Transaction Updated!";
             return Ok(Message);
-
-
         }
     }
 }

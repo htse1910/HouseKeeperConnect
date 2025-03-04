@@ -28,4 +28,10 @@
         Expired = 3,
         Canceled = 4,
     }
+
+    public enum VerificationStatus
+    {
+        Pending = 1,
+        Verified = 2,
+    }
 }

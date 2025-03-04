@@ -1,14 +1,5 @@
 ﻿using AutoMapper;
-using BusinessObject.Models.JWTToken;
 using BusinessObject.Models;
-using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessObject.Mapping;
-using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -36,6 +27,7 @@ namespace DataAccess
                 }
             }
         }
+
         public async Task<List<Family>> GetAllFamilysAsync()
         {
             var list = new List<Family>();
@@ -69,6 +61,7 @@ namespace DataAccess
             }
             return Family;
         }
+
         public async Task<List<Family>> SearchFamilysByNameAsync(string name)
         {
             var list = new List<Family>();

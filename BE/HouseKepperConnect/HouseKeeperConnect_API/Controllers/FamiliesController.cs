@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using BusinessObject.Models;
-using Services.Interface;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessObject.DTO;
+using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -48,6 +42,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpGet("GetFamily")]
         [Authorize]
         public async Task<ActionResult<FamilyDisplayDTO>> GetFamilyById([FromQuery] int id)
@@ -77,7 +72,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(familyDTOs);
         }
 
-
         [HttpPost("AddFamilyProfile")]
         [Authorize(Policy = "Family")]
         public async Task<ActionResult<string>> AddFamilyProfile(AddFamilyProfileDTO familyDTO)
@@ -89,7 +83,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("Account not found!");
             }
 
-            if (account.RoleID!= 2)
+            if (account.RoleID != 2)
             {
                 return BadRequest("Only family can create profiles.");
             }
@@ -135,7 +129,5 @@ namespace HouseKeeperConnect_API.Controllers
             await _familyService.UpdateFamilyAsync(family);
             return Ok("Family Profile Updated!");
         }
-
-
     }
 }

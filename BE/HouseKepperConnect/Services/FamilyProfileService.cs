@@ -1,27 +1,28 @@
 ﻿using BusinessObject.Models;
-using Repositories;
 using Repositories.Interface;
 using Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services
 {
     public class FamilyProfileService : IFamilyProfileService
     {
         private readonly IFamilyProfileRepository _familyRepository;
+
         public FamilyProfileService(IFamilyProfileRepository familyRepository)
         {
             _familyRepository = familyRepository;
         }
-        public async Task<List<Family>> GetAllFamilysAsync() => await _familyRepository.GetAllFamilysAsync() ;
+
+        public async Task<List<Family>> GetAllFamilysAsync() => await _familyRepository.GetAllFamilysAsync();
+
         public async Task<Family> GetFamilyByIDAsync(int fID) => await _familyRepository.GetFamilyByIDAsync(fID);
+
         public async Task AddFamilyAsync(Family Family) => await _familyRepository.AddFamilyAsync(Family);
+
         public async Task DeleteFamilyAsync(int id) => await _familyRepository.DeleteFamilyAsync(id);
+
         public async Task UpdateFamilyAsync(Family Family) => await _familyRepository.UpdateFamilyAsync(Family);
-        public async Task<List<Family>> SearchFamilysByNameAsync(string name) => await _familyRepository.SearchFamilysByNameAsync(name);    
+
+        public async Task<List<Family>> SearchFamilysByNameAsync(string name) => await _familyRepository.SearchFamilysByNameAsync(name);
     }
 }

@@ -16,6 +16,9 @@ namespace BusinessObject.Mapping
             Map_Add_Family_Profile();
             Mapp_List_Display_Family();
             Mapp_Update_Family();
+            Map_Update_HouseKeeper();
+            Map_Create_HouseKeeper();
+            Map_Create_IDVerification();
         }
 
         private void Map_List_Register()
@@ -35,7 +38,6 @@ namespace BusinessObject.Mapping
                 .ReverseMap();
         }
 
-
         private void Map_List_Display_Account()
         {
             CreateMap<Account, AccountDisplayDTO>().ReverseMap();
@@ -50,9 +52,28 @@ namespace BusinessObject.Mapping
         {
             CreateMap<Family, FamilyDisplayDTO>().ReverseMap();
         }
+
         private void Mapp_Update_Family()
         {
             CreateMap<Family, FamilyUpdateDTO>().ReverseMap();
+        }
+
+        private void Map_Update_HouseKeeper()
+        {
+            CreateMap<HouseKeeperUpdateDTO, Housekeeper>();
+        }
+
+        private void Map_Create_HouseKeeper()
+        {
+            CreateMap<HouseKeeperCreateDTO, Housekeeper>();
+        }
+
+        private void Map_Create_IDVerification()
+        {
+            CreateMap<IDVerificationDTO, IDVerification>()
+                .ForMember(f => f.FacePhoto, opt => opt.Ignore())
+                .ForMember(f => f.FrontPhoto, opt => opt.Ignore())
+                .ForMember(f => f.BackPhoto, opt => opt.Ignore());
         }
     }
 }
