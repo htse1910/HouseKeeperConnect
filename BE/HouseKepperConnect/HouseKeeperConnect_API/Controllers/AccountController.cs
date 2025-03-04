@@ -6,8 +6,6 @@ using BusinessObject.Models.JWTToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Services;
 using Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -113,7 +111,6 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
-
         // POST api/<AccountController>
         [HttpPost("Register")]
         public async Task<ActionResult<AccountRegisterDTO>> Register(AccountRegisterDTO accountRegisterDTO)
@@ -209,6 +206,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpPost("LoginWithGoogle")]
         public async Task<IActionResult> LoginWithGoogle([FromQuery] GoogleLoginDTO googleLoginDTO)
         {
@@ -226,5 +224,4 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(tokenModel);
         }
     }
-    
 }

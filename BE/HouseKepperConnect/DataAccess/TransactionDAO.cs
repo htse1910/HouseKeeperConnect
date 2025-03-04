@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace DataAccess
 {
@@ -70,7 +69,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    trans= await context.Transaction.Where(t=> t.AccountID==uId).ToListAsync();
+                    trans = await context.Transaction.Where(t => t.AccountID == uId).ToListAsync();
                 }
             }
             catch (Exception ex)

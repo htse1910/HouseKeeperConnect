@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessObject.Models.PayOS
 {
@@ -16,10 +11,12 @@ namespace BusinessObject.Models.PayOS
 
         [ForeignKey("Housekeeper")]
         public int HousekeeperID { get; set; }
+
         public virtual Housekeeper Housekeeper { get; set; }
 
         [ForeignKey("Wallet")]
         public int WalletID { get; set; }
+
         public virtual Wallet Wallet { get; set; }
 
         [Required]

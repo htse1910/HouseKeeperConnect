@@ -1,8 +1,6 @@
 ﻿using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.JWTToken;
-using Google.Apis.Auth;
-using Repositories;
 using Repositories.Interface;
 using Services.Interface;
 
@@ -38,6 +36,7 @@ namespace Services
         public async Task<string> ValidateAccountAsync(AccountRegisterDTO AccountRegisterDTO) => await _accountRepository.ValidateAccountAsync(AccountRegisterDTO);
 
         public async Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO) => await _accountRepository.ValidateUpdateAccountAsync(AccountUpdateDTO);
+
         public async Task<TokenModel> LoginWithGoogleAsync(string googleToken) => await _accountRepository.LoginWithGoogleAsync(googleToken);
     }
 }

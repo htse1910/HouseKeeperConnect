@@ -7,7 +7,7 @@ namespace BusinessObject.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int HouseKeeperID { get; set; }
+        public int HousekeeperID { get; set; }
 
         [ForeignKey("Account")]
         public int AccountID { get; set; }
@@ -25,7 +25,7 @@ namespace BusinessObject.Models
 
         public int JobCompleted { get; set; }
 
-        public int JobsApplied { get; set;}
+        public int JobsApplied { get; set; }
 
         [ForeignKey("IDVerification")]
         public int? VerifyID { get; set; }

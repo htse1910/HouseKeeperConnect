@@ -1,8 +1,6 @@
 ﻿using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.JWTToken;
-using DataAccess;
-using Google.Apis.Auth;
 
 namespace Services.Interface
 {
@@ -29,6 +27,7 @@ namespace Services.Interface
         Task<string> ValidateAccountAsync(AccountRegisterDTO AccountRegisterDTO);
 
         Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO);
+
         Task<TokenModel> LoginWithGoogleAsync(string googleToken);
     }
 }

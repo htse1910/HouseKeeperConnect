@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObject.Models
@@ -42,7 +41,6 @@ namespace BusinessObject.Models
 
         [Required]
         public int EndSlot { get; set; }
-
 
         public virtual Job Job { get; set; }
 

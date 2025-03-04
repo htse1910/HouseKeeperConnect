@@ -24,14 +24,19 @@ public static class ServiceExtentions
         services.AddScoped<IFamilyProfileService, FamilyProfileService>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
         services.AddScoped<IScheduleService, ScheduleService>();
+        services.AddScoped<IIDVerificationService, IDVerificationService>();
+        services.AddScoped<IIDVerificationRepository, IDVerificationRepository>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {
-            options.AddDefaultPolicy(
-                policy =>
-                {
-                    policy.WithOrigins("*").AllowAnyHeader().AllowAnyMethod();
-                });
+            options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") // Allow frontend
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
         });
 
         services.AddAuthorization(options =>

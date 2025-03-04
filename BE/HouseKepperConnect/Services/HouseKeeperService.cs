@@ -1,17 +1,11 @@
 ﻿using BusinessObject.Models;
 using Repositories.Interface;
 using Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Services
 {
     public class HouseKeeperService : IHouseKeeperService
     {
-
         private readonly IHouseKeeperRepository _houseKeeperRepository;
 
         public HouseKeeperService(IHouseKeeperRepository houseKeeperRepository)

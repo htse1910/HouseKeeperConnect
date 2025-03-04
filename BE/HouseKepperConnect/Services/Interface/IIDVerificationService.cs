@@ -1,8 +1,8 @@
 ﻿using BusinessObject.Models;
 
-namespace Repositories.Interface
+namespace Services.Interface
 {
-    public interface IIDVerificationRepository
+    public interface IIDVerificationService
     {
         Task<List<IDVerification>> GetAllIDVerifysAsync();
 

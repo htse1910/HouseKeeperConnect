@@ -1,10 +1,5 @@
 ﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess
 {
@@ -30,6 +25,7 @@ namespace DataAccess
                 }
             }
         }
+
         public async Task<List<IDVerification>> GetAllIDVerifysAsync()
         {
             var list = new List<IDVerification>();

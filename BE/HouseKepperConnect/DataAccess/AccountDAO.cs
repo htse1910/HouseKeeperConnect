@@ -102,7 +102,7 @@ namespace DataAccess
                     Name = "admin",
                     Email = "admin@gmail.com",
                     RoleID = 4,
-                    Role = new Role { RoleName = "Admin" } 
+                    Role = new Role { RoleName = "Admin" }
                 };
                 tokenizedData = new TokenModel
                 {
@@ -148,7 +148,6 @@ namespace DataAccess
             return tokenizedData;
         }
 
-
         public async Task<LoginInfoDTO> Login(JWTLoginModel model)
         {
             var tokenModel = await LoginAsync(model);
@@ -163,7 +162,6 @@ namespace DataAccess
                 Token = token
             };
         }
-
 
         public async Task<List<Account>> GetAllAccountsAsync()
         {
@@ -368,6 +366,7 @@ namespace DataAccess
                 throw new Exception("Error while changing Account status: " + ex.Message);
             }
         }
+
         public async Task<TokenModel> LoginWithGoogleAsync(string googleToken)
         {
             var settings = new GoogleJsonWebSignature.ValidationSettings
@@ -408,14 +407,11 @@ namespace DataAccess
                     };
                     db.Wallet.Add(wallet);
                     await db.SaveChangesAsync();
-
                 }
 
                 var tokenizedData = _mapper.Map<TokenModel>(account);
                 return tokenizedData;
             }
-
         }
     }
-
 }

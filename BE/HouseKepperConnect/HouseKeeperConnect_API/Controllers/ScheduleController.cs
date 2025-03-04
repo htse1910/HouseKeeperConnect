@@ -1,11 +1,8 @@
 ﻿using BusinessObject.DTO;
 using BusinessObject.Models;
-using DataAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -77,7 +74,6 @@ namespace HouseKeeperConnect_API.Controllers
             await _scheduleService.AddScheduleAsync(schedule);
             return Ok("Schedule added successfully!");
         }
-    
 
         [HttpPut("UpdateSchedule")]
         [Authorize]

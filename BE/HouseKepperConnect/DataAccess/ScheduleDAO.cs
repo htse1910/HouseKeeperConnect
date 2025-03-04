@@ -1,11 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess
 {
@@ -15,7 +10,8 @@ namespace DataAccess
         private static ScheduleDAO instance;
         private static readonly object instanceLock = new object();
 
-        public ScheduleDAO() { }
+        public ScheduleDAO()
+        { }
 
         public static ScheduleDAO Instance
         {
@@ -37,7 +33,7 @@ namespace DataAccess
             var list = new List<Schedule>();
             try
             {
-                using(var context = new PCHWFDBContext())
+                using (var context = new PCHWFDBContext())
 
                 {
                     list = await context.Schedule
@@ -142,4 +138,3 @@ namespace DataAccess
         }
     }
 }
-

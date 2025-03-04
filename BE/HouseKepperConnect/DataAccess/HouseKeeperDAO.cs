@@ -1,16 +1,10 @@
 ﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess
 {
     public class HousekeeperDAO
     {
-
         private static HousekeeperDAO instance;
         private static readonly object instancelock = new object();
 
@@ -31,6 +25,7 @@ namespace DataAccess
                 }
             }
         }
+
         public async Task<List<Housekeeper>> GetAllHousekeepersAsync()
         {
             var list = new List<Housekeeper>();
@@ -55,7 +50,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    Housekeeper = await context.Housekeeper.SingleOrDefaultAsync(x => x.HouseKeeperID == id);
+                    Housekeeper = await context.Housekeeper.SingleOrDefaultAsync(x => x.HousekeeperID == id);
                 }
             }
             catch (Exception ex)
@@ -72,7 +67,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    trans = await context.Housekeeper.SingleOrDefaultAsync(x => x.AccountID== uId);
+                    trans = await context.Housekeeper.SingleOrDefaultAsync(x => x.AccountID == uId);
                 }
             }
             catch (Exception ex)

@@ -2,7 +2,6 @@
 using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -14,14 +13,16 @@ namespace HouseKeeperConnect_API.Controllers
     {
         private readonly IHouseKeeperService _housekeeperService;
         private readonly IAccountService _accountService;
+        private readonly IIDVerificationService _verificationService;
         private readonly IMapper _mapper;
         private string Message;
 
-        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper)
+        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService)
         {
             _housekeeperService = housekeeperService;
             _accountService = accountService;
             _mapper = mapper;
+            _verificationService = verificationService;
         }
 
         [HttpGet("HousekeeperList")]
@@ -70,14 +71,14 @@ namespace HouseKeeperConnect_API.Controllers
         {
             var nHk = _mapper.Map<Housekeeper>(hk);
             var acc = await _accountService.GetAccountByIDAsync(hk.AccountID);
-            if(acc == null)
+            if (acc == null)
             {
                 Message = "No account found!";
                 return NotFound(Message);
             }
 
             var housek = await _housekeeperService.GetHousekeepersByUserAsync(acc.AccountID);
-            if(housek != null)
+            if (housek != null)
             {
                 Message = "Account already had this permission!";
                 return BadRequest(Message);
@@ -85,11 +86,34 @@ namespace HouseKeeperConnect_API.Controllers
 
             var id = _mapper.Map<IDVerification>(veri);
 
+            byte[] front, face, back;
+
+            using (var memoryStream = new MemoryStream())
+            {
+                await veri.FrontPhoto.CopyToAsync(memoryStream);
+                front = memoryStream.ToArray();
+            }
+            using (var memoryStream = new MemoryStream())
+            {
+                await veri.FacePhoto.CopyToAsync(memoryStream);
+                face = memoryStream.ToArray();
+            }
+            using (var memoryStream = new MemoryStream())
+            {
+                await veri.BackPhoto.CopyToAsync(memoryStream);
+                back = memoryStream.ToArray();
+            }
+
             id.Status = (int)VerificationStatus.Pending;
             id.CreatedAt = DateTime.Now;
             id.UpdatedAt = DateTime.Now;
+            id.FrontPhoto = front;
+            id.FacePhoto = face;
+            id.BackPhoto = back;
 
+            await _verificationService.AddIDVerifyAsync(id);
 
+            nHk.HouseKeeperSkillID = 1;
             nHk.IsVerified = false;
             nHk.JobCompleted = 0;
             nHk.JobsApplied = 0;
@@ -100,7 +124,6 @@ namespace HouseKeeperConnect_API.Controllers
             await _housekeeperService.AddHousekeeperAsync(nHk);
             Message = "Added!";
             return Ok(Message);
-
         }
 
         [HttpPut("UpdateHousekeeper")]
@@ -119,8 +142,6 @@ namespace HouseKeeperConnect_API.Controllers
             await _housekeeperService.UpdateHousekeeperAsync(newAcc);
             Message = "Housekeeper Updated!";
             return Ok(Message);
-
-
         }
     }
 }

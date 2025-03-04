@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -26,13 +25,13 @@ namespace BusinessObject.Migrations
                 name: "IDNumber",
                 table: "Housekeeper");
 
-            // If IDNumber is part of the primary key in IDVerification, 
+            // If IDNumber is part of the primary key in IDVerification,
             // you need to drop that primary key first.
             migrationBuilder.DropPrimaryKey(
                 name: "PK_IDVerification",
                 table: "IDVerification");
 
-            // Drop the IDNumber column from IDVerification 
+            // Drop the IDNumber column from IDVerification
             migrationBuilder.DropColumn(
                 name: "IDNumber",
                 table: "IDVerification");
