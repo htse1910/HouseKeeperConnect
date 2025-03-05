@@ -22,8 +22,7 @@ namespace BusinessObject.Models
         public DateTime CreatedAt { get; set; }
 
         [Required]
-        [MaxLength(50)]
-        public string BookingStatus { get; set; }
+        public int BookingStatus { get; set; }
 
         public virtual Job Job { get; set; }
         public virtual Housekeeper Housekeeper { get; set; }
