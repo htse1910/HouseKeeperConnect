@@ -1,0 +1,34 @@
+import { useTranslation } from "react-i18next";
+
+export function useMenuItems() {
+  const { t } = useTranslation();
+
+  return {
+    guest: [
+      { label: t("home"), link: "/" },
+      { label: t("about"), link: "/about" },
+      { label: t("faq"), link: "/faq" },
+    ],
+    housekeeper: [
+      { label: t("home"), link: "/" },
+      { label: t("find_jobs"), link: "/jobs" },
+      { label: t("my_jobs"), link: "/my-jobs" },
+      { label: t("messages"), link: "/messages" },
+      { label: t("support"), link: "/support", dropdown: true },
+    ],
+    family: [
+      { label: t("home"), link: "/" },
+      { label: t("post_job"), link: "/post-job" },
+      { label: t("my_posts"), link: "/my-posts" },
+      { label: t("messages"), link: "/messages" },
+      { label: t("support"), link: "/support", dropdown: true },
+    ],
+    admin: [
+      { label: t("dashboard"), link: "/dashboard" },
+      { label: t("users"), link: "/users" },
+      { label: t("approval"), link: "/approval", dropdown: true },
+      { label: t("analytics"), link: "/analytics" },
+      { label: t("management"), link: "/management" },
+    ],
+  };
+}
