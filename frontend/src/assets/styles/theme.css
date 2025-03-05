@@ -1,0 +1,178 @@
+/* Định nghĩa các biến toàn cục cho theme */
+:root {
+  /* Màu sắc chính */
+  --main-color: #FF9500;
+  --secondary-color: #FBAE17;
+  --cancel-color: #FF4136;
+  --text-color: #2F2F2F;
+  --text-alt-color: #554433;
+  --background-color: #FFF8E7;
+  --bg-color: #FFFFFF;
+
+  /* Trạng thái */
+  --error-color: #FF4136;
+  --success-color: #2ECC40;
+  --warning-color: #FFC107;
+  --disabled-color: #E0E0E0;
+
+  /* Màu bổ trợ */
+  --accent-color: #FFE4C2;
+  --light-gray: #F5F5F5;
+  --border-color: #E5E7EB;
+
+  /* Font */
+  --font-main: 'Inter', sans-serif;
+  --font-code: 'Consolas', monospace;
+
+  /* Border & Shadow */
+  --border-radius: 8px;
+  --box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Reset cơ bản */
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Primary Button */
+.btn-primary {
+  background-color: var(--main-color);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: white;
+  border: 2px solid var(--main-color);
+  color: var(--main-color);
+  padding: 12px 16px;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--accent-color);
+}
+
+/* Cancel Button */
+.btn-cancel {
+  background-color: var(--cancel-color);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #CC2D27;
+}
+
+/* Disabled Button */
+.btn-disabled {
+  background-color: var(--disabled-color);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="email"] {
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  border-radius: var(--border-radius);
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  border-color: var(--main-color);
+}
+
+/* Link */
+a {
+  text-decoration: none;
+  color: var(--text-color);
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: var(--main-color);
+}
+
+/* Box Shadow */
+.shadow {
+  box-shadow: var(--box-shadow);
+}
+
+/* Icons */
+.icon {
+  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Search Icon */
+.icon-search {
+  color: #6B7280;
+}
+
+.icon-search:hover {
+  color: var(--main-color);
+}
+
+/* Cancel Icon */
+.icon-cancel {
+  color: var(--cancel-color);
+}
+
+.icon-cancel:hover {
+  background: var(--cancel-color);
+  color: white;
+  border-radius: 50%;
+  padding: 4px;
+}
+
+/* Navigation Icon */
+.icon-nav {
+  color: var(--text-color);
+}
+
+.icon-nav:hover {
+  color: var(--main-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .btn-primary,
+  .btn-secondary,
+  .btn-cancel {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
