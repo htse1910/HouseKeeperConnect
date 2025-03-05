@@ -10,11 +10,13 @@ namespace BusinessObject.Models
         public int Family_ServiceID { get; set; }
 
         [Required]
+        [ForeignKey("Family")]
         public int FamilyID { get; set; }
 
         [ForeignKey("Service")]
         public int ServiceID { get; set; }
 
+        public virtual Family Familie { get; set; }
         public virtual Service Service { get; set; }
     }
 }

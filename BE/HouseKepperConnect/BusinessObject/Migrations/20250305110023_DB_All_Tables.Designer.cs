@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250305110023_DB_All_Tables")]
+    partial class DB_All_Tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -199,10 +202,6 @@ namespace BusinessObject.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Family_ServiceID");
-
-                    b.HasIndex("FamilyID");
-
-                    b.HasIndex("ServiceID");
 
                     b.ToTable("Family_Service");
                 });
@@ -568,10 +567,6 @@ namespace BusinessObject.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("PayoutID");
-
-                    b.HasIndex("HousekeeperID");
-
-                    b.HasIndex("WalletID");
 
                     b.ToTable("Payout");
                 });
@@ -1028,25 +1023,6 @@ namespace BusinessObject.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("BusinessObject.Models.Family_Service", b =>
-                {
-                    b.HasOne("BusinessObject.Models.Family", "Familie")
-                        .WithMany()
-                        .HasForeignKey("FamilyID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObject.Models.Service", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Familie");
-
-                    b.Navigation("Service");
-                });
-
             modelBuilder.Entity("BusinessObject.Models.Housekeeper", b =>
                 {
                     b.HasOne("BusinessObject.Models.Account", "Account")
@@ -1163,25 +1139,6 @@ namespace BusinessObject.Migrations
                     b.Navigation("Housekeeper");
 
                     b.Navigation("PaymentMethod");
-                });
-
-            modelBuilder.Entity("BusinessObject.Models.Payout", b =>
-                {
-                    b.HasOne("BusinessObject.Models.Housekeeper", "Housekeeper")
-                        .WithMany()
-                        .HasForeignKey("HousekeeperID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObject.Models.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Housekeeper");
-
-                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Preference", b =>
