@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models.PayOS;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Net.payOS;
 using Net.payOS.Types;
@@ -9,10 +10,12 @@ namespace Services
     public class PaymentService : IPaymentService
     {
         private readonly IConfiguration _configuration;
+        private readonly ITransactionService _transactionService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _domain;
         private readonly PayOS _payOS;
 
-        public PaymentService(IConfiguration configuration)
+        public PaymentService(IConfiguration configuration, ITransactionService transactionService, IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
             PayOSSettings payOS = new PayOSSettings()
@@ -21,21 +24,27 @@ namespace Services
                 ApiKey = _configuration.GetValue<string>("Environment:PAYOS_API_KEY"),
                 ChecksumKey = _configuration.GetValue<string>("Environment:PAYOS_CHECKSUM_KEY")
             };
+            _httpContextAccessor = httpContextAccessor;
             _payOS = new PayOS(payOS.ClientId, payOS.ApiKey, payOS.ChecksumKey);
-            _domain = _configuration.GetValue<string>("Environment:Domain");
+            _domain = _configuration.GetValue<string>("Domain");
+            _transactionService = transactionService;
         }
 
         public async Task<string> CreatePaymentLink(CreatePaymentLinkRequest body)
         {
             List<ItemData> items = new List<ItemData>();
 
+            // Get the current request's base URL
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
             PaymentData paymentData = new PaymentData(
-                body.orderId,
+                body.transID,
                 body.price,
                 body.description,
                 items,
-                $"{_domain}/api/payment/cancel?id={body.orderId}",
-                $"{_domain}/api/payment/success?id={body.orderId}",
+                $"{baseUrl}/api/Payment/cancel?id={body.transID}",
+                $"{baseUrl}/api/Payment/success?id={body.transID}",
                 null,
                 body.buyerName,
                 body.buyerEmail,
@@ -53,19 +62,18 @@ namespace Services
             return createPayment.checkoutUrl;
         }
 
-        public async Task<PaymentLinkInformation> GetPaymentStatus(long orderID)
+        public async Task<PaymentLinkInformation> GetPaymentStatus(int transID)
         {
-            /*var order = await _orderService.GetOrderByIdAsync(orderID);
+            var trans = await _transactionService.GetTransactionByIDAsync(transID);
 
-            if (order == null)
+            if (trans == null)
             {
-                throw new Exception("Order not found not found");
+                throw new Exception("Transaction not found");
             }
 
-            var paymentStatus = await _payOS.getPaymentLinkInformation(orderID);
+            var paymentStatus = await _payOS.getPaymentLinkInformation(transID);
 
-            return paymentStatus;*/
-            return null;
+            return paymentStatus;
         }
     }
 }

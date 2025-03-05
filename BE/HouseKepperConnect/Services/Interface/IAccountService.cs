@@ -6,7 +6,7 @@ namespace Services.Interface
 {
     public interface IAccountService
     {
-        Task<string> Login(JWTLoginModel model);
+        Task<LoginInfoDTO> Login(JWTLoginModel model);
 
         Task<List<Account>> GetAllAccountsAsync();
 
@@ -27,5 +27,7 @@ namespace Services.Interface
         Task<string> ValidateAccountAsync(AccountRegisterDTO AccountRegisterDTO);
 
         Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO);
+
+        Task<TokenModel> LoginWithGoogleAsync(string googleToken);
     }
 }

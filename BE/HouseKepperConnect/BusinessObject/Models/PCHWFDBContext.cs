@@ -21,6 +21,33 @@ namespace BusinessObject.Models
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<Transaction> Transaction { get; set; }
         public virtual DbSet<Wallet> Wallet { get; set; }
+        public virtual DbSet<Housekeeper> Housekeeper { get; set; }
+        public virtual DbSet<HouseKeeperSkill> HouseKeeperSkill { get; set; }
+        public virtual DbSet<Schedule> Schedule { get; set; }
+        public virtual DbSet<ScheduleType> ScheduleType { get; set; }
+        public virtual DbSet<Slot> Slot { get; set; }
+        public virtual DbSet<IDVerification> IDVerification { get; set; }
+        public virtual DbSet<Violation> Violation { get; set; }
+        public virtual DbSet<Family> Family { get; set; }
+        public virtual DbSet<Chat> Chat { get; set; }
+        public virtual DbSet<Report> Report { get; set; }
+        public virtual DbSet<Notification> Notification { get; set; }
+        public virtual DbSet<Rating> Rating { get; set; }
+        public virtual DbSet<Service> Service { get; set; }
+        public virtual DbSet<ServiceType> ServiceType { get; set; }
+        public virtual DbSet<Application> Application { get; set; }
+        public virtual DbSet<Payment> Payment { get; set; }
+        public virtual DbSet<PaymentMethod> PaymentMethod { get; set; }
+        public virtual DbSet<Job> Job { get; set; }
+        public virtual DbSet<JobDetail> JobDetail { get; set; }
+        public virtual DbSet<JobListing_Application> JobListing_Application { get; set; }
+        public virtual DbSet<Family_Service> Family_Service { get; set; }
+        public virtual DbSet<Booking> Booking { get; set; }
+        public virtual DbSet<Language> Language { get; set; } 
+        public virtual DbSet<Gender> Gender { get; set; }
+        public virtual DbSet<Preference> Preference { get; set; }
+        public virtual DbSet<Payout> Payout { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

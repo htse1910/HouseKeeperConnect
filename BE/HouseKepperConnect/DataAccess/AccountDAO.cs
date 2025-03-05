@@ -3,6 +3,7 @@ using BusinessObject.DTO;
 using BusinessObject.Mapping;
 using BusinessObject.Models;
 using BusinessObject.Models.JWTToken;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -93,31 +94,50 @@ namespace DataAccess
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             IConfigurationRoot configuration = builder.Build();
+
             if (loginAccount.Email == configuration["Email"] && loginAccount.Password == configuration["Password"])
             {
                 var aAccount = new Account()
                 {
                     Name = "admin",
                     Email = "admin@gmail.com",
-                    RoleID = 4
+                    RoleID = 4,
+                    Role = new Role { RoleName = "Admin" }
                 };
-                tokenizedData = _mapper.Map<TokenModel>(aAccount);
+                tokenizedData = new TokenModel
+                {
+                    AccountID = 0, // Nếu là admin, có thể đặt ID mặc định
+                    Name = aAccount.Name,
+                    Email = aAccount.Email,
+                    RoleID = aAccount.RoleID,
+                    RoleName = aAccount.Role?.RoleName ?? "Unknown"
+                };
             }
             else
             {
                 using (var db = new PCHWFDBContext())
                 {
-                    var Account = await db.Account.FirstOrDefaultAsync(x => x.Email == loginAccount.Email);
-                    if (Account == null)
+                    var account = await db.Account
+                        .Include(x => x.Role) // Load Role từ DB
+                        .FirstOrDefaultAsync(x => x.Email == loginAccount.Email);
+
+                    if (account == null)
                     {
                         throw new KeyNotFoundException("Account with this Email or Password not found");
                     }
 
-                    var checkPassword = _passwordHasher.VerifyHashedPassword(Account, Account.Password, loginAccount.Password);
+                    var checkPassword = _passwordHasher.VerifyHashedPassword(account, account.Password, loginAccount.Password);
 
                     if (checkPassword == PasswordVerificationResult.Success)
                     {
-                        tokenizedData = _mapper.Map<TokenModel>(Account);
+                        tokenizedData = new TokenModel
+                        {
+                            AccountID = account.AccountID,
+                            Name = account.Name,
+                            Email = account.Email,
+                            RoleID = account.RoleID,
+                            RoleName = account.Role?.RoleName ?? "Unknown" // Kiểm tra null
+                        };
                     }
                     else
                     {
@@ -128,11 +148,19 @@ namespace DataAccess
             return tokenizedData;
         }
 
-        public async Task<string> Login(JWTLoginModel model)
+        public async Task<LoginInfoDTO> Login(JWTLoginModel model)
         {
             var tokenModel = await LoginAsync(model);
             var token = GenerateToken(tokenModel);
-            return token;
+
+            return new LoginInfoDTO
+            {
+                AccountID = tokenModel.AccountID,
+                Name = tokenModel.Name,
+                RoleID = tokenModel.RoleID,
+                RoleName = tokenModel.RoleName,
+                Token = token
+            };
         }
 
         public async Task<List<Account>> GetAllAccountsAsync()
@@ -336,6 +364,53 @@ namespace DataAccess
             catch (Exception ex)
             {
                 throw new Exception("Error while changing Account status: " + ex.Message);
+            }
+        }
+
+        public async Task<TokenModel> LoginWithGoogleAsync(string googleToken)
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new List<string> { "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com" }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(googleToken, settings);
+
+            using (var db = new PCHWFDBContext())
+            {
+                var account = await db.Account.FirstOrDefaultAsync(a => a.Email == payload.Email);
+
+                if (account == null)
+                {
+                    account = new Account
+                    {
+                        Name = payload.Name,
+                        Email = payload.Email,
+                        GoogleId = payload.Subject,
+                        Provider = "Google",
+                        ProfilePicture = payload.Picture,
+                        RoleID = 1,
+                        Status = (int)AccountStatus.Active,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+
+                    db.Account.Add(account);
+                    await db.SaveChangesAsync();
+                    var createdAccount = await db.Account.FirstOrDefaultAsync(a => a.Email == payload.Email);
+                    var wallet = new Wallet
+                    {
+                        AccountID = createdAccount.AccountID,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        Status = 1
+                    };
+                    db.Wallet.Add(wallet);
+                    await db.SaveChangesAsync();
+                }
+
+                var tokenizedData = _mapper.Map<TokenModel>(account);
+                return tokenizedData;
             }
         }
     }

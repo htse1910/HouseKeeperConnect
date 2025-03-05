@@ -12,4 +12,26 @@
         Active = 1,
         Inactive = 0,
     }
+
+    public enum TransactionType
+    {
+        Deposit = 1,
+        Withdrawal = 2,
+        Payment = 3,
+        Payout = 4,
+    }
+
+    public enum TransactionStatus
+    {
+        Pending = 1,
+        Completed = 2,
+        Expired = 3,
+        Canceled = 4,
+    }
+
+    public enum VerificationStatus
+    {
+        Pending = 1,
+        Verified = 2,
+    }
 }

@@ -15,7 +15,7 @@ namespace Services
             _accountRepository = accountRepository;
         }
 
-        public async Task<string> Login(JWTLoginModel model) => await _accountRepository.Login(model);
+        public async Task<LoginInfoDTO> Login(JWTLoginModel model) => await _accountRepository.Login(model);
 
         public async Task<List<Account>> GetAllAccountsAsync() => await _accountRepository.GetAllAccountsAsync();
 
@@ -36,5 +36,7 @@ namespace Services
         public async Task<string> ValidateAccountAsync(AccountRegisterDTO AccountRegisterDTO) => await _accountRepository.ValidateAccountAsync(AccountRegisterDTO);
 
         public async Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO) => await _accountRepository.ValidateUpdateAccountAsync(AccountUpdateDTO);
+
+        public async Task<TokenModel> LoginWithGoogleAsync(string googleToken) => await _accountRepository.LoginWithGoogleAsync(googleToken);
     }
 }

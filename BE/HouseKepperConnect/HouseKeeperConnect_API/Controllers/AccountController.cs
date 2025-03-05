@@ -20,6 +20,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IMapper _mapper;
         private string Message;
         private readonly IPasswordHasher<Account> _passwordHasher;
+        private readonly IWalletService _walletService;
 
         private static readonly char[] Characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
@@ -31,11 +32,12 @@ namespace HouseKeeperConnect_API.Controllers
                 .Select(_ => Characters[random.Next(Characters.Length)]).ToArray());
         }
 
-        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<Account> passwordHasher)
+        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<Account> passwordHasher, IWalletService walletService)
         {
             _accountService = accountService;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
+            _walletService = walletService;
         }
 
         // GET: api/<AccountController>
@@ -60,9 +62,9 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
-        [HttpGet("SearchAccount/{name}")]
+        [HttpGet("SearchAccount")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<AccountDisplayDTO>>> SearchByName(string name)
+        public async Task<ActionResult<IEnumerable<AccountDisplayDTO>>> SearchByName([FromQuery] string name)
         {
             var list = await _accountService.SearchAccountsByNameAsync(name);
             var nList = _mapper.Map<List<AccountDisplayDTO>>(list);
@@ -76,9 +78,9 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         // GET api/<AccountController>/5
-        [HttpGet("GetAccount/{id}")]
+        [HttpGet("GetAccount")]
         [Authorize]
-        public async Task<ActionResult<AccountDisplayDTO>> GetaccountByID(int id)
+        public async Task<ActionResult<AccountDisplayDTO>> GetaccountByID([FromQuery] int id)
         {
             var account = await _accountService.GetAccountByIDAsync(id);
             if (account == null)
@@ -90,7 +92,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("Login")]
-        public async Task<ActionResult<string>> Login(string email, string password)
+        public async Task<ActionResult<LoginInfoDTO>> Login([FromQuery] string email, [FromQuery] string password)
         {
             try
             {
@@ -99,8 +101,9 @@ namespace HouseKeeperConnect_API.Controllers
                     Email = email,
                     Password = password
                 };
-                var token = await _accountService.Login(model);
-                return Ok(token);
+
+                var loginInfo = await _accountService.Login(model);
+                return Ok(loginInfo);
             }
             catch (Exception ex)
             {
@@ -123,17 +126,25 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "Email already exists!";
                 return Conflict(Message);
             }
-
+            if (accountRegisterDTO.RoleID != 1 && accountRegisterDTO.RoleID != 2)
+            {
+                return BadRequest("Invalid role selection!");
+            }
             var account = _mapper.Map<Account>(accountRegisterDTO);
-
-            account.RoleID = 1;
             account.Status = (int)AccountStatus.Active;
             account.CreatedAt = DateTime.Now;
             account.UpdatedAt = DateTime.Now;
             account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
 
-            await _accountService.AddAccountAsync(account);
+            var wallet = new Wallet();
+            wallet.AccountID = account.AccountID;
+            wallet.CreatedAt = DateTime.Now;
+            wallet.UpdatedAt = DateTime.Now;
+            wallet.Status = 1;
 
+            await _accountService.AddAccountAsync(account); // Lưu account trước
+            wallet.AccountID = account.AccountID; // Lấy AccountID sau khi account đã được lưu
+            await _walletService.AddWalletAsync(wallet);
             Message = "New Account Added!";
             return Ok(Message);
         }
@@ -176,9 +187,9 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok("Account Updated!");
         }
 
-        [HttpPut("ChangeStatus/{id}")]
+        [HttpPut("ChangeStatus")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> ToggleStatus(int id)
+        public async Task<IActionResult> ToggleStatus([FromQuery] int id)
         {
             try
             {
@@ -194,6 +205,23 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("LoginWithGoogle")]
+        public async Task<IActionResult> LoginWithGoogle([FromQuery] GoogleLoginDTO googleLoginDTO)
+        {
+            if (string.IsNullOrEmpty(googleLoginDTO.GoogleToken))
+            {
+                return BadRequest("Google Token is required.");
+            }
+
+            var tokenModel = await _accountService.LoginWithGoogleAsync(googleLoginDTO.GoogleToken);
+            if (tokenModel == null)
+            {
+                return Unauthorized("Invalid Google Token.");
+            }
+
+            return Ok(tokenModel);
         }
     }
 }

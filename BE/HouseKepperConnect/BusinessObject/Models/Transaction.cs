@@ -17,11 +17,11 @@ namespace BusinessObject.Models
         public int AccountID { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Original Price must be at least 0.")]
+        [Range(0, double.MaxValue, ErrorMessage = "Amount must be at least 0.")]
         public decimal Amount { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Original Fee must be at least 0.")]
+        [Range(0, double.MaxValue, ErrorMessage = "Fee must be at least 0.")]
         public decimal Fee { get; set; }
 
         public string Description { get; set; }

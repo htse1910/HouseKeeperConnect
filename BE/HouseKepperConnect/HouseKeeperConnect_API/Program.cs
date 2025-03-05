@@ -1,13 +1,8 @@
 using BusinessObject.Mapping;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using Repositories;
-using Repositories.Interface;
-using Services;
-using Services.Interface;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +14,8 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
+})
+.AddJwtBearer(o =>
 {
     o.TokenValidationParameters = new TokenValidationParameters
     {
@@ -27,55 +23,20 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["JwtConfig:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey
         (Encoding.UTF8.GetBytes(builder.Configuration["JwtConfig:Key"])),
-        ValidateIssuer = string.IsNullOrEmpty(builder.Configuration["JwtConfig:Issuer"]),
-        ValidateAudience = string.IsNullOrEmpty(builder.Configuration["JwtConfig:Audience"]),
+
+        ValidateIssuer = !string.IsNullOrEmpty(builder.Configuration["JwtConfig:Issuer"]),
+        ValidateAudience = !string.IsNullOrEmpty(builder.Configuration["JwtConfig:Audience"]),
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true
     };
-});
-
-builder.Services.AddAuthorization(options =>
+})
+.AddGoogle(googleOptions =>
 {
-    options.AddPolicy("Housekeeper", policy => policy.RequireClaim("RoleID", "1"));
-    options.AddPolicy("Family", policy => policy.RequireClaim("RoleID", "2"));
-    options.AddPolicy("Staff", policy => policy.RequireClaim("RoleID", "3"));
-    options.AddPolicy("Admin", policy => policy.RequireClaim("RoleID", "4"));
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
 
-builder.Services.AddSwaggerGen(option =>
-{
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Housekeeper API", Version = "v1" });
-    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
-        Name = "Jwtorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer"
-    });
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
-                }
-            },
-            new string[]{}
-        }
-    });
-});
-
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-builder.Services.AddScoped<IPasswordHasher<Account>, PasswordHasher<Account>>();
-builder.Services.AddScoped<IWalletRepository, WalletRepository>();
-builder.Services.AddScoped<IWalletService, WalletService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddCustomServices();
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
@@ -94,8 +55,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// ADD THIS LINE TO ENABLE CORS
+app.UseCors("AllowFrontend");
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
+
+builder.Services.AddDbContext<PCHWFDBContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
