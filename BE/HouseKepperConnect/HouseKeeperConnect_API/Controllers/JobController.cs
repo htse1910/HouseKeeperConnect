@@ -62,14 +62,14 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPost("AddJob")]
         [Authorize]
-        public async Task<ActionResult> AddJob([FromBody] JobCreateDTO jobCreateDTO)
+        public async Task<ActionResult> AddJob([FromQuery] JobCreateDTO jobCreateDTO)
         {
             if (jobCreateDTO == null)
             {
                 return BadRequest("Invalid job data.");
             }
 
-            // Create Job entity
+            
             var job = new Job
             {
                 AccountID = jobCreateDTO.AccountID,
@@ -77,13 +77,13 @@ namespace HouseKeeperConnect_API.Controllers
                 Status = jobCreateDTO.Status
             };
 
-            // Add job to database first to get JobID (assuming JobID is auto-generated)
+        
             await _jobService.AddJobAsync(job);
 
-            // Create JobDetail entity
+            
             var jobDetail = new JobDetail
             {
-                JobID = job.JobID, // Get the generated JobID
+                JobID = job.JobID,
                 Frequency = jobCreateDTO.Frequency,
                 Location = jobCreateDTO.Location,
                 Price = jobCreateDTO.Price,
@@ -104,7 +104,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("UpdateJob")]
         [Authorize]
-        public async Task<ActionResult> UpdateJob([FromBody] JobUpdateDTO jobUpdateDTO)
+        public async Task<ActionResult> UpdateJob([FromQuery] JobUpdateDTO jobUpdateDTO)
         {
             var job = await _jobService.GetJobByIDAsync(jobUpdateDTO.JobID);
             if (job == null)
