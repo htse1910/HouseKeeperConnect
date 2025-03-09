@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.DTO;
+using BusinessObject.DTOs;
 using BusinessObject.Models;
 using BusinessObject.Models.JWTToken;
 
@@ -19,6 +20,10 @@ namespace BusinessObject.Mapping
             Map_Update_HouseKeeper();
             Map_Create_HouseKeeper();
             Map_Create_IDVerification();
+            Map_Create_Schedule();
+            Map_Update_Schedule();
+            Map_Create_Job();
+            Map_Update_Job();
         }
 
         private void Map_List_Register()
@@ -74,6 +79,24 @@ namespace BusinessObject.Mapping
                 .ForMember(f => f.FacePhoto, opt => opt.Ignore())
                 .ForMember(f => f.FrontPhoto, opt => opt.Ignore())
                 .ForMember(f => f.BackPhoto, opt => opt.Ignore());
+        }
+        private void Map_Create_Schedule()
+        {
+            CreateMap<ScheduleCreateDTO, Schedule>();
+        }
+
+        private void Map_Update_Schedule()
+        {
+            CreateMap<ScheduleUpdateDTO, Schedule>();
+        }
+        private void Map_Create_Job()
+        {
+            CreateMap<JobCreateDTO, Job>();
+        }
+
+        private void Map_Update_Job()
+        {
+            CreateMap<JobUpdateDTO, Job>();
         }
     }
 }

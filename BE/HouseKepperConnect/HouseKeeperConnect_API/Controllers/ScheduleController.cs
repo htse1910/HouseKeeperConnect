@@ -1,4 +1,5 @@
-﻿using BusinessObject.DTO;
+﻿using AutoMapper;
+using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,12 @@ namespace HouseKeeperConnect_API.Controllers
     {
         private readonly IScheduleService _scheduleService;
         private string Message;
+        private readonly IMapper _mapper;
+
+        public ScheduleController(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
 
         public ScheduleController(IScheduleService scheduleService)
         {
@@ -77,16 +84,17 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("UpdateSchedule")]
         [Authorize]
-        public async Task<ActionResult> UpdateSchedule([FromQuery] int id, [FromBody] ScheduleUpdateDTO scheduleUpdateDTO)
+        public async Task<ActionResult> UpdateSchedule([FromQuery] ScheduleUpdateDTO scheduleUpdateDTO)
         {
-            var schedule = await _scheduleService.GetScheduleByIDAsync(id);
+            var sche = _mapper.Map<Schedule>(scheduleUpdateDTO);
+            var schedule = await _scheduleService.GetScheduleByIDAsync(scheduleUpdateDTO.ScheduleID);
             if (schedule == null)
             {
                 Message = "Schedule not found!";
                 return NotFound(Message);
             }
 
-            await _scheduleService.UpdateScheduleAsync(schedule);
+            await _scheduleService.UpdateScheduleAsync(sche);
             Message = "Schedule updated successfully!";
             return Ok(Message);
         }

@@ -26,6 +26,8 @@ public static class ServiceExtentions
         services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<IIDVerificationService, IDVerificationService>();
         services.AddScoped<IIDVerificationRepository, IDVerificationRepository>();
+        services.AddScoped<IJobRepository, JobRepository>();
+        services.AddScoped<IJobService, JobService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {
