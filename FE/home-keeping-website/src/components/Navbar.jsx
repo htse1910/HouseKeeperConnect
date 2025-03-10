@@ -1,180 +1,148 @@
-import { Link } from 'react-router-dom';
-import { FaSearch, FaUserCircle } from 'react-icons/fa';
-import logo from './images/logo.png';
+import React, { useContext, useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import "../assets/styles/Navbar.css";
+import logo from "../assets/images/logo.png";
+import { FaGlobe, FaSearch, FaBars, FaCaretDown, FaUser, FaSignOutAlt } from "react-icons/fa";
+import userAvatar from "../assets/images/default-avatar.png";
+import { UserRoleContext } from "./UserRoleProvider";
+import { useMenuItems } from "./menuConfig"; // Import menu config
 
 function Navbar() {
-  const userRoleID = localStorage.getItem('userRoleID'); // Get the user role ID from localStorage
+  const { t, i18n } = useTranslation();
+  const { userRole, setUserRole } = useContext(UserRoleContext);
+  const menuItems = useMenuItems(); // Lấy danh sách menu theo role
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [userMenuVisible, setUserMenuVisible] = useState(false); // State cho menu user
+  const langRef = useRef(null);
+  const userMenuRef = useRef(null);
+  const [searchVisible, setSearchVisible] = useState(false);
+  const searchRef = useRef(null);
+  const navigate = useNavigate(); // Hook điều hướng
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = '/login';
+  // Lấy userRole từ localStorage khi component mount
+  useEffect(() => {
+    const storedRole = localStorage.getItem("userRole") || "Guest";
+    setUserRole(storedRole);
+  }, []);
+
+  // Xử lý khi click bên ngoài
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setSearchVisible(false);
+      }
+      if (langRef.current && !langRef.current.contains(event.target)) {
+        setDropdownVisible(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuVisible(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem("i18nextLng", lng);
+    setDropdownVisible(false);
   };
 
+  const handleLogout = () => {
+    setUserRole("Guest"); // Reset role về guest
+    localStorage.removeItem("userRole");
+    navigate("/"); // Quay về trang chủ
+  };
+
+  console.log(menuItems);
+
   return (
-    <>
-      <style>
-        {`
-          .login-btn:hover {
-            background-color: #ffc107;
-            color: #ffffff !important;
-            border-color: #ffc107;
-          }
-        `}
-      </style>
+    <nav className="navbar">
+      {/* Logo */}
+      <div className="navbar-logo" onClick={() => navigate("/")}>
+        <img src={logo} alt="PCHWF Logo" />
+      </div>
 
-      <nav
-        className="navbar navbar-expand-lg bg-white"
-        style={{ borderBottom: '2px solid orange' }}
-      >
-        <div className="container">
-          {/* Logo and Brand Name */}
-          <Link className="navbar-brand d-flex align-items-center" to="/">
-            <img src={logo} alt="PCHWF Logo" width="40" height="40" className="me-2" />
-            <span className="fw-bold text-black">PCHWF</span>
-          </Link>
+      {/* Menu Items */}
+      <ul className="navbar-links">
+        {(menuItems[userRole] || menuItems["Guest"]).map((item, index) => (
+          <li key={index}>
+            <a href={item.link}>{item.label.toUpperCase()}</a>
+          </li>
+        ))}
+      </ul>
 
-          {/* Toggle Button for Mobile View */}
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
+      {/* Ô tìm kiếm */}
+      <div className="navbar-search-container" ref={searchRef}>
+        {searchVisible && (
+          <input type="text" placeholder={t("search")} className="search-input" />
+        )}
+        <button className="search-btn" onClick={() => setSearchVisible(!searchVisible)}>
+          <FaSearch />
+        </button>
+      </div>
 
-          {/* Navbar Links */}
-          <div className="collapse navbar-collapse justify-content-center" id="navbarNav">
-            <ul className="navbar-nav">
-              <li className="nav-item">
-                <Link className="nav-link fw-bold text-dark mx-3" to="/">TRANG CHỦ</Link>
-              </li>
-
-              {/* Dynamic Navbar Based on User Role */}
-              {userRoleID === '1' ? (
-                // Housekeeper
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/find-jobs">TÌM CÔNG VIỆC</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/my-jobs">CÔNG VIỆC CỦA TÔI</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/messages">TIN NHẮN</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/support">HỖ TRỢ</Link>
-                  </li>
-                </>
-              ) : userRoleID === '2' ? (
-                // Family
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/job-posting-page">ĐĂNG CÔNG VIỆC</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/family-manage-page">
-                      Công việc đã đăng
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/messages">TIN NHẮN</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/support">HỖ TRỢ</Link>
-                  </li>
-                </>
-              ) : userRoleID === '3' ? (
-                // Staff
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/manage-users">QUẢN LÝ NGƯỜI DÙNG</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/reports">BÁO CÁO</Link>
-                  </li>
-                </>
-              ) : userRoleID === '4' ? (
-                // Admin
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/admin-dashboard">QUẢN TRỊ</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/system-settings">CÀI ĐẶT HỆ THỐNG</Link>
-                  </li>
-                </>
-              ) : (
-                // Guest Links
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/about">GIỚI THIỆU</Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/faq">CÂU HỎI THƯỜNG GẶP</Link>
-                  </li>
-                </>
+      <div className="navbar-user-container">
+        {/* Avatar hoặc Đăng nhập/Đăng ký */}
+        <div className="navbar-user"
+          ref={userMenuRef}
+          onMouseEnter={() => setUserMenuVisible(true)}
+          onMouseLeave={() => setUserMenuVisible(false)} >
+          {userRole && userRole !== "Guest" ? (
+            <>
+              <img
+                src={userAvatar}
+                alt="User Avatar"
+                className="user-avatar"
+              />
+              {userMenuVisible && (
+                <div className="user-dropdown">
+                  <button onClick={() => navigate(`/${userRole}/profile`)}>
+                    <FaUser /> {t("profile")}
+                  </button>
+                  <button onClick={handleLogout}>
+                    <FaSignOutAlt /> {t("logout")}
+                  </button>
+                </div>
               )}
-            </ul>
-          </div>
-
-          {/* Search and Account Options */}
-          <div className="d-flex align-items-center">
-            {/* Search Button */}
-            <button
-              type="button"
-              className="btn btn-light p-2 border me-2"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '5px',
-              }}
-              onClick={() => alert('Search button clicked!')}
-            >
-              <FaSearch className="text-black" size={14} />
-            </button>
-
-            {/* Conditional Rendering for Account Options */}
-            {userRoleID ? (
-              <div className="dropdown">
-                <button
-                  className="btn btn-light dropdown-toggle d-flex align-items-center"
-                  type="button"
-                  id="accountDropdown"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  style={{ border: '1px solid #ddd', borderRadius: '50%' }}
-                >
-                  <FaUserCircle size={24} />
-                </button>
-                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                  <li>
-                    <Link className="dropdown-item" to="/profile">Profile</Link>
-                  </li>
-                  <li>
-                    <button className="dropdown-item" onClick={handleLogout}>Logout</button>
-                  </li>
-                </ul>
-              </div>
-            ) : (
-              <>
-                <Link className="btn btn-outline-warning text-warning fw-bold mx-2 login-btn" to="/login">
-                  Đăng nhập
-                </Link>
-                <Link className="btn btn-warning text-white fw-bold" to="/register">
-                  Đăng ký
-                </Link>
-              </>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <button className="btn-login" onClick={() => navigate("/login")}>
+                {t("login").toUpperCase()}
+              </button>
+              <button className="btn-register" onClick={() => navigate("/register")}>
+                {t("register").toUpperCase()}
+              </button>
+            </>
+          )}
         </div>
-      </nav>
-    </>
+
+        {/* Language Switcher */}
+        <div className="language-switcher"
+          ref={langRef}
+          onMouseEnter={() => setDropdownVisible(true)}
+          onMouseLeave={() => setDropdownVisible(false)} >
+          <button className="lang-btn" >
+            <FaGlobe />
+          </button>
+          {dropdownVisible && (
+            <div className="language-dropdown">
+              <button onClick={() => changeLanguage("en")}>English</button>
+              <button onClick={() => changeLanguage("vi")}>Tiếng Việt</button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Nút menu trên mobile */}
+      <div className="navbar-menu">
+        <FaBars />
+      </div>
+    </nav>
   );
 }
 

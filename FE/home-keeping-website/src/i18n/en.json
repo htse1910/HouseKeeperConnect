@@ -1,0 +1,54 @@
+{
+  "welcome": "Welcome to HouseKeeperConnect!",
+  "home": "Home",
+  "about": "About",
+  "faq": "FAQ",
+  "find_jobs": "Find Jobs",
+  "my_jobs": "My Jobs",
+  "messages": "Messages",
+  "support": "Support",
+  "post_job": "Post Job",
+  "my_posts": "My Posts",
+  "dashboard": "Dashboard",
+  "users": "Users",
+  "approval": "Approval",
+  "analytics": "Analytics",
+  "management": "Management",
+  "login": "Login",
+  "register": "Register",
+  "profile": "Profile",
+  "logout": "Logout",
+
+  "dashboard_welcome": "Welcome back, {{name}}!",
+
+  "dashboard_jobs": {
+    "available": "Available Jobs",
+    "filter": "Filter",
+    "find": "Find Job",
+    "view_details": "View Details",
+    "clean_house": "House Cleaning",
+    "clean_office": "Office Cleaning"
+  },
+
+  "dashboard_stats": {
+    "completed_jobs": "Completed Jobs",
+    "rating": "Rating",
+    "this_month_income": "This Month's Income"
+  },
+
+  "dashboard_schedule": {
+    "title": "Work Schedule",
+    "clean_house": "House Cleaning",
+    "clean_office": "Office Cleaning",
+    "today": "Today",
+    "tomorrow": "Tomorrow"
+  },
+
+  "dashboard_payment": {
+    "title": "Payment",
+    "total_income": "Total Income",
+    "pending": "Pending",
+    "withdrawable": "Withdrawable",
+    "withdraw": "Withdraw"
+  }
+}

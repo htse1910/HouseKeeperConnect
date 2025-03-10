@@ -1,24 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FaLock, FaEnvelope } from 'react-icons/fa';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import { UserRoleContext } from "../components/UserRoleProvider"; // Import Context
 
-const GOOGLE_CLIENT_ID = "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com"; // Replace with actual Client ID
+const GOOGLE_CLIENT_ID = "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com";
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const navigate = useNavigate();
+  const { setUserRole } = useContext(UserRoleContext); // Lấy hàm cập nhật role từ Context
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // Handle email/password login
+  // ✅ Sửa hàm login để cập nhật `setUserRole()`
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -32,6 +33,10 @@ function LoginPage() {
         localStorage.setItem('authToken', loginData.token);
         localStorage.setItem('userRoleID', loginData.roleID);
         localStorage.setItem('userName', loginData.name);
+        localStorage.setItem('userRole', loginData.roleName);
+        localStorage.setItem('accountID', loginData.accountID);
+
+        setUserRole(loginData.roleName); // 🔥 Cập nhật Context ngay lập tức
 
         toast.success(`Welcome ${loginData.name}!`, { position: 'top-center', autoClose: 3000 });
 
@@ -42,29 +47,34 @@ function LoginPage() {
     }
   };
 
-  // Handle Google login
+  // ✅ Sửa hàm login bằng Google để cập nhật `setUserRole()`
   const handleGoogleLoginSuccess = async (googleToken) => {
-    console.log("Google Token received:", googleToken); // Debugging step
-  
+    console.log("Google Token received:", googleToken);
+
     try {
       const response = await axios.post(
-        `http://localhost:5280/api/Account/LoginWithGoogle?GoogleToken=${encodeURIComponent(googleToken)}`, // Send as query param
-        null, // No request body
-        { headers: { 'Accept': 'application/json' } } // Accept JSON response
+        `http://localhost:5280/api/Account/LoginWithGoogle?GoogleToken=${encodeURIComponent(googleToken)}`,
+        null,
+        { headers: { 'Accept': 'application/json' } }
       );
-  
+
       if (response.status === 200) {
         const userData = response.data;
-  
+
         localStorage.setItem('authToken', userData.token);
         localStorage.setItem('userRoleID', userData.roleID);
         localStorage.setItem('userName', userData.name);
+        localStorage.setItem('userRole', userData.roleName);
+        localStorage.setItem('accountID', userData.accountID);
+
         if (userData.profilePicture) {
           localStorage.setItem('userProfilePicture', userData.profilePicture);
         }
-  
+
+        setUserRole(userData.roleName); // 🔥 Cập nhật Context ngay lập tức
+
         toast.success(`Welcome ${userData.name}!`, { position: "top-center", autoClose: 3000 });
-  
+
         redirectUser(userData.roleID);
       }
     } catch (error) {
@@ -72,7 +82,6 @@ function LoginPage() {
     }
   };
 
-  // Redirect user based on role
   const redirectUser = (roleID) => {
     switch (roleID) {
       case 1: navigate("/housekeeper-dashboard"); break;
@@ -91,7 +100,6 @@ function LoginPage() {
           <h2 className="fw-bold text-center" style={{ color: '#FF7F00', marginBottom: '20px' }}>ĐĂNG NHẬP</h2>
 
           <form onSubmit={handleSubmit}>
-            {/* Email Input */}
             <div className="mb-4">
               <label htmlFor="email" className="form-label">Email</label>
               <div className="input-group">
@@ -100,7 +108,6 @@ function LoginPage() {
               </div>
             </div>
 
-            {/* Password Input */}
             <div className="mb-4">
               <label htmlFor="password" className="form-label">Mật khẩu</label>
               <div className="input-group">
@@ -109,12 +116,10 @@ function LoginPage() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button type="submit" className="btn btn-warning text-white fw-bold w-100 mb-3">Đăng nhập</button>
 
             <div className="text-center text-muted mb-3">Hoặc đăng nhập với</div>
 
-            {/* Google Login */}
             <GoogleLogin
               onSuccess={(credentialResponse) => {
                 if (!credentialResponse.credential) {
