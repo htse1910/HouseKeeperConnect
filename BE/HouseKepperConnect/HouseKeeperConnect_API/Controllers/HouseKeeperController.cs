@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
