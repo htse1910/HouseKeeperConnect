@@ -6,7 +6,7 @@ import logo from "../assets/images/logo.png";
 import { FaGlobe, FaSearch, FaBars, FaCaretDown, FaUser, FaSignOutAlt } from "react-icons/fa";
 import userAvatar from "../assets/images/default-avatar.png";
 import { UserRoleContext } from "./UserRoleProvider";
-import { useMenuItems } from "./menuConfig"; // Import menu config
+import { useMenuItems } from "./MenuConfig"; // Import menu config
 
 function Navbar() {
   const { t, i18n } = useTranslation();
