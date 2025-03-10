@@ -2,6 +2,7 @@
 using BusinessObject.DTO;
 using BusinessObject.Mapping;
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using BusinessObject.Models.JWTToken;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;

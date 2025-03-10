@@ -2,6 +2,7 @@
 using BusinessObject.DTO;
 
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using BusinessObject.Models.JWTToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
