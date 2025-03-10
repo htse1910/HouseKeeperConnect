@@ -2,18 +2,19 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserRoleContext } from "../components/UserRoleProvider";
 
-// Mock users
 const mockUsers = [
   {
     username: "housekeeper01",
     password: "password123",
     role: "housekeeper",
+    name: "Minh Anh"
   },
   {
     username: "family01",
     password: "password456",
     role: "family",
-  },
+    name: "Anh Tuấn"
+  }
 ];
 
 function Login() {
@@ -37,6 +38,7 @@ function Login() {
     if (foundUser) {
       setUserRole(foundUser.role);
       localStorage.setItem("userRole", foundUser.role);
+      localStorage.setItem("userName", foundUser.name);
       navigate(getHomePageByRole(foundUser.role));
     } else {
       setError("Tên đăng nhập hoặc mật khẩu không đúng!");

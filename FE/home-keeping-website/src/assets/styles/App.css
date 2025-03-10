@@ -1,0 +1,9 @@
+@import './theme.css';
+
+.App {
+    text-align: center;
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+}

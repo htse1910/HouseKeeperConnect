@@ -16,6 +16,8 @@
   "management": "Management",
   "login": "Login",
   "register": "Register",
+  "profile": "Profile",
+  "logout": "Logout",
 
   "dashboard_welcome": "Welcome back, {{name}}!",
 
