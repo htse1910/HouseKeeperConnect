@@ -74,10 +74,12 @@ function Navbar() {
                 // Family
                 <>
                   <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/post-jobs">ĐĂNG CÔNG VIỆC</Link>
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/job-posting-page">ĐĂNG CÔNG VIỆC</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link fw-bold text-dark mx-3" to="/posted-jobs">CÔNG VIỆC ĐÃ ĐĂNG</Link>
+                    <Link className="nav-link fw-bold text-dark mx-3" to="/family-manage-page">
+                      Công việc đã đăng
+                    </Link>
                   </li>
                   <li className="nav-item">
                     <Link className="nav-link fw-bold text-dark mx-3" to="/messages">TIN NHẮN</Link>
