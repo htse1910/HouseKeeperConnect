@@ -15,14 +15,10 @@ namespace HouseKeeperConnect_API.Controllers
         private string Message;
         private readonly IMapper _mapper;
 
-        public ScheduleController(IMapper mapper)
-        {
-            _mapper = mapper;
-        }
-
-        public ScheduleController(IScheduleService scheduleService)
+        public ScheduleController(IScheduleService scheduleService, IMapper mapper)
         {
             _scheduleService = scheduleService;
+            _mapper = mapper;
         }
 
         [HttpGet("ScheduleList")]

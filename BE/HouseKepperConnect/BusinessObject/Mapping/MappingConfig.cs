@@ -24,6 +24,8 @@ namespace BusinessObject.Mapping
             Map_Update_Schedule();
             Map_Create_Job();
             Map_Update_Job();
+            Map_Create_Booking();
+            Map_Update_Booking();
         }
 
         private void Map_List_Register()
@@ -97,6 +99,15 @@ namespace BusinessObject.Mapping
         private void Map_Update_Job()
         {
             CreateMap<JobUpdateDTO, Job>();
+        }
+        private void Map_Create_Booking()
+        {
+            CreateMap<BookingCreateDTO, Booking>().ReverseMap();
+        }
+
+        private void Map_Update_Booking()
+        {
+            CreateMap<BookingUpdateDTO, Booking>().ReverseMap();
         }
     }
 }

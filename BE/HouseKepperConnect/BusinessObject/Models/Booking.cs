@@ -14,8 +14,12 @@ namespace BusinessObject.Models
 
         [ForeignKey("Housekeeper")]
         public int HousekeeperID { get; set; }
+
+        [ForeignKey("Family")]
         public int FamilyID { get; set; }
-        public int SeerviceID { get; set; }
+
+        [ForeignKey("Service")]
+        public int ServiceID { get; set; }
 
         [Required]
         public DateTime ScheduledDate { get; set; }
@@ -26,9 +30,9 @@ namespace BusinessObject.Models
         [Required]
         public int BookingStatus { get; set; }
 
-        public virtual Service Service { get; set; }
-        public virtual Family Family { get; set; }
         public virtual Job Job { get; set; }
         public virtual Housekeeper Housekeeper { get; set; }
+        public virtual Family Family { get; set; }
+        public virtual Service Service { get; set; }
     }
 }
