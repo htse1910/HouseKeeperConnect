@@ -1,0 +1,430 @@
+/* Cấu trúc chính */
+.dashboard {
+  padding: 20px 40px;
+}
+
+/* Thống kê */
+.dashboard-cards {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  /* Cho phép xuống dòng khi không đủ chỗ */
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.dashboard-card {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: left;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6B7280;
+}
+
+.dashboard-card-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #111827;
+  margin-top: 8px;
+}
+
+.dashboard-card-value .star-icon {
+  color: #FACC15;
+  margin-left: 4px;
+}
+
+/* 📌 Công việc khả dụng */
+.available-jobs {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 📌 Header */
+.available-jobs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.available-jobs-header h2 {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Nhóm nút "Lọc" và "Tìm công việc" */
+.available-jobs-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Nút */
+.filter-btn,
+.add-job-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.filter-btn {
+  background: white;
+  border: 1px solid #ddd;
+}
+
+.add-job-btn {
+  background: var(--main-color);
+  color: white;
+  border: none;
+}
+
+/* Hover effect */
+.filter-btn:hover {
+  background: #f3f3f3;
+}
+
+.add-job-btn:hover {
+  background: #e68400;
+}
+
+/* Danh sách công việc */
+.job-list {
+  display: flex;
+  gap: 20px;
+}
+
+.job-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #E5E7EB;
+}
+
+/* Header chứa tiêu đề và giá */
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.job-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.salary {
+  background: #d4fddc;
+  color: #008000;
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Thông tin công việc */
+.job-info h3 {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.job-info p {
+  color: #6B7280;
+}
+
+.job-details {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  color: #6B7280;
+  margin-top: 8px;
+}
+
+/* Nút chi tiết */
+.detail-btn {
+  border: 1px solid var(--main-color);
+  color: var(--main-color);
+  padding: 12px;
+  border-radius: 10px;
+  background: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.detail-btn:hover {
+  background: var(--main-color);
+  color: white;
+}
+
+/* Lịch làm việc & Thanh toán */
+.dashboard-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+}
+
+/* Lịch làm việc */
+.work-schedule,
+.payment-info {
+  flex: 1;
+  background: white;
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Lịch làm việc */
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+  cursor: pointer;
+  border: 1px solid #E5E7EB;
+}
+
+.schedule-item:hover {
+  background: #FFECD1;
+}
+
+.schedule-icon {
+  font-size: 18px;
+  margin-right: 12px;
+  background: #FFECD1;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.schedule-item:hover .schedule-icon {
+  transform: rotate(2deg) scale(1.3);
+}
+
+.schedule-item h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.schedule-item p {
+  color: #6B7280;
+  font-size: 14px;
+}
+
+/* Thanh toán */
+.payment-info {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.payment-info h2 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #111827;
+}
+
+/* Chi tiết thanh toán */
+.payment-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.payment-row:last-child {
+  border-bottom: none;
+}
+
+.payment-row span:last-child {
+  font-weight: 600;
+  color: #111827;
+}
+
+.payment-row .green-text {
+  color: #2ECC40;
+}
+
+/* Nút rút tiền */
+.withdraw-btn {
+  background: #FF9500;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 15px;
+}
+
+.withdraw-btn:hover {
+  background: #E68400;
+}
+
+/* Bảng hiển thị danh sách công việc */
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.dashboard-table th {
+  background-color: #f8f8f8;
+  font-weight: bold;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.status-badge.open {
+  background: #d4fddc;
+  color: #008000;
+}
+
+.status-badge.closed {
+  background: #ffe0e0;
+  color: #d9534f;
+}
+
+/* Nút thao tác */
+.link-btn {
+  background: none;
+  border: none;
+  color: #FF9500;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* Ứng viên mới */
+.candidate-section {
+  flex: 1;
+  margin-top: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.candidate-section h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.candidate-card {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.candidate-card:last-child {
+  border-bottom: none;
+}
+
+.candidate-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.candidate-info {
+  flex-grow: 1;
+}
+
+.candidate-info h3 {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.candidate-info p {
+  font-size: 14px;
+  color: #6B7280;
+  margin: 2px 0;
+}
+
+.candidate-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.accept-btn,
+.reject-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.accept-btn {
+  background: #FF9500;
+  color: white;
+}
+
+.reject-btn {
+  background: #ddd;
+  color: #333;
+}
+
+.accept-btn:hover {
+  background: #e68400;
+}
+
+.reject-btn:hover {
+  background: #bbb;
+}

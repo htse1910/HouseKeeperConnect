@@ -16,6 +16,8 @@
   "management": "Quản lý",
   "login": "Đăng nhập",
   "register": "Đăng ký",
+  "profile": "Trang cá nhân",
+  "logout": "Đăng xuất",
   
   "dashboard_welcome": "Chào mừng trở lại, {{name}}!",
 
