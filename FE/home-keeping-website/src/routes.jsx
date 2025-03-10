@@ -40,7 +40,6 @@ function AppRoutes() {
 
         </Routes>
       </Layout>
-    </Router>
   );
 }
 
