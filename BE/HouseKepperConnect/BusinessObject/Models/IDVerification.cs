@@ -9,9 +9,9 @@ namespace BusinessObject.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int VerifyID { get; set; }
 
-        public int IDNumber { get; set; }
-        public string RealName { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public int? IDNumber { get; set; }
+        public string? RealName { get; set; }
+        public DateTime? DateOfBirth { get; set; }
 
         [Required]
         public byte[] FrontPhoto { get; set; }
