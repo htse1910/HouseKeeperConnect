@@ -10,9 +10,12 @@ import FindJobsPage from './pages/FindJobsPage';
 import JobDetailsPage from './pages/JobDetailsPage';
 import ProfilePage from './pages/ProfilePage';
 import JobPostingPage from './pages/JobPostingPage';
-import HousekeeperDetailsPage from './pages/HousekeeperDetailsPage'; // Import HousekeeperDetailsPage
+import HousekeeperDetailsPage from './pages/HousekeeperDetailsPage';
 import FamilyManagePage from './pages/FamilyManagePage';
 import MessagesPage from './pages/MessagesPage';
+import UpdateHousekeeperPage from './pages/UpdateHousekeeperPage'; // ✅ Import new page
+import AddIdentificationPicturePage from './pages/AddIdentificationPicturePage';
+
 function AppRoutes() {
   return (
     <Layout>
@@ -23,23 +26,24 @@ function AppRoutes() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/confirm-account" element={<ConfirmAccountPage />} />
 
-          {/* Role-Based Dashboard Routes */}
-          <Route path="/housekeeper-dashboard" element={<HousekeeperDashboardPage />} />
-          <Route path="/family-dashboard" element={<FamilyDashboard />} />
+        {/* Role-Based Dashboard Routes */}
+        <Route path="/housekeeper-dashboard" element={<HousekeeperDashboardPage />} />
+        <Route path="/family-dashboard" element={<FamilyDashboard />} />
 
-          {/* Job & Profile Related Pages */}
-          <Route path="/find-jobs" element={<FindJobsPage />} />
-          <Route path="/job/:id" element={<JobDetailsPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/job-posting-page" element={<JobPostingPage />} />
+        {/* Job & Profile Related Pages */}
+        <Route path="/find-jobs" element={<FindJobsPage />} />
+        <Route path="/job/:id" element={<JobDetailsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/job-posting-page" element={<JobPostingPage />} />
 
-          {/* Housekeeper Details Page */}
-          <Route path="/housekeeper/:id" element={<HousekeeperDetailsPage />} />
-          <Route path="/family-manage-page" element={<FamilyManagePage />} />
-          <Route path="/messages" element={<MessagesPage />} />
-
-        </Routes>
-      </Layout>
+        {/* Housekeeper Pages */}
+        <Route path="/housekeeper/:id" element={<HousekeeperDetailsPage />} />
+        <Route path="/housekeeper/profile/update/:accountId" element={<UpdateHousekeeperPage />} /> {/* ✅ New route */}
+        <Route path="/family-manage-page" element={<FamilyManagePage />} />
+        <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/housekeeper/upload-id" element={<AddIdentificationPicturePage />} />
+      </Routes>
+    </Layout>
   );
 }
 
