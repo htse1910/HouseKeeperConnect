@@ -6,7 +6,6 @@ namespace BusinessObject.DTOs
     {
         public int JobID { get; set; }
         public string JobName { get; set; }
-        public int Status { get; set; }
         public int AccountID { get; set; }
 
         // JobDetail fields

@@ -1,8 +1,11 @@
-﻿using BusinessObject.DTO;
+﻿using AutoMapper;
+using BusinessObject.DTO;
 using BusinessObject.DTOs;
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -13,10 +16,11 @@ namespace HouseKeeperConnect_API.Controllers
     {
         private readonly IJobService _jobService;
         private string Message;
-
-        public JobController(IJobService jobService)
+        private readonly IMapper _mapper;
+        public JobController(IJobService jobService, IMapper mapper)
         {
             _jobService = jobService;
+            _mapper = mapper;
         }
 
         [HttpGet("JobList")]
@@ -68,33 +72,16 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest("Invalid job data.");
             }
+            var job = _mapper .Map<Job>(jobCreateDTO);
 
-            
-            var job = new Job
-            {
-                AccountID = jobCreateDTO.AccountID,
-                JobName = jobCreateDTO.JobName,
-                Status = jobCreateDTO.Status
-            };
+            job.Status = (int) JobStatus.Pending;
 
-        
             await _jobService.AddJobAsync(job);
 
-            
-            var jobDetail = new JobDetail
-            {
-                JobID = job.JobID,
-                Frequency = jobCreateDTO.Frequency,
-                Location = jobCreateDTO.Location,
-                Price = jobCreateDTO.Price,
-                ServiceID = jobCreateDTO.ServiceID,
-                StartDate = jobCreateDTO.StartDate,
-                EndDate = jobCreateDTO.EndDate,
-                Description = jobCreateDTO.Description,
-                StartSlot = jobCreateDTO.StartSlot,
-                EndSlot = jobCreateDTO.EndSlot
-            };
 
+            
+            var jobDetail = _mapper .Map<JobDetail>(jobCreateDTO);
+            jobDetail.JobID = job.JobID;
             // Add job details
             await _jobService.AddJobDetailAsync(jobDetail);
 
@@ -114,9 +101,19 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             job.JobName = jobUpdateDTO.JobName;
-            job.Status = jobUpdateDTO.Status;
 
             await _jobService.UpdateJobAsync(job);
+            var detail = _mapper .Map<JobDetail>(jobUpdateDTO);
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobUpdateDTO.JobID);
+            if(jobDetail==null)
+            {
+                Message = "No record!";
+                return NotFound(Message);
+            }
+            detail.JobDetailID = jobDetail.JobDetailID;
+            await _jobService.UpdateJobDetailAsync(detail);
+            
+
             Message = "Job updated successfully!";
             return Ok(Message);
         }
