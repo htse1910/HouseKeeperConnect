@@ -1,18 +1,16 @@
-import { t } from "i18next";
-
 export const jobs = [
-  { title: t("dashboard_jobs.clean_house"), location: "Quận 7, TP.HCM", hours: 8, date: "20/03/2025", salary: "800K" },
-  { title: t("dashboard_jobs.clean_office"), location: "Quận 1, TP.HCM", hours: 6, date: "21/03/2025", salary: "1.2M" }
+  { title: "dashboard_jobs.clean_house", location: "Quận 7, TP.HCM", hours: 8, date: "20/03/2025", salary: "800K" },
+  { title: "dashboard_jobs.clean_office", location: "Quận 1, TP.HCM", hours: 6, date: "21/03/2025", salary: "1.2M" }
 ];
 
 export const schedule = [
-  { title: t("dashboard_schedule.clean_house"), time: t("dashboard_schedule.today") + ", 14:00" },
-  { title: t("dashboard_schedule.clean_office"), time: t("dashboard_schedule.tomorrow") + ", 08:00" }
+  { title: "dashboard_schedule.clean_house", time: ["dashboard_schedule.today", "14:00"] },
+  { title: "dashboard_schedule.clean_office", time: ["dashboard_schedule.tomorrow", "08:00"] }
 ];
 
 export const statistics = [
   { label: "dashboard_stats.completed_jobs", value: 24 },
-  { label: "dashboard_stats.rating", value: "4.8 ⭐" },
+  { label: "dashboard_stats.rating", value: "4.8" }, // ⭐
   { label: "dashboard_stats.this_month_income", value: "12.5M đ" }
 ];
 

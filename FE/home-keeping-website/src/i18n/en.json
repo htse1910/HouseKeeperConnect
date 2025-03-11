@@ -19,7 +19,9 @@
   "profile": "Profile",
   "logout": "Logout",
 
-  "dashboard_welcome": "Welcome back, {{name}}!",
+  "dashboard_welcome_message": "Welcome back, {{name}}!",
+  "dashboard_welcome_detail_housekeeper": "Discover jobs that are right for you.",
+  "dashboard_welcome_detail_family": "Discover the companions that are right for you.",
 
   "dashboard_jobs": {
     "available": "Available Jobs",

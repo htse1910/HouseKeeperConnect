@@ -91,7 +91,7 @@
 }
 
 .search-btn:hover {
-  background-color: #e68400;
+  background-color: var(--secondary-color);
 }
 
 /* LanguageSwitcher */
