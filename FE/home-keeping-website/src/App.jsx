@@ -4,7 +4,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./assets/styles/App.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import Footer from "./components/Footer";
 import { UserRoleProvider } from "./components/UserRoleProvider";
 import "./i18n/i18n"; // Thêm hỗ trợ đa ngôn ngữ
 

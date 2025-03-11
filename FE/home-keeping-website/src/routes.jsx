@@ -3,7 +3,7 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ConfirmAccountPage from './pages/ConfirmAccountPage';
-import HouseKeeperDashboard from './pages/HouseKeeperDashboard';
+import HousekeeperDashboardPage from './pages/HousekeeperDashboardPage';
 import FamilyDashboard from './pages/FamilyDashboard';
 import Layout from './components/Layout';
 import FindJobsPage from './pages/FindJobsPage';
@@ -24,7 +24,7 @@ function AppRoutes() {
         <Route path="/confirm-account" element={<ConfirmAccountPage />} />
 
           {/* Role-Based Dashboard Routes */}
-          <Route path="/housekeeper-dashboard" element={<HouseKeeperDashboard />} />
+          <Route path="/housekeeper-dashboard" element={<HousekeeperDashboardPage />} />
           <Route path="/family-dashboard" element={<FamilyDashboard />} />
 
           {/* Job & Profile Related Pages */}

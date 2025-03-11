@@ -21,6 +21,7 @@
     --accent-color: #FFE4C2;  /* Màu nhấn */
     --light-gray: #F5F5F5;  /* Màu xám nhạt */
     --border-color: #E5E7EB;  /* Màu viền */
+    --box-background-color: #FFECD1;
   
     /* Font chữ */
     --font-main: 'Inter', sans-serif;  /* Font chính */
