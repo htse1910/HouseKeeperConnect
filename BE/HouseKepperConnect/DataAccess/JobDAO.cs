@@ -60,6 +60,20 @@ namespace DataAccess
             }
             return job;
         }
+        public async Task<JobDetail> GetJobDetailByJobIDAsync(int id)
+        {
+            JobDetail jobdetail = new JobDetail();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                    jobdetail = await context.JobDetail.SingleOrDefaultAsync(x => x.JobID == id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return jobdetail;
+        }
 
         public async Task<List<Job>> GetJobsByAccountIDAsync(int accountId)
         {
@@ -110,6 +124,21 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     context.Entry(job).State = EntityState.Modified;
+                    await context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task UpdateJobDetailAsync(JobDetail jobdetail)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    context.Entry(jobdetail).State = EntityState.Modified;
                     await context.SaveChangesAsync();
                 }
             }

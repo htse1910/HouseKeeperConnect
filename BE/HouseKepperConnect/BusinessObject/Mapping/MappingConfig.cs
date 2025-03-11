@@ -94,11 +94,13 @@ namespace BusinessObject.Mapping
         private void Map_Create_Job()
         {
             CreateMap<JobCreateDTO, Job>();
+            CreateMap<JobCreateDTO, JobDetail>();
         }
 
         private void Map_Update_Job()
         {
             CreateMap<JobUpdateDTO, Job>();
+            CreateMap<JobUpdateDTO, JobDetail>();
         }
         private void Map_Create_Booking()
         {

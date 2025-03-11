@@ -34,4 +34,12 @@
         Pending = 1,
         Verified = 2,
     }
+    public enum JobStatus
+    {
+        Pending = 1,
+        Verified = 2,
+        Accepted = 3,
+        Expired = 4,
+        Canceled = 5,
+    }
 }

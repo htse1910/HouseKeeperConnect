@@ -30,7 +30,10 @@ namespace Services
         public async Task<Job> GetJobByIDAsync(int id) => await _jobRepository.GetJobByIDAsync(id);
 
         public async Task<List<Job>> GetJobsByAccountIDAsync(int accountId) => await _jobRepository.GetJobsByAccountIDAsync(accountId);
+        public async Task<JobDetail> GetJobDetailByJobIDAsync(int jobID) => await _jobRepository.GetJobDetailByJobIDAsync(jobID);
 
         public async Task UpdateJobAsync(Job job) => await _jobRepository.UpdateJobAsync(job);
+        public async Task UpdateJobDetailAsync(JobDetail jobdetail) => await _jobRepository.UpdateJobDetailAsync(jobdetail);
+
     }
 }

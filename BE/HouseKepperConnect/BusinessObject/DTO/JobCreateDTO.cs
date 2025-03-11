@@ -13,9 +13,6 @@ namespace BusinessObject.DTO
         [StringLength(255, ErrorMessage = "Job name cannot exceed 255 characters.")]
         public string JobName { get; set; }
 
-        [Required]
-        public int Status { get; set; }
-
         // JobDetail fields
         [Required]
         [StringLength(100, ErrorMessage = "Frequency cannot exceed 100 characters.")]
