@@ -47,7 +47,10 @@ namespace BusinessObject.Models
         public virtual DbSet<Gender> Gender { get; set; }
         public virtual DbSet<Preference> Preference { get; set; }
         public virtual DbSet<Payout> Payout { get; set; }
+        public virtual DbSet<HousekeeperSkillMapping> HousekeeperSkillMapping { get; set; }
 
+        public virtual DbSet<Staff> Staff { get; set; }
+        public virtual DbSet<VerificationTask> VerificationTask { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

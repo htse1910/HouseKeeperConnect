@@ -9,6 +9,9 @@ namespace BusinessObject.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PreferenceID { get; set; }
 
+        [ForeignKey("Family")]
+        public int FamilyID { get; set; }
+
         [ForeignKey("Gender")]
         public int? GenderID { get; set; }
 
@@ -17,7 +20,7 @@ namespace BusinessObject.Models
 
         [ForeignKey("HouseKeeperSkill")]
         public int? SkillID { get; set; }
-
+        public virtual Family Family { get; set; }
         public virtual Gender Gender { get; set; }
         public virtual Language Language { get; set; }
         public virtual HouseKeeperSkill HouseKeeperSkill { get; set; }
