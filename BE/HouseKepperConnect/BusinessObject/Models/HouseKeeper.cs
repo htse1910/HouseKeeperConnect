@@ -14,8 +14,6 @@ namespace BusinessObject.Models
 
        
 
-        [ForeignKey("Violation")]
-        public int? ViolationID { get; set; }
 
         public int? Rating { get; set; }
 
@@ -31,7 +29,7 @@ namespace BusinessObject.Models
 
         public virtual Account Account { get; set; }
        
-        public virtual Violation Violation { get; set; }
+        
         public virtual IDVerification IDVerification { get; set; }
     }
 }

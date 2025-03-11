@@ -52,6 +52,7 @@ namespace BusinessObject.Models
         public virtual DbSet<Staff> Staff { get; set; }
         public virtual DbSet<VerificationTask> VerificationTask { get; set; }
 
+        public virtual DbSet<Housekeeper_Violation> Housekeeper_Violation { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().HasData(
