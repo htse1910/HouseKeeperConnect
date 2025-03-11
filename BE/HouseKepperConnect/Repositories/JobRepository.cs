@@ -10,7 +10,7 @@ namespace Repositories
 
         public JobRepository()
         {
-            _jobDAO = JobDAO.Instance; // Consider using dependency injection instead
+            _jobDAO = JobDAO.Instance;
         }
 
         public Task AddJobAsync(Job job) => _jobDAO.AddJobAsync(job);
