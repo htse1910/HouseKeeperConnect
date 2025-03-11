@@ -119,7 +119,6 @@ namespace HouseKeeperConnect_API.Controllers
             nHk.JobCompleted = 0;
             nHk.JobsApplied = 0;
             nHk.BankAccountNumber = "";
-            nHk.HouseKeeperSkillID = 1;
             nHk.VerifyID = id.VerifyID;
 
             await _housekeeperService.AddHousekeeperAsync(nHk);
