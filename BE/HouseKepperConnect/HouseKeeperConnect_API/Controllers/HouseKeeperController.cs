@@ -114,7 +114,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _verificationService.AddIDVerifyAsync(id);
 
-            nHk.HouseKeeperSkillID = 1;
+           // nHk.HouseKeeperSkillID = 1;
             nHk.IsVerified = false;
             nHk.JobCompleted = 0;
             nHk.JobsApplied = 0;

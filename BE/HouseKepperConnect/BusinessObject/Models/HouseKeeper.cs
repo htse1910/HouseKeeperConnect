@@ -12,8 +12,7 @@ namespace BusinessObject.Models
         [ForeignKey("Account")]
         public int AccountID { get; set; }
 
-        [ForeignKey("HouseKeeperSkill")]
-        public int HouseKeeperSkillID { get; set; }
+       
 
         [ForeignKey("Violation")]
         public int? ViolationID { get; set; }
@@ -31,7 +30,7 @@ namespace BusinessObject.Models
         public int? VerifyID { get; set; }
 
         public virtual Account Account { get; set; }
-        public virtual HouseKeeperSkill HouseKeeperSkill { get; set; }
+       
         public virtual Violation Violation { get; set; }
         public virtual IDVerification IDVerification { get; set; }
     }
