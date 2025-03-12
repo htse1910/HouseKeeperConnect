@@ -14,6 +14,9 @@ import HousekeeperDetailsPage from './pages/HousekeeperDetailsPage';
 import MessagesPage from './pages/MessagesPage';
 import UpdateHousekeeperPage from './pages/UpdateHousekeeperPage'; // ✅ Import new page
 import AddIdentificationPicturePage from './pages/AddIdentificationPicturePage';
+import HousekeeperProfilePage from './pages/HousekeeperProfilePage';
+// import FamilyProfilePage from './pages/FamilyProfilePage';
+// import AdminProfilePage from './pages/AdminProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 
@@ -30,12 +33,10 @@ function AppRoutes() {
         {/* Role-Based Dashboard Routes */}
         <Route path="/housekeeper-dashboard" element={<HousekeeperDashboardPage />} />
         <Route path="/family-dashboard" element={<FamilyDashboard />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} /> {/* ✅ New Admin Route */}
-      
+
         {/* Job & Profile Related Pages */}
-        <Route path="/jobs" element={<FindJobsPage />} />
+        <Route path="/find-jobs" element={<FindJobsPage />} />
         <Route path="/job/:id" element={<JobDetailsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/job-posting-page" element={<JobPostingPage />} />
 
         {/* Housekeeper Pages */}
