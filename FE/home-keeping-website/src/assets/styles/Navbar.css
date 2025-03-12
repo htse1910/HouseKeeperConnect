@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  padding: 10px 50px;
   background-color: var(--bg-color);
   border-bottom: 2px solid var(--main-color);
 }
@@ -179,6 +179,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  object-fit: cover;
 }
 
 /* Nút đăng nhập & đăng ký */

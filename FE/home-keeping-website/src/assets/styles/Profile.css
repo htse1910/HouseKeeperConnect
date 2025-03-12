@@ -1,0 +1,417 @@
+/* Profile Container */
+.profile-container {
+    padding: 40px 50px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: var(--bg-color);
+}
+
+/* Bố cục chia 2 cột */
+.profile-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+/* Cột bên trái */
+.profile-left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Cột bên phải */
+.profile-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Profile Header (cả khung chứa avatar + thông tin cá nhân) */
+.profile-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 50px;
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+/* Avatar + Tên */
+.profile-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 150px;
+    margin-right: 20px;
+}
+
+.profile-avatar {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 10px;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 0px solid var(--main-color);
+    box-shadow: -2px 5px 1px var(--main-color);
+}
+
+.profile-name {
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: 20px;
+    margin-top: 15px;
+}
+
+.avatar-edit-btn {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background-color: var(--main-color);
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    box-shadow: var(--box-shadow);
+}
+
+.camera-icon {
+    position: absolute;
+    bottom: 25%;
+    right: 25%;
+    height: 50%;
+    width: 50%;
+    color: white !important;
+    display: flex;
+}
+
+/* Tiêu đề "Thông tin cá nhân" */
+.profile-title-container {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+
+.profile-title {
+    font-size: 24px;
+    font-weight: bold;
+    align-items: center;
+    color: var(--text-color);
+    margin-right: 20px;
+}
+
+.edit-icon {
+    font-size: 18px;
+    color: var(--main-color);
+    cursor: pointer;
+}
+
+/* Thông tin cá nhân */
+.profile-details {
+    flex: 1;
+    margin-left: 20px;
+}
+
+.profile-label {
+    font-size: 16px;
+    color: var(--text-color);
+    margin: 5px 0;
+}
+
+/* Rating */
+.profile-rating {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+}
+
+.star-icon {
+    color: var(--warning-color);
+    font-size: 18px;
+    margin-right: 3px;
+}
+
+.star-icon.filled {
+    color: var(--warning-color);
+}
+
+.rating-score {
+    font-size: 16px;
+    margin-left: 5px;
+    color: var(--text-color);
+}
+
+/* Profile Sections */
+.profile-section {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+.profile-introduction {
+    font-size: 16px;
+    color: var(--text-alt-color);
+    line-height: 1.5;
+}
+
+/* Kỹ năng */
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.skill-item {
+    background-color: var(--main-color);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    box-shadow: var(--box-shadow);
+}
+
+/* Chứng chỉ & Giấy tờ */
+.documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-color);
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.document-icon {
+    font-size: 18px;
+    margin-right: 10px;
+    color: var(--main-color);
+}
+
+.document-name {
+    flex: 1;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.document-view-btn {
+    background-color: var(--main-color);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.document-view-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Lịch làm việc */
+.schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.schedule-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-color);
+    padding: 12px 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.schedule-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.schedule-date {
+    font-size: 14px;
+    color: var(--text-alt-color);
+}
+
+.schedule-time {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--main-color);
+}
+
+.schedule-status {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-transform: uppercase;
+}
+
+.schedule-status.confirmed {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.schedule-status.pending {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+/* Mức giá */
+.pricing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.pricing-table th, .pricing-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pricing-table th {
+    background-color: var(--box-background-color);
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.pricing-table td {
+    font-size: 14px;
+    color: var(--text-alt-color);
+}
+
+.pricing-table tr:hover {
+    background-color: var(--hover-background);
+}
+
+/* Thông tin liên hệ */
+.contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-color);
+    padding: 10px 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.contact-icon {
+    font-size: 18px;
+    margin-right: 10px;
+    color: var(--main-color);
+}
+
+.contact-text {
+    font-size: 16px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.contact-text:hover {
+    color: var(--main-color);
+}
+
+/* Đánh giá từ khách hàng */
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.review-item {
+    background-color: var(--bg-color);
+    padding: 12px 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.review-name {
+    color: var(--main-color);
+}
+
+.review-date {
+    font-size: 14px;
+    color: var(--text-alt-color);
+}
+
+.review-rating {
+    display: flex;
+    gap: 3px;
+    margin-top: 5px;
+}
+
+.star {
+    font-size: 16px;
+    color: var(--border-color);
+}
+
+.star.filled {
+    color: var(--main-color);
+}
+
+.review-text {
+    font-size: 14px;
+    color: var(--text-alt-color);
+    margin-top: 5px;
+}
+
+.no-reviews {
+    font-size: 14px;
+    color: var(--text-alt-color);
+    text-align: center;
+}
