@@ -15,8 +15,8 @@ import MessagesPage from './pages/MessagesPage';
 import UpdateHousekeeperPage from './pages/UpdateHousekeeperPage'; // ✅ Import new page
 import AddIdentificationPicturePage from './pages/AddIdentificationPicturePage';
 import HousekeeperProfilePage from './pages/HousekeeperProfilePage';
-// import FamilyProfilePage from './pages/FamilyProfilePage';
-// import AdminProfilePage from './pages/AdminProfilePage';
+import FamilyProfilePage from './pages/FamilyProfilePage';
+import AdminProfilePage from './pages/AdminProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 
