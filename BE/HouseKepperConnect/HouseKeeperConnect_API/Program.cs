@@ -1,5 +1,6 @@
 using BusinessObject.Mapping;
 using BusinessObject.Models;
+using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -60,8 +61,6 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
+app.MapHub<ChatHub>("/chatHub");
 app.Run();
 
-builder.Services.AddDbContext<PCHWFDBContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

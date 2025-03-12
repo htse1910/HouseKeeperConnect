@@ -14,9 +14,6 @@ namespace BusinessObject.Models
         [ForeignKey("Housekeeper")]
         public int HousekeeperID { get; set; }
 
-        [ForeignKey("PaymentMethod")]
-        public int PaymentMethodID { get; set; }
-
         public decimal Amount { get; set; }
         public decimal Commission { get; set; }
         public DateTime PaymentDate { get; set; }
@@ -26,6 +23,6 @@ namespace BusinessObject.Models
 
         public virtual Family Family { get; set; }
         public virtual Housekeeper Housekeeper { get; set; }
-        public virtual PaymentMethod PaymentMethod { get; set; }
+        
     }
 }

@@ -29,5 +29,6 @@ namespace Repositories.Interface
         Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO);
 
         Task<TokenModel> LoginWithGoogleAsync(string googleToken);
+        Task AdminUpdateAccountAsync(Account updatedAccount);
     }
 }

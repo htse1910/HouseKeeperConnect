@@ -37,7 +37,7 @@ namespace BusinessObject.Models
         public virtual DbSet<ServiceType> ServiceType { get; set; }
         public virtual DbSet<Application> Application { get; set; }
         public virtual DbSet<Payment> Payment { get; set; }
-        public virtual DbSet<PaymentMethod> PaymentMethod { get; set; }
+       
         public virtual DbSet<Job> Job { get; set; }
         public virtual DbSet<JobDetail> JobDetail { get; set; }
         public virtual DbSet<JobListing_Application> JobListing_Application { get; set; }
@@ -60,6 +60,10 @@ namespace BusinessObject.Models
                 new Role { RoleID = 2, RoleName = "Family" },
                 new Role { RoleID = 3, RoleName = "Staff" },
                 new Role { RoleID = 4, RoleName = "Admin" }
+                );
+            modelBuilder.Entity<Gender>().HasData(
+                new Gender { GenderID = 1, Name = "Male" },
+                new Gender { GenderID = 2, Name = "Female" }
                 );
         }
     }

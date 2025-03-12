@@ -127,28 +127,41 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "Email already exists!";
                 return Conflict(Message);
             }
+
             if (accountRegisterDTO.RoleID != 1 && accountRegisterDTO.RoleID != 2)
             {
                 return BadRequest("Invalid role selection!");
             }
+
+            if (accountRegisterDTO.GenderID != 1 && accountRegisterDTO.GenderID != 2)
+            {
+                return BadRequest("Invalid gender selection!");
+            }
+
             var account = _mapper.Map<Account>(accountRegisterDTO);
             account.Status = (int)AccountStatus.Active;
             account.CreatedAt = DateTime.Now;
             account.UpdatedAt = DateTime.Now;
             account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
 
-            var wallet = new Wallet();
-            wallet.AccountID = account.AccountID;
-            wallet.CreatedAt = DateTime.Now;
-            wallet.UpdatedAt = DateTime.Now;
-            wallet.Status = 1;
+            account.GenderID = accountRegisterDTO.GenderID;
+            account.Introduce = accountRegisterDTO.Introduce; 
 
-            await _accountService.AddAccountAsync(account); // Lưu account trước
-            wallet.AccountID = account.AccountID; // Lấy AccountID sau khi account đã được lưu
+            await _accountService.AddAccountAsync(account); 
+
+            var wallet = new Wallet
+            {
+                AccountID = account.AccountID,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                Status = 1
+            };
             await _walletService.AddWalletAsync(wallet);
+
             Message = "New Account Added!";
             return Ok(Message);
         }
+
 
         // PUT api/<AccountController>/5
         [HttpPut("UpdateAccount")]
@@ -160,11 +173,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest(validationResult);
             }
-            if (await _accountService.IsEmailExistsAsync(accountUpdateDTO.Email))
-            {
-                Message = "Email already exists!";
-                return Conflict(Message);
-            }
+           
             var account = _mapper.Map<Account>(accountUpdateDTO);
             var u = await _accountService.GetAccountByIDAsync(account.AccountID);
             if (u == null)
@@ -180,14 +189,38 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 account.Password = u.Password;
             }
-
-            account.CreatedAt = u.CreatedAt;
-            account.UpdatedAt = DateTime.Now;
+           
 
             await _accountService.UpdateAccountAsync(account);
             return Ok("Account Updated!");
         }
+        [HttpPut("AdminUpdateAccount")]
+        [Authorize]
+        public async Task<IActionResult> AdminUpdate(AdminUpdateAccountDTO adminUpdateDTO)
+        {
+            
+            
 
+            var account = _mapper.Map<Account>(adminUpdateDTO);
+            var u = await _accountService.GetAccountByIDAsync(account.AccountID);
+            if (u == null)
+            {
+                return NotFound("No Account Found!");
+            }
+
+            if (!string.IsNullOrEmpty(adminUpdateDTO.Password))
+            {
+                account.Password = _passwordHasher.HashPassword(account, adminUpdateDTO.Password);
+            }
+            else
+            {
+                account.Password = u.Password;
+            }
+
+
+            await _accountService.UpdateAccountAsync(account);
+            return Ok("Account Updated!");
+        }
         [HttpPut("ChangeStatus")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ToggleStatus([FromQuery] int id)

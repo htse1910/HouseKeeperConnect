@@ -47,20 +47,21 @@ namespace DataAccess
 
         public async Task<Family> GetFamilyByIDAsync(int fID)
         {
-            Family Family;
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    Family = await context.Family.SingleOrDefaultAsync(x => x.Id == fID);
+                    return await context.Family
+                        .Include(f => f.Account) 
+                        .SingleOrDefaultAsync(x => x.Id == fID);
                 }
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            return Family;
         }
+
 
         public async Task<List<Family>> SearchFamilysByNameAsync(string name)
         {
@@ -116,6 +117,23 @@ namespace DataAccess
                 {
                     context.Entry(Family).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                     await context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<List<Family>> SearchFamiliesByAccountIDAsync(int accountId)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Family
+                        .Include(f => f.Account) 
+                        .Where(f => f.AccountID == accountId)
+                        .ToListAsync();
                 }
             }
             catch (Exception ex)

@@ -28,6 +28,8 @@ public static class ServiceExtentions
         services.AddScoped<IIDVerificationRepository, IDVerificationRepository>();
         services.AddScoped<IJobRepository, JobRepository>();
         services.AddScoped<IJobService, JobService>();
+        services.AddScoped<IChatRepository, ChatRepository>();
+        services.AddScoped<IChatService, ChatService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

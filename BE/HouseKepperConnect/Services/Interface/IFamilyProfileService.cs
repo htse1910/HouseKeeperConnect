@@ -15,5 +15,6 @@ namespace Services.Interface
         Task UpdateFamilyAsync(Family Family);
 
         Task<List<Family>> SearchFamilysByNameAsync(string name);
+        Task<List<Family>> SearchFamiliesByAccountIDAsync(int accountId);
     }
 }
