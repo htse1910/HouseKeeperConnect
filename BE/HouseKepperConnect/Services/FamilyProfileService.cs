@@ -24,5 +24,6 @@ namespace Services
         public async Task UpdateFamilyAsync(Family Family) => await _familyRepository.UpdateFamilyAsync(Family);
 
         public async Task<List<Family>> SearchFamilysByNameAsync(string name) => await _familyRepository.SearchFamilysByNameAsync(name);
+        public async Task<List<Family>> SearchFamiliesByAccountIDAsync(int accountId) => await _familyRepository.SearchFamiliesByAccountIDAsync(accountId);
     }
 }

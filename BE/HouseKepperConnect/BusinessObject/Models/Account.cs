@@ -26,7 +26,14 @@ namespace BusinessObject.Models
         public string? Provider { get; set; } // "Google" hoặc "Local"
         public string? ProfilePicture { get; set; } // Ảnh đại diện Google
         public int Status { get; set; }
+
+        public string? Introduce { get; set; } // Cột mới
+
+        [ForeignKey("Gender")]
+        public int? GenderID { get; set; }  // Khóa ngoại đến bảng Gender
+
         public virtual Role Role { get; set; }
         public virtual Wallet Wallet { get; set; }
+        public virtual Gender Gender { get; set; } // Navigation Property
     }
 }

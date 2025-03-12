@@ -26,6 +26,8 @@ namespace BusinessObject.Mapping
             Map_Update_Job();
             Map_Create_Booking();
             Map_Update_Booking();
+            Map_Chat();
+            Map_List_Admin_Update_Account();
         }
 
         private void Map_List_Register()
@@ -36,6 +38,10 @@ namespace BusinessObject.Mapping
         private void Map_List_Update_Account()
         {
             CreateMap<Account, AccountUpdateDTO>().ReverseMap();
+        }
+        private void Map_List_Admin_Update_Account()
+        {
+            CreateMap<Account, AdminUpdateAccountDTO>().ReverseMap();
         }
 
         private void Map_JWT_Login()
@@ -57,7 +63,10 @@ namespace BusinessObject.Mapping
 
         private void Mapp_List_Display_Family()
         {
-            CreateMap<Family, FamilyDisplayDTO>().ReverseMap();
+
+            CreateMap<Family, FamilyDisplayDTO>()
+                .ForMember(dest => dest.GenderID, opt => opt.MapFrom(src => src.Account.GenderID))
+                .ForMember(dest => dest.Introduce, opt => opt.MapFrom(src => src.Account.Introduce));
         }
 
         private void Mapp_Update_Family()
@@ -111,5 +120,10 @@ namespace BusinessObject.Mapping
         {
             CreateMap<BookingUpdateDTO, Booking>().ReverseMap();
         }
+        private void Map_Chat()
+        {
+            CreateMap<ChatDTO, Chat>().ReverseMap();
+        }
+
     }
 }

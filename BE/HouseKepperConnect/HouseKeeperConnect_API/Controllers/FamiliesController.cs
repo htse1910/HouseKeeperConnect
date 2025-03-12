@@ -129,5 +129,20 @@ namespace HouseKeeperConnect_API.Controllers
             await _familyService.UpdateFamilyAsync(family);
             return Ok("Family Profile Updated!");
         }
+        [HttpGet("SearchFamilyByAccountId")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<FamilyDisplayDTO>>> SearchFamilyByAccountId([FromQuery] int accountId)
+        {
+            var families = await _familyService.SearchFamiliesByAccountIDAsync(accountId);
+
+            if (families == null || !families.Any())
+            {
+                return NotFound("No families found for this account!");
+            }
+
+            var familyDTOs = _mapper.Map<List<FamilyDisplayDTO>>(families);
+            return Ok(familyDTOs);
+        }
+
     }
 }

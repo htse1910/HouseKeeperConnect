@@ -29,13 +29,13 @@ namespace BusinessObject.Migrations
                         column: x => x.HousekeeperID,
                         principalTable: "Housekeeper",
                         principalColumn: "HousekeeperID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Housekeeper_Violation_Violation_ViolationID",
                         column: x => x.ViolationID,
                         principalTable: "Violation",
                         principalColumn: "ViolationID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(

@@ -244,21 +244,56 @@ namespace DataAccess
             }
         }
 
-        public async Task UpdateAccountAsync(Account Account)
+        public async Task UpdateAccountAsync(Account updatedAccount)
         {
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    context.Entry(Account).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                    var existingAccount = await context.Account.FindAsync(updatedAccount.AccountID);
+                    if (existingAccount == null)
+                    {
+                        throw new Exception("Account not found.");
+                    }
+
+                    existingAccount.Name = updatedAccount.Name;
+                    existingAccount.Phone = updatedAccount.Phone;
+                    existingAccount.Password = updatedAccount.Password;
+                    existingAccount.UpdatedAt = DateTime.Now;
+
                     await context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception($"Error updating account: {ex.Message}");
             }
         }
+        public async Task AdminUpdateAccountAsync(Account updatedAccount)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var existingAccount = await context.Account.FindAsync(updatedAccount.AccountID);
+                    if (existingAccount == null)
+                    {
+                        throw new Exception("Account not found.");
+                    }
+
+                    existingAccount.Password = updatedAccount.Password;
+                    existingAccount.Status = updatedAccount.Status;                  
+                    existingAccount.UpdatedAt = DateTime.Now;
+
+                    await context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error updating account: {ex.Message}");
+            }
+        }
+
 
         public async Task<bool> IsEmailExistsAsync(string email)
         {
@@ -307,10 +342,7 @@ namespace DataAccess
                 return "Full Name is required.";
             }
 
-            if (string.IsNullOrWhiteSpace(AccountUpdateDTO.Email) || !IsValidEmail(AccountUpdateDTO.Email))
-            {
-                return "Invalid email format.";
-            }
+           
 
             if (AccountUpdateDTO.Phone <= 0 || !IsValidPhoneNumber(AccountUpdateDTO.Phone))
             {

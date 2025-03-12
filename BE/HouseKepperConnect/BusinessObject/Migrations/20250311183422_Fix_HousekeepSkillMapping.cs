@@ -44,7 +44,7 @@ namespace BusinessObject.Migrations
                 column: "HouseKeeperSkillID",
                 principalTable: "HouseKeeperSkill",
                 principalColumn: "HouseKeeperSkillID",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
         }
     }
 }

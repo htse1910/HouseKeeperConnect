@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250312180801_Fix_Db")]
+    partial class Fix_Db
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,13 +40,7 @@ namespace BusinessObject.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("GenderID")
-                        .HasColumnType("int");
-
                     b.Property<string>("GoogleId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Introduce")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -72,8 +69,6 @@ namespace BusinessObject.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("AccountID");
-
-                    b.HasIndex("GenderID");
 
                     b.HasIndex("RoleID");
 
@@ -1050,17 +1045,11 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.Account", b =>
                 {
-                    b.HasOne("BusinessObject.Models.Gender", "Gender")
-                        .WithMany()
-                        .HasForeignKey("GenderID");
-
                     b.HasOne("BusinessObject.Models.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Gender");
 
                     b.Navigation("Role");
                 });
