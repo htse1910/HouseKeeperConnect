@@ -11,13 +11,14 @@ import JobDetailsPage from './pages/JobDetailsPage';
 import ProfilePage from './pages/ProfilePage';
 import JobPostingPage from './pages/JobPostingPage';
 import HousekeeperDetailsPage from './pages/HousekeeperDetailsPage';
-import FamilyManagePage from './pages/FamilyManagePage';
 import MessagesPage from './pages/MessagesPage';
 import UpdateHousekeeperPage from './pages/UpdateHousekeeperPage'; // ✅ Import new page
 import AddIdentificationPicturePage from './pages/AddIdentificationPicturePage';
 import HousekeeperProfilePage from './pages/HousekeeperProfilePage';
-// import FamilyProfilePage from './pages/FamilyProfilePage';
-// import AdminProfilePage from './pages/AdminProfilePage';
+import FamilyProfilePage from './pages/FamilyProfilePage';
+import AdminProfilePage from './pages/AdminProfilePage';
+import AdminDashboard from './pages/AdminDashboard';
+import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 
 function AppRoutes() {
   return (
@@ -33,13 +34,7 @@ function AppRoutes() {
         <Route path="/housekeeper-dashboard" element={<HousekeeperDashboardPage />} />
         <Route path="/family-dashboard" element={<FamilyDashboard />} />
 
-        {/* Profile Routes */}
-        <Route path="/Housekeeper/profile" element={<HousekeeperProfilePage />} />
-        {/*<Route path="/Family/profile" element={<FamilyProfilePage />} />
-        <Route path="/Admin/profile" element={<AdminProfilePage />} />*/}
-        <Route path="/profile" element={<ProfilePage />} /> 
-
-        {/* Job Related Pages */}
+        {/* Job & Profile Related Pages */}
         <Route path="/find-jobs" element={<FindJobsPage />} />
         <Route path="/job/:id" element={<JobDetailsPage />} />
         <Route path="/job-posting-page" element={<JobPostingPage />} />
@@ -47,7 +42,7 @@ function AppRoutes() {
         {/* Housekeeper Pages */}
         <Route path="/housekeeper/:id" element={<HousekeeperDetailsPage />} />
         <Route path="/housekeeper/profile/update/:accountId" element={<UpdateHousekeeperPage />} /> {/* ✅ New route */}
-        <Route path="/family-manage-page" element={<FamilyManagePage />} />
+        <Route path="/my-jobs" element={<HouseKeeperManagePage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/housekeeper/upload-id" element={<AddIdentificationPicturePage />} />
       </Routes>
