@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaBriefcase, FaCheckCircle, FaUser, FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
 
-function FamilyManagePage() {
+function HouseKeeperManagePage() {
   const [filter, setFilter] = useState({ jobType: "Tất cả", status: "Tất cả", date: "" });
   const [activeTab, setActiveTab] = useState("applied");
 
@@ -150,4 +150,4 @@ function FamilyManagePage() {
   );
 }
 
-export default FamilyManagePage;
+export default HouseKeeperManagePage;

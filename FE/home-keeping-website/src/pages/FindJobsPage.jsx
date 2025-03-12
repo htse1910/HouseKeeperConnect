@@ -1,46 +1,29 @@
-import React, { useState } from 'react';
-import { FaSearch, FaMapMarkerAlt, FaMoneyBillWave, FaClock } from 'react-icons/fa';
-import { Pagination } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { FaSearch, FaMapMarkerAlt, FaMoneyBillWave, FaClock, FaUser } from "react-icons/fa";
+import { Pagination } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 function FindJobsPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({ location: '', jobType: '', salary: '' });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({ location: "", jobType: "", salary: "" });
   const [currentPage, setCurrentPage] = useState(1);
+  const [jobs, setJobs] = useState([]);
   const jobsPerPage = 3;
 
-  const jobs = [
-    {
-      id: 1,
-      title: 'Dọn dẹp nhà cửa',
-      employer: 'Gia đình Nguyễn Văn A',
-      location: 'Quận 1, TP.HCM',
-      salary: '150,000 VND/giờ',
-      posted: '3 ngày trước',
-      type: 'Full-time',
-      typeColor: '#ffcc99',
-    },
-    {
-      id: 2,
-      title: 'Giúp việc theo giờ',
-      employer: 'Gia đình Trần Thị B',
-      location: 'Quận 7, TP.HCM',
-      salary: '200,000 VND/giờ',
-      posted: '1 ngày trước',
-      type: 'Part-time',
-      typeColor: '#99bbff',
-    },
-    {
-      id: 3,
-      title: 'Dọn dẹp văn phòng',
-      employer: 'Công ty XYZ',
-      location: 'Quận 3, TP.HCM',
-      salary: '180,000 VND/giờ',
-      posted: '5 ngày trước',
-      type: 'Contract',
-      typeColor: '#99ffcc',
-    },
-  ];
+  useEffect(() => {
+    const authToken = localStorage.getItem("authToken");
+
+    fetch("http://localhost:5280/api/Job/JobList", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => setJobs(data))
+      .catch((error) => console.error("Error fetching jobs:", error));
+  }, []);
 
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
 
@@ -49,11 +32,15 @@ function FindJobsPage() {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Function to extract only the date from timestamp
+  const formatDate = (timestamp) => {
+    return timestamp ? timestamp.split("T")[0] : "N/A";
+  };
+
   return (
     <div className="container-fluid p-0">
-      {/* Top Section with Search Bar */}
-      <div className="d-flex flex-column align-items-center justify-content-center" style={{ backgroundColor: '#ffedd5', minHeight: '220px' }}>
-        {/* Search Bar */}
+      {/* Search & Filters */}
+      <div className="d-flex flex-column align-items-center justify-content-center" style={{ backgroundColor: "#ffedd5", minHeight: "220px" }}>
         <div className="input-group w-75 shadow-sm mb-3">
           <span className="input-group-text bg-white border-end-0 px-3">
             <FaSearch className="text-muted" />
@@ -61,13 +48,12 @@ function FindJobsPage() {
           <input
             type="text"
             className="form-control border-start-0 py-3"
-            placeholder="Nhập từ khóa hoặc tên công việc..."
+            placeholder="Nhập từ khóa công việc..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
-        {/* Filters Section */}
         <div className="w-75">
           <div className="row g-2">
             <div className="col-3">
@@ -92,28 +78,30 @@ function FindJobsPage() {
               </select>
             </div>
             <div className="col-3">
-              <button className="btn text-white w-100" style={{ backgroundColor: '#ff9900' }}>Tìm kiếm</button>
+              <button className="btn text-white w-100" style={{ backgroundColor: "#ff9900" }}>Tìm kiếm</button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Section - Job Listings */}
+      {/* Job Listings */}
       <div className="container py-4">
         <div className="row justify-content-center">
           {jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage).map((job) => (
-            <div key={job.id} className="col-md-4">
+            <div key={job.jobID} className="col-md-4">
               <div className="card shadow-sm p-3 mb-4 border-0">
                 <div className="card-body">
-                  <h5 className="fw-bold">{job.title}</h5>
-                  <p className="text-muted">{job.employer}</p>
-                  <p className="mb-1"><FaMapMarkerAlt className="text-muted" /> {job.location}</p>
-                  <p className="mb-1"><FaMoneyBillWave className="text-muted" /> {job.salary}</p>
-                  <p className="mb-1"><FaClock className="text-muted" /> {job.posted}</p>
-                  <span className="badge text-white" style={{ backgroundColor: job.typeColor }}>
-                    {job.type}
+                  <h5 className="fw-bold">{job.jobName}</h5>
+                  <p className="text-muted">
+                    <FaUser className="me-1" /> {job.account?.name}
+                  </p>
+                  <p className="mb-1"><FaMapMarkerAlt className="text-muted" /> Chưa cập nhật</p>
+                  <p className="mb-1"><FaMoneyBillWave className="text-muted" /> Lương: Chưa cập nhật</p>
+                  <p className="mb-1"><FaClock className="text-muted" /> Ngày đăng: {formatDate(job.account?.createdAt)}</p>
+                  <span className="badge text-white" style={{ backgroundColor: "#99ccff" }}>
+                    Công việc
                   </span>
-                  <Link to={`/job/${job.id}`} className="btn btn-outline-warning w-100 mt-3">Xem chi tiết</Link>
+                  <Link to={`/job/${job.jobID}`} className="btn btn-outline-warning w-100 mt-3">Xem chi tiết</Link>
                 </div>
               </div>
             </div>
