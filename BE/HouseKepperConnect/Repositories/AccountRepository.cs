@@ -31,6 +31,7 @@ namespace Repositories
         public async Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO) => await AccountDAO.Instance.ValidateUpdateAccountAsync(AccountUpdateDTO);
 
         public async Task<TokenModel> LoginWithGoogleAsync(string googleToken) => await AccountDAO.Instance.LoginWithGoogleAsync(googleToken);
+
         public async Task AdminUpdateAccountAsync(Account updatedAccount) => await AccountDAO.Instance.AdminUpdateAccountAsync(updatedAccount);
     }
 }

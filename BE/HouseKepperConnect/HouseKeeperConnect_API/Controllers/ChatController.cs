@@ -2,10 +2,8 @@
 using BusinessObject.Models;
 using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -17,14 +15,12 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IChatService _chatService;
         private readonly IAccountService _accountService;
         private readonly IHubContext<ChatHub> _hubContext;
- 
 
-        public ChatController(IChatService chatService,IAccountService accountService, IHubContext<ChatHub> hubContext)
+        public ChatController(IChatService chatService, IAccountService accountService, IHubContext<ChatHub> hubContext)
         {
             _chatService = chatService;
             _accountService = accountService;
             _hubContext = hubContext;
-
         }
 
         [HttpGet("GetChat")]
@@ -33,7 +29,6 @@ namespace HouseKeeperConnect_API.Controllers
             var chats = await _chatService.GetChatsBetweenUsersAsync(fromAccountId, toAccountId);
             return Ok(chats);
         }
-
 
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromQuery] ChatDTO chatDto)

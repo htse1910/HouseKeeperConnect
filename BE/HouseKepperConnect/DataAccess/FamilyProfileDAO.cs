@@ -52,7 +52,7 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     return await context.Family
-                        .Include(f => f.Account) 
+                        .Include(f => f.Account)
                         .SingleOrDefaultAsync(x => x.Id == fID);
                 }
             }
@@ -61,7 +61,6 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
-
 
         public async Task<List<Family>> SearchFamilysByNameAsync(string name)
         {
@@ -124,6 +123,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task<List<Family>> SearchFamiliesByAccountIDAsync(int accountId)
         {
             try
@@ -131,7 +131,7 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     return await context.Family
-                        .Include(f => f.Account) 
+                        .Include(f => f.Account)
                         .Where(f => f.AccountID == accountId)
                         .ToListAsync();
                 }

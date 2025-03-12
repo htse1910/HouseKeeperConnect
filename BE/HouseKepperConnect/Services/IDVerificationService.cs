@@ -18,5 +18,7 @@ namespace Services
         public async Task<List<IDVerification>> GetAllIDVerifysAsync() => await _iDVerificationRepository.GetAllIDVerifysAsync();
 
         public async Task<IDVerification> GetIDVerifyByIDAsync(int id) => await _iDVerificationRepository.GetIDVerifyByIDAsync(id);
+
+        public async Task UpdateIDVerifyAsync(IDVerification veri) => await _iDVerificationRepository.UpdateIDVerifyAsync(veri);
     }
 }

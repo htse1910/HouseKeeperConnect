@@ -145,9 +145,9 @@ namespace HouseKeeperConnect_API.Controllers
             account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
 
             account.GenderID = accountRegisterDTO.GenderID;
-            account.Introduce = accountRegisterDTO.Introduce; 
+            account.Introduce = accountRegisterDTO.Introduce;
 
-            await _accountService.AddAccountAsync(account); 
+            await _accountService.AddAccountAsync(account);
 
             var wallet = new Wallet
             {
@@ -162,7 +162,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
-
         // PUT api/<AccountController>/5
         [HttpPut("UpdateAccount")]
         [Authorize]
@@ -173,7 +172,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest(validationResult);
             }
-           
+
             var account = _mapper.Map<Account>(accountUpdateDTO);
             var u = await _accountService.GetAccountByIDAsync(account.AccountID);
             if (u == null)
@@ -189,18 +188,15 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 account.Password = u.Password;
             }
-           
 
             await _accountService.UpdateAccountAsync(account);
             return Ok("Account Updated!");
         }
+
         [HttpPut("AdminUpdateAccount")]
         [Authorize]
         public async Task<IActionResult> AdminUpdate(AdminUpdateAccountDTO adminUpdateDTO)
         {
-            
-            
-
             var account = _mapper.Map<Account>(adminUpdateDTO);
             var u = await _accountService.GetAccountByIDAsync(account.AccountID);
             if (u == null)
@@ -217,10 +213,10 @@ namespace HouseKeeperConnect_API.Controllers
                 account.Password = u.Password;
             }
 
-
             await _accountService.UpdateAccountAsync(account);
             return Ok("Account Updated!");
         }
+
         [HttpPut("ChangeStatus")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ToggleStatus([FromQuery] int id)

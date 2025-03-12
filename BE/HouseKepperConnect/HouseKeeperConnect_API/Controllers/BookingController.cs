@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BusinessObject.DTO;
 using BusinessObject.DTOs;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +14,6 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IBookingService _bookingService;
         private string Message;
         private readonly IMapper _mapper;
-
 
         public BookingController(IBookingService bookingService, IMapper mapper)
         {
@@ -131,7 +129,6 @@ namespace HouseKeeperConnect_API.Controllers
             Message = "Booking updated successfully!";
             return Ok(Message);
         }
-
 
         [HttpDelete("DeleteBooking")]
         [Authorize]

@@ -1,20 +1,24 @@
-﻿namespace BusinessObject.DTO
+﻿using Microsoft.AspNetCore.Http;
+
+namespace BusinessObject.DTO
 {
     public class HouseKeeperUpdateDTO
     {
-        public int HouseKeeperID { get; set; }
-
         public int AccountID { get; set; }
 
-        public int HouseKeeperSkillID { get; set; }
+        public int? Rating { get; set; }
 
         public bool IsVerified { get; set; }
         public string BankAccountNumber { get; set; }
 
-        public byte[] FrontPhoto { get; set; }
+        public int JobCompleted { get; set; }
 
-        public byte[] BackPhoto { get; set; }
+        public int JobsApplied { get; set; }
 
-        public byte[] FacePhoto { get; set; }
+        public IFormFile FrontPhoto { get; set; }
+
+        public IFormFile BackPhoto { get; set; }
+
+        public IFormFile FacePhoto { get; set; }
     }
 }

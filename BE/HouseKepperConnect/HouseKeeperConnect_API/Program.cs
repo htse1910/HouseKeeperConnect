@@ -1,8 +1,6 @@
 using BusinessObject.Mapping;
-using BusinessObject.Models;
 using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -63,4 +61,3 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<ChatHub>("/chatHub");
 app.Run();
-

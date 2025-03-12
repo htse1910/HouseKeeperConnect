@@ -1,6 +1,5 @@
 ﻿using BusinessObject.Models;
 using DataAccess;
-using Microsoft.Identity.Client;
 using Repositories.Interface;
 
 namespace Repositories
@@ -25,9 +24,11 @@ namespace Repositories
         public Task<Job> GetJobByIDAsync(int id) => _jobDAO.GetJobByIDAsync(id);
 
         public Task<List<Job>> GetJobsByAccountIDAsync(int accountId) => _jobDAO.GetJobsByAccountIDAsync(accountId);
+
         public Task<JobDetail> GetJobDetailByJobIDAsync(int jobID) => _jobDAO.GetJobDetailByJobIDAsync(jobID);
 
         public Task UpdateJobAsync(Job job) => _jobDAO.UpdateJobAsync(job);
+
         public Task UpdateJobDetailAsync(JobDetail jobdetail) => _jobDAO.UpdateJobDetailAsync(jobdetail);
     }
 }

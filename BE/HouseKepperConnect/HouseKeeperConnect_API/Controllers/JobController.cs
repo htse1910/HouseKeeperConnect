@@ -5,7 +5,6 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -17,6 +16,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IJobService _jobService;
         private string Message;
         private readonly IMapper _mapper;
+
         public JobController(IJobService jobService, IMapper mapper)
         {
             _jobService = jobService;
@@ -63,7 +63,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(jobs);
         }
 
-
         [HttpPost("AddJob")]
         [Authorize]
         public async Task<ActionResult> AddJob([FromQuery] JobCreateDTO jobCreateDTO)
@@ -72,22 +71,19 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest("Invalid job data.");
             }
-            var job = _mapper .Map<Job>(jobCreateDTO);
+            var job = _mapper.Map<Job>(jobCreateDTO);
 
-            job.Status = (int) JobStatus.Pending;
+            job.Status = (int)JobStatus.Pending;
 
             await _jobService.AddJobAsync(job);
 
-
-            
-            var jobDetail = _mapper .Map<JobDetail>(jobCreateDTO);
+            var jobDetail = _mapper.Map<JobDetail>(jobCreateDTO);
             jobDetail.JobID = job.JobID;
             // Add job details
             await _jobService.AddJobDetailAsync(jobDetail);
 
             return Ok("Job and its details added successfully!");
         }
-
 
         [HttpPut("UpdateJob")]
         [Authorize]
@@ -103,16 +99,15 @@ namespace HouseKeeperConnect_API.Controllers
             job.JobName = jobUpdateDTO.JobName;
 
             await _jobService.UpdateJobAsync(job);
-            var detail = _mapper .Map<JobDetail>(jobUpdateDTO);
+            var detail = _mapper.Map<JobDetail>(jobUpdateDTO);
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobUpdateDTO.JobID);
-            if(jobDetail==null)
+            if (jobDetail == null)
             {
                 Message = "No record!";
                 return NotFound(Message);
             }
             detail.JobDetailID = jobDetail.JobDetailID;
             await _jobService.UpdateJobDetailAsync(detail);
-            
 
             Message = "Job updated successfully!";
             return Ok(Message);

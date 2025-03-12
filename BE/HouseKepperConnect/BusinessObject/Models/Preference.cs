@@ -20,6 +20,7 @@ namespace BusinessObject.Models
 
         [ForeignKey("HouseKeeperSkill")]
         public int? SkillID { get; set; }
+
         public virtual Family Family { get; set; }
         public virtual Gender Gender { get; set; }
         public virtual Language Language { get; set; }

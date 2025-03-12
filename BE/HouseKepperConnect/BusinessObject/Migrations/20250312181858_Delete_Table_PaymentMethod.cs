@@ -10,8 +10,6 @@ namespace BusinessObject.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-          
-
             // Seed dữ liệu cho bảng Gender
             migrationBuilder.InsertData(
                 table: "Gender",
@@ -29,8 +27,6 @@ namespace BusinessObject.Migrations
             // Xóa dữ liệu bảng Gender khi rollback migration
             migrationBuilder.DeleteData("Gender", "GenderID", 1);
             migrationBuilder.DeleteData("Gender", "GenderID", 2);
-
-           
         }
     }
 }

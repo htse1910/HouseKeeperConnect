@@ -19,7 +19,6 @@ namespace BusinessObject.Mapping
             Mapp_Update_Family();
             Map_Update_HouseKeeper();
             Map_Create_HouseKeeper();
-            Map_Create_IDVerification();
             Map_Create_Schedule();
             Map_Update_Schedule();
             Map_Create_Job();
@@ -39,6 +38,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<Account, AccountUpdateDTO>().ReverseMap();
         }
+
         private void Map_List_Admin_Update_Account()
         {
             CreateMap<Account, AdminUpdateAccountDTO>().ReverseMap();
@@ -63,7 +63,6 @@ namespace BusinessObject.Mapping
 
         private void Mapp_List_Display_Family()
         {
-
             CreateMap<Family, FamilyDisplayDTO>()
                 .ForMember(dest => dest.GenderID, opt => opt.MapFrom(src => src.Account.GenderID))
                 .ForMember(dest => dest.Introduce, opt => opt.MapFrom(src => src.Account.Introduce));
@@ -84,13 +83,6 @@ namespace BusinessObject.Mapping
             CreateMap<HouseKeeperCreateDTO, Housekeeper>();
         }
 
-        private void Map_Create_IDVerification()
-        {
-            CreateMap<IDVerificationDTO, IDVerification>()
-                .ForMember(f => f.FacePhoto, opt => opt.Ignore())
-                .ForMember(f => f.FrontPhoto, opt => opt.Ignore())
-                .ForMember(f => f.BackPhoto, opt => opt.Ignore());
-        }
         private void Map_Create_Schedule()
         {
             CreateMap<ScheduleCreateDTO, Schedule>();
@@ -100,6 +92,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<ScheduleUpdateDTO, Schedule>();
         }
+
         private void Map_Create_Job()
         {
             CreateMap<JobCreateDTO, Job>();
@@ -111,6 +104,7 @@ namespace BusinessObject.Mapping
             CreateMap<JobUpdateDTO, Job>();
             CreateMap<JobUpdateDTO, JobDetail>();
         }
+
         private void Map_Create_Booking()
         {
             CreateMap<BookingCreateDTO, Booking>().ReverseMap();
@@ -120,10 +114,10 @@ namespace BusinessObject.Mapping
         {
             CreateMap<BookingUpdateDTO, Booking>().ReverseMap();
         }
+
         private void Map_Chat()
         {
             CreateMap<ChatDTO, Chat>().ReverseMap();
         }
-
     }
 }

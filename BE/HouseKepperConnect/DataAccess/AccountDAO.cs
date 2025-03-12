@@ -269,6 +269,7 @@ namespace DataAccess
                 throw new Exception($"Error updating account: {ex.Message}");
             }
         }
+
         public async Task AdminUpdateAccountAsync(Account updatedAccount)
         {
             try
@@ -282,7 +283,7 @@ namespace DataAccess
                     }
 
                     existingAccount.Password = updatedAccount.Password;
-                    existingAccount.Status = updatedAccount.Status;                  
+                    existingAccount.Status = updatedAccount.Status;
                     existingAccount.UpdatedAt = DateTime.Now;
 
                     await context.SaveChangesAsync();
@@ -293,7 +294,6 @@ namespace DataAccess
                 throw new Exception($"Error updating account: {ex.Message}");
             }
         }
-
 
         public async Task<bool> IsEmailExistsAsync(string email)
         {
@@ -341,8 +341,6 @@ namespace DataAccess
             {
                 return "Full Name is required.";
             }
-
-           
 
             if (AccountUpdateDTO.Phone <= 0 || !IsValidPhoneNumber(AccountUpdateDTO.Phone))
             {

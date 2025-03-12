@@ -37,13 +37,13 @@ namespace BusinessObject.Models
         public virtual DbSet<ServiceType> ServiceType { get; set; }
         public virtual DbSet<Application> Application { get; set; }
         public virtual DbSet<Payment> Payment { get; set; }
-       
+
         public virtual DbSet<Job> Job { get; set; }
         public virtual DbSet<JobDetail> JobDetail { get; set; }
         public virtual DbSet<JobListing_Application> JobListing_Application { get; set; }
         public virtual DbSet<Family_Service> Family_Service { get; set; }
         public virtual DbSet<Booking> Booking { get; set; }
-        public virtual DbSet<Language> Language { get; set; } 
+        public virtual DbSet<Language> Language { get; set; }
         public virtual DbSet<Gender> Gender { get; set; }
         public virtual DbSet<Preference> Preference { get; set; }
         public virtual DbSet<Payout> Payout { get; set; }
@@ -53,6 +53,7 @@ namespace BusinessObject.Models
         public virtual DbSet<VerificationTask> VerificationTask { get; set; }
 
         public virtual DbSet<Housekeeper_Violation> Housekeeper_Violation { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().HasData(

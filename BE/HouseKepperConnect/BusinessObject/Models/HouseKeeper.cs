@@ -12,9 +12,6 @@ namespace BusinessObject.Models
         [ForeignKey("Account")]
         public int AccountID { get; set; }
 
-       
-
-
         public int? Rating { get; set; }
 
         public bool IsVerified { get; set; }
@@ -28,8 +25,7 @@ namespace BusinessObject.Models
         public int? VerifyID { get; set; }
 
         public virtual Account Account { get; set; }
-       
-        
+
         public virtual IDVerification IDVerification { get; set; }
     }
 }
