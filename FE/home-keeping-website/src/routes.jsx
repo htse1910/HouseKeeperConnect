@@ -15,6 +15,8 @@ import FamilyManagePage from './pages/FamilyManagePage';
 import MessagesPage from './pages/MessagesPage';
 import UpdateHousekeeperPage from './pages/UpdateHousekeeperPage'; // ✅ Import new page
 import AddIdentificationPicturePage from './pages/AddIdentificationPicturePage';
+// import FamilyProfilePage from './pages/FamilyProfilePage';
+// import AdminProfilePage from './pages/AdminProfilePage';
 
 function AppRoutes() {
   return (

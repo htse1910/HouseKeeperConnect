@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaStar, FaStarHalfAlt, FaFilter, FaPlus, FaClock, FaCalendarAlt } from "react-icons/fa";
+import { FaStar, FaStarHalfAlt, FaRegStar, FaFilter, FaPlus, FaClock, FaCalendarAlt } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { jobs, schedule, statistics, paymentDetails } from "../data/HousekeeperData.jsx";
@@ -19,17 +19,21 @@ function HousekeeperDashboard() {
       .catch(error => console.error("Lỗi khi tải thông tin user:", error)); */
   }, []);
 
-  // Xử lý hiển thị star-icon trong thông tin thống kê
+  // Xử lý hiển thị star-icon
   const renderStars = (rating) => {
     const fullStars = Math.floor(rating); // Số sao đầy
     const hasHalfStar = rating % 1 !== 0; // Kiểm tra có sao nửa không
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0); // Số sao rỗng còn lại
 
     return (
       <>
         {[...Array(fullStars)].map((_, index) => (
-          <FaStar key={index} className="star-icon" />
+          <FaStar key={index} className="star-icon full" />
         ))}
-        {hasHalfStar && <FaStarHalfAlt className="star-icon" />}
+        {hasHalfStar && <FaStarHalfAlt className="star-icon half" />}
+        {[...Array(emptyStars)].map((_, index) => (
+          <FaRegStar key={index + fullStars + 1} className="star-icon empty" />
+        ))}
       </>
     );
   };
