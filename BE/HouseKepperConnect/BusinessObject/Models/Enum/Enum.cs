@@ -34,6 +34,7 @@
         Pending = 1,
         Verified = 2,
     }
+
     public enum JobStatus
     {
         Pending = 1,

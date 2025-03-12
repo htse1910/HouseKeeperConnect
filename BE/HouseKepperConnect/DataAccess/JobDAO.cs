@@ -10,7 +10,8 @@ namespace DataAccess
         private static JobDAO instance;
         private static readonly object instancelock = new object();
 
-        public JobDAO() { }
+        public JobDAO()
+        { }
 
         public static JobDAO Instance
         {
@@ -60,6 +61,7 @@ namespace DataAccess
             }
             return job;
         }
+
         public async Task<JobDetail> GetJobDetailByJobIDAsync(int id)
         {
             JobDetail jobdetail = new JobDetail();
@@ -81,7 +83,6 @@ namespace DataAccess
             return await context.Job.Where(j => j.AccountID == accountId).ToListAsync();
         }
 
-
         public async Task AddJobAsync(Job job)
         {
             try
@@ -97,6 +98,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task AddJobDetailAsync(JobDetail jobDetail)
         {
             using var context = new PCHWFDBContext();
@@ -132,6 +134,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task UpdateJobDetailAsync(JobDetail jobdetail)
         {
             try

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace BusinessObject.DTOs
+﻿namespace BusinessObject.DTOs
 {
     public class JobUpdateDTO
     {
@@ -10,6 +8,7 @@ namespace BusinessObject.DTOs
 
         // JobDetail fields
         public string Frequency { get; set; }
+
         public string Location { get; set; }
         public decimal Price { get; set; }
         public int ServiceID { get; set; }

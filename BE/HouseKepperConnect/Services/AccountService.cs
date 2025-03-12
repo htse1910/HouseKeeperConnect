@@ -38,6 +38,7 @@ namespace Services
         public async Task<string> ValidateUpdateAccountAsync(AccountUpdateDTO AccountUpdateDTO) => await _accountRepository.ValidateUpdateAccountAsync(AccountUpdateDTO);
 
         public async Task<TokenModel> LoginWithGoogleAsync(string googleToken) => await _accountRepository.LoginWithGoogleAsync(googleToken);
+
         public async Task AdminUpdateAccountAsync(Account updatedAccount) => await _accountRepository.AdminUpdateAccountAsync(updatedAccount);
     }
 }

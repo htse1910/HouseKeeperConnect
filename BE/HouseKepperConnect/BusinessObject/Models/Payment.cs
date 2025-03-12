@@ -23,6 +23,5 @@ namespace BusinessObject.Models
 
         public virtual Family Family { get; set; }
         public virtual Housekeeper Housekeeper { get; set; }
-        
     }
 }

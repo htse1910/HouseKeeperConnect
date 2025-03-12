@@ -10,7 +10,8 @@ namespace DataAccess
         private static BookingDAO instance;
         private static readonly object instancelock = new object();
 
-        public BookingDAO() { }
+        public BookingDAO()
+        { }
 
         public static BookingDAO Instance
         {
@@ -81,6 +82,7 @@ namespace DataAccess
                 .Include(b => b.Service)
                 .ToListAsync();
         }
+
         public async Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId)
         {
             using var context = new PCHWFDBContext();
@@ -88,6 +90,7 @@ namespace DataAccess
                 .Where(b => b.HousekeeperID == housekeeperId)
                 .ToListAsync();
         }
+
         public async Task<List<Booking>> GetBookingsByJobIDAsync(int jobId)
         {
             using var context = new PCHWFDBContext();

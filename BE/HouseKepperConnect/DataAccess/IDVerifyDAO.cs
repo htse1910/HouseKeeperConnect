@@ -50,7 +50,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    IDVerify = await context.IDVerification.SingleOrDefaultAsync(x => x.IDNumber == id);
+                    IDVerify = await context.IDVerification.SingleOrDefaultAsync(x => x.VerifyID == id);
                 }
             }
             catch (Exception ex)
@@ -84,6 +84,22 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     context.IDVerification.Add(veri);
+                    await context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task UpdateIDVerifyAsync(IDVerification veri)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    context.Entry(veri).State = EntityState.Modified;
                     await context.SaveChangesAsync();
                 }
             }

@@ -8,10 +8,7 @@ namespace BusinessObject.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ViolationID { get; set; }
 
-      
         [MaxLength(500)]
         public string Description { get; set; }
-
-        
     }
 }

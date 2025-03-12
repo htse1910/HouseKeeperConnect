@@ -1,12 +1,5 @@
-﻿using AutoMapper;
-using BusinessObject.Models;
-using Microsoft.AspNetCore.SignalR;
+﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess
 {
@@ -15,7 +8,8 @@ namespace DataAccess
         private static ChatDAO instance;
         private static readonly object instancelock = new object();
 
-        private ChatDAO() { }
+        private ChatDAO()
+        { }
 
         public static ChatDAO Instance
         {

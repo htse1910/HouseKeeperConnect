@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessObject.Models
 {
@@ -20,7 +15,7 @@ namespace BusinessObject.Models
         [ForeignKey("Violation")]
         public int ViolationID { get; set; }
 
-        public DateTime ViolationDate { get; set; }  
+        public DateTime ViolationDate { get; set; }
 
         public virtual Housekeeper Housekeeper { get; set; }
         public virtual Violation Violation { get; set; }
