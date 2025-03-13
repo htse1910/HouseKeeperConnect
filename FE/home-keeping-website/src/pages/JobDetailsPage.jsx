@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Import navigate
 import { FaMapMarkerAlt, FaUser, FaClock, FaStar } from "react-icons/fa";
-import { Link } from "react-router-dom";
 
 function JobDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate(); // Hook for navigation
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [similarJobs, setSimilarJobs] = useState([]);
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
@@ -31,6 +30,13 @@ function JobDetailsPage() {
   if (loading) {
     return <div className="text-center py-5">Đang tải thông tin công việc...</div>;
   }
+
+  // Handle redirect to MessagesPage with Family Name
+  const handleMessageRedirect = () => {
+    if (job.account?.name) {
+      navigate(`/messages?search=${encodeURIComponent(job.account.name)}`);
+    }
+  };
 
   return (
     <div className="container py-4">
@@ -57,11 +63,13 @@ function JobDetailsPage() {
           {/* Application Buttons */}
           <div className="d-flex">
             <button className="btn text-white w-50 me-2" style={{ backgroundColor: "#ff9900" }}>Ứng tuyển ngay</button>
-            <button className="btn btn-outline-secondary w-50">Nhắn tin cho Gia đình</button>
+            <button className="btn btn-outline-secondary w-50" onClick={handleMessageRedirect}>
+              Nhắn tin cho Gia đình
+            </button>
           </div>
         </div>
 
-        {/* Right Column - Similar Jobs & Reviews */}
+        {/* Right Column - Reviews */}
         <div className="col-md-4">
           <div className="card p-3 shadow-sm border-0">
             <h5 className="fw-bold">Đánh giá về gia đình</h5>
