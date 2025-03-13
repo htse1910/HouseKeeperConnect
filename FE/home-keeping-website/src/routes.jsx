@@ -38,7 +38,7 @@ function AppRoutes() {
         <Route path="/Family/profile" element={<FamilyProfilePage />} />
 
         {/* Job & Profile Related Pages */}
-        <Route path="/find-jobs" element={<FindJobsPage />} />
+        <Route path="/jobs" element={<FindJobsPage />} />
         <Route path="/job/:id" element={<JobDetailsPage />} />
         <Route path="/job-posting-page" element={<JobPostingPage />} />
 
