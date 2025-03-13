@@ -5,10 +5,11 @@
   "faq": "FAQ",
   "find_jobs": "Find Jobs",
   "my_jobs": "My Jobs",
+  
   "messages": "Messages",
   "support": "Support",
-  "post_job": "Post Job",
-  "my_posts": "My Posts",
+  "post_job": "Post a Job",
+  "my_posts": "My Posted Jobs",
   "dashboard": "Dashboard",
   "users": "Users",
   "approval": "Approval",
@@ -20,8 +21,25 @@
   "logout": "Logout",
 
   "dashboard_welcome_message": "Welcome back, {{name}}!",
-  "dashboard_welcome_detail_housekeeper": "Discover jobs that are right for you.",
-  "dashboard_welcome_detail_family": "Discover the companions that are right for you.",
+  "dashboard_welcome_detail_housekeeper": "Discover jobs that suit you.",
+  "dashboard_welcome_detail_family": "Find the right companions for you.",
+  "select_category": "Select a category from the menu to manage data.",
+
+  "housekeepers": "Housekeepers",
+  "families": "Families",
+  "jobs": "Jobs",
+  "transactions": "Transactions",
+
+  "total_housekeepers": "Total Housekeepers",
+  "total_families": "Total Families",
+  "total_jobs": "Total Jobs",
+  "total_transactions": "Total Transactions",
+
+  "loading_data": "Loading data...",
+  "error_loading": "Unable to load data.",
+  "error_auth": "Authentication information not found.",
+  "error_account": "Account not found. Please log in again.",
+  "view_demo": "View Demo",
 
   "dashboard_jobs": {
     "available": "Available Jobs",
@@ -31,13 +49,11 @@
     "clean_house": "House Cleaning",
     "clean_office": "Office Cleaning"
   },
-
   "dashboard_stats": {
     "completed_jobs": "Completed Jobs",
     "rating": "Rating",
-    "this_month_income": "This Month's Income"
+    "this_month_income": "Income This Month"
   },
-
   "dashboard_schedule": {
     "title": "Work Schedule",
     "clean_house": "House Cleaning",
@@ -45,9 +61,8 @@
     "today": "Today",
     "tomorrow": "Tomorrow"
   },
-
   "dashboard_payment": {
-    "title": "Payment",
+    "title": "Payments",
     "total_income": "Total Income",
     "pending": "Pending",
     "withdrawable": "Withdrawable",

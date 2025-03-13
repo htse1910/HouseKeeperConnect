@@ -1,15 +1,19 @@
 /* Cấu trúc chính */
-.dashboard {
-    padding: 10px 40px;
-    margin-bottom: 40px;
+.dashboard-container {
+    padding: 40px 50px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: var(--bg-color);
 }
 
 .dashboard-content {
     background: var(--bg-color);
     padding: 30px 40px;
     border-radius: 10px;
-    margin-top: 40px;
-    margin-bottom: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -320,4 +324,100 @@
 
 .withdraw-btn:hover {
     background: var(--secondary-color);
+}
+
+/* Sidebar dành riêng cho Staff Dashboard */
+.staff-dashboard-layout {
+    display: flex;
+}
+
+.staff-sidebar {
+    width: 250px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.staff-sidebar .dashboard-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Tùy chỉnh menu của Staff Dashboard */
+.staff-sidebar .dashboard-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    text-decoration: none;
+    color: var(--text-color);
+    border-radius: var(--border-radius);
+    transition: background 0.3s ease;
+}
+
+.staff-sidebar .dashboard-menu-item:hover {
+    background-color: var(--accent-color);
+}
+
+.staff-sidebar .dashboard-menu-item.active {
+    background-color: var(--main-color);
+}
+
+/* Phần nội dung chính của Staff Dashboard */
+.staff-dashboard-content {
+    flex: 1;
+    background-color: var(--bg-color);
+    padding-bottom: 20px;
+}
+
+.staff-dashboard-content .dashboard-heading {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.staff-dashboard-content .dashboard-text {
+    font-size: 16px;
+    color: var(--text-alt-color);
+}
+
+.staff-dashboard-stats-content {
+    flex: 1;
+    margin-left: 40px;
+    background-color: var(--bg-color);
+    overflow-y: auto;
+}
+
+.staff-dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    background-color: var(--box-background-color);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    box-shadow: var(--box-shadow);
+}
+
+.stat-icon {
+    font-size: 30px;
+    color: var(--main-color);
+    margin-bottom: 10px;
+}
+
+.stat-number {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.stat-label {
+    font-size: 16px;
+    color: var(--text-alt-color);
+    margin-bottom: 0;
 }

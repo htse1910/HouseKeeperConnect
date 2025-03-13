@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "../assets/styles/Profile.css";
 import defaultAvatar from "../assets/images/avatar0.png";
 import axios from "axios";
 
 const FamilyProfilePage = () => {
+    const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const isDemo = searchParams.get("demo") === "true";
 
@@ -56,13 +58,13 @@ const FamilyProfilePage = () => {
         const accountID = localStorage.getItem("accountID");
 
         if (!token) {
-            setError("Không tìm thấy thông tin đăng nhập.");
+            setError("error_auth");
             setLoading(false);
             return;
         }
 
         if (!accountID) {
-            setError("Không tìm thấy accountID. Vui lòng đăng nhập lại.");
+            setError(t("error_account"));
             setLoading(false);
             return;
         }
@@ -76,14 +78,14 @@ const FamilyProfilePage = () => {
         axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
             .then((accountResponse) => {
                 const account = accountResponse.data;
-                if (!account || !account.accountID) throw new Error("Không tìm thấy thông tin tài khoản.");
+                if (!account || !account.accountID) throw new Error(t("error_auth"));
                 setAccountInfo(account);
 
                 return axios.get(`http://localhost:5280/api/Families/SearchFamilyByAccountId?accountId=${accountID}`, { headers });
             })
             .then((familyResponse) => {
                 const familyData = familyResponse.data?.[0];
-                if (!familyData) throw new Error("Không tìm thấy dữ liệu gia đình.");
+                if (!familyData) throw new Error(t("error_loading"));
                 setFamily(familyData);
 
                 // Sau khi có accountID hợp lệ, mới gọi API lấy danh sách công việc
@@ -99,8 +101,8 @@ const FamilyProfilePage = () => {
                 setJobs(formattedJobs);
             })
             .catch((err) => {
-                console.error("Lỗi khi tải dữ liệu:", err);
-                setError("Không thể tải dữ liệu. Vui lòng thử lại!");
+                console.error("API Error:", err);
+                setError(t("error_loading"));
                 setLoading(false);
             })
             .finally(() => {
@@ -112,7 +114,7 @@ const FamilyProfilePage = () => {
     if (loading) {
         return (
             <div className="profile-container">
-                <p>🔄 Đang tải dữ liệu...</p>
+                <p>🔄 {t("loading_data")}</p>
             </div>
         );
     }
@@ -122,7 +124,7 @@ const FamilyProfilePage = () => {
             <div className="profile-container">
                 <p className="error">❌ {error}</p>
                 <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                    Xem giao diện demo
+                    {t("view_demo")}
                 </button>
             </div>
         );

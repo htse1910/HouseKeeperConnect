@@ -18,10 +18,27 @@
   "register": "Đăng ký",
   "profile": "Trang cá nhân",
   "logout": "Đăng xuất",
-  
+
   "dashboard_welcome_message": "Chào mừng trở lại, {{name}}!",
   "dashboard_welcome_detail_housekeeper": "Khám phá những công việc phù hợp với bạn.",
   "dashboard_welcome_detail_family": "Khám phá những người đồng hành phù hợp với bạn.",
+  "select_category": "Chọn một danh mục từ menu để quản lý dữ liệu.",
+
+  "housekeepers": "Người giúp việc",
+  "families": "Gia đình",
+  "jobs": "Công việc",
+  "transactions": "Giao dịch",
+
+  "total_housekeepers": "Tổng số người giúp việc",
+  "total_families": "Tổng số gia đình",
+  "total_jobs": "Tổng số công việc",
+  "total_transactions": "Tổng số giao dịch",
+  
+  "loading_data": "Đang tải dữ liệu...",
+  "error_loading": "Không thể tải dữ liệu.",
+  "error_auth": "Không tìm thấy thông tin đăng nhập.",
+  "error_account": "Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại.",
+  "view_demo": "Xem giao diện demo",
 
   "dashboard_jobs": {
     "available": "Công việc khả dụng",
@@ -31,13 +48,11 @@
     "clean_house": "Dọn dẹp nhà ở",
     "clean_office": "Dọn dẹp văn phòng"
   },
-
   "dashboard_stats": {
     "completed_jobs": "Công việc đã hoàn thành",
     "rating": "Đánh giá",
     "this_month_income": "Thu nhập tháng này"
   },
-
   "dashboard_schedule": {
     "title": "Lịch làm việc",
     "clean_house": "Dọn dẹp nhà ở",
@@ -45,7 +60,6 @@
     "today": "Hôm nay",
     "tomorrow": "Ngày mai"
   },
-
   "dashboard_payment": {
     "title": "Thanh toán",
     "total_income": "Tổng thu nhập",
