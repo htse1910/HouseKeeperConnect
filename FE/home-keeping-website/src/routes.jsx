@@ -14,10 +14,10 @@ import HousekeeperDetailsPage from './pages/HousekeeperDetailsPage';
 import MessagesPage from './pages/MessagesPage';
 import UpdateHousekeeperPage from './pages/UpdateHousekeeperPage'; // ✅ Import new page
 import AddIdentificationPicturePage from './pages/AddIdentificationPicturePage';
-import HousekeeperProfilePage from './pages/HousekeeperProfilePage';
+//import HousekeeperProfilePage from './pages/HousekeeperProfilePage';
 import FamilyProfilePage from './pages/FamilyProfilePage';
-import AdminProfilePage from './pages/AdminProfilePage';
-import AdminDashboard from './pages/AdminDashboard';
+//import AdminProfilePage from './pages/AdminProfilePage';
+//import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 
 function AppRoutes() {
@@ -33,6 +33,9 @@ function AppRoutes() {
         {/* Role-Based Dashboard Routes */}
         <Route path="/housekeeper-dashboard" element={<HousekeeperDashboardPage />} />
         <Route path="/family-dashboard" element={<FamilyDashboard />} />
+
+        {/* Profile Pages */}
+        <Route path="/Family/profile" element={<FamilyProfilePage />} />
 
         {/* Job & Profile Related Pages */}
         <Route path="/find-jobs" element={<FindJobsPage />} />
