@@ -1,32 +1,30 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import "../assets/styles/Navbar.css";
 import logo from "../assets/images/logo.png";
-import { FaGlobe, FaSearch, FaBars, FaCaretDown, FaUser, FaSignOutAlt } from "react-icons/fa";
+import { FaGlobe, FaSearch, FaBars, FaCaretDown, FaUser, FaSignOutAlt, FaTachometerAlt } from "react-icons/fa";
 import userAvatar from "../assets/images/default-avatar.png";
 import { UserRoleContext } from "./UserRoleProvider";
-import { useMenuItems } from "./menuConfig"; // Import menu config
+import { useMenuItems } from "./menuConfig";
 
 function Navbar() {
   const { t, i18n } = useTranslation();
   const { userRole, setUserRole } = useContext(UserRoleContext);
-  const menuItems = useMenuItems(); // Lấy danh sách menu theo role
+  const menuItems = useMenuItems();
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [userMenuVisible, setUserMenuVisible] = useState(false); // State cho menu user
+  const [userMenuVisible, setUserMenuVisible] = useState(false);
   const langRef = useRef(null);
   const userMenuRef = useRef(null);
   const [searchVisible, setSearchVisible] = useState(false);
   const searchRef = useRef(null);
-  const navigate = useNavigate(); // Hook điều hướng
+  const navigate = useNavigate();
 
-  // Lấy userRole từ localStorage khi component mount
   useEffect(() => {
     const storedRole = localStorage.getItem("userRole") || "Guest";
     setUserRole(storedRole);
   }, []);
 
-  // Xử lý khi click bên ngoài
   useEffect(() => {
     function handleClickOutside(event) {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -52,12 +50,10 @@ function Navbar() {
   };
 
   const handleLogout = () => {
-    setUserRole("Guest"); // Reset role về guest
+    setUserRole("Guest");
     localStorage.removeItem("userRole");
-    navigate("/"); // Quay về trang chủ
+    navigate("/");
   };
-
-  console.log(menuItems);
 
   return (
     <nav className="navbar">
@@ -100,7 +96,10 @@ function Navbar() {
               />
               {userMenuVisible && (
                 <div className="user-dropdown">
-                  <button onClick={() => navigate(`/${userRole}/profile`)}>
+                  <button onClick={() => navigate(`/${userRole.toLowerCase()}/dashboard`)}>
+                    <FaTachometerAlt /> {t("dashboard")}
+                  </button>
+                  <button onClick={() => navigate(`/${userRole.toLowerCase()}/profile`)}>
                     <FaUser /> {t("profile")}
                   </button>
                   <button onClick={handleLogout}>
@@ -126,7 +125,7 @@ function Navbar() {
           ref={langRef}
           onMouseEnter={() => setDropdownVisible(true)}
           onMouseLeave={() => setDropdownVisible(false)} >
-          <button className="lang-btn" >
+          <button className="lang-btn">
             <FaGlobe />
           </button>
           {dropdownVisible && (

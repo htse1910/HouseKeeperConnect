@@ -50,7 +50,7 @@ const HousekeeperProfilePage = () => {
             </div>
 
             {/* Phần chính của hồ sơ */}
-            <div className="profile-content">
+            <div className=".profile-content-housekeeper">
                 {/* Cột trái: Giới thiệu, kỹ năng, giá cả, chứng chỉ */}
                 <div className="profile-left">
                     <div className="profile-section">

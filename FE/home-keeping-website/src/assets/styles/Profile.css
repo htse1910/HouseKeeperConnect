@@ -9,21 +9,25 @@
 }
 
 /* Bố cục chia 2 cột */
-.profile-content {
+.profile-content-housekeeper {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 20px;
 }
 
-/* Cột bên trái */
+.profile-content-family {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+}
+
 .profile-left {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-/* Cột bên phải */
-.profile-right {
+.profile-righty {
     display: flex;
     flex-direction: column;
     gap: 20px;
