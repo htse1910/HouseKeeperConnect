@@ -18,7 +18,7 @@ const StaffDashboardPage = () => {
     const [userName, setUserName] = useState("");
 
     useEffect(() => {
-        const storedName = localStorage.getItem("userName") || "Nhân viên";
+        const storedName = localStorage.getItem("userName") || t("staff");
         setUserName(storedName);
     }, []);
 
@@ -97,7 +97,8 @@ const StaffDashboardPage = () => {
     if (loading) {
         return (
             <div className="dashboard-container">
-                <p>🔄 {t("loading_data")}</p>
+                <span className="loading"></span>
+                <p>{t("loading_data")}</p>
             </div>
         );
     }
