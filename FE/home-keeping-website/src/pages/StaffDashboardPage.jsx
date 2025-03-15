@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FaUserTie, FaUsers, FaBriefcase, FaMoneyBillWave } from "react-icons/fa";
+import { FaUserTie, FaUsers, FaBriefcase, FaMoneyBillWave, FaLifeRing, 
+    FaStar, FaExclamationTriangle, FaBook } from "react-icons/fa";
 import "../assets/styles/Dashboard.css";
 import axios from "axios";
 
@@ -25,7 +26,11 @@ const StaffDashboardPage = () => {
         { name: t("housekeepers"), icon: <FaUserTie />, path: "/dashboard/housekeepers" },
         { name: t("families"), icon: <FaUsers />, path: "/dashboard/families" },
         { name: t("jobs"), icon: <FaBriefcase />, path: "/dashboard/jobs" },
-        { name: t("transactions"), icon: <FaMoneyBillWave />, path: "/dashboard/transactions" }
+        { name: t("transactions"), icon: <FaMoneyBillWave />, path: "/dashboard/transactions" },
+        { name: t("staff-support"), icon: <FaLifeRing />, path: "/dashboard/support" },
+        { name: t("reviews"), icon: <FaStar />, path: "/dashboard/reviews" },
+        { name: t("disputes"), icon: <FaExclamationTriangle />, path: "/dashboard/disputes" },
+        { name: t("faqs_policies"), icon: <FaBook />, path: "/dashboard/faqs-policies" },
     ];
 
     useEffect(() => {
@@ -111,50 +116,50 @@ const StaffDashboardPage = () => {
     return (
         <div className="dashboard-container">
             <div className="staff-dashboard-layout">
-            {/* Sidebar */}
-            <div className="dashboard-sidebar staff-sidebar">
-                <h2 className="dashboard-title">Staff Dashboard</h2>
-                <nav>
-                    {menuItems.map((item, index) => (
-                        <NavLink
-                            key={index}
-                            to={item.path}
-                            className={({ isActive }) =>
-                                `dashboard-menu-item ${isActive ? "active" : ""}`
-                            }
-                        >
-                            {item.icon}
-                            <span>{item.name}</span>
-                        </NavLink>
-                    ))}
-                </nav>
-            </div>
+                {/* Sidebar */}
+                <div className="dashboard-sidebar staff-sidebar">
+                    <h2 className="dashboard-title">Staff Dashboard</h2>
+                    <nav>
+                        {menuItems.map((item, index) => (
+                            <NavLink
+                                key={index}
+                                to={item.path}
+                                className={({ isActive }) =>
+                                    `dashboard-menu-item ${isActive ? "active" : ""}`
+                                }
+                            >
+                                {item.icon}
+                                <span>{item.name}</span>
+                            </NavLink>
+                        ))}
+                    </nav>
+                </div>
 
-            {/* Stats Content */}
-            <div className="dashboard-content staff-dashboard-stats-content">
-                <div className="staff-dashboard-stats">
-                    <div className="stat-card">
-                        <FaUserTie className="stat-icon" />
-                        <p className="stat-number">{stats.housekeepers}</p>
-                        <p className="stat-label">{t("total_housekeepers")}</p>
-                    </div>
-                    <div className="stat-card">
-                        <FaUsers className="stat-icon" />
-                        <p className="stat-number">{stats.families}</p>
-                        <p className="stat-label">{t("total_families")}</p>
-                    </div>
-                    <div className="stat-card">
-                        <FaBriefcase className="stat-icon" />
-                        <p className="stat-number">{stats.jobs}</p>
-                        <p className="stat-label">{t("total_jobs")}</p>
-                    </div>
-                    <div className="stat-card">
-                        <FaMoneyBillWave className="stat-icon" />
-                        <p className="stat-number">{stats.transactions}</p>
-                        <p className="stat-label">{t("total_transactions")}</p>
+                {/* Stats Content */}
+                <div className="dashboard-content staff-dashboard-stats-content">
+                    <div className="staff-dashboard-stats">
+                        <div className="stat-card">
+                            <FaUserTie className="stat-icon" />
+                            <p className="stat-number">{stats.housekeepers}</p>
+                            <p className="stat-label">{t("total_housekeepers")}</p>
+                        </div>
+                        <div className="stat-card">
+                            <FaUsers className="stat-icon" />
+                            <p className="stat-number">{stats.families}</p>
+                            <p className="stat-label">{t("total_families")}</p>
+                        </div>
+                        <div className="stat-card">
+                            <FaBriefcase className="stat-icon" />
+                            <p className="stat-number">{stats.jobs}</p>
+                            <p className="stat-label">{t("total_jobs")}</p>
+                        </div>
+                        <div className="stat-card">
+                            <FaMoneyBillWave className="stat-icon" />
+                            <p className="stat-number">{stats.transactions}</p>
+                            <p className="stat-label">{t("total_transactions")}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
 
             {/* Main Content */}
