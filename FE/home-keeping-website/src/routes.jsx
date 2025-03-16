@@ -19,6 +19,7 @@ import FamilyProfilePage from './pages/FamilyProfilePage';
 //import AdminProfilePage from './pages/AdminProfilePage';
 //import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
+import StaffDashboardPage from'./pages/StaffDashboardPage';
 
 function AppRoutes() {
   return (
@@ -33,6 +34,7 @@ function AppRoutes() {
         {/* Role-Based Dashboard Routes */}
         <Route path="/housekeeper-dashboard" element={<HousekeeperDashboardPage />} />
         <Route path="/family-dashboard" element={<FamilyDashboard />} />
+        <Route path="/staff-dashboard" element={<StaffDashboardPage />} />
 
         {/* Profile Pages */}
         <Route path="/Family/profile" element={<FamilyProfilePage />} />
