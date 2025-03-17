@@ -28,7 +28,7 @@ const generateFakeHousekeepers = () => {
     }));
 };
 
-const HousekeeperManagementPage = () => {
+const UserVerificationPage = () => {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const isDemo = searchParams.get("demo") === "true";
@@ -359,4 +359,4 @@ const HousekeeperManagementPage = () => {
     );
 };
 
-export default HousekeeperManagementPage;
+export default UserVerificationPage;

@@ -20,7 +20,7 @@ import FamilyProfilePage from './pages/FamilyProfilePage';
 //import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 import StaffDashboardPage from'./pages/StaffDashboardPage';
-import HouseKeeperManagementPage from './pages/HousekeeperManagementPage';
+import UserVerificationPage from './pages/UserVerificationPage';
 
 function AppRoutes() {
   return (
@@ -54,7 +54,7 @@ function AppRoutes() {
 
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
-        <Route path="/dashboard/housekeepers" element={<HouseKeeperManagementPage />} />
+        <Route path="/dashboard/user" element={<UserVerificationPage />} />
 
       </Routes>
     </Layout>
