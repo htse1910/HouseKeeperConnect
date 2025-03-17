@@ -5,6 +5,7 @@ using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
+using System.Diagnostics;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -180,6 +181,19 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 throw new Exception(ex.Message);
             }
+        }
+        [HttpGet("ListHousekeeperPending")]
+        [Authorize]
+        public async Task<IActionResult> GetPendingHousekeepers()
+        {
+            var pendingHousekeepers = await _housekeeperService.GetPendingHousekeepersAsync();
+            var trans = _mapper.Map<List<HousekeeperPendingDTO>>(pendingHousekeepers);
+            if (trans == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+            return Ok(trans);
         }
     }
 }
