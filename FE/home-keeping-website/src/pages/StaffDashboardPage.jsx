@@ -23,11 +23,10 @@ const StaffDashboardPage = () => {
     }, []);
 
     const menuItems = [
-        { name: t("housekeepers"), icon: <FaUserTie />, path: "/dashboard/housekeepers" },
-        { name: t("families"), icon: <FaUsers />, path: "/dashboard/families" },
+        { name: t("account_verification"), icon: <FaUserTie />, path: "/dashboard/user" },
         { name: t("jobs"), icon: <FaBriefcase />, path: "/dashboard/jobs" },
         { name: t("transactions"), icon: <FaMoneyBillWave />, path: "/dashboard/transactions" },
-        { name: t("staff-support"), icon: <FaLifeRing />, path: "/dashboard/support" },
+        { name: t("staff_support"), icon: <FaLifeRing />, path: "/dashboard/support" },
         { name: t("reviews"), icon: <FaStar />, path: "/dashboard/reviews" },
         { name: t("disputes"), icon: <FaExclamationTriangle />, path: "/dashboard/disputes" },
         { name: t("faqs_policies"), icon: <FaBook />, path: "/dashboard/faqs-policies" },
