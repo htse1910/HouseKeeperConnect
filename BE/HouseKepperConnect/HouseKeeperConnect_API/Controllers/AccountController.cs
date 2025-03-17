@@ -4,6 +4,7 @@ using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using BusinessObject.Models.JWTToken;
+using DataAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -218,7 +219,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("ChangeStatus")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "Staff")]
         public async Task<IActionResult> ToggleStatus([FromQuery] int id)
         {
             try
@@ -253,5 +254,27 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(tokenModel);
         }
+        [HttpGet("TotalAccount")]
+        [Authorize]
+        public async Task<IActionResult> GetTotalAccount()
+        {
+            var (totalHousekeepers, totalFamilies) = await _accountService.GetTotalAccountAsync();
+            var result = new TotalAccountDTO
+            {
+                TotalHousekeepers = totalHousekeepers,
+                TotalFamilies = totalFamilies
+            };
+            return Ok(result);
+        }
+
+        [HttpGet("NewAccounts")]
+        [Authorize]
+        public async Task<IActionResult> GetNewAccount()
+        {
+            var accounts = await _accountService.GetNewAccout();
+            var accountDTOs = _mapper.Map<List<AccountDisplayDTO>>(accounts);
+            return Ok(accountDTOs);
+        }
+
     }
 }

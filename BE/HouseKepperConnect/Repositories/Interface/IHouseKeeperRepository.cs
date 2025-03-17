@@ -1,4 +1,5 @@
-﻿using BusinessObject.Models;
+﻿using BusinessObject.DTO;
+using BusinessObject.Models;
 
 namespace Repositories.Interface
 {
@@ -15,5 +16,6 @@ namespace Repositories.Interface
         Task DeleteHousekeeperAsync(int id);
 
         Task UpdateHousekeeperAsync(Housekeeper Housekeeper);
+        Task<List<Housekeeper>> GetPendingHousekeepersAsync();
     }
 }

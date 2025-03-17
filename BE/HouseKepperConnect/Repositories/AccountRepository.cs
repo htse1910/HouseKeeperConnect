@@ -33,5 +33,7 @@ namespace Repositories
         public async Task<TokenModel> LoginWithGoogleAsync(string googleToken) => await AccountDAO.Instance.LoginWithGoogleAsync(googleToken);
 
         public async Task AdminUpdateAccountAsync(Account updatedAccount) => await AccountDAO.Instance.AdminUpdateAccountAsync(updatedAccount);
+        public async Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync() => await AccountDAO.Instance.GetTotalAccountAsync();
+        public async Task<List<Account>> GetNewAccout() => await AccountDAO.Instance.GetNewAccout();
     }
 }

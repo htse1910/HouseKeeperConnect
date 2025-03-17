@@ -1,4 +1,5 @@
-﻿using BusinessObject.Models;
+﻿using BusinessObject.DTO;
+using BusinessObject.Models;
 
 namespace Services.Interface
 {
@@ -15,5 +16,6 @@ namespace Services.Interface
         Task DeleteHousekeeperAsync(int id);
 
         Task UpdateHousekeeperAsync(Housekeeper Housekeeper);
+        Task<List<Housekeeper>> GetPendingHousekeepersAsync();
     }
 }

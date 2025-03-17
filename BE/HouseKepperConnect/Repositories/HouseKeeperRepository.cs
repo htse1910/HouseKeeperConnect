@@ -1,4 +1,5 @@
-﻿using BusinessObject.Models;
+﻿using BusinessObject.DTO;
+using BusinessObject.Models;
 using DataAccess;
 using Repositories.Interface;
 
@@ -17,5 +18,6 @@ namespace Repositories
         public async Task<Housekeeper> GetHousekeepersByUserAsync(int uId) => await HousekeeperDAO.Instance.GetHousekeepersByUserAsync(uId);
 
         public async Task UpdateHousekeeperAsync(Housekeeper Housekeeper) => await HousekeeperDAO.Instance.UpdateHousekeeperAsync(Housekeeper);
+        public async Task<List<Housekeeper>> GetPendingHousekeepersAsync() => await HousekeeperDAO.Instance.GetPendingHousekeepersAsync();
     }
 }

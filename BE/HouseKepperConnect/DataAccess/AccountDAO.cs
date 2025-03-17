@@ -383,7 +383,7 @@ namespace DataAccess
                     var Account = await context.Account.SingleOrDefaultAsync(u => u.AccountID == AccountId);
                     if (Account != null)
                     {
-                        Account.Status = Account.Status == 1 ? 2 : 1;
+                        Account.Status = Account.Status == 1 ? 0 : 1;
                         await context.SaveChangesAsync();
                     }
                     else
@@ -442,6 +442,42 @@ namespace DataAccess
 
                 var tokenizedData = _mapper.Map<TokenModel>(account);
                 return tokenizedData;
+            }
+        }
+        public async Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync()
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    int totalHousekeepers = await context.Account.CountAsync(a => a.RoleID == 1); 
+                    int totalFamilies = await context.Account.CountAsync(a => a.RoleID == 2); 
+
+                    return (totalHousekeepers, totalFamilies);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving account statistics: " + ex.Message);
+            }
+        }
+        public async Task<List<Account>> GetNewAccout()
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    DateTime sevenDaysAgo = DateTime.Now.AddDays(-7);
+                    var list = await context.Account
+                        .Where(a => (a.Role.RoleName == "Housekeeper" || a.Role.RoleName == "Family")
+                                    && a.CreatedAt >= sevenDaysAgo)
+                        .ToListAsync();
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error fetching new Housekeeper and Family accounts: " + ex.Message);
             }
         }
     }

@@ -4,7 +4,7 @@
     {
         Active = 1,
         Inactive = 0,
-        Suspended = 2,
+        Pending = 2,
     }
 
     public enum WalletStatus
