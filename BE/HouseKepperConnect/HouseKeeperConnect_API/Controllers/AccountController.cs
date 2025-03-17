@@ -146,7 +146,7 @@ namespace HouseKeeperConnect_API.Controllers
             account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
 
             account.GenderID = accountRegisterDTO.GenderID;
-            account.Introduce = accountRegisterDTO.Introduce;
+            account.Introduction = accountRegisterDTO.Introduction;
 
             await _accountService.AddAccountAsync(account);
 

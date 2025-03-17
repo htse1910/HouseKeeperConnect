@@ -27,7 +27,7 @@ namespace BusinessObject.Models
         public string? ProfilePicture { get; set; } // Ảnh đại diện Google
         public int Status { get; set; }
 
-        public string? Introduce { get; set; } // Cột mới
+        public string? Introduction { get; set; } // Cột mới
 
         [ForeignKey("Gender")]
         public int? GenderID { get; set; }  // Khóa ngoại đến bảng Gender
