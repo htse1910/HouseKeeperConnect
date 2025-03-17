@@ -28,6 +28,9 @@ namespace BusinessObject.Mapping
             Map_Chat();
             Map_List_Admin_Update_Account();
             Map_List_Pending_Housekeeper();
+            Map_List_Display_Report();
+            Map_Create_Report();
+            Map_Update_Report();
         }
 
         private void Map_List_Register()
@@ -56,6 +59,10 @@ namespace BusinessObject.Mapping
         {
             CreateMap<Account, AccountDisplayDTO>().ReverseMap();
         }
+        private void Map_List_Display_Report()
+        {
+            CreateMap<Report, ReportDisplayDTO>().ReverseMap();
+        }
 
         private void Map_Add_Family_Profile()
         {
@@ -74,6 +81,10 @@ namespace BusinessObject.Mapping
             CreateMap<Family, FamilyUpdateDTO>().ReverseMap();
         }
 
+        private void Map_Update_Report()
+        {
+            CreateMap<Report, ReportUpdateDTO>().ReverseMap();
+        }
         private void Map_Update_HouseKeeper()
         {
             CreateMap<HouseKeeperUpdateDTO, Housekeeper>();
@@ -87,6 +98,10 @@ namespace BusinessObject.Mapping
         private void Map_Create_Schedule()
         {
             CreateMap<ScheduleCreateDTO, Schedule>();
+        }
+        private void Map_Create_Report()
+        {
+            CreateMap<ReportCreateDTO, Report>();
         }
 
         private void Map_Update_Schedule()

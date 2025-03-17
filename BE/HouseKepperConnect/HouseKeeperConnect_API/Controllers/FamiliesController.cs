@@ -23,7 +23,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("FamilyList")]
-        [Authorize(Policy = "Admin")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<FamilyDisplayDTO>>> GetAllFamilies()
         {
             try

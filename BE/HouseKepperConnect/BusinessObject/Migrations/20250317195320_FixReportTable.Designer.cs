@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250317195320_FixReportTable")]
+    partial class FixReportTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -785,16 +788,11 @@ namespace BusinessObject.Migrations
                     b.Property<int>("ReportStatus")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReviewByID")
-                        .HasColumnType("int");
-
                     b.HasKey("ReportID");
 
                     b.HasIndex("AccountID");
 
                     b.HasIndex("BookingID");
-
-                    b.HasIndex("ReviewByID");
 
                     b.ToTable("Report");
                 });
@@ -1416,15 +1414,9 @@ namespace BusinessObject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BusinessObject.Models.Account", "ReviewBy")
-                        .WithMany()
-                        .HasForeignKey("ReviewByID");
-
                     b.Navigation("Account");
 
                     b.Navigation("Booking");
-
-                    b.Navigation("ReviewBy");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Schedule", b =>

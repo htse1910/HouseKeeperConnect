@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250317200102_FixReportTable1")]
+    partial class FixReportTable1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -785,7 +788,7 @@ namespace BusinessObject.Migrations
                     b.Property<int>("ReportStatus")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReviewByID")
+                    b.Property<int>("ReviewByID")
                         .HasColumnType("int");
 
                     b.HasKey("ReportID");
@@ -1418,7 +1421,9 @@ namespace BusinessObject.Migrations
 
                     b.HasOne("BusinessObject.Models.Account", "ReviewBy")
                         .WithMany()
-                        .HasForeignKey("ReviewByID");
+                        .HasForeignKey("ReviewByID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
 
