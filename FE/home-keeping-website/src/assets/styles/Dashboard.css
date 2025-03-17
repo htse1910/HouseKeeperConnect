@@ -421,3 +421,244 @@
     color: var(--text-alt-color);
     margin-bottom: 0;
 }
+
+/* =================== Housekeeper Management Styles =================== */
+
+/* Bảng danh sách Housekeepers */
+.housekeeper-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-color);
+    box-shadow: var(--box-shadow);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.housekeeper-table th,
+.housekeeper-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.housekeeper-table th {
+    background: var(--accent-color);
+    color: var(--text-color);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.housekeeper-table tr:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Ô tìm kiếm */
+.housekeeper-search {
+    padding: 10px;
+    width: 250px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    outline: none;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.housekeeper-search:focus {
+    border-color: var(--primary-color);
+}
+
+/* Bộ lọc trạng thái */
+.housekeeper-filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.housekeeper-filter-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.housekeeper-filter {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.housekeeper-filter:hover {
+    background: var(--background-color);
+}
+
+.filter-icon {
+    cursor: pointer;
+    margin-left: 8px;
+    font-size: 16px;
+    color: var(--text-color);
+    transition: color 0.3s ease, transform 0.2s ease;
+    position: relative;
+    display: inline-block;
+}
+
+.filter-icon:hover {
+    color: var(--main-color);
+    transform: scale(1.1);
+}
+
+.filter-dropdown {
+    position: absolute;
+    background: var(--bg-color);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 10px;
+    min-width: 150px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.filter-dropdown button {
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 14px;
+    color: var(--text-color);
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.filter-dropdown button:hover {
+    background: var(--accent-color);
+}
+
+/* Nút bấm */
+.housekeeper-btn {
+    width: 100px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    border: none;
+    margin-right: 10px;
+}
+
+.housekeeper-btn-approve {
+    background: var(--success-color);
+    color: var(--bg-color);
+}
+
+.housekeeper-btn-approve:hover {
+    background: var(--success-color);
+}
+
+.housekeeper-btn-reject {
+    background: var(--cancel-color);
+    color: var(--bg-color);
+}
+
+.housekeeper-btn-reject:hover {
+    background: var(--cancel-color);
+}
+
+.view-cccd-btn {
+    background: var(--background-color);
+}
+
+.view-cccd-btn:hover {
+    background: var(--secondary-color);
+    color: var(--bg-color);
+}
+
+/* Trạng thái */
+.status-pending {
+    color: var(--warning-color);
+    font-weight: bold;
+}
+
+.status-approved {
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+.status-rejected {
+    color: var(--text-alt-color);
+    font-weight: bold;
+}
+
+/* Phân trang */
+.housekeeper-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.housekeeper-pagination button {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+    font-size: 14px;
+}
+
+.housekeeper-pagination button.active-page {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    background: var(--accent-color);
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+    font-size: 14px;
+}
+
+.housekeeper-pagination button:hover {
+    background: var(--secondary-color);
+    color: var(--bg-color);
+}
+
+.pagination-input-form {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.pagination-input {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    text-align: center;
+    font-size: 14px;
+    margin-left: 5px;
+}
+
+.pagination-go-btn {
+    background: var(--main-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-left: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.pagination-go-btn:hover {
+    background: var(--main-color-darker);
+}
