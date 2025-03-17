@@ -49,10 +49,10 @@ namespace BusinessObject.Models
         public virtual DbSet<Payout> Payout { get; set; }
         public virtual DbSet<HousekeeperSkillMapping> HousekeeperSkillMapping { get; set; }
 
-        public virtual DbSet<Staff> Staff { get; set; }
         public virtual DbSet<VerificationTask> VerificationTask { get; set; }
 
         public virtual DbSet<Housekeeper_Violation> Housekeeper_Violation { get; set; }
+        public virtual DbSet<DaysOfTheWeek> DaysOfTheWeek { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,6 +65,15 @@ namespace BusinessObject.Models
             modelBuilder.Entity<Gender>().HasData(
                 new Gender { GenderID = 1, Name = "Male" },
                 new Gender { GenderID = 2, Name = "Female" }
+                );
+            modelBuilder.Entity<DaysOfTheWeek>().HasData(
+                new DaysOfTheWeek { DayID = 1, Name= "Monday"},
+                new DaysOfTheWeek { DayID = 2, Name= "Tuesday"},
+                new DaysOfTheWeek { DayID = 3, Name= "Wednesday"},
+                new DaysOfTheWeek { DayID = 4, Name= "Thursday"},
+                new DaysOfTheWeek { DayID = 5, Name= "Friday"},
+                new DaysOfTheWeek { DayID = 6, Name= "Saturday"},
+                new DaysOfTheWeek { DayID = 7, Name= "Sunday"}
                 );
         }
     }

@@ -23,6 +23,6 @@ namespace BusinessObject.DTO
         public int GenderID { get; set; }
 
         [Required(ErrorMessage = "Introduce is required.")]
-        public string? Introduce { get; set; }
+        public string? Introduction { get; set; }
     }
 }

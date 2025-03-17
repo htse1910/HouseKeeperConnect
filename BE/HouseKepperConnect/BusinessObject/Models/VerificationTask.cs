@@ -8,9 +8,8 @@ namespace BusinessObject.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TaskID { get; set; }
-
-        [ForeignKey("Staff")]
-        public int StaffID { get; set; }
+        [ForeignKey("Account")]
+        public int AccountID { get; set; }
 
         [ForeignKey("IDVerification")]
         public int VerifyID { get; set; }
@@ -26,7 +25,7 @@ namespace BusinessObject.Models
         [MaxLength(500)]
         public string? Notes { get; set; }
 
-        public virtual Staff Staff { get; set; }
+        public virtual Account Account { get; set; }
         public virtual IDVerification IDVerification { get; set; }
     }
 }

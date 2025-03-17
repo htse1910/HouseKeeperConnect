@@ -7,6 +7,6 @@
         public int JobListed { get; set; }
         public int AccountID { get; set; }
         public int? GenderID { get; set; }
-        public string? Introduce { get; set; }
+        public string? Introduction { get; set; }
     }
 }

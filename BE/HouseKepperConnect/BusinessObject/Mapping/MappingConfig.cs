@@ -66,7 +66,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<Family, FamilyDisplayDTO>()
                 .ForMember(dest => dest.GenderID, opt => opt.MapFrom(src => src.Account.GenderID))
-                .ForMember(dest => dest.Introduce, opt => opt.MapFrom(src => src.Account.Introduce));
+                .ForMember(dest => dest.Introduction, opt => opt.MapFrom(src => src.Account.Introduction));
         }
 
         private void Mapp_Update_Family()
