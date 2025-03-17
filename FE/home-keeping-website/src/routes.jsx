@@ -20,6 +20,7 @@ import FamilyProfilePage from './pages/FamilyProfilePage';
 //import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 import StaffDashboardPage from'./pages/StaffDashboardPage';
+import HouseKeeperManagementPage from './pages/HousekeeperManagementPage';
 
 function AppRoutes() {
   return (
@@ -50,6 +51,11 @@ function AppRoutes() {
         <Route path="/my-jobs" element={<HouseKeeperManagePage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/housekeeper/upload-id" element={<AddIdentificationPicturePage />} />
+
+        {/* Staff Dashboard Pages */}
+        <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
+        <Route path="/dashboard/housekeepers" element={<HouseKeeperManagementPage />} />
+
       </Routes>
     </Layout>
   );
