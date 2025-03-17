@@ -128,7 +128,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("UpdateHousekeeper")]
         [Authorize]
-        public async Task<ActionResult<Housekeeper>> UpdateHousekeeper([FromQuery] HouseKeeperUpdateDTO hk)
+        public async Task<ActionResult<Housekeeper>> UpdateHousekeeper([FromForm] HouseKeeperUpdateDTO hk) // ✅ Changed FromQuery → FromForm
         {
             try
             {
@@ -147,26 +147,38 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     byte[] front, face, back;
 
-                    using (var memoryStream = new MemoryStream())
+                    // ✅ Read uploaded images
+                    if (hk.FrontPhoto != null)
                     {
-                        await hk.FrontPhoto.CopyToAsync(memoryStream);
-                        front = memoryStream.ToArray();
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await hk.FrontPhoto.CopyToAsync(memoryStream);
+                            front = memoryStream.ToArray();
+                        }
+                        id.FrontPhoto = front;
                     }
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await hk.FacePhoto.CopyToAsync(memoryStream);
-                        face = memoryStream.ToArray();
-                    }
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await hk.BackPhoto.CopyToAsync(memoryStream);
-                        back = memoryStream.ToArray();
-                    }
-                    id.UpdatedAt = DateTime.Now;
-                    id.FrontPhoto = front;
-                    id.FacePhoto = face;
-                    id.BackPhoto = back;
 
+                    if (hk.FacePhoto != null)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await hk.FacePhoto.CopyToAsync(memoryStream);
+                            face = memoryStream.ToArray();
+                        }
+                        id.FacePhoto = face;
+                    }
+
+                    if (hk.BackPhoto != null)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await hk.BackPhoto.CopyToAsync(memoryStream);
+                            back = memoryStream.ToArray();
+                        }
+                        id.BackPhoto = back;
+                    }
+
+                    id.UpdatedAt = DateTime.Now;
                     await _verificationService.UpdateIDVerifyAsync(id);
                 }
 
@@ -179,7 +191,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
         [HttpGet("ListHousekeeperPending")]
