@@ -46,7 +46,7 @@ function AppRoutes() {
 
         {/* Housekeeper Pages */}
         <Route path="/housekeeper/:id" element={<HousekeeperDetailsPage />} />
-        <Route path="/housekeeper/profile/update/:accountId" element={<UpdateHousekeeperPage />} /> {/* ✅ New route */}
+        <Route path="/housekeeper/update-id" element={<UpdateHousekeeperPage />} /> {/* ✅ New route */}
         <Route path="/my-jobs" element={<HouseKeeperManagePage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/housekeeper/upload-id" element={<AddIdentificationPicturePage />} />

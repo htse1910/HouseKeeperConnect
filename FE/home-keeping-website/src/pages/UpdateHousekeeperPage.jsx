@@ -1,158 +1,155 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function UpdateHousekeeperPage() {
-  const { accountId } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    roleID: 1, // Default to Housekeeper
-    status: 1, // Default to Active
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  // Retrieve accountID from localStorage
+  const accountId = localStorage.getItem("accountID");
+  const authToken = localStorage.getItem("authToken");
+
+  const [rating, setRating] = useState(0);
+  const [isVerified, setIsVerified] = useState(false);
+  const [bankAccount, setBankAccount] = useState("");
+  const [jobCompleted, setJobCompleted] = useState(0);
+  const [jobsApplied, setJobsApplied] = useState(0);
+  const [frontPhoto, setFrontPhoto] = useState(null);
+  const [backPhoto, setBackPhoto] = useState(null);
+  const [facePhoto, setFacePhoto] = useState(null);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const authToken = localStorage.getItem("authToken");
-
-    if (!authToken) {
-      setError("Bạn cần đăng nhập lại.");
-      setLoading(false);
+    if (!accountId || !authToken) {
+      setMessage("Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại.");
       return;
     }
 
-    fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountId}`, {
+    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${authToken}`,
+        Authorization: `Bearer ${authToken}`,
       },
     })
-      .then((response) => {
-        if (!response.ok) throw new Error("Không thể tải dữ liệu.");
-        return response.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
-        setFormData({
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          password: "",
-          roleID: data.roleID,
-          status: data.status,
-        });
-        setLoading(false);
+        setRating(data.rating || 0);
+        setIsVerified(data.isVerified || false);
+        setBankAccount(data.bankAccountNumber || "");
+        setJobCompleted(data.jobCompleted || 0);
+        setJobsApplied(data.jobsApplied || 0);
       })
-      .catch((error) => {
-        console.error("Lỗi khi tải dữ liệu:", error);
-        setError("Không thể tải thông tin tài khoản.");
-        setLoading(false);
-      });
-  }, [accountId]);
+      .catch((error) => console.error("Error fetching housekeeper details:", error));
+  }, [accountId, authToken]);
 
-  const handleUpdate = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const authToken = localStorage.getItem("authToken");
-
-    if (!authToken) {
-      alert("Bạn cần đăng nhập lại!");
+  
+    // Validate required fields
+    if (!bankAccount.trim()) {
+      setMessage("Số tài khoản ngân hàng là bắt buộc.");
       return;
     }
-
-    const url = new URL("http://localhost:5280/api/Account/UpdateAccount");
-    url.searchParams.append("AccountID", accountId);
-    url.searchParams.append("Name", formData.name);
-    url.searchParams.append("Email", formData.email);
-    url.searchParams.append("Password", formData.password || ""); 
-    url.searchParams.append("RoleID", formData.roleID);
-    url.searchParams.append("Phone", formData.phone);
-    url.searchParams.append("Status", formData.status);
-
-    fetch(url, {
-      method: "PUT",
-      headers: { "Authorization": `Bearer ${authToken}` },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Cập nhật thất bại.");
-        return response.text();
-      })
-      .then((message) => {
-        alert("Cập nhật thành công!");
-        navigate(`/housekeeper/${accountId}`);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi cập nhật:", error);
-        alert("Không thể cập nhật tài khoản.");
+  
+    // Prepare FormData
+    const formData = new FormData();
+    formData.append("AccountID", accountId);
+    formData.append("Rating", rating);
+    formData.append("IsVerified", isVerified);
+    formData.append("BankAccountNumber", bankAccount);
+    formData.append("JobCompleted", jobCompleted);
+    formData.append("JobsApplied", jobsApplied);
+  
+    // ✅ Append images only if they exist
+    if (frontPhoto) formData.append("FrontPhoto", frontPhoto);
+    if (backPhoto) formData.append("BackPhoto", backPhoto);
+    if (facePhoto) formData.append("FacePhoto", facePhoto);
+  
+    console.log("Sending payload:", [...formData.entries()]); // Debugging
+  
+    try {
+      const response = await fetch("http://localhost:5280/api/HouseKeeper/UpdateHousekeeper", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${authToken}`, // ✅ Do NOT set Content-Type manually (browser will handle it)
+        },
+        body: formData,
       });
+  
+      // ✅ Handle Plain Text Responses
+      const textResponse = await response.text();
+      console.log("API Response:", textResponse); // Debug API response
+  
+      if (response.ok) {
+        setMessage("Cập nhật thành công!");
+        navigate(`/housekeeper/${accountId}`);
+      } else {
+        setMessage(textResponse || "Có lỗi xảy ra.");
+      }
+    } catch (error) {
+      console.error("Error updating housekeeper:", error);
+      setMessage("Lỗi khi cập nhật.");
+    }
   };
-
-  if (loading) return <p>Đang tải dữ liệu...</p>;
-  if (error) return <p className="text-danger">{error}</p>;
-
+          
   return (
     <div className="container mt-4">
-      <div className="card p-4 shadow-sm">
-        <h3 className="fw-bold">Cập nhật thông tin</h3>
+      <h2>Cập nhật thông tin người giúp việc</h2>
+      {message && <p className="alert alert-info">{message}</p>}
 
-        <label>Họ và tên:</label>
-        <input
-          type="text"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="form-control mb-2"
-        />
-
-        <label>Email:</label>
-        <input
-          type="email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="form-control mb-2"
-        />
-
-        <label>Số điện thoại:</label>
-        <input
-          type="text"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          className="form-control mb-2"
-        />
-
-        <label>Mật khẩu (để trống nếu không thay đổi):</label>
-        <input
-          type="password"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          className="form-control mb-2"
-        />
-
-        <label>Vai trò:</label>
-        <select
-          className="form-control mb-2"
-          value={formData.roleID}
-          onChange={(e) => setFormData({ ...formData, roleID: Number(e.target.value) })}
-        >
-          <option value={1}>Người giúp việc</option>
-          <option value={2}>Gia đình</option>
-        </select>
-
-        <label>Trạng thái:</label>
-        <select
-          className="form-control mb-2"
-          value={formData.status}
-          onChange={(e) => setFormData({ ...formData, status: Number(e.target.value) })}
-        >
-          <option value={1}>Hoạt động</option>
-          <option value={0}>Không hoạt động</option>
-        </select>
-
-        <div className="d-flex gap-3 mt-3">
-          <button className="btn btn-danger" onClick={() => navigate(`/housekeeper/${accountId}`)}>Hủy</button>
-          <button className="btn btn-success" onClick={handleUpdate}>Cập nhật</button>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label className="form-label">Đánh giá:</label>
+          <input type="number" className="form-control" value={rating} onChange={(e) => setRating(e.target.value)} />
         </div>
-      </div>
+
+        <div className="mb-3">
+          <label className="form-label">Trạng thái xác minh:</label>
+          <select className="form-control" value={isVerified} onChange={(e) => setIsVerified(e.target.value === "true")}>
+            <option value="true">Đã xác minh</option>
+            <option value="false">Chưa xác minh</option>
+          </select>
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Số tài khoản ngân hàng:</label>
+          <input
+            type="text"
+            className="form-control"
+            value={bankAccount}
+            onChange={(e) => setBankAccount(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Công việc đã hoàn thành:</label>
+          <input type="number" className="form-control" value={jobCompleted} onChange={(e) => setJobCompleted(e.target.value)} />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Công việc đã ứng tuyển:</label>
+          <input type="number" className="form-control" value={jobsApplied} onChange={(e) => setJobsApplied(e.target.value)} />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Ảnh mặt trước CMND:</label>
+          <input type="file" className="form-control" onChange={(e) => setFrontPhoto(e.target.files[0])} />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Ảnh mặt sau CMND:</label>
+          <input type="file" className="form-control" onChange={(e) => setBackPhoto(e.target.files[0])} />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Ảnh khuôn mặt:</label>
+          <input type="file" className="form-control" onChange={(e) => setFacePhoto(e.target.files[0])} />
+        </div>
+
+        <button type="submit" className="btn btn-primary">Lưu thay đổi</button>
+      </form>
     </div>
   );
 }
