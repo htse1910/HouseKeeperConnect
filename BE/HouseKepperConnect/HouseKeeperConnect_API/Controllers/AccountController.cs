@@ -44,7 +44,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // GET: api/<AccountController>
         [HttpGet("AccountList")]
-        [Authorize(Policy = "Admin")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<AccountDisplayDTO>>> GetAllaccount()
         {
             try
@@ -219,7 +219,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("ChangeStatus")]
-        [Authorize(Policy = "Staff")]
+        [Authorize]
         public async Task<IActionResult> ToggleStatus([FromQuery] int id)
         {
             try

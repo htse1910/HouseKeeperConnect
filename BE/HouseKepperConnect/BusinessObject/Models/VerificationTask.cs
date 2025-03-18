@@ -17,7 +17,7 @@ namespace BusinessObject.Models
         [Required]
         public DateTime AssignedDate { get; set; }
 
-        public DateTime? CompletedDate { get; set; } // Ngày hoàn thành (nullable)
+        public DateTime? CompletedDate { get; set; } 
 
         [Required]
         public int Status { get; set; }
