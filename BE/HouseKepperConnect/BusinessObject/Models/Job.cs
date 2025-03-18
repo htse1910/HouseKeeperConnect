@@ -11,7 +11,8 @@ namespace BusinessObject.Models
         public int AccountID { get; set; }
         public string JobName { get; set; }
         public int Status { get; set; }
-
+        public DateTime CreatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
         public virtual Account Account { get; set; }
     }
 }
