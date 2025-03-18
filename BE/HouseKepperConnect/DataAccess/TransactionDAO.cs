@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -60,6 +61,43 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
             return transaction;
+        }
+
+        public async Task<List<Transaction>> GetTransactionsPastWeekAsync()
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
+                    var transactions = await context.Transaction
+                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)TransactionStatus.Completed)
+                .ToListAsync();
+
+                    return transactions;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<int> GetTotalTransAsync()
+        {
+            int totalTrans;
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    totalTrans = await context.Transaction.CountAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return totalTrans;
         }
 
         public async Task<List<Transaction>> GetTransactionsByUserAsync(int uId)

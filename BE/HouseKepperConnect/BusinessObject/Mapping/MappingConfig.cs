@@ -31,6 +31,9 @@ namespace BusinessObject.Mapping
             Map_List_Display_Report();
             Map_Create_Report();
             Map_Update_Report();
+            Map_Update_Withdraw();
+            Map_Create_Withdraw();
+            Map_Display_Withdraw();
         }
 
         private void Map_List_Register()
@@ -59,6 +62,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<Account, AccountDisplayDTO>().ReverseMap();
         }
+
         private void Map_List_Display_Report()
         {
             CreateMap<Report, ReportDisplayDTO>().ReverseMap();
@@ -85,6 +89,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<Report, ReportUpdateDTO>().ReverseMap();
         }
+
         private void Map_Update_HouseKeeper()
         {
             CreateMap<HouseKeeperUpdateDTO, Housekeeper>();
@@ -99,6 +104,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<ScheduleCreateDTO, Schedule>();
         }
+
         private void Map_Create_Report()
         {
             CreateMap<ReportCreateDTO, Report>();
@@ -145,7 +151,21 @@ namespace BusinessObject.Mapping
                 .ForMember(dest => dest.FrontPhoto, opt => opt.MapFrom(src => src.IDVerification != null ? src.IDVerification.FrontPhoto : new byte[0]))
                 .ForMember(dest => dest.BackPhoto, opt => opt.MapFrom(src => src.IDVerification != null ? src.IDVerification.BackPhoto : new byte[0]))
                 .ForMember(dest => dest.FacePhoto, opt => opt.MapFrom(src => src.IDVerification != null ? src.IDVerification.FacePhoto : new byte[0]));
+        }
 
+        private void Map_Update_Withdraw()
+        {
+            CreateMap<WithdrawUpdateDTO, Withdraw>();
+        }
+
+        private void Map_Create_Withdraw()
+        {
+            CreateMap<WithdrawCreateDTO, Withdraw>();
+        }
+
+        private void Map_Display_Withdraw()
+        {
+            CreateMap<WithdrawDisplayDTO, Withdraw>().ReverseMap();
         }
     }
 }

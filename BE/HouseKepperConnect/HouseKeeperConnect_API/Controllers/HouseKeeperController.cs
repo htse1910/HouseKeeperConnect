@@ -5,7 +5,6 @@ using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using System.Diagnostics;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -118,7 +117,7 @@ namespace HouseKeeperConnect_API.Controllers
             nHk.IsVerified = false;
             nHk.JobCompleted = 0;
             nHk.JobsApplied = 0;
-            nHk.BankAccountNumber = "";
+            nHk.Location = "";
             nHk.VerifyID = id.VerifyID;
 
             await _housekeeperService.AddHousekeeperAsync(nHk);
@@ -194,6 +193,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
+
         [HttpGet("ListHousekeeperPending")]
         [Authorize]
         public async Task<IActionResult> GetPendingHousekeepers()

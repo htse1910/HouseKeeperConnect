@@ -40,8 +40,9 @@ namespace Services
         public async Task<TokenModel> LoginWithGoogleAsync(string googleToken) => await _accountRepository.LoginWithGoogleAsync(googleToken);
 
         public async Task AdminUpdateAccountAsync(Account updatedAccount) => await _accountRepository.AdminUpdateAccountAsync(updatedAccount);
+
         public async Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync() => await _accountRepository.GetTotalAccountAsync();
+
         public async Task<List<Account>> GetNewAccout() => await _accountRepository.GetNewAccout();
     }
-
 }

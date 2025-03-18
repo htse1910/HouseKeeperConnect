@@ -12,9 +12,13 @@ namespace Repositories
 
         public async Task<List<Transaction>> GetAllTransactionsAsync() => await TransactionDAO.Instance.GetAllTransactionsAsync();
 
+        public async Task<int> GetTotalTransAsync() => await TransactionDAO.Instance.GetTotalTransAsync();
+
         public async Task<Transaction> GetTransactionByIDAsync(int id) => await TransactionDAO.Instance.GetTransactionByIDAsync(id);
 
         public async Task<List<Transaction>> GetTransactionsByUserAsync(int uId) => await TransactionDAO.Instance.GetTransactionsByUserAsync(uId);
+
+        public async Task<List<Transaction>> GetTransactionsPastWeekAsync() => await TransactionDAO.Instance.GetTransactionsPastWeekAsync();
 
         public async Task UpdateTransactionAsync(Transaction Transaction) => await TransactionDAO.Instance.UpdateTransactionAsync(Transaction);
     }

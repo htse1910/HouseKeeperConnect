@@ -43,6 +43,7 @@
         Expired = 4,
         Canceled = 5,
     }
+
     public enum ReportStatus
     {
         Pending = 1,

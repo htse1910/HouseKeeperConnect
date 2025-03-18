@@ -32,6 +32,34 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(trans);
         }
 
+        [HttpGet("TransactionInPastWeek")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransInPastWeek()
+        {
+            var trans = await _transactionService.GetTransactionsPastWeekAsync();
+            if (trans == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+
+            return Ok(trans);
+        }
+
+        [HttpGet("GetTotalTransactions")]
+        [Authorize]
+        public async Task<ActionResult<int>> GetTotalTrans()
+        {
+            var num = await _transactionService.GetTotalTransAsync();
+            if (num == 0)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+
+            return Ok(num);
+        }
+
         [HttpGet("GetTransactionByID")]
         [Authorize]
         public async Task<ActionResult<Transaction>> getTransByID([FromQuery] int id)

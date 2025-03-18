@@ -30,6 +30,9 @@ namespace BusinessObject.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountID"));
 
+                    b.Property<string>("BankAccountNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -344,10 +347,6 @@ namespace BusinessObject.Migrations
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
 
-                    b.Property<string>("BankAccountNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsVerified")
                         .HasColumnType("bit");
 
@@ -356,6 +355,9 @@ namespace BusinessObject.Migrations
 
                     b.Property<int>("JobsApplied")
                         .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Rating")
                         .HasColumnType("int");
@@ -1089,6 +1091,37 @@ namespace BusinessObject.Migrations
                     b.ToTable("Wallet");
                 });
 
+            modelBuilder.Entity("BusinessObject.Models.Withdraw", b =>
+                {
+                    b.Property<int>("WithdrawID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WithdrawID"));
+
+                    b.Property<int>("AccountID")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BankNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("WithdrawID");
+
+                    b.HasIndex("AccountID");
+
+                    b.ToTable("Withdraw");
+                });
+
             modelBuilder.Entity("BusinessObject.Models.Account", b =>
                 {
                     b.HasOne("BusinessObject.Models.Gender", "Gender")
@@ -1508,6 +1541,17 @@ namespace BusinessObject.Migrations
                     b.HasOne("BusinessObject.Models.Account", "Account")
                         .WithOne("Wallet")
                         .HasForeignKey("BusinessObject.Models.Wallet", "AccountID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.Withdraw", b =>
+                {
+                    b.HasOne("BusinessObject.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
