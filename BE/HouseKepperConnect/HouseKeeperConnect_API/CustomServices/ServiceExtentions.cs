@@ -36,6 +36,8 @@ public static class ServiceExtentions
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<IWithdrawRepository, WithdrawRepository>();
         services.AddScoped<IWithdrawService, WithdrawService>();
+        services.AddScoped<IServiceRepository, ServiceRepository>();
+        services.AddScoped<IServiceService, ServiceService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

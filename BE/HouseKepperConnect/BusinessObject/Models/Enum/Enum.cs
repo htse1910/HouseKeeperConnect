@@ -40,8 +40,9 @@
         Pending = 1,
         Verified = 2,
         Accepted = 3,
-        Expired = 4,
-        Canceled = 5,
+        Completed = 4,
+        Expired = 5,
+        Canceled = 6,
     }
 
     public enum ReportStatus

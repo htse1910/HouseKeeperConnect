@@ -167,5 +167,13 @@ namespace BusinessObject.Mapping
         {
             CreateMap<WithdrawDisplayDTO, Withdraw>().ReverseMap();
         }
+        private void Map_Create_Service()
+        {
+            CreateMap<ServiceCreateDTO, Service>();
+        }
+        private void Map_Update_Service()
+        { 
+            CreateMap<ServiceUpdateDTO, Service>();
+        }
     }
 }

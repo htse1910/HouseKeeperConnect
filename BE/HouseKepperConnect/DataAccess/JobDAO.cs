@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -81,6 +82,61 @@ namespace DataAccess
         {
             using var context = new PCHWFDBContext();
             return await context.Job.Where(j => j.AccountID == accountId).ToListAsync();
+        }
+        public async Task<List<Job>> GetJobsPastWeekAsync()
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
+                    var jobs = await context.Job
+                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Completed)
+                .ToListAsync();
+
+                    return jobs;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<List<Job>> GetJobsVerifiedPastWeekAsync()
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
+                    var jobs = await context.Job
+                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Verified)
+                .ToListAsync();
+
+                    return jobs;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<int> GetTotalJobsAsync()
+        {
+            int totalJobs;
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    totalJobs = await context.Job.CountAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return totalJobs;
         }
 
         public async Task AddJobAsync(Job job)
