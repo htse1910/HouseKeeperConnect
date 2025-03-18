@@ -19,8 +19,9 @@ import FamilyProfilePage from './pages/FamilyProfilePage';
 //import AdminProfilePage from './pages/AdminProfilePage';
 //import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
-import StaffDashboardPage from'./pages/StaffDashboardPage';
+import StaffDashboardPage from './pages/StaffDashboardPage';
 import UserVerificationPage from './pages/UserVerificationPage';
+import FamilyHousekeeperSearchPage from './pages/FamilyHousekeeperSearchPage';
 
 function AppRoutes() {
   return (
@@ -36,9 +37,6 @@ function AppRoutes() {
         <Route path="/housekeeper-dashboard" element={<HousekeeperDashboardPage />} />
         <Route path="/family-dashboard" element={<FamilyDashboard />} />
         <Route path="/staff-dashboard" element={<StaffDashboardPage />} />
-
-        {/* Profile Pages */}
-        <Route path="/Family/profile" element={<FamilyProfilePage />} />
 
         {/* Job & Profile Related Pages */}
         <Route path="/jobs" element={<FindJobsPage />} />
@@ -56,6 +54,9 @@ function AppRoutes() {
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
         <Route path="/dashboard/user" element={<UserVerificationPage />} />
 
+        {/* Family Pages */}
+        <Route path="/Family/profile" element={<FamilyProfilePage />} />
+        <Route path="/find-housekeepers" element={<FamilyHousekeeperSearchPage />} />
       </Routes>
     </Layout>
   );
