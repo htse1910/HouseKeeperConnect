@@ -53,12 +53,13 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult> AddService([FromQuery] ServiceCreateDTO serviceCreateDTO)
         {
+            var service = _mapper.Map<Service>(serviceCreateDTO);
             if (serviceCreateDTO == null)
             {
                 return BadRequest("Invalid service data.");
             }
 
-            var service = _mapper.Map<Service>(serviceCreateDTO);
+            
             await _serviceService.AddServiceAsync(service);
 
             return Ok("Service added successfully!");

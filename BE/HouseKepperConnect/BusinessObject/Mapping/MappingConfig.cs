@@ -34,6 +34,8 @@ namespace BusinessObject.Mapping
             Map_Update_Withdraw();
             Map_Create_Withdraw();
             Map_Display_Withdraw();
+            Map_Create_Service();
+            Map_Update_Service();
         }
 
         private void Map_List_Register()
@@ -169,7 +171,7 @@ namespace BusinessObject.Mapping
         }
         private void Map_Create_Service()
         {
-            CreateMap<ServiceCreateDTO, Service>();
+            CreateMap<ServiceCreateDTO,Service>();
         }
         private void Map_Update_Service()
         { 
