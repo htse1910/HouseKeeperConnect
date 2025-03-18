@@ -1,10 +1,5 @@
 ﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess
 {
@@ -13,7 +8,8 @@ namespace DataAccess
         private static ReportDAO instance;
         public static readonly object instancelock = new object();
 
-        public ReportDAO() { }
+        public ReportDAO()
+        { }
 
         public static ReportDAO Instance
         {
@@ -29,6 +25,7 @@ namespace DataAccess
                 }
             }
         }
+
         public async Task<List<Report>> GetAllReportsAsync()
         {
             var list = new List<Report>();
@@ -95,7 +92,7 @@ namespace DataAccess
             try
             {
                 using (var context = new PCHWFDBContext())
-                { 
+                {
                     context.Entry(Report).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                     await context.SaveChangesAsync();
                 }
