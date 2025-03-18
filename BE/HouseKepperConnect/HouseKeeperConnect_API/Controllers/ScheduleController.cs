@@ -69,7 +69,6 @@ namespace HouseKeeperConnect_API.Controllers
                 HousekeeperID = scheduleDTO.HousekeeperID,
                 SlotID = scheduleDTO.SlotID,
                 Date = scheduleDTO.Date,
-                ScheduleTypeID = scheduleDTO.ScheduleTypeID,
                 Status = scheduleDTO.Status
             };
 

@@ -33,11 +33,7 @@ namespace BusinessObject.Models
 
         public string? Introduction { get; set; } // Cột mới
 
-        [ForeignKey("Gender")]
-        public int? GenderID { get; set; }  // Khóa ngoại đến bảng Gender
-
         public virtual Role Role { get; set; }
         public virtual Wallet Wallet { get; set; }
-        public virtual Gender Gender { get; set; } // Navigation Property
     }
 }
