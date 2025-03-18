@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { FaUserTie, FaUsers, FaBriefcase, FaMoneyBillWave, FaLifeRing, 
-    FaStar, FaExclamationTriangle, FaBook } from "react-icons/fa";
+import {
+    FaUserTie, FaUsers, FaBriefcase, FaMoneyBillWave, FaLifeRing,
+    FaStar, FaExclamationTriangle, FaBook
+} from "react-icons/fa";
 import "../assets/styles/Dashboard.css";
 import axios from "axios";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 
 const StaffDashboardPage = () => {
     const { t } = useTranslation();
@@ -12,7 +15,7 @@ const StaffDashboardPage = () => {
     const isDemo = searchParams.get("demo") === "true";
 
     const [accountInfo, setAccountInfo] = useState(null);
-    const [stats, setStatsData] = useState(null);
+    const [statsData, setStatsData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userName, setUserName] = useState("");
@@ -35,10 +38,14 @@ const StaffDashboardPage = () => {
     useEffect(() => {
         if (isDemo) {
             setStatsData({
-                housekeepers: 120,
-                families: 85,
-                jobs: 200,
-                transactions: 540
+                totalHousekeepers: 120,
+                totalFamilies: 85,
+                newAccounts7Days: 11,
+                totalJobs: 200,
+                completedJobs: 155,
+                completedJobs7Days: 29,
+                successfulTransactions: 540,
+                successfulTransactions7Days: 25,
             });
 
             setLoading(false);
@@ -74,15 +81,36 @@ const StaffDashboardPage = () => {
             .then((accountResponse) => {
                 const account = accountResponse.data;
                 if (!account || !account.accountID) throw new Error(t("error_auth"));
+                if (account.roleID != "3") throw new Error(t("error_auth") + " Role authen");
                 setAccountInfo(account);
 
                 // Gọi API đúng để lấy dữ liệu thống kê
-                return axios.get(`http://localhost:5280/api/Stats/GetStats`, { headers });
+                return Promise.all([
+                    axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers }), // API thống kê tài khoản
+                    axios.get(`http://localhost:5280/api/Account/NewAccounts`, { headers }),
+                    //axios.get(`http://localhost:5280/api/Job/Stats`, { headers }), // API thống kê công việc
+                    //axios.get(`http://localhost:5280/api/Transaction/Stats`, { headers }) // API thống kê giao dịch
+                ]);
             })
-            .then((statsResponse) => {
-                const statsData = statsResponse.data;
-                if (!statsData) throw new Error(t("error_loading"));
-                setStatsData(statsData);
+            .then(([accountRes, newAccountRes/*, jobRes, transactionRes*/]) => {
+                const accountData = accountRes.data;
+                const newAccountData = newAccountRes.data;
+                //const jobData = jobRes.data;
+                //const transactionData = transactionRes.data;
+
+                if (!accountData || !newAccountData /*|| !jobData || !transactionData*/) {
+                    throw new Error(t("error_loading"));
+                }
+                setStatsData({
+                    totalHousekeepers: accountData.totalHousekeepers || 0,
+                    totalFamilies: accountData.totalFamilies || 0,
+                    newAccounts7Days: newAccountData.newAccounts7Days || 0,
+                    /*totalJobs: jobData.totalJobs || 0,
+                    completedJobs: jobData.completedJobs || 0,
+                    completedJobs7Days: jobData.completedJobs7Days || 0,
+                    successfulTransactions: transactionData.successfulTransactions || 0,
+                    successfulTransactions7Days: transactionData.successfulTransactions7Days || 0,*/
+                });
             })
             .catch((err) => {
                 console.error("API Error:", err);
@@ -113,6 +141,21 @@ const StaffDashboardPage = () => {
         );
     }
 
+    const CustomTooltip = ({ active, payload }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="staff-tooltip">
+                    {payload.map((item, index) => (
+                        <p key={index} style={{ color: item.color }}>
+                            {item.name}: <strong>{item.value}</strong>
+                        </p>
+                    ))}
+                </div>
+            );
+        }
+        return null;
+    };
+
     return (
         <div className="dashboard-container">
             <div className="staff-dashboard-layout">
@@ -140,24 +183,68 @@ const StaffDashboardPage = () => {
                     <div className="staff-dashboard-stats">
                         <div className="stat-card">
                             <FaUserTie className="stat-icon" />
-                            <p className="stat-number">{stats.housekeepers}</p>
+                            <p className="stat-number">{statsData.totalHousekeepers}</p>
                             <p className="stat-label">{t("total_housekeepers")}</p>
                         </div>
                         <div className="stat-card">
                             <FaUsers className="stat-icon" />
-                            <p className="stat-number">{stats.families}</p>
+                            <p className="stat-number">{statsData.totalFamilies}</p>
                             <p className="stat-label">{t("total_families")}</p>
                         </div>
                         <div className="stat-card">
                             <FaBriefcase className="stat-icon" />
-                            <p className="stat-number">{stats.jobs}</p>
+                            <p className="stat-number">{statsData.totalJobs}</p>
                             <p className="stat-label">{t("total_jobs")}</p>
                         </div>
                         <div className="stat-card">
                             <FaMoneyBillWave className="stat-icon" />
-                            <p className="stat-number">{stats.transactions}</p>
+                            <p className="stat-number">{statsData.successfulTransactions}</p>
                             <p className="stat-label">{t("total_transactions")}</p>
                         </div>
+                    </div>
+
+                    <div className="staff-stats-container">
+                        {/* Biểu đồ Người Dùng */}
+                        <div className="staff-stats-chart">
+                            <h2>Thống kê Người Dùng</h2>
+                            <BarChart width={250} height={150} data={[statsData]}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" hide />
+                                <YAxis />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Bar dataKey="totalHousekeepers" fill="#0074D9" name="Tổng Housekeepers" />
+                                <Bar dataKey="totalFamilies" fill="#2ECC40" name="Tổng Families" />
+                                <Bar dataKey="newAccounts7Days" fill="#FBAE17" name="Tài khoản mới (7 ngày)" />
+                            </BarChart>
+                        </div>
+
+                        {/* Biểu đồ Công Việc */}
+                        <div className="staff-stats-chart">
+                            <h2>Thống kê Công Việc</h2>
+                            <BarChart width={250} height={150} data={[statsData]}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" hide />
+                                <YAxis />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Bar dataKey="totalJobs" fill="#0074D9" name="Tổng Công việc" />
+                                <Bar dataKey="completedJobs" fill="#FF9500" name="Công việc hoàn thành" />
+                                <Bar dataKey="completedJobs7Days" fill="#FF4136" name="Công việc hoàn thành (7 ngày)" />
+                            </BarChart>
+                        </div>
+
+                        {/* Biểu đồ Giao Dịch */}
+                        <div className="staff-stats-chart">
+                            <h2>Thống kê Giao Dịch</h2>
+                            <BarChart width={250} height={150} data={[statsData]}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" hide />
+                                <YAxis />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Bar dataKey="successfulTransactions" fill="#2ECC40" name="Giao dịch thành công" />
+                                <Bar dataKey="successfulTransactions7Days" fill="#FFC107" name="Giao dịch thành công (7 ngày)" />
+                            </BarChart>
+                        </div>
+
                     </div>
                 </div>
             </div>
