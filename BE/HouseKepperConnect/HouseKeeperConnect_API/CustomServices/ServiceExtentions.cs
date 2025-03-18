@@ -32,6 +32,8 @@ public static class ServiceExtentions
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IBookingRepository, BookingRepository>();
+        services.AddScoped<IReportService, ReportService>();
+        services.AddScoped<IReportRepository, ReportRepository>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {
