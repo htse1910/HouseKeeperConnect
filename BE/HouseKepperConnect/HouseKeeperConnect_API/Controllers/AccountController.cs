@@ -143,8 +143,6 @@ namespace HouseKeeperConnect_API.Controllers
             account.CreatedAt = DateTime.Now;
             account.UpdatedAt = DateTime.Now;
             account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
-
-            account.GenderID = accountRegisterDTO.GenderID;
             account.Introduction = accountRegisterDTO.Introduction;
 
             await _accountService.AddAccountAsync(account);
