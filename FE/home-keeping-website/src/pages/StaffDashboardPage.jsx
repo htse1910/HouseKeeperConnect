@@ -124,7 +124,7 @@ const StaffDashboardPage = () => {
     if (loading) {
         return (
             <div className="dashboard-container">
-                <span className="loading"></span>
+                <span className="icon-loading"></span>
                 <p>{t("loading_data")}</p>
             </div>
         );
