@@ -50,7 +50,7 @@
         Pending = 1,
         Success = 2,
     }
-    public enum Booking
+    public enum BookingStatus
     {
         Pending = 1,
         Verified = 2,
