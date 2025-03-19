@@ -33,9 +33,9 @@
 }
 
 .search-icon {
-    margin-right: 10px;
+    margin: 2px;
+    margin-left: 5px;
     font-size: 18px;
-    color: #999;
 }
 
 .search-input {

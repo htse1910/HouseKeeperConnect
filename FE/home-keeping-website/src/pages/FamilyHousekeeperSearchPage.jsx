@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaSearch } from "react-icons/fa";
 import "../assets/styles/Search.css";
 
 const FamilyHousekeeperSearchPage = () => {
@@ -19,7 +20,7 @@ const FamilyHousekeeperSearchPage = () => {
         <div className="search-page">
             <div className="search-header">
                 <div className="search-box">
-                    <span className="search-icon">🔍</span>
+                    <span className="search-icon"><FaSearch /></span>
                     <input
                         type="text"
                         className="search-input"
