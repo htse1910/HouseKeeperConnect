@@ -24,7 +24,6 @@ namespace BusinessObject.Models
         public virtual DbSet<Housekeeper> Housekeeper { get; set; }
         public virtual DbSet<HouseKeeperSkill> HouseKeeperSkill { get; set; }
         public virtual DbSet<Schedule> Schedule { get; set; }
-        public virtual DbSet<ScheduleType> ScheduleType { get; set; }
         public virtual DbSet<Slot> Slot { get; set; }
         public virtual DbSet<IDVerification> IDVerification { get; set; }
         public virtual DbSet<Violation> Violation { get; set; }
@@ -43,9 +42,6 @@ namespace BusinessObject.Models
         public virtual DbSet<JobListing_Application> JobListing_Application { get; set; }
         public virtual DbSet<Family_Service> Family_Service { get; set; }
         public virtual DbSet<Booking> Booking { get; set; }
-        public virtual DbSet<Language> Language { get; set; }
-        public virtual DbSet<Gender> Gender { get; set; }
-        public virtual DbSet<Preference> Preference { get; set; }
         public virtual DbSet<Payout> Payout { get; set; }
         public virtual DbSet<HousekeeperSkillMapping> HousekeeperSkillMapping { get; set; }
 
@@ -53,6 +49,7 @@ namespace BusinessObject.Models
 
         public virtual DbSet<Housekeeper_Violation> Housekeeper_Violation { get; set; }
         public virtual DbSet<DaysOfTheWeek> DaysOfTheWeek { get; set; }
+        public virtual DbSet<Withdraw> Withdraw { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,18 +59,14 @@ namespace BusinessObject.Models
                 new Role { RoleID = 3, RoleName = "Staff" },
                 new Role { RoleID = 4, RoleName = "Admin" }
                 );
-            modelBuilder.Entity<Gender>().HasData(
-                new Gender { GenderID = 1, Name = "Male" },
-                new Gender { GenderID = 2, Name = "Female" }
-                );
             modelBuilder.Entity<DaysOfTheWeek>().HasData(
-                new DaysOfTheWeek { DayID = 1, Name= "Monday"},
-                new DaysOfTheWeek { DayID = 2, Name= "Tuesday"},
-                new DaysOfTheWeek { DayID = 3, Name= "Wednesday"},
-                new DaysOfTheWeek { DayID = 4, Name= "Thursday"},
-                new DaysOfTheWeek { DayID = 5, Name= "Friday"},
-                new DaysOfTheWeek { DayID = 6, Name= "Saturday"},
-                new DaysOfTheWeek { DayID = 7, Name= "Sunday"}
+                new DaysOfTheWeek { DayID = 1, Name = "Monday" },
+                new DaysOfTheWeek { DayID = 2, Name = "Tuesday" },
+                new DaysOfTheWeek { DayID = 3, Name = "Wednesday" },
+                new DaysOfTheWeek { DayID = 4, Name = "Thursday" },
+                new DaysOfTheWeek { DayID = 5, Name = "Friday" },
+                new DaysOfTheWeek { DayID = 6, Name = "Saturday" },
+                new DaysOfTheWeek { DayID = 7, Name = "Sunday" }
                 );
         }
     }

@@ -25,15 +25,15 @@ namespace BusinessObject.Models
         public string? GoogleId { get; set; }  // Lưu Google ID
         public string? Provider { get; set; } // "Google" hoặc "Local"
         public string? ProfilePicture { get; set; } // Ảnh đại diện Google
+
+        [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]
+        public string? BankAccountNumber { get; set; }
+
         public int Status { get; set; }
 
         public string? Introduction { get; set; } // Cột mới
 
-        [ForeignKey("Gender")]
-        public int? GenderID { get; set; }  // Khóa ngoại đến bảng Gender
-
         public virtual Role Role { get; set; }
         public virtual Wallet Wallet { get; set; }
-        public virtual Gender Gender { get; set; } // Navigation Property
     }
 }

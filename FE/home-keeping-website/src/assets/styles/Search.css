@@ -1,0 +1,151 @@
+/* Trang tìm kiếm tổng thể */
+.search-page {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+/* Header tìm kiếm */
+.search-header {
+    width: 100%;
+    background-color: #ffedd5;
+    padding: 30px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Ô tìm kiếm chính */
+.search-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    width: 60%;
+    max-width: 500px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-icon {
+    margin-right: 10px;
+    font-size: 18px;
+    color: #999;
+}
+
+.search-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+/* Bộ lọc tìm kiếm */
+.search-filters {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.search-select {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: white;
+}
+
+.search-btn {
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #ff9900;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    background-color: #e68a00;
+}
+
+/* Danh sách kết quả */
+.result-container {
+    width: 80%;
+    max-width: 900px;
+    margin: 30px auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Thẻ kết quả */
+.result-card {
+    width: 280px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+}
+
+.result-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.card-info {
+    color: #666;
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+/* Badge */
+.badge {
+    display: inline-block;
+    background-color: #99ccff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Nút xem chi tiết */
+.detail-btn {
+    width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ff9900;
+    color: #ff9900;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: white;
+}
+
+.detail-btn:hover {
+    background-color: #ff9900;
+    color: white;
+}
+
+/* Không có kết quả */
+.no-result {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+    margin-top: 20px;
+}

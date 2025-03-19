@@ -1,33 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using BusinessObject.Models;
-using AutoMapper;
-using Services.Interface;
-using Services;
+﻿using AutoMapper;
 using BusinessObject.DTO;
+using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
-using DataAccess;
+using Microsoft.AspNetCore.Mvc;
+using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
 {
     [Route("api/[controller]")]
-    
     public class ReportsController : ControllerBase
     {
         private readonly IReportService _reportService;
         private string Message;
         private readonly IMapper _mapper;
+
         public ReportsController(IReportService reportService, IMapper mapper)
         {
             _reportService = reportService;
-            
+
             _mapper = mapper;
         }
+
         [HttpGet("ReportList")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<ReportDisplayDTO>>> GetAllReports()
@@ -62,25 +55,21 @@ namespace HouseKeeperConnect_API.Controllers
             var ReportDTO = _mapper.Map<ReportDisplayDTO>(Report);
             return Ok(ReportDTO);
         }
+
         [HttpPost("CreateReport")]
-       
         public async Task<ActionResult> CreateReport([FromQuery] ReportCreateDTO reportCreateDTO)
         {
             if (reportCreateDTO == null)
             {
                 return BadRequest("Invalid report data.");
             }
-               
+
             var report = _mapper.Map<Report>(reportCreateDTO);
             report.CreateAt = DateTime.Now;
-            report.ReportStatus = 1;         
+            report.ReportStatus = 1;
             await _reportService.AddReportAsync(report);
             return Ok("Report created successfully!");
-       
-            
         }
-
-
 
         [HttpPut("UpdateReport")]
         [Authorize]
@@ -95,7 +84,6 @@ namespace HouseKeeperConnect_API.Controllers
                 }
 
                 var updatedReport = _mapper.Map(reportUpdateDTO, existingReport);
-                
 
                 await _reportService.UpdateReportAsync(updatedReport);
                 return Ok("Report updated successfully!");
@@ -127,6 +115,4 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
     }
-
-    
 }

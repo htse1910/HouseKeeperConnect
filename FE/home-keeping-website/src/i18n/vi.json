@@ -9,6 +9,8 @@
   "support": "Hỗ trợ",
   "post_job": "Đăng công việc",
   "my_posts": "Công việc đã đăng",
+  "find_housekeepers": "Tìm người giúp việc",
+
   "dashboard": "Bảng điều khiển",
   "users": "Người dùng",
   "approval": "Kiểm duyệt",
@@ -33,6 +35,7 @@
   "disputes": "Tranh chấp",
   "faqs_policies": "Hướng dẫn",
 
+  "stats_title": "Thống kê hoạt động",
   "total_housekeepers": "Tổng số người giúp việc",
   "total_families": "Tổng số gia đình",
   "total_jobs": "Tổng số công việc",

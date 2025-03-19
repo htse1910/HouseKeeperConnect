@@ -444,14 +444,15 @@ namespace DataAccess
                 return tokenizedData;
             }
         }
+
         public async Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync()
         {
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    int totalHousekeepers = await context.Account.CountAsync(a => a.RoleID == 1); 
-                    int totalFamilies = await context.Account.CountAsync(a => a.RoleID == 2); 
+                    int totalHousekeepers = await context.Account.CountAsync(a => a.RoleID == 1);
+                    int totalFamilies = await context.Account.CountAsync(a => a.RoleID == 2);
 
                     return (totalHousekeepers, totalFamilies);
                 }
@@ -461,6 +462,7 @@ namespace DataAccess
                 throw new Exception("Error retrieving account statistics: " + ex.Message);
             }
         }
+
         public async Task<List<Account>> GetNewAccout()
         {
             try

@@ -39,7 +39,6 @@ namespace DataAccess
                     list = await context.Schedule
                         .Include(s => s.Housekeeper)
                         .Include(s => s.Slot)
-                        .Include(s => s.ScheduleType)
                         .ToListAsync();
                 }
             }
@@ -60,7 +59,6 @@ namespace DataAccess
                     schedule = await context.Schedule
                         .Include(s => s.Housekeeper)
                         .Include(s => s.Slot)
-                        .Include(s => s.ScheduleType)
                         .SingleOrDefaultAsync(s => s.ScheduleID == id);
                 }
             }
@@ -81,7 +79,6 @@ namespace DataAccess
                     schedules = await context.Schedule
                         .Where(s => s.HousekeeperID == housekeeperId)
                         .Include(s => s.Slot)
-                        .Include(s => s.ScheduleType)
                         .ToListAsync();
                 }
             }

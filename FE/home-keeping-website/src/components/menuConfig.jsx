@@ -20,6 +20,7 @@ export function useMenuItems() {
       { label: t("home"), link: "/" },
       { label: t("post_job"), link: "/post-job" },
       { label: t("my_posts"), link: "/my-posts" },
+      { label: t("find_housekeepers"), link: "/find-housekeepers" },
       { label: t("messages"), link: "/messages" },
       { label: t("support"), link: "/support", dropdown: true },
     ],

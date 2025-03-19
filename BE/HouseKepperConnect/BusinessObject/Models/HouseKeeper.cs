@@ -13,9 +13,9 @@ namespace BusinessObject.Models
         public int AccountID { get; set; }
 
         public int? Rating { get; set; }
+        public string? Location { get; set; }
 
         public bool IsVerified { get; set; }
-        public string BankAccountNumber { get; set; }
 
         public int JobCompleted { get; set; }
 
