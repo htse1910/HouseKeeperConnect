@@ -1,102 +1,106 @@
-﻿using BusinessObject.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BusinessObject.Models;
+using AutoMapper;
+using Services.Interface;
+using BusinessObject.DTO;
+using DataAccess;
 
 namespace HouseKeeperConnect_API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+
     public class VerificationTasksController : ControllerBase
     {
-        private readonly PCHWFDBContext _context;
-
-        public VerificationTasksController(PCHWFDBContext context)
+        private readonly IVerificationTaskService _verificationTaskService;
+        private readonly IMapper _mapper;
+        public VerificationTasksController(IVerificationTaskService verificationTaskService, IMapper mapper)
         {
-            _context = context;
+            _verificationTaskService = verificationTaskService;
+            _mapper = mapper;
         }
-
-        // GET: api/VerificationTasks
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<VerificationTask>>> GetVerificationTask()
+        [HttpPost("CreateVerificationTasks")]
+        public async Task<IActionResult> CreateVerificationTask([FromQuery] int verifyID)
         {
-            return await _context.VerificationTask.ToListAsync();
-        }
-
-        // GET: api/VerificationTasks/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<VerificationTask>> GetVerificationTask(int id)
-        {
-            var verificationTask = await _context.VerificationTask.FindAsync(id);
-
-            if (verificationTask == null)
-            {
-                return NotFound();
-            }
-
-            return verificationTask;
-        }
-
-        // PUT: api/VerificationTasks/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutVerificationTask(int id, VerificationTask verificationTask)
-        {
-            if (id != verificationTask.TaskID)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(verificationTask).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!VerificationTaskExists(id))
+                var task = new VerificationTask
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                    VerifyID = verifyID,
+                    Status = 1, // Pending
+                    AssignedDate = DateTime.UtcNow
+                };
+
+                int taskId = await _verificationTaskService.CreateVerificationTaskAsync(task);
+
+                return Ok(new { Message = "Verification Task created successfully!", TaskID = taskId });
             }
-
-            return NoContent();
-        }
-
-        // POST: api/VerificationTasks
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<VerificationTask>> PostVerificationTask(VerificationTask verificationTask)
-        {
-            _context.VerificationTask.Add(verificationTask);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetVerificationTask", new { id = verificationTask.TaskID }, verificationTask);
-        }
-
-        // DELETE: api/VerificationTasks/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVerificationTask(int id)
-        {
-            var verificationTask = await _context.VerificationTask.FindAsync(id);
-            if (verificationTask == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
-
-            _context.VerificationTask.Remove(verificationTask);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
-        private bool VerificationTaskExists(int id)
+
+
+
+        [HttpGet("PendingTasksList")]
+        public async Task<IActionResult> GetPendingVerificationTasks()
         {
-            return _context.VerificationTask.Any(e => e.TaskID == id);
+            try
+            {
+                var tasks = await _verificationTaskService.GetPendingVerificationTasksAsync();
+                if (tasks == null || !tasks.Any()) 
+                {
+                    return NotFound("No pending verification tasks.");
+                }
+                return Ok(tasks);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
+        [HttpPost("approve")]
+        public async Task<IActionResult> ApproveVerification(int taskId, [FromQuery] VerificationRequestDTO request)
+        {
+            try
+            {
+                var result = await _verificationTaskService.ApproveVerificationAsync(taskId, request.AccountID, request.Notes);
+                if (!result)
+                {
+                    return NotFound("Task not found or already processed.");
+                }
+                return Ok("Verification approved successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("reject")]
+        public async Task<IActionResult> RejectVerification(int taskId, [FromQuery] VerificationRequestDTO request)
+        {
+            try
+            {
+                var result = await _verificationTaskService.RejectVerificationAsync(taskId, request.AccountID, request.Notes);
+                if (!result)
+                {
+                    return NotFound("Task not found or already processed.");
+                }
+                return Ok("Verification rejected successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }
