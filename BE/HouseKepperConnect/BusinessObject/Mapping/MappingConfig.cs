@@ -36,6 +36,11 @@ namespace BusinessObject.Mapping
             Map_Display_Withdraw();
             Map_Create_Service();
             Map_Update_Service();
+            Map_Verify_Request();
+            Map_Create_IDVerification();
+            Map_Update_IDVerification();
+            Map_Display_IDVerification();
+           
         }
 
         private void Map_List_Register()
@@ -176,5 +181,23 @@ namespace BusinessObject.Mapping
         { 
             CreateMap<ServiceUpdateDTO, Service>();
         }
+        private void Map_Verify_Request()
+        {
+            CreateMap<VerificationRequestDTO, VerificationTask>().ReverseMap();
+        }
+        private void Map_Create_IDVerification()
+        {
+            CreateMap<IDVerificationUpdateDTO, IDVerification>();
+        }
+        private void Map_Update_IDVerification()
+        {
+            CreateMap<IDVerificationUpdateDTO, IDVerification>();
+        }
+        private void Map_Display_IDVerification()
+        {
+            CreateMap<IDVerificationDisplayDTO, IDVerification>().ReverseMap();
+        }
+       
+
     }
 }

@@ -13,7 +13,7 @@ namespace Services
             _iDVerificationRepository = iDVerificationRepository;
         }
 
-        public async Task AddIDVerifyAsync(IDVerification veri) => await _iDVerificationRepository.AddIDVerifyAsync(veri);
+        public async Task<int> AddIDVerifyAsync(IDVerification veri) => await _iDVerificationRepository.AddIDVerifyAsync(veri);
 
         public async Task<List<IDVerification>> GetAllIDVerifysAsync() => await _iDVerificationRepository.GetAllIDVerifysAsync();
 
