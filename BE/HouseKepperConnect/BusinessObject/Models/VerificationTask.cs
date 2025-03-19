@@ -8,6 +8,7 @@ namespace BusinessObject.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TaskID { get; set; }
+
         [ForeignKey("Account")]
         public int AccountID { get; set; }
 
@@ -17,7 +18,7 @@ namespace BusinessObject.Models
         [Required]
         public DateTime AssignedDate { get; set; }
 
-        public DateTime? CompletedDate { get; set; } 
+        public DateTime? CompletedDate { get; set; }
 
         [Required]
         public int Status { get; set; }

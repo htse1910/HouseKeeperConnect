@@ -1,5 +1,4 @@
-﻿using BusinessObject.DTO;
-using BusinessObject.Models;
+﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -122,6 +121,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task<List<Housekeeper>> GetPendingHousekeepersAsync()
         {
             using (var context = new PCHWFDBContext())

@@ -31,7 +31,9 @@ namespace Repositories.Interface
         Task<TokenModel> LoginWithGoogleAsync(string googleToken);
 
         Task AdminUpdateAccountAsync(Account updatedAccount);
+
         Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync();
+
         Task<List<Account>> GetNewAccout();
     }
 }

@@ -17,14 +17,10 @@ namespace BusinessObject.Models
         [Required]
         public DateTime Date { get; set; }
 
-        [ForeignKey("ScheduleType")]
-        public int ScheduleTypeID { get; set; }
-
         [Required]
         public int Status { get; set; }
 
         public virtual Housekeeper Housekeeper { get; set; }
         public virtual Slot Slot { get; set; }
-        public virtual ScheduleType ScheduleType { get; set; }
     }
 }

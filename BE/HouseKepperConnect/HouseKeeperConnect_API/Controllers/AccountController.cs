@@ -4,7 +4,6 @@ using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using BusinessObject.Models.JWTToken;
-using DataAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -144,8 +143,6 @@ namespace HouseKeeperConnect_API.Controllers
             account.CreatedAt = DateTime.Now;
             account.UpdatedAt = DateTime.Now;
             account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
-
-            account.GenderID = accountRegisterDTO.GenderID;
             account.Introduction = accountRegisterDTO.Introduction;
 
             await _accountService.AddAccountAsync(account);
@@ -254,6 +251,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(tokenModel);
         }
+
         [HttpGet("TotalAccount")]
         [Authorize]
         public async Task<IActionResult> GetTotalAccount()
@@ -275,6 +273,5 @@ namespace HouseKeeperConnect_API.Controllers
             var accountDTOs = _mapper.Map<List<AccountDisplayDTO>>(accounts);
             return Ok(accountDTOs);
         }
-
     }
 }

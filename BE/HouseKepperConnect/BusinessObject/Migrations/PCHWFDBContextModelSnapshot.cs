@@ -30,15 +30,15 @@ namespace BusinessObject.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountID"));
 
+                    b.Property<string>("BankAccountNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("GenderID")
-                        .HasColumnType("int");
 
                     b.Property<string>("GoogleId")
                         .HasColumnType("nvarchar(max)");
@@ -72,8 +72,6 @@ namespace BusinessObject.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("AccountID");
-
-                    b.HasIndex("GenderID");
 
                     b.HasIndex("RoleID");
 
@@ -280,36 +278,6 @@ namespace BusinessObject.Migrations
                     b.ToTable("Family_Service");
                 });
 
-            modelBuilder.Entity("BusinessObject.Models.Gender", b =>
-                {
-                    b.Property<int>("GenderID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GenderID"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("GenderID");
-
-                    b.ToTable("Gender");
-
-                    b.HasData(
-                        new
-                        {
-                            GenderID = 1,
-                            Name = "Male"
-                        },
-                        new
-                        {
-                            GenderID = 2,
-                            Name = "Female"
-                        });
-                });
-
             modelBuilder.Entity("BusinessObject.Models.HouseKeeperSkill", b =>
                 {
                     b.Property<int>("HouseKeeperSkillID")
@@ -344,10 +312,6 @@ namespace BusinessObject.Migrations
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
 
-                    b.Property<string>("BankAccountNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsVerified")
                         .HasColumnType("bit");
 
@@ -356,6 +320,9 @@ namespace BusinessObject.Migrations
 
                     b.Property<int>("JobsApplied")
                         .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Rating")
                         .HasColumnType("int");
@@ -475,12 +442,18 @@ namespace BusinessObject.Migrations
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("JobName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("JobID");
 
@@ -563,24 +536,6 @@ namespace BusinessObject.Migrations
                     b.HasIndex("JobID");
 
                     b.ToTable("JobListing_Application");
-                });
-
-            modelBuilder.Entity("BusinessObject.Models.Language", b =>
-                {
-                    b.Property<int>("LanguageID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LanguageID"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("LanguageID");
-
-                    b.ToTable("Language");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Notification", b =>
@@ -692,39 +647,6 @@ namespace BusinessObject.Migrations
                     b.HasIndex("WalletID");
 
                     b.ToTable("Payout");
-                });
-
-            modelBuilder.Entity("BusinessObject.Models.Preference", b =>
-                {
-                    b.Property<int>("PreferenceID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PreferenceID"));
-
-                    b.Property<int>("FamilyID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("GenderID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("LanguageID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SkillID")
-                        .HasColumnType("int");
-
-                    b.HasKey("PreferenceID");
-
-                    b.HasIndex("FamilyID");
-
-                    b.HasIndex("GenderID");
-
-                    b.HasIndex("LanguageID");
-
-                    b.HasIndex("SkillID");
-
-                    b.ToTable("Preference");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Rating", b =>
@@ -852,9 +774,6 @@ namespace BusinessObject.Migrations
                     b.Property<int>("HousekeeperID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ScheduleTypeID")
-                        .HasColumnType("int");
-
                     b.Property<int>("SlotID")
                         .HasColumnType("int");
 
@@ -865,29 +784,9 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("HousekeeperID");
 
-                    b.HasIndex("ScheduleTypeID");
-
                     b.HasIndex("SlotID");
 
                     b.ToTable("Schedule");
-                });
-
-            modelBuilder.Entity("BusinessObject.Models.ScheduleType", b =>
-                {
-                    b.Property<int>("ScheduleTypeID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScheduleTypeID"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("ScheduleTypeID");
-
-                    b.ToTable("ScheduleType");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Service", b =>
@@ -1089,19 +988,44 @@ namespace BusinessObject.Migrations
                     b.ToTable("Wallet");
                 });
 
+            modelBuilder.Entity("BusinessObject.Models.Withdraw", b =>
+                {
+                    b.Property<int>("WithdrawID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WithdrawID"));
+
+                    b.Property<int>("AccountID")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BankNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("WithdrawID");
+
+                    b.HasIndex("AccountID");
+
+                    b.ToTable("Withdraw");
+                });
+
             modelBuilder.Entity("BusinessObject.Models.Account", b =>
                 {
-                    b.HasOne("BusinessObject.Models.Gender", "Gender")
-                        .WithMany()
-                        .HasForeignKey("GenderID");
-
                     b.HasOne("BusinessObject.Models.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Gender");
 
                     b.Navigation("Role");
                 });
@@ -1354,35 +1278,6 @@ namespace BusinessObject.Migrations
                     b.Navigation("Wallet");
                 });
 
-            modelBuilder.Entity("BusinessObject.Models.Preference", b =>
-                {
-                    b.HasOne("BusinessObject.Models.Family", "Family")
-                        .WithMany()
-                        .HasForeignKey("FamilyID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObject.Models.Gender", "Gender")
-                        .WithMany()
-                        .HasForeignKey("GenderID");
-
-                    b.HasOne("BusinessObject.Models.Language", "Language")
-                        .WithMany()
-                        .HasForeignKey("LanguageID");
-
-                    b.HasOne("BusinessObject.Models.HouseKeeperSkill", "HouseKeeperSkill")
-                        .WithMany()
-                        .HasForeignKey("SkillID");
-
-                    b.Navigation("Family");
-
-                    b.Navigation("Gender");
-
-                    b.Navigation("HouseKeeperSkill");
-
-                    b.Navigation("Language");
-                });
-
             modelBuilder.Entity("BusinessObject.Models.Rating", b =>
                 {
                     b.HasOne("BusinessObject.Models.Family", "Family")
@@ -1435,12 +1330,6 @@ namespace BusinessObject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BusinessObject.Models.ScheduleType", "ScheduleType")
-                        .WithMany()
-                        .HasForeignKey("ScheduleTypeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("BusinessObject.Models.Slot", "Slot")
                         .WithMany()
                         .HasForeignKey("SlotID")
@@ -1448,8 +1337,6 @@ namespace BusinessObject.Migrations
                         .IsRequired();
 
                     b.Navigation("Housekeeper");
-
-                    b.Navigation("ScheduleType");
 
                     b.Navigation("Slot");
                 });
@@ -1508,6 +1395,17 @@ namespace BusinessObject.Migrations
                     b.HasOne("BusinessObject.Models.Account", "Account")
                         .WithOne("Wallet")
                         .HasForeignKey("BusinessObject.Models.Wallet", "AccountID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.Withdraw", b =>
+                {
+                    b.HasOne("BusinessObject.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
