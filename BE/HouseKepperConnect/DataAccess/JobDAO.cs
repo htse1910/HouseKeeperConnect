@@ -83,6 +83,7 @@ namespace DataAccess
             using var context = new PCHWFDBContext();
             return await context.Job.Where(j => j.AccountID == accountId).ToListAsync();
         }
+
         public async Task<List<Job>> GetJobsPastWeekAsync()
         {
             try
@@ -102,6 +103,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task<List<Job>> GetJobsVerifiedPastWeekAsync()
         {
             try
