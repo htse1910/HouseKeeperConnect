@@ -1,0 +1,78 @@
+.job-posting-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background: var(--bg-color);
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+}
+
+.job-posting-title {
+    text-align: center;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+.job-posting-alert {
+    text-align: center;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+}
+
+.job-posting-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.job-posting-error {
+    background: var(--error-color);
+    color: white;
+}
+
+.job-posting-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.job-posting-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.job-posting-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.job-posting-group input, 
+.job-posting-group select, 
+.job-posting-group textarea {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 16px;
+}
+
+.job-posting-group textarea {
+    resize: vertical;
+}
+
+.job-posting-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.job-posting-submit-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: 0.3s;
+}
