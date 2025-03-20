@@ -127,7 +127,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("UpdateHousekeeper")]
         [Authorize]
-        public async Task<ActionResult<Housekeeper>> UpdateHousekeeper([FromForm] HouseKeeperUpdateDTO hk) // ✅ Changed FromQuery → FromForm
+        public async Task<ActionResult<Housekeeper>> UpdateHousekeeper([FromForm] HouseKeeperUpdateDTO hk)
         {
             try
             {
@@ -206,6 +206,20 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
             return Ok(trans);
+        }
+
+        [HttpPost("update-verification-status")]
+        public async Task<IActionResult> UpdateVerificationStatus([FromQuery] int housekeeperId, [FromQuery] bool isVerified)
+        {
+            try
+            {
+                await _housekeeperService.UpdateIsVerifiedAsync(housekeeperId, isVerified);
+                return Ok("Verification status updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

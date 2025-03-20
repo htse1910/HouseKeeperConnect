@@ -21,7 +21,9 @@ import FamilyProfilePage from './pages/FamilyProfilePage';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 import StaffDashboardPage from './pages/StaffDashboardPage';
 import UserVerificationPage from './pages/UserVerificationPage';
+import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage'; // ✅ Import new page
 import FamilyHousekeeperSearchPage from './pages/FamilyHousekeeperSearchPage';
+import HousekeeperScheduleManagement from './pages/HousekeeperScheduleManagement';
 
 function AppRoutes() {
   return (
@@ -34,7 +36,7 @@ function AppRoutes() {
         <Route path="/confirm-account" element={<ConfirmAccountPage />} />
 
         {/* Role-Based Dashboard Routes */}
-        <Route path="/housekeeper-dashboard" element={<HousekeeperDashboardPage />} />
+        <Route path="/housekeeper/dashboard" element={<HousekeeperDashboardPage />} />
         <Route path="/family-dashboard" element={<FamilyDashboard />} />
         <Route path="/staff-dashboard" element={<StaffDashboardPage />} />
 
@@ -49,6 +51,8 @@ function AppRoutes() {
         <Route path="/my-jobs" element={<HouseKeeperManagePage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/housekeeper/upload-id" element={<AddIdentificationPicturePage />} />
+        <Route path="/housekeeper/profile/update/:id" element={<UpdateHousekeeperAccountPage />} /> 
+        <Route path="/housekeeper/schedule" element={<HousekeeperScheduleManagement />} />       
 
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />

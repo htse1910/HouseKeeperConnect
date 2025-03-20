@@ -50,6 +50,7 @@
         Pending = 1,
         Success = 2,
     }
+
     public enum BookingStatus
     {
         Pending = 1,

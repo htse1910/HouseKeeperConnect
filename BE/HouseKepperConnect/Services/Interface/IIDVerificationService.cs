@@ -8,7 +8,7 @@ namespace Services.Interface
 
         Task<IDVerification> GetIDVerifyByIDAsync(int id);
 
-        Task AddIDVerifyAsync(IDVerification veri);
+        Task<int> AddIDVerifyAsync(IDVerification veri);
 
         Task UpdateIDVerifyAsync(IDVerification veri);
     }

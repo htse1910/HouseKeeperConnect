@@ -4,16 +4,16 @@ namespace Repositories.Interface
 {
     public interface IScheduleRepository
     {
-        Task<List<Schedule>> GetAllSchedulesAsync();
+        Task<List<Housekeeper_Schedule>> GetAllSchedulesAsync();
 
-        Task<Schedule> GetScheduleByIDAsync(int id);
+        Task<Housekeeper_Schedule> GetScheduleByIDAsync(int id);
 
-        Task<List<Schedule>> GetScheduleByHousekeeperAsync(int housekeeperId);
+        Task<List<Housekeeper_Schedule>> GetScheduleByHousekeeperAsync(int housekeeperId);
 
-        Task AddScheduleAsync(Schedule schedule);
+        Task AddScheduleAsync(Housekeeper_Schedule schedule);
 
         Task DeleteScheduleAsync(int id);
 
-        Task UpdateScheduleAsync(Schedule schedule);
+        Task UpdateScheduleAsync(Housekeeper_Schedule schedule);
     }
 }

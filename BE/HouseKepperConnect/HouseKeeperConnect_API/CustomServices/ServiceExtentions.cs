@@ -38,6 +38,8 @@ public static class ServiceExtentions
         services.AddScoped<IWithdrawService, WithdrawService>();
         services.AddScoped<IServiceRepository, ServiceRepository>();
         services.AddScoped<IServiceService, ServiceService>();
+        services.AddScoped<IVerificationTaskRepository, VerificationTaskRepository>();
+        services.AddScoped<IVerificationTaskService, VerificationTaskService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

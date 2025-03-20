@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaBriefcase, FaCheckCircle, FaUser, FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
+import FamilyNickname from "../components/FamilyNickname";
+import JobName from "../components/JobName";
 
 function HouseKeeperManagePage() {
   const [filter, setFilter] = useState({ jobType: "Tất cả", status: "Tất cả", date: "" });
@@ -14,16 +16,16 @@ function HouseKeeperManagePage() {
     const fetchHousekeeperID = async () => {
       const accountID = localStorage.getItem("accountID");
       const authToken = localStorage.getItem("authToken");
-    
+
       console.log("Account ID:", accountID);
       console.log("Auth Token:", authToken); // ✅ Debugging
-    
+
       if (!accountID || !authToken) {
         setError("Không tìm thấy Account ID hoặc Auth Token.");
         setLoading(false);
         return;
       }
-    
+
       try {
         const response = await fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
           method: "GET",
@@ -32,12 +34,12 @@ function HouseKeeperManagePage() {
             Authorization: `Bearer ${authToken}`,
           },
         });
-    
+
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`Lỗi khi lấy dữ liệu người giúp việc: ${errorText}`);
         }
-    
+
         const data = await response.json();
         setHousekeeperID(data.housekeeperID);
       } catch (err) {
@@ -45,7 +47,7 @@ function HouseKeeperManagePage() {
         setError("Lỗi khi tải dữ liệu người giúp việc.");
       }
     };
-    
+
     fetchHousekeeperID();
   }, []);
 
@@ -66,7 +68,7 @@ function HouseKeeperManagePage() {
         });
 
         if (!response.ok) throw new Error("Lỗi khi lấy danh sách công việc.");
-        
+
         const data = await response.json();
         setJobs(data);
       } catch (err) {
@@ -162,9 +164,9 @@ function HouseKeeperManagePage() {
                 .filter((job) => (filter.status === "Tất cả" ? true : job.bookingStatus.toString() === filter.status))
                 .map((job) => (
                   <div key={job.bookingID} className="card p-3 shadow-sm mb-3">
-                    <h5 className="fw-bold">Công việc {job.jobID}</h5>
+                    <h5 className="fw-bold"><JobName jobID={job.jobID} /></h5>
                     <p className="text-muted">
-                      <FaUser className="me-1" /> Gia đình {job.familyID} &nbsp; | &nbsp;
+                      <FamilyNickname familyID={job.familyID} /> &nbsp; | &nbsp;
                       <FaMoneyBillWave className="text-success me-1" /> {job.serviceID} &nbsp; | &nbsp;
                       Ngày làm việc: {new Date(job.scheduledDate).toLocaleDateString()}
                     </p>

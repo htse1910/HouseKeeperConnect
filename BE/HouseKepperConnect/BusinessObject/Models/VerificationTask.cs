@@ -10,13 +10,13 @@ namespace BusinessObject.Models
         public int TaskID { get; set; }
 
         [ForeignKey("Account")]
-        public int AccountID { get; set; }
+        public int? AccountID { get; set; }
 
         [ForeignKey("IDVerification")]
         public int VerifyID { get; set; }
 
         [Required]
-        public DateTime AssignedDate { get; set; }
+        public DateTime? AssignedDate { get; set; }
 
         public DateTime? CompletedDate { get; set; }
 

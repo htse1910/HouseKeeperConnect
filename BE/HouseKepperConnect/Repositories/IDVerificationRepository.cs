@@ -6,7 +6,7 @@ namespace Repositories
 {
     public class IDVerificationRepository : IIDVerificationRepository
     {
-        public async Task AddIDVerifyAsync(IDVerification veri) => await IDVerifyDAO.Instance.AddIDVerifyAsync(veri);
+        public async Task<int> AddIDVerifyAsync(IDVerification veri) => await IDVerifyDAO.Instance.AddIDVerifyAsync(veri);
 
         public async Task<List<IDVerification>> GetAllIDVerifysAsync() => await IDVerifyDAO.Instance.GetAllIDVerifysAsync();
 

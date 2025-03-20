@@ -133,5 +133,25 @@ namespace DataAccess
                     .ToListAsync();
             }
         }
+
+        public async Task UpdateIsVerifiedAsync(int housekeeperId, bool isVerified)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var housekeeper = await context.Housekeeper.SingleOrDefaultAsync(x => x.HousekeeperID == housekeeperId);
+                    if (housekeeper != null)
+                    {
+                        housekeeper.IsVerified = isVerified;
+                        await context.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

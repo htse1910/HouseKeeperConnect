@@ -145,6 +145,34 @@ namespace BusinessObject.Migrations
                     b.ToTable("Booking");
                 });
 
+            modelBuilder.Entity("BusinessObject.Models.Booking_WorkingDays_Slots", b =>
+                {
+                    b.Property<int>("Booking_WorkingDays_SlotsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Booking_WorkingDays_SlotsId"));
+
+                    b.Property<int>("BookingID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SlotID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkingDaysID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Booking_WorkingDays_SlotsId");
+
+                    b.HasIndex("BookingID");
+
+                    b.HasIndex("SlotID");
+
+                    b.HasIndex("WorkingDaysID");
+
+                    b.ToTable("Booking_WorkingDays_Slots");
+                });
+
             modelBuilder.Entity("BusinessObject.Models.Chat", b =>
                 {
                     b.Property<int>("ChatID")
@@ -173,61 +201,6 @@ namespace BusinessObject.Migrations
                     b.HasIndex("ToAccountID");
 
                     b.ToTable("Chat");
-                });
-
-            modelBuilder.Entity("BusinessObject.Models.DaysOfTheWeek", b =>
-                {
-                    b.Property<int>("DayID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DayID"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("DayID");
-
-                    b.ToTable("DaysOfTheWeek");
-
-                    b.HasData(
-                        new
-                        {
-                            DayID = 1,
-                            Name = "Monday"
-                        },
-                        new
-                        {
-                            DayID = 2,
-                            Name = "Tuesday"
-                        },
-                        new
-                        {
-                            DayID = 3,
-                            Name = "Wednesday"
-                        },
-                        new
-                        {
-                            DayID = 4,
-                            Name = "Thursday"
-                        },
-                        new
-                        {
-                            DayID = 5,
-                            Name = "Friday"
-                        },
-                        new
-                        {
-                            DayID = 6,
-                            Name = "Saturday"
-                        },
-                        new
-                        {
-                            DayID = 7,
-                            Name = "Sunday"
-                        });
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Family", b =>
@@ -362,6 +335,34 @@ namespace BusinessObject.Migrations
                     b.ToTable("HousekeeperSkillMapping");
                 });
 
+            modelBuilder.Entity("BusinessObject.Models.Housekeeper_Schedule", b =>
+                {
+                    b.Property<int>("Housekeeper_ScheduleID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Housekeeper_ScheduleID"));
+
+                    b.Property<int>("HousekeeperID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SlotID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkingDaysID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Housekeeper_ScheduleID");
+
+                    b.HasIndex("HousekeeperID");
+
+                    b.HasIndex("SlotID");
+
+                    b.HasIndex("WorkingDaysID");
+
+                    b.ToTable("Housekeeper_Schedule");
+                });
+
             modelBuilder.Entity("BusinessObject.Models.Housekeeper_Violation", b =>
                 {
                     b.Property<int>("HousekeeperViolationID")
@@ -439,11 +440,11 @@ namespace BusinessObject.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("JobID"));
 
-                    b.Property<int>("AccountID")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("FamilyID")
+                        .HasColumnType("int");
 
                     b.Property<string>("JobName")
                         .IsRequired()
@@ -457,7 +458,7 @@ namespace BusinessObject.Migrations
 
                     b.HasKey("JobID");
 
-                    b.HasIndex("AccountID");
+                    b.HasIndex("FamilyID");
 
                     b.ToTable("Job");
                 });
@@ -481,10 +482,8 @@ namespace BusinessObject.Migrations
                     b.Property<int>("EndSlot")
                         .HasColumnType("int");
 
-                    b.Property<string>("Frequency")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<bool>("IsOffered")
+                        .HasColumnType("bit");
 
                     b.Property<int>("JobID")
                         .HasColumnType("int");
@@ -536,6 +535,60 @@ namespace BusinessObject.Migrations
                     b.HasIndex("JobID");
 
                     b.ToTable("JobListing_Application");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.Job_Service", b =>
+                {
+                    b.Property<int>("Job_ServiceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Job_ServiceId"));
+
+                    b.Property<int>("JobID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Job_ServiceId");
+
+                    b.HasIndex("JobID");
+
+                    b.HasIndex("ServiceID");
+
+                    b.ToTable("Job_Service");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.Job_WorkingDays_Slots", b =>
+                {
+                    b.Property<int>("Job_WorkingDays_SlotsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Job_WorkingDays_SlotsId"));
+
+                    b.Property<int>("DayID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("JobID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SlotID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkingDaysDayID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Job_WorkingDays_SlotsId");
+
+                    b.HasIndex("JobID");
+
+                    b.HasIndex("SlotID");
+
+                    b.HasIndex("WorkingDaysDayID");
+
+                    b.ToTable("Job_WorkingDays_Slots");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Notification", b =>
@@ -760,35 +813,6 @@ namespace BusinessObject.Migrations
                         });
                 });
 
-            modelBuilder.Entity("BusinessObject.Models.Schedule", b =>
-                {
-                    b.Property<int>("ScheduleID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScheduleID"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("HousekeeperID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SlotID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("ScheduleID");
-
-                    b.HasIndex("HousekeeperID");
-
-                    b.HasIndex("SlotID");
-
-                    b.ToTable("Schedule");
-                });
-
             modelBuilder.Entity("BusinessObject.Models.Service", b =>
                 {
                     b.Property<int>("ServiceID")
@@ -908,7 +932,7 @@ namespace BusinessObject.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskID"));
 
-                    b.Property<int>("AccountID")
+                    b.Property<int?>("AccountID")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("AssignedDate")
@@ -1019,6 +1043,61 @@ namespace BusinessObject.Migrations
                     b.ToTable("Withdraw");
                 });
 
+            modelBuilder.Entity("BusinessObject.Models.WorkingDays", b =>
+                {
+                    b.Property<int>("DayID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DayID"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("DayID");
+
+                    b.ToTable("WorkingDays");
+
+                    b.HasData(
+                        new
+                        {
+                            DayID = 1,
+                            Name = "Monday"
+                        },
+                        new
+                        {
+                            DayID = 2,
+                            Name = "Tuesday"
+                        },
+                        new
+                        {
+                            DayID = 3,
+                            Name = "Wednesday"
+                        },
+                        new
+                        {
+                            DayID = 4,
+                            Name = "Thursday"
+                        },
+                        new
+                        {
+                            DayID = 5,
+                            Name = "Friday"
+                        },
+                        new
+                        {
+                            DayID = 6,
+                            Name = "Saturday"
+                        },
+                        new
+                        {
+                            DayID = 7,
+                            Name = "Sunday"
+                        });
+                });
+
             modelBuilder.Entity("BusinessObject.Models.Account", b =>
                 {
                     b.HasOne("BusinessObject.Models.Role", "Role")
@@ -1074,6 +1153,33 @@ namespace BusinessObject.Migrations
                     b.Navigation("Job");
 
                     b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.Booking_WorkingDays_Slots", b =>
+                {
+                    b.HasOne("BusinessObject.Models.Booking", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObject.Models.Slot", "Slot")
+                        .WithMany()
+                        .HasForeignKey("SlotID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObject.Models.WorkingDays", "WorkingDays")
+                        .WithMany()
+                        .HasForeignKey("WorkingDaysID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Slot");
+
+                    b.Navigation("WorkingDays");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Chat", b =>
@@ -1161,6 +1267,33 @@ namespace BusinessObject.Migrations
                     b.Navigation("Housekeeper");
                 });
 
+            modelBuilder.Entity("BusinessObject.Models.Housekeeper_Schedule", b =>
+                {
+                    b.HasOne("BusinessObject.Models.Housekeeper", "Housekeeper")
+                        .WithMany()
+                        .HasForeignKey("HousekeeperID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObject.Models.Slot", "Slot")
+                        .WithMany()
+                        .HasForeignKey("SlotID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObject.Models.WorkingDays", "WorkingDays")
+                        .WithMany()
+                        .HasForeignKey("WorkingDaysID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Housekeeper");
+
+                    b.Navigation("Slot");
+
+                    b.Navigation("WorkingDays");
+                });
+
             modelBuilder.Entity("BusinessObject.Models.Housekeeper_Violation", b =>
                 {
                     b.HasOne("BusinessObject.Models.Housekeeper", "Housekeeper")
@@ -1182,13 +1315,13 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.Job", b =>
                 {
-                    b.HasOne("BusinessObject.Models.Account", "Account")
+                    b.HasOne("BusinessObject.Models.Family", "Family")
                         .WithMany()
-                        .HasForeignKey("AccountID")
+                        .HasForeignKey("FamilyID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Account");
+                    b.Navigation("Family");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.JobDetail", b =>
@@ -1227,6 +1360,52 @@ namespace BusinessObject.Migrations
                     b.Navigation("Application");
 
                     b.Navigation("Job");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.Job_Service", b =>
+                {
+                    b.HasOne("BusinessObject.Models.Job", "Job")
+                        .WithMany()
+                        .HasForeignKey("JobID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObject.Models.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Job");
+
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.Job_WorkingDays_Slots", b =>
+                {
+                    b.HasOne("BusinessObject.Models.Job", "Job")
+                        .WithMany()
+                        .HasForeignKey("JobID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObject.Models.Slot", "Slot")
+                        .WithMany()
+                        .HasForeignKey("SlotID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BusinessObject.Models.WorkingDays", "WorkingDays")
+                        .WithMany()
+                        .HasForeignKey("WorkingDaysDayID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Job");
+
+                    b.Navigation("Slot");
+
+                    b.Navigation("WorkingDays");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Notification", b =>
@@ -1322,25 +1501,6 @@ namespace BusinessObject.Migrations
                     b.Navigation("ReviewBy");
                 });
 
-            modelBuilder.Entity("BusinessObject.Models.Schedule", b =>
-                {
-                    b.HasOne("BusinessObject.Models.Housekeeper", "Housekeeper")
-                        .WithMany()
-                        .HasForeignKey("HousekeeperID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BusinessObject.Models.Slot", "Slot")
-                        .WithMany()
-                        .HasForeignKey("SlotID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Housekeeper");
-
-                    b.Navigation("Slot");
-                });
-
             modelBuilder.Entity("BusinessObject.Models.Service", b =>
                 {
                     b.HasOne("BusinessObject.Models.ServiceType", "ServiceType")
@@ -1375,9 +1535,7 @@ namespace BusinessObject.Migrations
                 {
                     b.HasOne("BusinessObject.Models.Account", "Account")
                         .WithMany()
-                        .HasForeignKey("AccountID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AccountID");
 
                     b.HasOne("BusinessObject.Models.IDVerification", "IDVerification")
                         .WithMany()

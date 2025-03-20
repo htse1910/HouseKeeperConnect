@@ -1,0 +1,10 @@
+.stats-card {
+    background-color: #fff7ee; /* Light peach background */
+    padding: 15px;
+    border-radius: 10px;
+    height: 100%; /* Ensure all cards have the same height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  

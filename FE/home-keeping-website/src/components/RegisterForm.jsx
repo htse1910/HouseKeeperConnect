@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaLock, FaPhone, FaEnvelope, FaUser } from 'react-icons/fa';
+import { FaLock, FaPhone, FaEnvelope, FaUser, FaCreditCard, FaInfoCircle, FaUserTie } from 'react-icons/fa';
 
 function RegisterForm({ formData, onInputChange, onSubmit }) {
   return (
@@ -11,13 +11,13 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
       <form onSubmit={onSubmit}>
         {/* Full Name */}
         <div className="mb-4">
-          <label htmlFor="fullName" className="form-label">Họ và tên</label>
+          <label htmlFor="Name" className="form-label">Họ và tên</label>
           <div className="input-group">
             <span className="input-group-text bg-white border-end-0"><FaUser /></span>
             <input
-              id="fullName"
+              id="Name"
               type="text"
-              value={formData.fullName}
+              value={formData.Name}
               onChange={onInputChange}
               className="form-control border-start-0"
               required
@@ -89,6 +89,38 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
           </div>
         </div>
 
+        {/* Bank Account Number */}
+        <div className="mb-4">
+          <label htmlFor="BankAccountNumber" className="form-label">Số tài khoản ngân hàng</label>
+          <div className="input-group">
+            <span className="input-group-text bg-white border-end-0"><FaCreditCard /></span>
+            <input
+              id="BankAccountNumber"
+              type="text"
+              value={formData.BankAccountNumber}
+              onChange={onInputChange}
+              className="form-control border-start-0"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Gender Selection */}
+        <div className="mb-4">
+          <label htmlFor="GenderID" className="form-label">Giới tính</label>
+          <select
+            id="GenderID"
+            className="form-select"
+            value={formData.GenderID}
+            onChange={onInputChange}
+            required
+          >
+            <option value="">Chọn giới tính</option>
+            <option value="1">Nam</option>
+            <option value="2">Nữ</option>
+          </select>
+        </div>
+
         {/* Role Selection */}
         <div className="mb-4">
           <label htmlFor="roleID" className="form-label">Vai trò</label>
@@ -103,6 +135,18 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
             <option value="1">Người giúp việc</option>
             <option value="2">Gia đình</option>
           </select>
+        </div>
+
+        {/* Introduction */}
+        <div className="mb-4">
+          <label htmlFor="Introduction" className="form-label">Giới thiệu</label>
+          <textarea
+            id="Introduction"
+            className="form-control"
+            value={formData.Introduction}
+            onChange={onInputChange}
+            required
+          />
         </div>
 
         {/* Submit Button */}

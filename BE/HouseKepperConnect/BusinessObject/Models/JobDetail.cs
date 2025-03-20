@@ -13,19 +13,12 @@ namespace BusinessObject.Models
         public int JobID { get; set; }
 
         [Required]
-        [StringLength(100)]
-        public string Frequency { get; set; }
-
-        [Required]
         [StringLength(255)]
         public string Location { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
-
-        [Required]
-        public int ServiceID { get; set; }
 
         [Required]
         public DateTime StartDate { get; set; }
@@ -41,6 +34,9 @@ namespace BusinessObject.Models
 
         [Required]
         public int EndSlot { get; set; }
+
+        [Required]
+        public bool IsOffered { get; set; }
 
         public virtual Job Job { get; set; }
 
