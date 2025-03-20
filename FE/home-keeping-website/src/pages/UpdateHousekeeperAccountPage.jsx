@@ -4,8 +4,11 @@ function UpdateHousekeeperAccountPage() {
     const [formData, setFormData] = useState({
         name: "",
         password: "",
+        confirmPassword: "",
         phone: "",
+        bankAccountNumber: "",
     });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
@@ -35,7 +38,9 @@ function UpdateHousekeeperAccountPage() {
                 setFormData({
                     name: data.name || "",
                     password: "", // Do not pre-fill passwords
+                    confirmPassword: "",
                     phone: data.phone || "",
+                    bankAccountNumber: data.bankAccountNumber || "",
                 });
             })
             .catch((err) => setError(err.message));
@@ -51,9 +56,15 @@ function UpdateHousekeeperAccountPage() {
         setError(null);
         setSuccess(null);
 
+        if (formData.password !== formData.confirmPassword) {
+            setError("Mật khẩu xác nhận không khớp.");
+            setLoading(false);
+            return;
+        }
+
         try {
             const response = await fetch(
-                `http://localhost:5280/api/Account/UpdateAccount?AccountID=${accountID}&Name=${formData.name}&Password=${formData.password}&Phone=${formData.phone}`,
+                `http://localhost:5280/api/Account/UpdateAccount?AccountID=${accountID}&Name=${formData.name}&Password=${formData.password}&Phone=${formData.phone}&BankAccountNumber=${formData.bankAccountNumber}`,
                 {
                     method: "PUT",
                     headers: {
@@ -107,12 +118,36 @@ function UpdateHousekeeperAccountPage() {
                 </div>
 
                 <div className="mb-3">
+                    <label className="form-label">Xác nhận mật khẩu</label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                <div className="mb-3">
                     <label className="form-label">Số điện thoại</label>
                     <input
                         type="tel"
                         className="form-control"
                         name="phone"
                         value={formData.phone}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                <div className="mb-3">
+                    <label className="form-label">Số tài khoản ngân hàng</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="bankAccountNumber"
+                        value={formData.bankAccountNumber}
                         onChange={handleChange}
                         required
                     />

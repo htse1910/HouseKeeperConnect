@@ -13,6 +13,9 @@ function RegisterPage() {
     confirmPassword: '',
     phoneNumber: '',
     roleID: '',
+    BankAccountNumber: '',
+    GenderID: '',
+    Introduction: '',
   });
 
   const handleInputChange = (e) => {
@@ -28,37 +31,42 @@ function RegisterPage() {
       return;
     }
   
-    if (!formData.roleID) {
-      toast.error('Please select a role!', { position: 'top-center', autoClose: 3000 });
+    if (!formData.roleID || !formData.GenderID) {
+      toast.error('Please select a role and gender!', { position: 'top-center', autoClose: 3000 });
       return;
     }
   
     try {
       // Convert form data to query string format
       const queryParams = new URLSearchParams({
-        Name: formData.fullName,
+        Name: formData.Name,
         Email: formData.email,
         Password: formData.password,
         Phone: formData.phoneNumber,
         RoleID: formData.roleID,
+        BankAccountNumber: formData.BankAccountNumber,
+        GenderID: formData.GenderID,
+        Introduction: formData.Introduction,
       }).toString();
   
       const response = await axios.post(
         `http://localhost:5280/api/Account/Register?${queryParams}`,
-        null, // No request body, since data is in URL
+        null,
         { headers: { 'Accept': 'text/plain' } }
       );
   
       if (response.status === 200) {
         toast.success('Registration successful!', { position: 'top-center', autoClose: 3000 });
-        setFormData({ fullName: '', email: '', password: '', confirmPassword: '', phoneNumber: '', roleID: '' });
+        setFormData({ 
+          Name: '', email: '', password: '', confirmPassword: '', phoneNumber: '', 
+          roleID: '', BankAccountNumber: '', GenderID: '', Introduction: ''
+        });
       }
     } catch (error) {
       const errorMessage = error.response?.data || 'Registration failed. Please try again.';
       toast.error(errorMessage, { position: 'top-center', autoClose: 3000 });
     }
   };
-  
 
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ backgroundColor: '#fff', minHeight: '100vh', padding: '50px', marginTop: '20px' }}>

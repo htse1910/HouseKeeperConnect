@@ -4,6 +4,7 @@ import { FaPhone, FaEnvelope } from "react-icons/fa";
 const ContactInfo = () => {
   const [phone, setPhone] = useState("...");
   const [email, setEmail] = useState("...");
+
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
 
@@ -26,8 +27,8 @@ const ContactInfo = () => {
   }, [accountID, authToken]);
 
   return (
-    <div className="col-md-6"> {/* ✅ Ensures correct column width */}
-      <div className="card p-4 shadow-sm">
+    <div className="col-md-6 d-flex">
+      <div className="card p-4 shadow-sm w-100 h-100">
         <h5 className="fw-bold">Thông tin liên hệ</h5>
         <p><FaPhone className="text-danger me-2" /> {phone}</p>
         <p><FaEnvelope className="text-danger me-2" /> {email}</p>
