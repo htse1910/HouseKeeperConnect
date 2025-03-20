@@ -17,6 +17,7 @@ namespace Services.Interface
         Task UpdateHousekeeperAsync(Housekeeper Housekeeper);
 
         Task<List<Housekeeper>> GetPendingHousekeepersAsync();
+
         Task UpdateIsVerifiedAsync(int housekeeperId, bool isVerified);
     }
 }

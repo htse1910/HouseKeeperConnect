@@ -77,7 +77,6 @@ namespace DataAccess
             return trans;
         }*/
 
-      
         public async Task<int> AddIDVerifyAsync(IDVerification veri)
         {
             try
@@ -94,7 +93,6 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
-      
 
         public async Task UpdateIDVerifyAsync(IDVerification veri)
         {

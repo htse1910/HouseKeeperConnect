@@ -133,6 +133,7 @@ namespace DataAccess
                     .ToListAsync();
             }
         }
+
         public async Task UpdateIsVerifiedAsync(int housekeeperId, bool isVerified)
         {
             try
@@ -152,6 +153,5 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
-
     }
 }

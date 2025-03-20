@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using BusinessObject.DTO;
+using BusinessObject.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BusinessObject.Models;
-using AutoMapper;
 using Services.Interface;
-using BusinessObject.DTO;
-using Microsoft.AspNetCore.Authorization;
-using Services;
-using Microsoft.Identity.Client;
 using System.Transactions;
 
 namespace HouseKeeperConnect_API.Controllers
 {
     [Route("api/[controller]")]
-    
     public class IDVerificationsController : ControllerBase
     {
         private readonly IIDVerificationService _idVerificationService;
@@ -67,7 +59,6 @@ namespace HouseKeeperConnect_API.Controllers
             var idVerificationDTO = _mapper.Map<IDVerificationDisplayDTO>(idVerification);
             return Ok(idVerificationDTO);
         }
-
 
         [HttpPost("CreateIDVerification")]
         public async Task<ActionResult> CreateIDVerification([FromForm] IDVerificationCreateDTO idVerificationDTO, [FromQuery] int housekeeperId)
@@ -144,8 +135,8 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
-
         }
+
         private async Task<byte[]> ConvertToByteArrayAsync(IFormFile file)
         {
             if (file == null) return null;
@@ -155,7 +146,6 @@ namespace HouseKeeperConnect_API.Controllers
                 return memoryStream.ToArray();
             }
         }
-
 
         [HttpPut("UpdateIDVerification")]
         public async Task<ActionResult> UpdateIDVerification([FromForm] IDVerificationUpdateDTO idVerificationDTO)
@@ -168,7 +158,6 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound("ID Verification not found!");
                 }
 
-                
                 if (idVerificationDTO.FrontPhoto != null)
                 {
                     using (var memoryStream = new MemoryStream())
@@ -196,7 +185,6 @@ namespace HouseKeeperConnect_API.Controllers
                     }
                 }
 
-               
                 existingVerification.IDNumber = idVerificationDTO.IDNumber;
                 existingVerification.RealName = idVerificationDTO.RealName;
                 existingVerification.DateOfBirth = idVerificationDTO.DateOfBirth;
@@ -210,6 +198,5 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest($"Error: {ex.Message}");
             }
         }
-
     }
 }

@@ -8,11 +8,11 @@ namespace BusinessObject.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int JobID { get; set; }
 
-        public int AccountID { get; set; }
+        public int FamilyID { get; set; }
         public string JobName { get; set; }
         public int Status { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
-        public virtual Account Account { get; set; }
+        public virtual Family Family { get; set; }
     }
 }

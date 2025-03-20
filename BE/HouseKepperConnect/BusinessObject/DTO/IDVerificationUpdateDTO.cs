@@ -1,10 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessObject.DTO
 {
@@ -20,6 +15,5 @@ namespace BusinessObject.DTO
         public IFormFile? FrontPhoto { get; set; }
         public IFormFile? BackPhoto { get; set; }
         public IFormFile? FacePhoto { get; set; }
-
     }
 }

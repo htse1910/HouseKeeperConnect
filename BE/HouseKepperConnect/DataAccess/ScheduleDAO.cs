@@ -28,15 +28,15 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Schedule>> GetAllSchedulesAsync()
+        public async Task<List<Housekeeper_Schedule>> GetAllSchedulesAsync()
         {
-            var list = new List<Schedule>();
+            var list = new List<Housekeeper_Schedule>();
             try
             {
                 using (var context = new PCHWFDBContext())
 
                 {
-                    list = await context.Schedule
+                    list = await context.Housekeeper_Schedule
                         .Include(s => s.Housekeeper)
                         .Include(s => s.Slot)
                         .ToListAsync();
@@ -49,17 +49,17 @@ namespace DataAccess
             return list;
         }
 
-        public async Task<Schedule> GetScheduleByIDAsync(int id)
+        public async Task<Housekeeper_Schedule> GetScheduleByIDAsync(int id)
         {
-            Schedule schedule = new Schedule();
+            Housekeeper_Schedule schedule = new Housekeeper_Schedule();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    schedule = await context.Schedule
+                    schedule = await context.Housekeeper_Schedule
                         .Include(s => s.Housekeeper)
                         .Include(s => s.Slot)
-                        .SingleOrDefaultAsync(s => s.ScheduleID == id);
+                        .SingleOrDefaultAsync(s => s.Housekeeper_ScheduleID == id);
                 }
             }
             catch (Exception ex)
@@ -69,14 +69,14 @@ namespace DataAccess
             return schedule;
         }
 
-        public async Task<List<Schedule>> GetSchedulesByHousekeeperAsync(int housekeeperId)
+        public async Task<List<Housekeeper_Schedule>> GetSchedulesByHousekeeperAsync(int housekeeperId)
         {
-            var schedules = new List<Schedule>();
+            var schedules = new List<Housekeeper_Schedule>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    schedules = await context.Schedule
+                    schedules = await context.Housekeeper_Schedule
                         .Where(s => s.HousekeeperID == housekeeperId)
                         .Include(s => s.Slot)
                         .ToListAsync();
@@ -89,13 +89,13 @@ namespace DataAccess
             return schedules;
         }
 
-        public async Task AddScheduleAsync(Schedule schedule)
+        public async Task AddScheduleAsync(Housekeeper_Schedule schedule)
         {
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    context.Schedule.Add(schedule);
+                    context.Housekeeper_Schedule.Add(schedule);
                     await context.SaveChangesAsync();
                 }
             }
@@ -112,13 +112,13 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    context.Schedule.Remove(schedule);
+                    context.Housekeeper_Schedule.Remove(schedule);
                     await context.SaveChangesAsync();
                 }
             }
         }
 
-        public async Task UpdateScheduleAsync(Schedule schedule)
+        public async Task UpdateScheduleAsync(Housekeeper_Schedule schedule)
         {
             try
             {
