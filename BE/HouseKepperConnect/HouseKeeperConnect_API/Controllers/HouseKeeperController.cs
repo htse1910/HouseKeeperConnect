@@ -127,7 +127,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("UpdateHousekeeper")]
         [Authorize]
-        public async Task<ActionResult<Housekeeper>> UpdateHousekeeper([FromForm] HouseKeeperUpdateDTO hk) 
+        public async Task<ActionResult<Housekeeper>> UpdateHousekeeper([FromForm] HouseKeeperUpdateDTO hk)
         {
             try
             {

@@ -23,7 +23,6 @@ namespace BusinessObject.Models
         public virtual DbSet<Wallet> Wallet { get; set; }
         public virtual DbSet<Housekeeper> Housekeeper { get; set; }
         public virtual DbSet<HouseKeeperSkill> HouseKeeperSkill { get; set; }
-        public virtual DbSet<Schedule> Schedule { get; set; }
         public virtual DbSet<Slot> Slot { get; set; }
         public virtual DbSet<IDVerification> IDVerification { get; set; }
         public virtual DbSet<Violation> Violation { get; set; }
@@ -48,8 +47,12 @@ namespace BusinessObject.Models
         public virtual DbSet<VerificationTask> VerificationTask { get; set; }
 
         public virtual DbSet<Housekeeper_Violation> Housekeeper_Violation { get; set; }
-        public virtual DbSet<DaysOfTheWeek> DaysOfTheWeek { get; set; }
+        public virtual DbSet<WorkingDays> WorkingDays { get; set; }
         public virtual DbSet<Withdraw> Withdraw { get; set; }
+        public virtual DbSet<Booking_WorkingDays_Slots> Booking_WorkingDays_Slots { get; set; }
+        public virtual DbSet<Job_Service> Job_Service { get; set; }
+        public virtual DbSet<Job_WorkingDays_Slots> Job_WorkingDays_Slots { get; set; }
+        public virtual DbSet<Housekeeper_Schedule> Housekeeper_Schedule { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -59,14 +62,14 @@ namespace BusinessObject.Models
                 new Role { RoleID = 3, RoleName = "Staff" },
                 new Role { RoleID = 4, RoleName = "Admin" }
                 );
-            modelBuilder.Entity<DaysOfTheWeek>().HasData(
-                new DaysOfTheWeek { DayID = 1, Name = "Monday" },
-                new DaysOfTheWeek { DayID = 2, Name = "Tuesday" },
-                new DaysOfTheWeek { DayID = 3, Name = "Wednesday" },
-                new DaysOfTheWeek { DayID = 4, Name = "Thursday" },
-                new DaysOfTheWeek { DayID = 5, Name = "Friday" },
-                new DaysOfTheWeek { DayID = 6, Name = "Saturday" },
-                new DaysOfTheWeek { DayID = 7, Name = "Sunday" }
+            modelBuilder.Entity<WorkingDays>().HasData(
+                new WorkingDays { DayID = 1, Name = "Monday" },
+                new WorkingDays { DayID = 2, Name = "Tuesday" },
+                new WorkingDays { DayID = 3, Name = "Wednesday" },
+                new WorkingDays { DayID = 4, Name = "Thursday" },
+                new WorkingDays { DayID = 5, Name = "Friday" },
+                new WorkingDays { DayID = 6, Name = "Saturday" },
+                new WorkingDays { DayID = 7, Name = "Sunday" }
                 );
         }
     }

@@ -1,29 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using BusinessObject.Models;
-using AutoMapper;
-using Services.Interface;
+﻿using AutoMapper;
 using BusinessObject.DTO;
-using DataAccess;
+using BusinessObject.Models;
+using Microsoft.AspNetCore.Mvc;
+using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
 {
     [Route("api/[controller]")]
-
     public class VerificationTasksController : ControllerBase
     {
         private readonly IVerificationTaskService _verificationTaskService;
         private readonly IMapper _mapper;
+
         public VerificationTasksController(IVerificationTaskService verificationTaskService, IMapper mapper)
         {
             _verificationTaskService = verificationTaskService;
             _mapper = mapper;
         }
+
         [HttpPost("CreateVerificationTasks")]
         public async Task<IActionResult> CreateVerificationTask([FromQuery] int verifyID)
         {
@@ -46,16 +40,13 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
-
-
-
         [HttpGet("PendingTasksList")]
         public async Task<IActionResult> GetPendingVerificationTasks()
         {
             try
             {
                 var tasks = await _verificationTaskService.GetPendingVerificationTasksAsync();
-                if (tasks == null || !tasks.Any()) 
+                if (tasks == null || !tasks.Any())
                 {
                     return NotFound("No pending verification tasks.");
                 }
@@ -66,6 +57,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
+
         [HttpPost("approve")]
         public async Task<IActionResult> ApproveVerification(int taskId, [FromQuery] VerificationRequestDTO request)
         {
@@ -101,6 +93,5 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
     }
 }

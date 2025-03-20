@@ -23,7 +23,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("ScheduleList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Schedule>>> GetAllSchedulesAsync()
+        public async Task<ActionResult<IEnumerable<Housekeeper_Schedule>>> GetAllSchedulesAsync()
         {
             var schedules = await _scheduleService.GetAllSchedulesAsync();
             if (schedules == null || !schedules.Any())
@@ -36,12 +36,12 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetScheduleByID")]
         [Authorize]
-        public async Task<ActionResult<Schedule>> GetScheduleByID([FromQuery] int id)
+        public async Task<ActionResult<Housekeeper_Schedule>> GetScheduleByID([FromQuery] int id)
         {
             var schedule = await _scheduleService.GetScheduleByIDAsync(id);
             if (schedule == null)
             {
-                Message = "Schedule not found!";
+                Message = "Housekeeper_Schedule not found!";
                 return NotFound(Message);
             }
             return Ok(schedule);
@@ -49,7 +49,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetSchedulesByHousekeeper")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Schedule>>> GetSchedulesByHousekeeper([FromQuery] int housekeeperId)
+        public async Task<ActionResult<IEnumerable<Housekeeper_Schedule>>> GetSchedulesByHousekeeper([FromQuery] int housekeeperId)
         {
             var schedules = await _scheduleService.GetScheduleByHousekeeperAsync(housekeeperId);
             if (schedules == null || !schedules.Any())
@@ -64,33 +64,31 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult> AddSchedule([FromBody] ScheduleCreateDTO scheduleDTO)
         {
-            var schedule = new Schedule
+            var schedule = new Housekeeper_Schedule
             {
                 HousekeeperID = scheduleDTO.HousekeeperID,
                 SlotID = scheduleDTO.SlotID,
-                Date = scheduleDTO.Date,
-                Status = scheduleDTO.Status
             };
 
             // Add schedule to database
             await _scheduleService.AddScheduleAsync(schedule);
-            return Ok("Schedule added successfully!");
+            return Ok("Housekeeper_Schedule added successfully!");
         }
 
         [HttpPut("UpdateSchedule")]
         [Authorize]
         public async Task<ActionResult> UpdateSchedule([FromQuery] ScheduleUpdateDTO scheduleUpdateDTO)
         {
-            var sche = _mapper.Map<Schedule>(scheduleUpdateDTO);
+            var sche = _mapper.Map<Housekeeper_Schedule>(scheduleUpdateDTO);
             var schedule = await _scheduleService.GetScheduleByIDAsync(scheduleUpdateDTO.ScheduleID);
             if (schedule == null)
             {
-                Message = "Schedule not found!";
+                Message = "Housekeeper_Schedule not found!";
                 return NotFound(Message);
             }
 
             await _scheduleService.UpdateScheduleAsync(sche);
-            Message = "Schedule updated successfully!";
+            Message = "Housekeeper_Schedule updated successfully!";
             return Ok(Message);
         }
     }

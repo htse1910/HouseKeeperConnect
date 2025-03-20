@@ -36,7 +36,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Account).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -53,7 +53,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    job = await context.Job.Include(j => j.Account).SingleOrDefaultAsync(x => x.JobID == id);
+                    job = await context.Job.Include(j => j.Family).SingleOrDefaultAsync(x => x.JobID == id);
                 }
             }
             catch (Exception ex)
@@ -81,7 +81,7 @@ namespace DataAccess
         public async Task<List<Job>> GetJobsByAccountIDAsync(int accountId)
         {
             using var context = new PCHWFDBContext();
-            return await context.Job.Where(j => j.AccountID == accountId).ToListAsync();
+            return await context.Job.Where(j => j.FamilyID == accountId).ToListAsync();
         }
 
         public async Task<List<Job>> GetJobsPastWeekAsync()

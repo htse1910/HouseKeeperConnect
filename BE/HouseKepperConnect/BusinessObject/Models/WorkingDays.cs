@@ -2,7 +2,7 @@
 
 namespace BusinessObject.Models
 {
-    public class DaysOfTheWeek
+    public class WorkingDays
     {
         [Key]
         public int DayID { get; set; }

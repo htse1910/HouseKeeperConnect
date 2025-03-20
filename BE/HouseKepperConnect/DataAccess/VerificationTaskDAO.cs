@@ -1,10 +1,5 @@
 ﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess
 {
@@ -13,7 +8,8 @@ namespace DataAccess
         private static VerificationTaskDAO instance;
         public static readonly object instancelock = new object();
 
-        public VerificationTaskDAO() { }
+        public VerificationTaskDAO()
+        { }
 
         public static VerificationTaskDAO Instance
         {
@@ -29,6 +25,7 @@ namespace DataAccess
                 }
             }
         }
+
         public async Task<int> CreateVerificationTaskAsync(VerificationTask task)
         {
             try
@@ -55,8 +52,6 @@ namespace DataAccess
             }
         }
 
-
-
         public async Task<List<VerificationTask>> GetPendingVerificationTasksAsync()
         {
             try
@@ -65,8 +60,8 @@ namespace DataAccess
                 {
                     return await context.VerificationTask
                         .Include(t => t.IDVerification)
-                        .Include(t => t.Account) 
-                        .Where(t => t.IDVerification.Status == 1) 
+                        .Include(t => t.Account)
+                        .Where(t => t.IDVerification.Status == 1)
                         .ToListAsync();
                 }
             }
@@ -75,7 +70,6 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
-
 
         public async Task<bool> ApproveVerificationAsync(int taskId, int staffId, string notes)
         {
@@ -98,8 +92,8 @@ namespace DataAccess
                     }
 
                     task.AccountID = staffId;
-                    task.IDVerification.Status = 2; 
-                    task.Status = 2; 
+                    task.IDVerification.Status = 2;
+                    task.Status = 2;
                     task.CompletedDate = DateTime.UtcNow;
                     task.Notes = notes;
 
@@ -119,14 +113,12 @@ namespace DataAccess
             }
         }
 
-
         public async Task<bool> RejectVerificationAsync(int taskId, int staffId, string notes)
         {
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    
                     var staff = await context.Account.FirstOrDefaultAsync(a => a.AccountID == staffId && a.RoleID == 3);
                     if (staff == null)
                     {
@@ -142,8 +134,8 @@ namespace DataAccess
                     }
 
                     task.AccountID = staffId;
-                    task.IDVerification.Status = 3; 
-                    task.Status = 2; 
+                    task.IDVerification.Status = 3;
+                    task.Status = 2;
                     task.CompletedDate = DateTime.UtcNow;
                     task.Notes = notes;
 

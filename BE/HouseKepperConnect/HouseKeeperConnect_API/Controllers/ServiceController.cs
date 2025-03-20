@@ -59,7 +59,6 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Invalid service data.");
             }
 
-            
             await _serviceService.AddServiceAsync(service);
 
             return Ok("Service added successfully!");
