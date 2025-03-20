@@ -84,7 +84,7 @@ function LoginPage() {
 
   const redirectUser = (roleID) => {
     switch (roleID) {
-      case 1: navigate("/housekeeper-dashboard"); break;
+      case 1: navigate("/housekeeper/dashboard"); break;
       case 2: navigate("/family-dashboard"); break;
       case 3: navigate("/staff-dashboard"); break;
       case 4: navigate("/admin-dashboard"); break; // ✅ Redirect Admin Role (roleID 4)
