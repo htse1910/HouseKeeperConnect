@@ -250,17 +250,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    var existingAccount = await context.Account.FindAsync(updatedAccount.AccountID);
-                    if (existingAccount == null)
-                    {
-                        throw new Exception("Account not found.");
-                    }
-
-                    existingAccount.Name = updatedAccount.Name;
-                    existingAccount.Phone = updatedAccount.Phone;
-                    existingAccount.Password = updatedAccount.Password;
-                    existingAccount.UpdatedAt = DateTime.Now;
-
+                    context.Entry(updatedAccount).State = EntityState.Modified;
                     await context.SaveChangesAsync();
                 }
             }
@@ -276,15 +266,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    var existingAccount = await context.Account.FindAsync(updatedAccount.AccountID);
-                    if (existingAccount == null)
-                    {
-                        throw new Exception("Account not found.");
-                    }
-
-                    existingAccount.Password = updatedAccount.Password;
-                    existingAccount.Status = updatedAccount.Status;
-                    existingAccount.UpdatedAt = DateTime.Now;
+                    context.Entry(updatedAccount).State = EntityState.Modified;
 
                     await context.SaveChangesAsync();
                 }

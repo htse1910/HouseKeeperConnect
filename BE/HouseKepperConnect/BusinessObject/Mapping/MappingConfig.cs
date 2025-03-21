@@ -19,6 +19,7 @@ namespace BusinessObject.Mapping
             Mapp_Update_Family();
             Map_Update_HouseKeeper();
             Map_Create_HouseKeeper();
+            Map_Display_HouseKeeper();
             Map_Create_Schedule();
             Map_Update_Schedule();
             Map_Create_Job();
@@ -98,6 +99,15 @@ namespace BusinessObject.Mapping
         private void Map_Update_HouseKeeper()
         {
             CreateMap<HouseKeeperUpdateDTO, Housekeeper>();
+            CreateMap<HouseKeeperUpdateDTO, Account>()
+                .ForMember(f => f.LocalProfilePicture, opt => opt.Ignore());
+        }
+
+        private void Map_Display_HouseKeeper()
+        {
+            CreateMap<HouseKeeperDisplayDTO, Housekeeper>().ReverseMap();
+            CreateMap<HouseKeeperDisplayDTO, Account>().ReverseMap();
+            CreateMap<HouseKeeperDisplayDTO, IDVerification>().ReverseMap();
         }
 
         private void Map_Create_HouseKeeper()

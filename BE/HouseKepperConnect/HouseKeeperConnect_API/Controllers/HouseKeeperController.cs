@@ -55,9 +55,37 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetHousekeeperByAccountID")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Housekeeper>>> getTransByUserID([FromQuery] int id)
+        public async Task<ActionResult<HouseKeeperDisplayDTO>> getHKByAccountID([FromQuery] int id)
         {
-            var trans = await _housekeeperService.GetHousekeepersByUserAsync(id);
+            var acc = await _accountService.GetAccountByIDAsync(id);
+
+            if (acc == null)
+            {
+                Message = "No account found!";
+                return NotFound(Message);
+            }
+            var hk = await _housekeeperService.GetHousekeeperByUserAsync(acc.AccountID);
+            if (hk == null)
+            {
+                Message = "No housekeeper found!";
+                return NotFound(Message);
+            }
+
+            var veri = await _verificationService.GetIDVerifyByIDAsync(hk.VerifyID.Value);
+
+            var displayHK = new HouseKeeperDisplayDTO();
+            _mapper.Map(hk, displayHK);
+            _mapper.Map(acc, displayHK);
+            _mapper.Map(veri, displayHK);
+
+            return Ok(displayHK);
+        }
+
+        [HttpGet("GetHousekeeperListByAccountID")] //Admin
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<Housekeeper>>> getHkByUserID([FromQuery] int id)
+        {
+            var trans = await _housekeeperService.GetHousekeeperByUserAsync(id);
             if (trans == null)
             {
                 Message = "No Records!";
@@ -70,7 +98,7 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult<Housekeeper>> addHK([FromQuery] HouseKeeperCreateDTO hk)
         {
-            var nHk = _mapper.Map<Housekeeper>(hk);
+            var oHk = _mapper.Map<Housekeeper>(hk);
             var acc = await _accountService.GetAccountByIDAsync(hk.AccountID);
             if (acc == null)
             {
@@ -78,49 +106,45 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            var housek = await _housekeeperService.GetHousekeepersByUserAsync(acc.AccountID);
+            var housek = await _housekeeperService.GetHousekeeperByUserAsync(acc.AccountID);
             if (housek != null)
             {
                 Message = "Account already had this permission!";
                 return BadRequest(Message);
             }
 
-            var id = new IDVerification();
+            /*            var id = new IDVerification();
 
-            byte[] front, face, back;
+                        byte[] front, face, back;
 
-            using (var memoryStream = new MemoryStream())
-            {
-                await hk.FrontPhoto.CopyToAsync(memoryStream);
-                front = memoryStream.ToArray();
-            }
-            using (var memoryStream = new MemoryStream())
-            {
-                await hk.FacePhoto.CopyToAsync(memoryStream);
-                face = memoryStream.ToArray();
-            }
-            using (var memoryStream = new MemoryStream())
-            {
-                await hk.BackPhoto.CopyToAsync(memoryStream);
-                back = memoryStream.ToArray();
-            }
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await hk.FrontPhoto.CopyToAsync(memoryStream);
+                            front = memoryStream.ToArray();
+                        }
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await hk.FacePhoto.CopyToAsync(memoryStream);
+                            face = memoryStream.ToArray();
+                        }
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await hk.BackPhoto.CopyToAsync(memoryStream);
+                            back = memoryStream.ToArray();
+                        }
 
-            id.Status = (int)VerificationStatus.Pending;
-            id.CreatedAt = DateTime.Now;
-            id.UpdatedAt = DateTime.Now;
-            id.FrontPhoto = front;
-            id.FacePhoto = face;
-            id.BackPhoto = back;
+                        id.Status = (int)VerificationStatus.Pending;
+                        id.CreatedAt = DateTime.Now;
+                        id.UpdatedAt = DateTime.Now;
+                        id.FrontPhoto = front;
+                        id.FacePhoto = face;
+                        id.BackPhoto = back;
 
-            await _verificationService.AddIDVerifyAsync(id);
+                        await _verificationService.AddIDVerifyAsync(id);*/
 
-            nHk.IsVerified = false;
-            nHk.JobCompleted = 0;
-            nHk.JobsApplied = 0;
-            nHk.Location = "";
-            nHk.VerifyID = id.VerifyID;
+            oHk.VerifyID = null;
 
-            await _housekeeperService.AddHousekeeperAsync(nHk);
+            await _housekeeperService.AddHousekeeperAsync(oHk);
             Message = "Added!";
             return Ok(Message);
         }
@@ -131,16 +155,49 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
-                var newAcc = _mapper.Map<Housekeeper>(hk);
-                var acc = await _housekeeperService.GetHousekeepersByUserAsync(hk.AccountID);
+                //<--------------------------------------------------------------------------------->// Update Account
+                var newAcc = _mapper.Map<Account>(hk);
 
-                if (acc == null)
+                var oAcc = await _accountService.GetAccountByIDAsync(hk.AccountID);
+                if (oAcc == null)
                 {
                     Message = "No account found!";
                     return NotFound(Message);
                 }
 
-                var id = await _verificationService.GetIDVerifyByIDAsync(acc.VerifyID.Value);
+                if (hk.LocalProfilePicture != null)
+                {
+                    byte[] pic;
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await hk.LocalProfilePicture.CopyToAsync(memoryStream);
+                        pic = memoryStream.ToArray();
+                    }
+                    oAcc.LocalProfilePicture = pic;
+                }
+
+                oAcc.Phone = newAcc.Phone;
+                oAcc.Introduction = newAcc.Introduction;
+                oAcc.Name = newAcc.Name;
+                oAcc.Email = newAcc.Email;
+                oAcc.BankAccountNumber = newAcc.BankAccountNumber;
+                oAcc.Address = newAcc.Address;
+                oAcc.UpdatedAt = DateTime.Now;
+
+                await _accountService.UpdateAccountAsync(oAcc);
+
+                //<--------------------------------------------------------------------------------->// Update Housekeeper
+                var newHK = _mapper.Map<Housekeeper>(hk);
+
+                var oHk = await _housekeeperService.GetHousekeeperByUserAsync(newHK.AccountID);
+
+                if (oHk == null)
+                {
+                    Message = "No housekeeper found!";
+                    return NotFound(Message);
+                }
+
+                var id = await _verificationService.GetIDVerifyByIDAsync(oHk.VerifyID.Value);
 
                 if (id != null)
                 {
@@ -179,12 +236,42 @@ namespace HouseKeeperConnect_API.Controllers
 
                     id.UpdatedAt = DateTime.Now;
                     await _verificationService.UpdateIDVerifyAsync(id);
+                    oHk.VerifyID = id.VerifyID;
+                }
+                else
+                {
+                    var nId = new IDVerification();
+
+                    byte[] nFront, nFace, nBack;
+
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await hk.FrontPhoto.CopyToAsync(memoryStream);
+                        nFront = memoryStream.ToArray();
+                    }
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await hk.FacePhoto.CopyToAsync(memoryStream);
+                        nFace = memoryStream.ToArray();
+                    }
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await hk.BackPhoto.CopyToAsync(memoryStream);
+                        nBack = memoryStream.ToArray();
+                    }
+
+                    nId.Status = (int)VerificationStatus.Pending;
+                    nId.CreatedAt = DateTime.Now;
+                    nId.UpdatedAt = DateTime.Now;
+                    nId.FrontPhoto = nFront;
+                    nId.FacePhoto = nFace;
+                    nId.BackPhoto = nBack;
+
+                    await _verificationService.AddIDVerifyAsync(nId);
+                    oHk.VerifyID = nId.VerifyID;
                 }
 
-                newAcc.HousekeeperID = acc.HousekeeperID;
-                newAcc.VerifyID = acc.VerifyID;
-
-                await _housekeeperService.UpdateHousekeeperAsync(newAcc);
+                await _housekeeperService.UpdateHousekeeperAsync(oHk);
                 Message = "Housekeeper Updated!";
                 return Ok(Message);
             }
