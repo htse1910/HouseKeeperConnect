@@ -419,7 +419,7 @@ namespace DataAccess
                         Email = payload.Email,
                         GoogleId = payload.Subject,
                         Provider = "Google",
-                        ProfilePicture = payload.Picture,
+                        GoogleProfilePicture = payload.Picture,
                         RoleID = 1,
                         Status = (int)AccountStatus.Active,
                         CreatedAt = DateTime.Now,

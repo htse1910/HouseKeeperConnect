@@ -24,14 +24,15 @@ namespace BusinessObject.Models
         public DateTime UpdatedAt { get; set; }
         public string? GoogleId { get; set; }  // Lưu Google ID
         public string? Provider { get; set; } // "Google" hoặc "Local"
-        public string? ProfilePicture { get; set; } // Ảnh đại diện Google
+        public string? GoogleProfilePicture { get; set; } // Ảnh đại diện Google
+        public byte[] LocalProfilePicture { get; set; } 
 
         [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]
         public string? BankAccountNumber { get; set; }
 
         public int Status { get; set; }
 
-        public string? Introduction { get; set; } // Cột mới
+        public string? Introduction { get; set; } 
 
         public virtual Role Role { get; set; }
         public virtual Wallet Wallet { get; set; }
