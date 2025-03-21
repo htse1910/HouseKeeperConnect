@@ -142,23 +142,6 @@
   }
   
   /* Các biểu tượng cụ thể */
-  .icon-search {
-    color: #6B7280;  /* Màu xám nhạt */
-  }
-  .icon-search:hover {
-    color: var(--main-color);
-  }
-  
-  .icon-cancel {
-    color: var(--cancel-color);
-  }
-  .icon-cancel:hover {
-    background: var(--cancel-color);
-    color: white;
-    border-radius: 50%;
-    padding: 4px;
-  }
-  
   .icon-nav {
     color: var(--text-color);
   }

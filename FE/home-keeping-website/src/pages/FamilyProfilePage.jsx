@@ -114,7 +114,7 @@ const FamilyProfilePage = () => {
     if (loading) {
         return (
             <div className="profile-container">
-                <span className="loading"></span>
+                <span className="icon-loading"></span>
                 <p>{t("loading_data")}</p>
             </div>
         );

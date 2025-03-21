@@ -64,7 +64,7 @@
 }
 
 /* Input tìm kiếm ẩn mặc định */
-.search-input {
+.navbar-search-input {
   display: none;
   border: 1px solid var(--disabled-color);
   padding: 6px;

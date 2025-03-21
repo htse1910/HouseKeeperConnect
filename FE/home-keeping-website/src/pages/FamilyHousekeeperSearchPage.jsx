@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaSearch } from "react-icons/fa";
 import "../assets/styles/Search.css";
 
 const FamilyHousekeeperSearchPage = () => {
@@ -10,6 +11,11 @@ const FamilyHousekeeperSearchPage = () => {
         { id: 3, name: "Lê Thị C", location: "Đà Nẵng", experience: "2 năm", rating: 4.2 }
     ]);
 
+    const handleSearchChange = (event) => {
+        setSearchTerm(event.target.value);
+        setCurrentPage(1);
+    };
+
     const filteredHousekeepers = housekeepers.filter(h =>
         h.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
         h.location.toLowerCase().includes(location.toLowerCase())
@@ -19,13 +25,13 @@ const FamilyHousekeeperSearchPage = () => {
         <div className="search-page">
             <div className="search-header">
                 <div className="search-box">
-                    <span className="search-icon">🔍</span>
+                    <div className="search-icon"><FaSearch /></div>
                     <input
                         type="text"
-                        className="search-input"
                         placeholder="Nhập tên người giúp việc..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={handleSearchChange}
+                        className="search-input"
                     />
                 </div>
 

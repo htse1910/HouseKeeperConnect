@@ -74,7 +74,7 @@ function Navbar() {
       {/* Ô tìm kiếm */}
       <div className="navbar-search-container" ref={searchRef}>
         {searchVisible && (
-          <input type="text" placeholder={t("search")} className="search-input" />
+          <input type="text" placeholder={t("search")} className="navbar-search-input" />
         )}
         <button className="search-btn" onClick={() => setSearchVisible(!searchVisible)}>
           <FaSearch />

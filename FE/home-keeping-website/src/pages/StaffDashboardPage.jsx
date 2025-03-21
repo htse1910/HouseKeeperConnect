@@ -124,7 +124,7 @@ const StaffDashboardPage = () => {
     if (loading) {
         return (
             <div className="dashboard-container">
-                <span className="loading"></span>
+                <span className="icon-loading"></span>
                 <p>{t("loading_data")}</p>
             </div>
         );
@@ -181,25 +181,25 @@ const StaffDashboardPage = () => {
                 {/* Stats Content */}
                 <div className="dashboard-content staff-dashboard-stats-content">
                     <div className="staff-dashboard-stats">
-                        <div className="stat-card">
-                            <FaUserTie className="stat-icon" />
-                            <p className="stat-number">{statsData.totalHousekeepers}</p>
-                            <p className="stat-label">{t("total_housekeepers")}</p>
+                        <div className="staff-dashboard-stat-card">
+                            <FaUserTie className="staff-dashboard-stat-icon" />
+                            <p className="staff-dashboard-stat-number">{statsData.totalHousekeepers}</p>
+                            <p className="staff-dashboard-stat-label">{t("total_housekeepers")}</p>
                         </div>
-                        <div className="stat-card">
-                            <FaUsers className="stat-icon" />
-                            <p className="stat-number">{statsData.totalFamilies}</p>
-                            <p className="stat-label">{t("total_families")}</p>
+                        <div className="staff-dashboard-stat-card">
+                            <FaUsers className="staff-dashboard-stat-icon" />
+                            <p className="staff-dashboard-stat-number">{statsData.totalFamilies}</p>
+                            <p className="staff-dashboard-stat-label">{t("total_families")}</p>
                         </div>
-                        <div className="stat-card">
-                            <FaBriefcase className="stat-icon" />
-                            <p className="stat-number">{statsData.totalJobs}</p>
-                            <p className="stat-label">{t("total_jobs")}</p>
+                        <div className="staff-dashboard-stat-card">
+                            <FaBriefcase className="staff-dashboard-stat-icon" />
+                            <p className="staff-dashboard-stat-number">{statsData.totalJobs}</p>
+                            <p className="staff-dashboard-stat-label">{t("total_jobs")}</p>
                         </div>
-                        <div className="stat-card">
-                            <FaMoneyBillWave className="stat-icon" />
-                            <p className="stat-number">{statsData.successfulTransactions}</p>
-                            <p className="stat-label">{t("total_transactions")}</p>
+                        <div className="staff-dashboard-stat-card">
+                            <FaMoneyBillWave className="staff-dashboard-stat-icon" />
+                            <p className="staff-dashboard-stat-number">{statsData.successfulTransactions}</p>
+                            <p className="staff-dashboard-stat-label">{t("total_transactions")}</p>
                         </div>
                     </div>
 
