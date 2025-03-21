@@ -21,7 +21,7 @@ namespace Services
 
         public async Task<Housekeeper> GetHousekeeperByIDAsync(int id) => await _houseKeeperRepository.GetHousekeeperByIDAsync(id);
 
-        public async Task<Housekeeper> GetHousekeepersByUserAsync(int uId) => await _houseKeeperRepository.GetHousekeepersByUserAsync(uId);
+        public async Task<Housekeeper> GetHousekeeperByUserAsync(int uId) => await _houseKeeperRepository.GetHousekeepersByUserAsync(uId);
 
         public async Task UpdateHousekeeperAsync(Housekeeper Housekeeper) => await _houseKeeperRepository.UpdateHousekeeperAsync(Housekeeper);
 

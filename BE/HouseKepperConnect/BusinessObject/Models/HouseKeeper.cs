@@ -13,13 +13,12 @@ namespace BusinessObject.Models
         public int AccountID { get; set; }
 
         public int? Rating { get; set; }
-        public string? Location { get; set; }
 
-        public bool IsVerified { get; set; }
+        public bool IsVerified { get; set; } = false;
 
-        public int JobCompleted { get; set; }
+        public int JobCompleted { get; set; } = 0;
 
-        public int JobsApplied { get; set; }
+        public int JobsApplied { get; set; } = 0;
 
         [ForeignKey("IDVerification")]
         public int? VerifyID { get; set; }

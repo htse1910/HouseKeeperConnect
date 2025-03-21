@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BusinessObject.DTO
 {
-    public class HouseKeeperUpdateDTO
+    public class HouseKeeperDisplayDTO
     {
-        public int AccountID { get; set; }
-
         public string Name { get; set; }
 
         [EmailAddress]
@@ -15,7 +12,7 @@ namespace BusinessObject.DTO
         [Phone]
         public string? Phone { get; set; }
 
-        public IFormFile LocalProfilePicture { get; set; }
+        public byte[] LocalProfilePicture { get; set; }
 
         [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]
         public string? BankAccountNumber { get; set; }
@@ -23,10 +20,10 @@ namespace BusinessObject.DTO
         public string? Introduction { get; set; }
         public string Address { get; set; }
 
-        public IFormFile FrontPhoto { get; set; }
+        public byte[] FrontPhoto { get; set; }
 
-        public IFormFile BackPhoto { get; set; }
+        public byte[] BackPhoto { get; set; }
 
-        public IFormFile FacePhoto { get; set; }
+        public byte[] FacePhoto { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace Services.Interface
 
         Task<Housekeeper> GetHousekeeperByIDAsync(int id);
 
-        Task<Housekeeper> GetHousekeepersByUserAsync(int uId);
+        Task<Housekeeper> GetHousekeeperByUserAsync(int uId);
 
         Task AddHousekeeperAsync(Housekeeper Housekeeper);
 
