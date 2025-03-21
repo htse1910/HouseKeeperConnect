@@ -7,6 +7,7 @@ using BusinessObject.Models.JWTToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -22,7 +23,8 @@ namespace HouseKeeperConnect_API.Controllers
         private string Message;
         private readonly IPasswordHasher<Account> _passwordHasher;
         private readonly IWalletService _walletService;
-
+        private readonly IFamilyProfileService _familyProfileService;
+        private readonly IHouseKeeperService _houseKeeperService;
         private static readonly char[] Characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
 
@@ -33,12 +35,14 @@ namespace HouseKeeperConnect_API.Controllers
                 .Select(_ => Characters[random.Next(Characters.Length)]).ToArray());
         }
 
-        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<Account> passwordHasher, IWalletService walletService)
+        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<Account> passwordHasher, IWalletService walletService, IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService)
         {
             _accountService = accountService;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
             _walletService = walletService;
+            _familyProfileService = familyProfileService;
+            _houseKeeperService = houseKeeperService;
         }
 
         // GET: api/<AccountController>
@@ -132,20 +136,38 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest("Invalid role selection!");
             }
-
-            if (accountRegisterDTO.GenderID != 1 && accountRegisterDTO.GenderID != 2)
-            {
-                return BadRequest("Invalid gender selection!");
-            }
-
             var account = _mapper.Map<Account>(accountRegisterDTO);
             account.Status = (int)AccountStatus.Active;
             account.CreatedAt = DateTime.Now;
             account.UpdatedAt = DateTime.Now;
             account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
             account.Introduction = accountRegisterDTO.Introduction;
-
+            if (accountRegisterDTO.LocalProfilePicture != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await accountRegisterDTO.LocalProfilePicture.CopyToAsync(memoryStream);
+                    account.LocalProfilePicture = memoryStream.ToArray();
+                }
+            }
             await _accountService.AddAccountAsync(account);
+            if (account.RoleID == 1) 
+            {
+                var housekeeper = new Housekeeper
+                {
+                    AccountID = account.AccountID,
+                    VerifyID = null,
+                };
+                await _houseKeeperService.AddHousekeeperAsync(housekeeper);
+            }
+            else if (account.RoleID == 2) 
+            {
+                var family = new Family
+                {
+                    AccountID = account.AccountID,
+                };
+                await _familyProfileService.AddFamilyAsync(family);
+            }
 
             var wallet = new Wallet
             {

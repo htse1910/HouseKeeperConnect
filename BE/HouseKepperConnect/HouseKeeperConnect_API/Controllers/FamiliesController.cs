@@ -113,22 +113,59 @@ namespace HouseKeeperConnect_API.Controllers
             await _familyService.DeleteFamilyAsync(id);
             return Ok("Family Profile Deleted!");
         }
-
+        
         [HttpPut("UpdateFamily")]
         [Authorize]
-        public async Task<IActionResult> UpdateFamily([FromQuery] FamilyUpdateDTO familyDTO)
+        public async Task<IActionResult> UpdateFamily([FromForm] FamilyUpdateDTO familyDTO)
         {
-            var family = await _familyService.GetFamilyByIDAsync(familyDTO.Id);
-            if (family == null)
+            try
             {
-                return NotFound("Family profile not found!");
+                // Update Account
+                var Acc = await _accountService.GetAccountByIDAsync(familyDTO.AccountID);
+                if (Acc == null)
+                {
+                    return NotFound("No account found!");
+                }
+
+                if (familyDTO.LocalProfilePicture != null)
+                {
+
+                    byte[] pic;
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await familyDTO.LocalProfilePicture.CopyToAsync(memoryStream);
+                        pic = memoryStream.ToArray();
+                    }
+                }
+
+                Acc.Phone = familyDTO.Phone;
+                Acc.Introduction = familyDTO.Introduction;
+                Acc.Name = familyDTO.Name;
+                Acc.Email = familyDTO.Email;
+                Acc.BankAccountNumber = familyDTO.BankAccountNumber;
+                Acc.Address = familyDTO.Address;
+                Acc.UpdatedAt = DateTime.Now;
+
+                await _accountService.UpdateAccountAsync(Acc);
+
+                var Family = await _familyService.GetFamilyByAccountIDAsync(familyDTO.AccountID);
+                if (Family == null)
+                {
+                    return NotFound("No family profile found!");
+                }
+
+                Family.Nickname = familyDTO.Nickname;
+
+                await _familyService.UpdateFamilyAsync(Family);
+
+                return Ok("Family Profile Updated!");
             }
-
-            _mapper.Map(familyDTO, family);
-
-            await _familyService.UpdateFamilyAsync(family);
-            return Ok("Family Profile Updated!");
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
+
 
         [HttpGet("SearchFamilyByAccountId")]
         [Authorize]

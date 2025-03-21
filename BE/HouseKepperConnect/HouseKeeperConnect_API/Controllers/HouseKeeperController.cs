@@ -158,8 +158,8 @@ namespace HouseKeeperConnect_API.Controllers
                 //<--------------------------------------------------------------------------------->// Update Account
                 var newAcc = _mapper.Map<Account>(hk);
 
-                var oAcc = await _accountService.GetAccountByIDAsync(hk.AccountID);
-                if (oAcc == null)
+                var Acc = await _accountService.GetAccountByIDAsync(hk.AccountID);
+                if (Acc == null)
                 {
                     Message = "No account found!";
                     return NotFound(Message);
@@ -173,18 +173,18 @@ namespace HouseKeeperConnect_API.Controllers
                         await hk.LocalProfilePicture.CopyToAsync(memoryStream);
                         pic = memoryStream.ToArray();
                     }
-                    oAcc.LocalProfilePicture = pic;
+                    Acc.LocalProfilePicture = pic;
                 }
 
-                oAcc.Phone = newAcc.Phone;
-                oAcc.Introduction = newAcc.Introduction;
-                oAcc.Name = newAcc.Name;
-                oAcc.Email = newAcc.Email;
-                oAcc.BankAccountNumber = newAcc.BankAccountNumber;
-                oAcc.Address = newAcc.Address;
-                oAcc.UpdatedAt = DateTime.Now;
+                Acc.Phone = newAcc.Phone;
+                Acc.Introduction = newAcc.Introduction;
+                Acc.Name = newAcc.Name;
+                Acc.Email = newAcc.Email;
+                Acc.BankAccountNumber = newAcc.BankAccountNumber;
+                Acc.Address = newAcc.Address;
+                Acc.UpdatedAt = DateTime.Now;
 
-                await _accountService.UpdateAccountAsync(oAcc);
+                await _accountService.UpdateAccountAsync(Acc);
 
                 //<--------------------------------------------------------------------------------->// Update Housekeeper
                 var newHK = _mapper.Map<Housekeeper>(hk);

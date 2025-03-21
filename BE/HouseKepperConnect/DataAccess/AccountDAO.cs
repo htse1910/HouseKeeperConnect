@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DataAccess
 {
@@ -304,10 +305,11 @@ namespace DataAccess
                 return "A valid Email is required.";
             }
 
-            if (AccountRegisterDTO.Phone <= 0 || !IsValidPhoneNumber(AccountRegisterDTO.Phone))
+            if (string.IsNullOrWhiteSpace(AccountRegisterDTO.Phone) || !Regex.IsMatch(AccountRegisterDTO.Phone, @"^\d{10}$"))
             {
                 return "Phone Number must be exactly 10 digits.";
             }
+
 
             if (string.IsNullOrWhiteSpace(AccountRegisterDTO.Password))
             {

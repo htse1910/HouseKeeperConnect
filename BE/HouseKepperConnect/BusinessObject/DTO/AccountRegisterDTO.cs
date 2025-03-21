@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace BusinessObject.DTO
 {
@@ -17,15 +18,17 @@ namespace BusinessObject.DTO
         public string BankAccountNumber { get; set; }
 
         [Required(ErrorMessage = "Phone is required.")]
-        public int Phone { get; set; }
+        public string Phone { get; set; }
 
         [Required(ErrorMessage = "Role is required.")]
         public int RoleID { get; set; }
 
-        [Required(ErrorMessage = "Gender is required.")]
-        public int GenderID { get; set; }
-
         [Required(ErrorMessage = "Introduce is required.")]
         public string? Introduction { get; set; }
+
+        [Required(ErrorMessage = "LocalProfilePicture is required.")]
+        public IFormFile LocalProfilePicture { get; set; }
+        [Required(ErrorMessage = "Address is required.")]
+        public string Address { get; set; }
     }
 }

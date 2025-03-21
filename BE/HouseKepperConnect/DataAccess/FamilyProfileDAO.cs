@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace DataAccess
 {
@@ -51,9 +52,22 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    return await context.Family
-                        .Include(f => f.Account)
-                        .SingleOrDefaultAsync(x => x.Id == fID);
+                    return await context.Family.SingleOrDefaultAsync(x => x.FamilyID == fID);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Family> GetFamilyByAccountIDAsync(int accountID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Family .Include(f => f.Account) .SingleOrDefaultAsync(x => x.AccountID == accountID);
                 }
             }
             catch (Exception ex)
