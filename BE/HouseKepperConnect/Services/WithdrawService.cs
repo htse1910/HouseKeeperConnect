@@ -17,17 +17,17 @@ namespace Services
 
         public async Task DeleteWithdrawAsync(int id) => await _repository.DeleteWithdrawAsync(id);
 
-        public async Task<List<Withdraw>> GetAllWithdrawsAsync() => await _repository.GetAllWithdrawsAsync();
+        public async Task<List<Withdraw>> GetAllWithdrawsAsync(int pageNumber, int pageSize) => await _repository.GetAllWithdrawsAsync(pageNumber, pageSize);
 
-        public async Task<List<Withdraw>> GetPendingWithdrawsAsync() => await _repository.GetPendingWithdrawsAsync();
+        public async Task<List<Withdraw>> GetPendingWithdrawsAsync(int pageNumber, int pageSize) => await _repository.GetPendingWithdrawsAsync(pageNumber, pageSize);
 
         public async Task<int> GetTotalWithdrawAsync() => await _repository.GetTotalWithdrawAsync();
 
         public async Task<Withdraw> GetWithdrawByIDAsync(int id) => await _repository.GetWithdrawByIDAsync(id);
 
-        public async Task<List<Withdraw>> GetWithdrawsByUserAsync(int uId) => await _repository.GetWithdrawsByUserAsync(uId);
+        public async Task<List<Withdraw>> GetWithdrawsByUserAsync(int uId, int pageNumber, int pageSize) => await _repository.GetWithdrawsByUserAsync(uId, pageNumber, pageSize);
 
-        public async Task<List<Withdraw>> GetWithdrawsPastWeekAsync() => await _repository.GetWithdrawsPastWeekAsync();
+        public async Task<List<Withdraw>> GetWithdrawsPastWeekAsync(int pageNumber, int pageSize) => await _repository.GetWithdrawsPastWeekAsync(pageNumber, pageSize);
 
         public async Task UpdateWithdrawAsync(Withdraw wi) => await _repository.UpdateWithdrawAsync(wi);
     }

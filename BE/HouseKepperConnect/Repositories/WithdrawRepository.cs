@@ -10,17 +10,17 @@ namespace Repositories
 
         public async Task DeleteWithdrawAsync(int id) => await WithdrawDAO.Instance.DeleteWithdrawAsync(id);
 
-        public async Task<List<Withdraw>> GetAllWithdrawsAsync() => await WithdrawDAO.Instance.GetAllWithdrawsAsync();
+        public async Task<List<Withdraw>> GetAllWithdrawsAsync(int pageNumber, int pageSize) => await WithdrawDAO.Instance.GetAllWithdrawsAsync(pageNumber, pageSize);
 
-        public async Task<List<Withdraw>> GetPendingWithdrawsAsync() => await WithdrawDAO.Instance.GetPendingWithdrawsAsync();
+        public async Task<List<Withdraw>> GetPendingWithdrawsAsync(int pageNumber, int pageSize) => await WithdrawDAO.Instance.GetPendingWithdrawsAsync(pageNumber, pageSize);
 
         public async Task<int> GetTotalWithdrawAsync() => await WithdrawDAO.Instance.GetTotalWithdrawAsync();
 
         public async Task<Withdraw> GetWithdrawByIDAsync(int id) => await WithdrawDAO.Instance.GetWithdrawByIDAsync(id);
 
-        public async Task<List<Withdraw>> GetWithdrawsByUserAsync(int uId) => await WithdrawDAO.Instance.GetWithdrawsByUserAsync(uId);
+        public async Task<List<Withdraw>> GetWithdrawsByUserAsync(int uId, int pageNumber, int pageSize) => await WithdrawDAO.Instance.GetWithdrawsByUserAsync(uId, pageNumber, pageSize);
 
-        public async Task<List<Withdraw>> GetWithdrawsPastWeekAsync() => await WithdrawDAO.Instance.GetWithdrawsPastWeekAsync();
+        public async Task<List<Withdraw>> GetWithdrawsPastWeekAsync(int pageNumber, int pageSize) => await WithdrawDAO.Instance.GetWithdrawsPastWeekAsync(pageNumber, pageSize);
 
         public async Task UpdateWithdrawAsync(Withdraw wi) => await WithdrawDAO.Instance.UpdateWithdrawAsync(wi);
     }

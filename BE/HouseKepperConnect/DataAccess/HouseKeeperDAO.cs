@@ -26,14 +26,14 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Housekeeper>> GetAllHousekeepersAsync()
+        public async Task<List<Housekeeper>> GetAllHousekeepersAsync(int pageNumber, int pageSize)
         {
             var list = new List<Housekeeper>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Housekeeper.ToListAsync();
+                    list = await context.Housekeeper.AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -122,14 +122,15 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Housekeeper>> GetPendingHousekeepersAsync()
+        public async Task<List<Housekeeper>> GetPendingHousekeepersAsync(int pageNumber, int pageSize)
         {
             using (var context = new PCHWFDBContext())
             {
                 return await context.Housekeeper
-                    .Where(h => h.VerifyID != null && h.IDVerification.Status == 1)
+                    .Where(h => h.IsVerified == false)
                     .Include(h => h.Account)
                     .Include(h => h.IDVerification)
+                    .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
                     .ToListAsync();
             }
         }

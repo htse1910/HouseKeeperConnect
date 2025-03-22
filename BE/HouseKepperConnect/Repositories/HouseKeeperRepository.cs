@@ -10,7 +10,7 @@ namespace Repositories
 
         public async Task DeleteHousekeeperAsync(int id) => await HousekeeperDAO.Instance.DeleteHousekeeperAsync(id);
 
-        public async Task<List<Housekeeper>> GetAllHousekeepersAsync() => await HousekeeperDAO.Instance.GetAllHousekeepersAsync();
+        public async Task<List<Housekeeper>> GetAllHousekeepersAsync(int pageNumber, int pageSize) => await HousekeeperDAO.Instance.GetAllHousekeepersAsync(pageNumber, pageSize);
 
         public async Task<Housekeeper> GetHousekeeperByIDAsync(int id) => await HousekeeperDAO.Instance.GetHousekeeperByIDAsync(id);
 
@@ -18,7 +18,7 @@ namespace Repositories
 
         public async Task UpdateHousekeeperAsync(Housekeeper Housekeeper) => await HousekeeperDAO.Instance.UpdateHousekeeperAsync(Housekeeper);
 
-        public async Task<List<Housekeeper>> GetPendingHousekeepersAsync() => await HousekeeperDAO.Instance.GetPendingHousekeepersAsync();
+        public async Task<List<Housekeeper>> GetPendingHousekeepersAsync(int pageNumber, int pageSize) => await HousekeeperDAO.Instance.GetPendingHousekeepersAsync(pageNumber, pageSize);
 
         public async Task UpdateIsVerifiedAsync(int housekeeperId, bool isVerified) => await HousekeeperDAO.Instance.UpdateIsVerifiedAsync(housekeeperId, isVerified);
     }

@@ -29,14 +29,14 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Transaction>> GetAllTransactionsAsync()
+        public async Task<List<Transaction>> GetAllTransactionsAsync(int pageNumber, int pageSize)
         {
             var list = new List<Transaction>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Transaction.ToListAsync();
+                    list = await context.Transaction.AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -63,7 +63,7 @@ namespace DataAccess
             return transaction;
         }
 
-        public async Task<List<Transaction>> GetTransactionsPastWeekAsync()
+        public async Task<List<Transaction>> GetTransactionsPastWeekAsync(int pageNumber, int pageSize)
         {
             try
             {
@@ -71,7 +71,8 @@ namespace DataAccess
                 {
                     var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
                     var transactions = await context.Transaction
-                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)TransactionStatus.Completed)
+                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)TransactionStatus.Completed).
+                AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
                 .ToListAsync();
 
                     return transactions;
@@ -100,14 +101,15 @@ namespace DataAccess
             return totalTrans;
         }
 
-        public async Task<List<Transaction>> GetTransactionsByUserAsync(int uId)
+        public async Task<List<Transaction>> GetTransactionsByUserAsync(int uId, int pageNumber, int pageSize)
         {
             var trans = new List<Transaction>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    trans = await context.Transaction.Where(t => t.AccountID == uId).ToListAsync();
+                    trans = await context.Transaction.Where(t => t.AccountID == uId).
+                        AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

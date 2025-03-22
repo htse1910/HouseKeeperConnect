@@ -28,9 +28,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("WithdrawList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<WithdrawDisplayDTO>>> GetWithdrawsAsync()
+        public async Task<ActionResult<IEnumerable<WithdrawDisplayDTO>>> GetWithdrawsAsync([FromQuery] int pageNumber, int pageSize)
         {
-            var wi = await _withdrawService.GetAllWithdrawsAsync();
+            var wi = await _withdrawService.GetAllWithdrawsAsync(pageNumber, pageSize);
             if (wi == null)
             {
                 Message = "No records!";
@@ -42,9 +42,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("WithdrawSuccessInPastWeek")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<WithdrawDisplayDTO>>> GetwiInPastWeek()
+        public async Task<ActionResult<IEnumerable<WithdrawDisplayDTO>>> GetwiInPastWeek([FromQuery] int pageNumber, int pageSize)
         {
-            var wi = await _withdrawService.GetWithdrawsPastWeekAsync();
+            var wi = await _withdrawService.GetWithdrawsPastWeekAsync(pageNumber, pageSize);
             if (wi == null)
             {
                 Message = "No records!";
@@ -84,9 +84,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetPendingWithdraws")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<WithdrawDisplayDTO>>> getPendingWithdraws()
+        public async Task<ActionResult<IEnumerable<WithdrawDisplayDTO>>> getPendingWithdraws([FromQuery] int pageNumber, int pageSize)
         {
-            var wi = await _withdrawService.GetPendingWithdrawsAsync();
+            var wi = await _withdrawService.GetPendingWithdrawsAsync(pageNumber, pageSize);
             if (wi == null)
             {
                 Message = "No Records!";
@@ -98,9 +98,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetWithdrawByUserID")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Withdraw>>> getWithdrawsByUserID([FromQuery] int id)
+        public async Task<ActionResult<IEnumerable<Withdraw>>> getWithdrawsByUserID([FromQuery] int id, int pageNumber, int pageSize)
         {
-            var wi = await _withdrawService.GetWithdrawsByUserAsync(id);
+            var wi = await _withdrawService.GetWithdrawsByUserAsync(id, pageNumber, pageSize);
             if (wi == null)
             {
                 Message = "No Records!";

@@ -1,8 +1,9 @@
-﻿using BusinessObject.DTO;
+﻿using AutoMapper;
+using BusinessObject.DTO;
+using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
-using System.Transactions;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -11,18 +12,20 @@ namespace HouseKeeperConnect_API.Controllers
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
+        private readonly IMapper _mapper;
         private string Message;
 
-        public TransactionController(ITransactionService transactionService)
+        public TransactionController(ITransactionService transactionService, IMapper mapper)
         {
             _transactionService = transactionService;
+            _mapper = mapper;
         }
 
         [HttpGet("TransactionList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactionsAsync()
+        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactionsAsync(int pageNumber, int pageSize)
         {
-            var trans = await _transactionService.GetAllTransactionsAsync();
+            var trans = await _transactionService.GetAllTransactionsAsync(pageNumber, pageSize);
             if (trans == null)
             {
                 Message = "No records!";
@@ -34,9 +37,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("TransactionInPastWeek")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransInPastWeek()
+        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransInPastWeek(int pageNumber, int pageSize)
         {
-            var trans = await _transactionService.GetTransactionsPastWeekAsync();
+            var trans = await _transactionService.GetTransactionsPastWeekAsync(pageNumber, pageSize);
             if (trans == null)
             {
                 Message = "No records!";
@@ -62,7 +65,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetTransactionByID")]
         [Authorize]
-        public async Task<ActionResult<Transaction>> getTransByID([FromQuery] int id)
+        public async Task<ActionResult<TransactionDisplayDTO>> getTransByID([FromQuery] int id)
         {
             var trans = await _transactionService.GetTransactionByIDAsync(id);
             if (trans == null)
@@ -70,20 +73,22 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No Records!";
                 return NotFound(Message);
             }
-            return Ok(trans);
+            var nTra = _mapper.Map<TransactionDisplayDTO>(trans);
+            return Ok(nTra);
         }
 
         [HttpGet("GetTransactionByUserID")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Transaction>>> getTransByUserID([FromQuery] int id)
+        public async Task<ActionResult<IEnumerable<TransactionDisplayDTO>>> getTransByUserID([FromQuery] int id, int pageNumber, int pageSize)
         {
-            var trans = await _transactionService.GetTransactionsByUserAsync(id);
+            var trans = await _transactionService.GetTransactionsByUserAsync(id, pageNumber, pageSize);
             if (trans == null)
             {
                 Message = "No Records!";
                 return NotFound(Message);
             }
-            return Ok(trans);
+            var nTra = _mapper.Map<List<TransactionDisplayDTO>>(trans);
+            return Ok(nTra);
         }
 
         [HttpPut("UpdateTransaction")] //Staff Only

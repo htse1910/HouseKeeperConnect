@@ -41,6 +41,7 @@ namespace BusinessObject.Mapping
             Map_Create_IDVerification();
             Map_Update_IDVerification();
             Map_Display_IDVerification();
+            Map_Display_Transaction();
         }
 
         private void Map_List_Register()
@@ -215,6 +216,11 @@ namespace BusinessObject.Mapping
         private void Map_Display_IDVerification()
         {
             CreateMap<IDVerificationDisplayDTO, IDVerification>().ReverseMap();
+        }
+
+        private void Map_Display_Transaction()
+        {
+            CreateMap<TransactionDisplayDTO, Transaction>().ReverseMap();
         }
     }
 }
