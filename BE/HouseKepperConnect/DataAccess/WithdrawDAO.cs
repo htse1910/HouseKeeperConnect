@@ -27,14 +27,14 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Withdraw>> GetAllWithdrawsAsync()
+        public async Task<List<Withdraw>> GetAllWithdrawsAsync(int pageNumber, int pageSize)
         {
             var list = new List<Withdraw>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Withdraw.ToListAsync();
+                    list = await context.Withdraw.AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -61,7 +61,7 @@ namespace DataAccess
             return Withdraw;
         }
 
-        public async Task<List<Withdraw>> GetWithdrawsPastWeekAsync()
+        public async Task<List<Withdraw>> GetWithdrawsPastWeekAsync(int pageNumber, int pageSize)
         {
             try
             {
@@ -70,6 +70,7 @@ namespace DataAccess
                     var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
                     var Withdraws = await context.Withdraw
                 .Where(x => x.RequestDate >= oneWeekAgo && x.Status == (int)TransactionStatus.Completed)
+                .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
                 .ToListAsync();
 
                     return Withdraws;
@@ -81,7 +82,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Withdraw>> GetPendingWithdrawsAsync()
+        public async Task<List<Withdraw>> GetPendingWithdrawsAsync(int pageNumber, int pageSize)
         {
             try
             {
@@ -90,6 +91,7 @@ namespace DataAccess
                     var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
                     var Withdraws = await context.Withdraw
                 .Where(x => x.Status == (int)TransactionStatus.Pending)
+                .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
                 .ToListAsync();
 
                     return Withdraws;
@@ -118,14 +120,14 @@ namespace DataAccess
             return totalTrans;
         }
 
-        public async Task<List<Withdraw>> GetWithdrawsByUserAsync(int uId)
+        public async Task<List<Withdraw>> GetWithdrawsByUserAsync(int uId, int pageNumber, int pageSize)
         {
             var trans = new List<Withdraw>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    trans = await context.Withdraw.Where(t => t.AccountID == uId).ToListAsync();
+                    trans = await context.Withdraw.Where(t => t.AccountID == uId).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

@@ -26,18 +26,18 @@ namespace HouseKeeperConnect_API.Controllers
             _verificationService = verificationService;
         }
 
-        [HttpGet("HousekeeperList")]
+        [HttpGet("HousekeeperList")] //Admin
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Housekeeper>>> GetHousekeepersAsync()
+        public async Task<ActionResult<IEnumerable<HouseKeeperDisplayDTO>>> GetHousekeepersAsync(int pageNumber, int pageSize)
         {
-            var trans = await _housekeeperService.GetAllHousekeepersAsync();
+            var trans = await _housekeeperService.GetAllHousekeepersAsync(pageNumber, pageSize);
             if (trans == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
             }
-
-            return Ok(trans);
+            var nTr = _mapper.Map<HouseKeeperDisplayDTO>(trans);
+            return Ok(nTr);
         }
 
         [HttpGet("GetHousekeeperByID")]
@@ -79,19 +79,6 @@ namespace HouseKeeperConnect_API.Controllers
             _mapper.Map(veri, displayHK);
 
             return Ok(displayHK);
-        }
-
-        [HttpGet("GetHousekeeperListByAccountID")] //Admin
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<Housekeeper>>> getHkByUserID([FromQuery] int id)
-        {
-            var trans = await _housekeeperService.GetHousekeeperByUserAsync(id);
-            if (trans == null)
-            {
-                Message = "No Records!";
-                return NotFound(Message);
-            }
-            return Ok(trans);
         }
 
         [HttpPost("AddHousekeeper")]
@@ -283,9 +270,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("ListHousekeeperPending")]
         [Authorize]
-        public async Task<IActionResult> GetPendingHousekeepers()
+        public async Task<IActionResult> GetPendingHousekeepers(int pageNumber, int pageSize)
         {
-            var pendingHousekeepers = await _housekeeperService.GetPendingHousekeepersAsync();
+            var pendingHousekeepers = await _housekeeperService.GetPendingHousekeepersAsync(pageNumber, pageSize);
             var trans = _mapper.Map<List<HousekeeperPendingDTO>>(pendingHousekeepers);
             if (trans == null)
             {

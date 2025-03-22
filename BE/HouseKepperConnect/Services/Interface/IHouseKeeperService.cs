@@ -4,7 +4,7 @@ namespace Services.Interface
 {
     public interface IHouseKeeperService
     {
-        Task<List<Housekeeper>> GetAllHousekeepersAsync();
+        Task<List<Housekeeper>> GetAllHousekeepersAsync(int pageNumber, int pageSize);
 
         Task<Housekeeper> GetHousekeeperByIDAsync(int id);
 
@@ -16,7 +16,7 @@ namespace Services.Interface
 
         Task UpdateHousekeeperAsync(Housekeeper Housekeeper);
 
-        Task<List<Housekeeper>> GetPendingHousekeepersAsync();
+        Task<List<Housekeeper>> GetPendingHousekeepersAsync(int pageNumber, int pageSize);
 
         Task UpdateIsVerifiedAsync(int housekeeperId, bool isVerified);
     }
