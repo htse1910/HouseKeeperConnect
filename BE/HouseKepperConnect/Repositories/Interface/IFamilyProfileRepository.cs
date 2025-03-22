@@ -17,6 +17,7 @@ namespace Repositories.Interface
         Task<List<Family>> SearchFamilysByNameAsync(string name);
 
         Task<List<Family>> SearchFamiliesByAccountIDAsync(int accountId);
+
         Task<Family> GetFamilyByAccountIDAsync(int accountId);
     }
 }

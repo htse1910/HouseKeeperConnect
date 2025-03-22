@@ -2,7 +2,6 @@
 {
     public class AddFamilyProfileDTO
     {
-        
         public int AccountID { get; set; }
     }
 }

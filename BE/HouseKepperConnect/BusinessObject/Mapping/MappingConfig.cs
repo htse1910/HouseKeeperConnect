@@ -47,7 +47,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<AccountRegisterDTO, Account>()
                 .ForMember(dest => dest.LocalProfilePicture, opt => opt.Ignore());
-        }        
+        }
 
         private void Map_List_Update_Account()
         {
@@ -92,7 +92,7 @@ namespace BusinessObject.Mapping
             CreateMap<FamilyUpdateDTO, Family>();
 
             CreateMap<FamilyUpdateDTO, Account>()
-                .ForMember(f => f.LocalProfilePicture, opt => opt.Ignore()); 
+                .ForMember(f => f.LocalProfilePicture, opt => opt.Ignore());
         }
 
         private void Map_Update_Report()

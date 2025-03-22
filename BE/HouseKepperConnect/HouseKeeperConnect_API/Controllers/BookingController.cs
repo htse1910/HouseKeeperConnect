@@ -103,9 +103,8 @@ namespace HouseKeeperConnect_API.Controllers
                 HousekeeperID = housekeeperId,
                 FamilyID = familyId,
                 ServiceID = serviceId,
-                ScheduledDate = scheduledDate,
                 BookingStatus = bookingStatus,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
 
             await _bookingService.AddBookingAsync(booking);

@@ -22,7 +22,10 @@ namespace BusinessObject.Models
         public int ServiceID { get; set; }
 
         [Required]
-        public DateTime ScheduledDate { get; set; }
+        public DateTime StartDate { get; set; }
+
+        [Required]
+        public DateTime EndDate { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

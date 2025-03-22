@@ -47,11 +47,10 @@ namespace BusinessObject.Models
         public virtual DbSet<VerificationTask> VerificationTask { get; set; }
 
         public virtual DbSet<Housekeeper_Violation> Housekeeper_Violation { get; set; }
-        public virtual DbSet<WorkingDays> WorkingDays { get; set; }
         public virtual DbSet<Withdraw> Withdraw { get; set; }
-        public virtual DbSet<Booking_WorkingDays_Slots> Booking_WorkingDays_Slots { get; set; }
+        public virtual DbSet<Booking_Slots> Booking_Slots { get; set; }
         public virtual DbSet<Job_Service> Job_Service { get; set; }
-        public virtual DbSet<Job_WorkingDays_Slots> Job_WorkingDays_Slots { get; set; }
+        public virtual DbSet<Job_Slots> Job_Slots { get; set; }
         public virtual DbSet<Housekeeper_Schedule> Housekeeper_Schedule { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -61,15 +60,6 @@ namespace BusinessObject.Models
                 new Role { RoleID = 2, RoleName = "Family" },
                 new Role { RoleID = 3, RoleName = "Staff" },
                 new Role { RoleID = 4, RoleName = "Admin" }
-                );
-            modelBuilder.Entity<WorkingDays>().HasData(
-                new WorkingDays { DayID = 1, Name = "Monday" },
-                new WorkingDays { DayID = 2, Name = "Tuesday" },
-                new WorkingDays { DayID = 3, Name = "Wednesday" },
-                new WorkingDays { DayID = 4, Name = "Thursday" },
-                new WorkingDays { DayID = 5, Name = "Friday" },
-                new WorkingDays { DayID = 6, Name = "Saturday" },
-                new WorkingDays { DayID = 7, Name = "Sunday" }
                 );
         }
     }

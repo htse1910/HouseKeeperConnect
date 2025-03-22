@@ -30,12 +30,6 @@ namespace BusinessObject.Models
         public string Description { get; set; }
 
         [Required]
-        public int StartSlot { get; set; }
-
-        [Required]
-        public int EndSlot { get; set; }
-
-        [Required]
         public bool IsOffered { get; set; }
 
         public virtual Job Job { get; set; }

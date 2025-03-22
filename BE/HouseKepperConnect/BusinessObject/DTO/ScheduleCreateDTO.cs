@@ -11,12 +11,6 @@ namespace BusinessObject.DTO
         public int SlotID { get; set; }
 
         [Required]
-        public DateTime Date { get; set; }
-
-        [Required]
-        public int ScheduleTypeID { get; set; }
-
-        [Required]
-        public int Status { get; set; }
+        public int WorkingDaysID { get; set; }
     }
 }

@@ -113,7 +113,7 @@ namespace HouseKeeperConnect_API.Controllers
             await _familyService.DeleteFamilyAsync(id);
             return Ok("Family Profile Deleted!");
         }
-        
+
         [HttpPut("UpdateFamily")]
         [Authorize]
         public async Task<IActionResult> UpdateFamily([FromForm] FamilyUpdateDTO familyDTO)
@@ -129,7 +129,6 @@ namespace HouseKeeperConnect_API.Controllers
 
                 if (familyDTO.LocalProfilePicture != null)
                 {
-
                     byte[] pic;
                     using (var memoryStream = new MemoryStream())
                     {
@@ -165,7 +164,6 @@ namespace HouseKeeperConnect_API.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
-
 
         [HttpGet("SearchFamilyByAccountId")]
         [Authorize]

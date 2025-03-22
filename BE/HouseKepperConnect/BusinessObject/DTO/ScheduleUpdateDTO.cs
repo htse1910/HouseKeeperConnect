@@ -5,7 +5,7 @@ namespace BusinessObject.DTO
     public class ScheduleUpdateDTO
     {
         [Required]
-        public int ScheduleID { get; set; }
+        public int Housekeeper_ScheduleID { get; set; }
 
         [Required]
         public int HousekeeperID { get; set; }
@@ -14,15 +14,6 @@ namespace BusinessObject.DTO
         public int SlotID { get; set; }
 
         [Required]
-        public DateTime Date { get; set; }
-
-        [Required]
-        public int ScheduleTypeID { get; set; }
-
-        [Required]
-        public int Status
-        {
-            get; set;
-        }
+        public int WorkingDaysID { get; set; }
     }
 }

@@ -28,6 +28,7 @@ namespace BusinessObject.DTO
 
         [Required(ErrorMessage = "LocalProfilePicture is required.")]
         public IFormFile LocalProfilePicture { get; set; }
+
         [Required(ErrorMessage = "Address is required.")]
         public string Address { get; set; }
     }
