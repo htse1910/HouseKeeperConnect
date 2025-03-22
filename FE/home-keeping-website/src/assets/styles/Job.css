@@ -1,7 +1,7 @@
 .job-posting-container {
-    max-width: 600px;
+    max-width: 750px;
     margin: auto;
-    padding: 20px;
+    padding: 30px;
     background: var(--bg-color);
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius);
@@ -10,9 +10,95 @@
 .job-posting-title {
     text-align: center;
     color: var(--text-color);
+    font-weight: bold;
+    font-size: 24px;
     margin-bottom: 20px;
 }
 
+.job-posting-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Chỉnh layout hàng ngang */
+.job-posting-row {
+    display: flex;
+    gap: 20px;
+    align-items: center; /* Căn giữa các input cùng dòng */
+}
+
+/* Khi cần full width */
+.job-posting-full-width {
+    width: 100%;
+}
+
+/* Nhóm input */
+.job-posting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+/* Input và Select */
+.job-posting-input,
+.job-posting-select,
+.job-posting-textarea {
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+}
+
+/* Hiệu ứng khi focus */
+.job-posting-input:focus,
+.job-posting-select:focus,
+.job-posting-textarea:focus {
+    border-color: var(--main-color);
+    box-shadow: 0 0 6px rgba(255, 149, 0, 0.3);
+}
+
+/* Thời gian làm việc */
+.job-posting-time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.job-posting-time-input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 16px;
+}
+
+/* Giữ khoảng cách giữa các input thời gian */
+.job-posting-time-inputs span {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Submit button */
+.job-posting-submit-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: var(--border-radius);
+    transition: background 0.3s ease;
+    margin-top: 20px;
+}
+
+.job-posting-submit-btn:hover {
+    background: var(--secondary-color);
+}
+
+/* Hiển thị thông báo */
 .job-posting-alert {
     text-align: center;
     padding: 10px;
@@ -30,49 +116,18 @@
     color: white;
 }
 
-.job-posting-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+/* Responsive */
+@media (max-width: 768px) {
+    .job-posting-row {
+        flex-direction: column;
+    }
 
-.job-posting-group {
-    display: flex;
-    flex-direction: column;
-}
+    .job-posting-time-inputs {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-.job-posting-group label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.job-posting-group input, 
-.job-posting-group select, 
-.job-posting-group textarea {
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: 16px;
-}
-
-.job-posting-group textarea {
-    resize: vertical;
-}
-
-.job-posting-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-}
-
-.job-posting-submit-btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 18px;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: 0.3s;
+    .job-posting-time-inputs span {
+        display: none;
+    }
 }
