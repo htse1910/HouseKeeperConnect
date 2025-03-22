@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { FaUser, FaStar, FaMapMarkerAlt, FaEdit, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { FaStar, FaEdit, FaCamera } from "react-icons/fa";
 
 const ProfileCard = () => {
-  const [fullName, setFullName] = useState("...");
-  const [location, setLocation] = useState("...");
+  const [name, setName] = useState("Chưa có");
+  const [nickname, setNickname] = useState("Chưa có");
+  const [gender, setGender] = useState("Chưa có");
+  const [workArea, setWorkArea] = useState("Chưa có");
   const [rating, setRating] = useState(0);
-  const [isVerified, setIsVerified] = useState(false);
-  const [jobCompleted, setJobCompleted] = useState(0);
-  const [jobsApplied, setJobsApplied] = useState(0);
-  const [housekeeperID, setHousekeeperID] = useState(null);
-  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [photo, setPhoto] = useState(null);
 
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
@@ -18,132 +15,86 @@ const ProfileCard = () => {
   useEffect(() => {
     if (!accountID || !authToken) return;
 
-    // Fetch account details
-    fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
     })
       .then((res) => res.json())
       .then((data) => {
-        setFullName(data.name || "Không có thông tin");
-      })
-      .catch((error) =>
-        console.error("Lỗi khi lấy dữ liệu tài khoản:", error)
-      );
+        setName(data.name?.trim() || "Chưa có");
+        setNickname(data.nickName?.trim() || "Chưa có");
 
-    // ✅ Replaced with GetHousekeeperListByAccountID
-    fetch(
-      `http://localhost:5280/api/HouseKeeper/GetHousekeeperListByAccountID?id=${accountID}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      }
-    )
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) {
-          setHousekeeperID(data.housekeeperID);
-          localStorage.setItem("housekeeperID", data.housekeeperID);
-          setRating(data.rating ?? 0);
-          setIsVerified(data.isVerified ?? false);
-          setJobCompleted(data.jobCompleted ?? 0);
-          setJobsApplied(data.jobsApplied ?? 0);
+        if (data.gender === 0) setGender("Nam");
+        else if (data.gender === 1) setGender("Nữ");
+        else setGender("Chưa có");
+
+        setWorkArea(data.address?.trim() || "Chưa có");
+        setRating(typeof data.rating === "number" ? data.rating : 0);
+
+        if (data.localProfilePicture) {
+          setPhoto(`data:image/jpeg;base64,${data.localProfilePicture}`);
         }
       })
-      .catch((error) =>
-        console.error("Lỗi khi lấy dữ liệu người giúp việc:", error)
-      );
-
-    // Fetch profile picture
-    fetch(`http://localhost:5280/api/HouseKeeper/ListHousekeeperPending`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const housekeeper = data.find(
-          (hk) => hk.housekeeperID === parseInt(accountID)
-        );
-        if (housekeeper?.frontPhoto) {
-          setProfilePhoto(`data:image/png;base64,${housekeeper.facePhoto}`);
-        }
-      })
-      .catch((error) => console.error("Lỗi khi lấy ảnh hồ sơ:", error));
+      .catch((err) => console.error("Lỗi khi lấy dữ liệu người dùng:", err));
   }, [accountID, authToken]);
 
   return (
-    <div className="card p-4 shadow-sm d-flex flex-column flex-md-row align-items-center justify-content-between">
-      <div className="d-flex align-items-center">
-        {profilePhoto ? (
-          <img
-            src={profilePhoto}
-            alt="Profile"
-            className="rounded-circle me-3"
-            width="100"
-            height="100"
-          />
-        ) : (
+    <div className="d-flex align-items-center p-4 border rounded shadow-sm bg-white">
+      {/* Left Avatar */}
+      <div className="position-relative me-4 text-center">
+        <div className="position-relative">
+          {photo ? (
+            <img
+              src={photo}
+              alt="Profile"
+              className="rounded-circle"
+              style={{ width: "100px", height: "100px", objectFit: "cover" }}
+            />
+          ) : (
+            <div
+              className="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
+              style={{ width: "100px", height: "100px", fontSize: "40px" }}
+            >
+              ?
+            </div>
+          )}
+
           <div
-            className="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
-            style={{ width: "100px", height: "100px", fontSize: "40px" }}
+            className="position-absolute bottom-0 end-0 bg-warning rounded-circle p-1"
+            style={{ cursor: "pointer" }}
           >
-            <FaUser />
+            <FaCamera />
           </div>
-        )}
-        <div>
-          <h4 className="fw-bold">{fullName}</h4>
-
-          <p className="mb-0"><strong>Mã Người giúp việc:</strong> {housekeeperID ?? "Chưa có"}</p>
-
-          <div className="d-flex align-items-center">
-            {[...Array(5)].map((_, i) => (
-              <FaStar
-                key={i}
-                className={i < rating ? "text-warning" : "text-muted"}
-              />
-            ))}
-            <span className="ms-2 text-muted">({rating?.toFixed(1)})</span>
-          </div>
-
-          <p className="mb-0">
-            <FaMapMarkerAlt className="text-danger me-2" />
-            <strong>Khu vực làm việc:</strong> {location}
-          </p>
-          <p className="mb-0">
-            <strong>Công việc đã hoàn thành:</strong> {jobCompleted}
-          </p>
-          <p className="mb-0">
-            <strong>Công việc đã ứng tuyển:</strong> {jobsApplied}
-          </p>
-          <p className="mb-0">
-            <strong>Trạng thái xác minh:</strong>{" "}
-            {isVerified ? (
-              <span className="text-success">
-                <FaCheckCircle /> Đã xác minh
-              </span>
-            ) : (
-              <span className="text-danger">
-                <FaTimesCircle /> Chưa xác minh
-              </span>
-            )}
-          </p>
         </div>
+        <div className="mt-2 fw-semibold">{name}</div>
       </div>
 
-      {/* Buttons Section */}
-      <div className="d-flex flex-column gap-2 mt-3">
-        <Link
-          to={`/housekeeper/profile/update/${accountID}`}
-          className="btn btn-outline-secondary"
-        >
-          <FaEdit className="me-2" /> Chỉnh Sửa Tài Khoản
-        </Link>
+      {/* Right Info */}
+      <div>
+        <h5 className="fw-bold mb-2">
+          Thông tin cá nhân <FaEdit style={{ cursor: "pointer" }} />
+        </h5>
+
+        <div className="d-flex align-items-center mb-1">
+          {[...Array(5)].map((_, i) => (
+            <FaStar
+              key={i}
+              className={i < rating ? "text-warning" : "text-muted"}
+            />
+          ))}
+          <span className="ms-2">({rating.toFixed(1)})</span>
+        </div>
+
+        <p className="mb-1">
+          <strong>Tên thường gọi:</strong> {nickname}
+        </p>
+        <p className="mb-1">
+          <strong>Giới tính:</strong> {gender}
+        </p>
+        <p className="mb-0">
+          <strong>Khu vực làm việc:</strong> {workArea}
+        </p>
       </div>
     </div>
   );
