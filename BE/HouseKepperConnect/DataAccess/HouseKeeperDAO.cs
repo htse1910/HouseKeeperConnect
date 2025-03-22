@@ -127,7 +127,7 @@ namespace DataAccess
             using (var context = new PCHWFDBContext())
             {
                 return await context.Housekeeper
-                    .Where(h => h.IsVerified == false && h.VerifyID == null)
+                    .Where(h => h.IsVerified == false)
                     .Include(h => h.Account)
                     .Include(h => h.IDVerification)
                     .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
