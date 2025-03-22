@@ -13,7 +13,7 @@ import JobPostingPage from './pages/JobPostingPage';
 import HousekeeperDetailsPage from './pages/HousekeeperDetailsPage';
 import MessagesPage from './pages/MessagesPage';
 import UpdateHousekeeperPage from './pages/UpdateHousekeeperPage'; // ✅ Import new page
-import AddIdentificationPicturePage from './pages/AddIdentificationPicturePage';
+// import AddIdentificationPicturePage from './pages/AddIdentificationPicturePage';
 //import HousekeeperProfilePage from './pages/HousekeeperProfilePage';
 import FamilyProfilePage from './pages/FamilyProfilePage';
 //import AdminProfilePage from './pages/AdminProfilePage';
@@ -26,6 +26,7 @@ import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage';
 import FamilyHousekeeperSearchPage from './pages/FamilyHousekeeperSearchPage';
 import HousekeeperScheduleManagement from './pages/HousekeeperScheduleManagement';
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
+import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
 
 function AppRoutes() {
@@ -53,9 +54,9 @@ function AppRoutes() {
         <Route path="/housekeeper/update-id" element={<UpdateHousekeeperPage />} /> {/* ✅ New route */}
         <Route path="/my-jobs" element={<HouseKeeperManagePage />} />
         <Route path="/messages" element={<MessagesPage />} />
-        <Route path="/housekeeper/upload-id" element={<AddIdentificationPicturePage />} />
         <Route path="/housekeeper/profile/update/:id" element={<UpdateHousekeeperAccountPage />} /> 
         <Route path="/housekeeper/schedule" element={<HousekeeperScheduleManagement />} />       
+        <Route path="/housekeeper/upload-id" element={<IDVerificationCreatePage />} />
 
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />

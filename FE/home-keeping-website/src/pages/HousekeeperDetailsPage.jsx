@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ProfileCard from "../components/ProfileCard";
 import ContactInfo from "../components/ContactInfo";
 import ProfileIntroduction from "../components/ProfileIntroduction";
+import CertificatesAndDocuments from "../components/CertificatesAndDocuments";
 
 const HousekeeperProfilePage = () => {
   return (
@@ -47,15 +48,8 @@ const HousekeeperProfilePage = () => {
         <ContactInfo />
 
         {/* Certificates & Documents */}
-        <div className="col-md-6 d-flex">
-          <div className="card p-4 shadow-sm w-100 h-100">
-            <h5 className="fw-bold">Chứng chỉ & Giấy tờ</h5>
-            <ul className="list-unstyled">
-              <li>🌟 Chứng chỉ nghiệp vụ giúp việc <a href="#" className="text-primary">Xem</a></li>
-              <li>📄 Giấy xác nhận lý lịch <a href="#" className="text-primary">Xem</a></li>
-            </ul>
-          </div>
-        </div>
+        <CertificatesAndDocuments />
+        
       </div>
     </div>
   );

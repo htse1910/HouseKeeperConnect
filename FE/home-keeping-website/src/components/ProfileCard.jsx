@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaStar, FaMapMarkerAlt, FaEdit, FaCheckCircle, FaTimesCircle, FaExclamationTriangle } from "react-icons/fa";
+import { FaUser, FaStar, FaMapMarkerAlt, FaEdit, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const ProfileCard = () => {
@@ -9,17 +9,17 @@ const ProfileCard = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [jobCompleted, setJobCompleted] = useState(0);
   const [jobsApplied, setJobsApplied] = useState(0);
-  const [profilePhoto, setProfilePhoto] = useState(null); // Store Base64 Image
-  const [hasUploadedID, setHasUploadedID] = useState(false); // Track if ID images exist
+  const [housekeeperID, setHousekeeperID] = useState(null);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
     if (!accountID || !authToken) return;
 
-    // Fetch account details (Full Name)
+    // Fetch account details
     fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
-      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
@@ -29,41 +29,37 @@ const ProfileCard = () => {
       .then((data) => {
         setFullName(data.name || "Không có thông tin");
       })
-      .catch((error) => console.error("Lỗi khi lấy dữ liệu tài khoản:", error));
+      .catch((error) =>
+        console.error("Lỗi khi lấy dữ liệu tài khoản:", error)
+      );
 
-    // Fetch housekeeper details (Location, Rating, Verification, Jobs)
-    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          setHasUploadedID(false); // No response means no ID uploaded
-          return null;
-        }
-        return res.json();
-      })
+    // ✅ Replaced with GetHousekeeperListByAccountID
+    fetch(
+      `http://localhost:5280/api/HouseKeeper/GetHousekeeperListByAccountID?id=${accountID}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    )
+      .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data) {
-          setLocation(data.location || "Chưa cập nhật");
-          setRating(data.rating || 0);
-          setIsVerified(data.isVerified || false);
-          setJobCompleted(data.jobCompleted || 0);
-          setJobsApplied(data.jobsApplied || 0);
-          setHasUploadedID(true); // If we have data, assume ID has been uploaded
+          setHousekeeperID(data.housekeeperID);
+          localStorage.setItem("housekeeperID", data.housekeeperID);
+          setRating(data.rating ?? 0);
+          setIsVerified(data.isVerified ?? false);
+          setJobCompleted(data.jobCompleted ?? 0);
+          setJobsApplied(data.jobsApplied ?? 0);
         }
       })
-      .catch((error) => {
-        console.error("Lỗi khi lấy dữ liệu người giúp việc:", error);
-        setHasUploadedID(false);
-      });
+      .catch((error) =>
+        console.error("Lỗi khi lấy dữ liệu người giúp việc:", error)
+      );
 
-    // Fetch profile picture from ListHousekeeperPending API
+    // Fetch profile picture
     fetch(`http://localhost:5280/api/HouseKeeper/ListHousekeeperPending`, {
-      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
@@ -71,7 +67,9 @@ const ProfileCard = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        const housekeeper = data.find((hk) => hk.housekeeperID === parseInt(accountID));
+        const housekeeper = data.find(
+          (hk) => hk.housekeeperID === parseInt(accountID)
+        );
         if (housekeeper?.frontPhoto) {
           setProfilePhoto(`data:image/png;base64,${housekeeper.facePhoto}`);
         }
@@ -82,21 +80,37 @@ const ProfileCard = () => {
   return (
     <div className="card p-4 shadow-sm d-flex flex-column flex-md-row align-items-center justify-content-between">
       <div className="d-flex align-items-center">
-        <img
-          src={profilePhoto || "/default-profile.png"}
-          alt="Profile"
-          className="rounded-circle me-3"
-          width="100"
-          height="100"
-        />
+        {profilePhoto ? (
+          <img
+            src={profilePhoto}
+            alt="Profile"
+            className="rounded-circle me-3"
+            width="100"
+            height="100"
+          />
+        ) : (
+          <div
+            className="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+            style={{ width: "100px", height: "100px", fontSize: "40px" }}
+          >
+            <FaUser />
+          </div>
+        )}
         <div>
           <h4 className="fw-bold">{fullName}</h4>
+
+          <p className="mb-0"><strong>Mã Người giúp việc:</strong> {housekeeperID ?? "Chưa có"}</p>
+
           <div className="d-flex align-items-center">
             {[...Array(5)].map((_, i) => (
-              <FaStar key={i} className={i < rating ? "text-warning" : "text-muted"} />
+              <FaStar
+                key={i}
+                className={i < rating ? "text-warning" : "text-muted"}
+              />
             ))}
-            <span className="ms-2 text-muted">({rating.toFixed(1)})</span>
+            <span className="ms-2 text-muted">({rating?.toFixed(1)})</span>
           </div>
+
           <p className="mb-0">
             <FaMapMarkerAlt className="text-danger me-2" />
             <strong>Khu vực làm việc:</strong> {location}
@@ -124,27 +138,12 @@ const ProfileCard = () => {
 
       {/* Buttons Section */}
       <div className="d-flex flex-column gap-2 mt-3">
-        {/* Edit Profile Button */}
-        <Link to={`/housekeeper/profile/update/${accountID}`} className="btn btn-outline-secondary">
+        <Link
+          to={`/housekeeper/profile/update/${accountID}`}
+          className="btn btn-outline-secondary"
+        >
           <FaEdit className="me-2" /> Chỉnh Sửa Tài Khoản
         </Link>
-
-        {/* Conditional ID Upload / Update Button */}
-        {!hasUploadedID ? (
-          <div>
-            <div className="alert alert-warning d-flex align-items-center">
-              <FaExclamationTriangle className="me-2" />
-              Bạn chưa đăng ảnh lên
-            </div>
-            <Link to="/housekeeper/upload-id" className="btn btn-warning">
-              Đăng ảnh lên
-            </Link>
-          </div>
-        ) : (
-          <Link to="/housekeeper/update-id" className="btn btn-primary">
-            Cập nhật thông tin chi tiết
-          </Link>
-        )}
       </div>
     </div>
   );
