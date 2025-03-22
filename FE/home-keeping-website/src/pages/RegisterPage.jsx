@@ -7,67 +7,81 @@ import axios from 'axios';
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
-    Name: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    phoneNumber: '',
+    phone: '',
     roleID: '',
-    BankAccountNumber: '',
-    GenderID: '',
-    Introduction: '',
+    bankAccountNumber: '',
+    genderID: '',
+    introduction: '',
+    address: '',
+    localProfilePicture: null
   });
 
   const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    const { id, value, files } = e.target;
+    if (id === 'localProfilePicture') {
+      setFormData((prev) => ({ ...prev, [id]: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [id]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match!', { position: 'top-center', autoClose: 3000 });
+      toast.error('Passwords do not match!');
       return;
     }
   
-    if (!formData.roleID || !formData.GenderID) {
-      toast.error('Please select a role and gender!', { position: 'top-center', autoClose: 3000 });
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('password', formData.password);
+    formDataToSend.append('phone', formData.phone);
+    formDataToSend.append('roleID', formData.roleID);
+    formDataToSend.append('bankAccountNumber', formData.bankAccountNumber);
+    formDataToSend.append('genderID', formData.genderID);
+    formDataToSend.append('introduction', formData.introduction);
+    formDataToSend.append('address', formData.address);
+  
+    if (formData.localProfilePicture) {
+      formDataToSend.append('localProfilePicture', formData.localProfilePicture);
+    } else {
+      toast.error('Please upload a profile picture!');
       return;
     }
   
     try {
-      // Convert form data to query string format
-      const queryParams = new URLSearchParams({
-        Name: formData.Name,
-        Email: formData.email,
-        Password: formData.password,
-        Phone: formData.phoneNumber,
-        RoleID: formData.roleID,
-        BankAccountNumber: formData.BankAccountNumber,
-        GenderID: formData.GenderID,
-        Introduction: formData.Introduction,
-      }).toString();
-  
       const response = await axios.post(
-        `http://localhost:5280/api/Account/Register?${queryParams}`,
-        null,
-        { headers: { 'Accept': 'text/plain' } }
+        `http://localhost:5280/api/Account/Register`,
+        formDataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Accept': 'text/plain',
+          },
+        }
       );
   
       if (response.status === 200) {
-        toast.success('Registration successful!', { position: 'top-center', autoClose: 3000 });
-        setFormData({ 
-          Name: '', email: '', password: '', confirmPassword: '', phoneNumber: '', 
-          roleID: '', BankAccountNumber: '', GenderID: '', Introduction: ''
+        toast.success(response.data || 'Registration successful!');
+        setFormData({
+          name: '', email: '', password: '', confirmPassword: '', phone: '',
+          roleID: '', bankAccountNumber: '', genderID: '', introduction: '',
+          address: '', localProfilePicture: null
         });
       }
     } catch (error) {
-      const errorMessage = error.response?.data || 'Registration failed. Please try again.';
-      toast.error(errorMessage, { position: 'top-center', autoClose: 3000 });
+      const errorMessage = error.response?.data || 'Something went wrong on the server.';
+      toast.error(errorMessage);
+      console.error('Registration error:', error);
     }
   };
-
+  
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ backgroundColor: '#fff', minHeight: '100vh', padding: '50px', marginTop: '20px' }}>
       <ToastContainer />

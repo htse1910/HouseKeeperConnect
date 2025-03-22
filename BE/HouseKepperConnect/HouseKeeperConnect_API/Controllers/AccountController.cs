@@ -118,7 +118,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // POST api/<AccountController>
         [HttpPost("Register")]
-        public async Task<ActionResult<AccountRegisterDTO>> Register(AccountRegisterDTO accountRegisterDTO)
+        public async Task<ActionResult<AccountRegisterDTO>> Register([FromForm] AccountRegisterDTO accountRegisterDTO)
         {
             var validationResult = await _accountService.ValidateAccountAsync(accountRegisterDTO);
             if (validationResult != null)

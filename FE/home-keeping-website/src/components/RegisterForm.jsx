@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaLock, FaPhone, FaEnvelope, FaUser, FaCreditCard, FaInfoCircle, FaUserTie } from 'react-icons/fa';
+import { FaLock, FaPhone, FaEnvelope, FaUser, FaCreditCard } from 'react-icons/fa';
 
 function RegisterForm({ formData, onInputChange, onSubmit }) {
   return (
@@ -9,15 +9,62 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
       </h2>
 
       <form onSubmit={onSubmit}>
+        {/* Role Selection - Tick Option Style */}
+        {/* Role Selection - Exclusive Checkboxes */}
+        <div className="mb-4">
+          <label className="form-label d-block">Vai trò</label>
+          <div className="d-flex border rounded overflow-hidden">
+
+            {/* Gia đình */}
+            <label
+              htmlFor="role-family"
+              className={`flex-fill text-center py-2 m-0 d-flex align-items-center justify-content-center border-end ${formData.roleID === '2' ? 'bg-warning text-white fw-bold' : ''
+                }`}
+              style={{ cursor: 'pointer' }}
+            >
+              <input
+                type="checkbox"
+                id="role-family"
+                checked={formData.roleID === '2'}
+                onChange={() =>
+                  onInputChange({ target: { id: 'roleID', value: formData.roleID === '2' ? '' : '2' } })
+                }
+                className="me-2 d-none"
+              />
+              Gia đình
+            </label>
+
+            {/* Người giúp việc */}
+            <label
+              htmlFor="role-helper"
+              className={`flex-fill text-center py-2 m-0 d-flex align-items-center justify-content-center ${formData.roleID === '1' ? 'bg-warning text-white fw-bold' : ''
+                }`}
+              style={{ cursor: 'pointer' }}
+            >
+              <input
+                type="checkbox"
+                id="role-helper"
+                checked={formData.roleID === '1'}
+                onChange={() =>
+                  onInputChange({ target: { id: 'roleID', value: formData.roleID === '1' ? '' : '1' } })
+                }
+                className="me-2 d-none"
+              />
+              Người giúp việc
+            </label>
+
+          </div>
+        </div>
+
         {/* Full Name */}
         <div className="mb-4">
-          <label htmlFor="Name" className="form-label">Họ và tên</label>
+          <label htmlFor="name" className="form-label">Họ và tên</label>
           <div className="input-group">
             <span className="input-group-text bg-white border-end-0"><FaUser /></span>
             <input
-              id="Name"
+              id="name"
               type="text"
-              value={formData.Name}
+              value={formData.name}
               onChange={onInputChange}
               className="form-control border-start-0"
               required
@@ -43,13 +90,13 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Phone Number */}
         <div className="mb-4">
-          <label htmlFor="phoneNumber" className="form-label">Số điện thoại</label>
+          <label htmlFor="phone" className="form-label">Số điện thoại</label>
           <div className="input-group">
             <span className="input-group-text bg-white border-end-0"><FaPhone /></span>
             <input
-              id="phoneNumber"
+              id="phone"
               type="tel"
-              value={formData.phoneNumber}
+              value={formData.phone}
               onChange={onInputChange}
               className="form-control border-start-0"
               required
@@ -91,13 +138,13 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Bank Account Number */}
         <div className="mb-4">
-          <label htmlFor="BankAccountNumber" className="form-label">Số tài khoản ngân hàng</label>
+          <label htmlFor="bankAccountNumber" className="form-label">Số tài khoản ngân hàng</label>
           <div className="input-group">
             <span className="input-group-text bg-white border-end-0"><FaCreditCard /></span>
             <input
-              id="BankAccountNumber"
+              id="bankAccountNumber"
               type="text"
-              value={formData.BankAccountNumber}
+              value={formData.bankAccountNumber}
               onChange={onInputChange}
               className="form-control border-start-0"
               required
@@ -107,11 +154,11 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Gender Selection */}
         <div className="mb-4">
-          <label htmlFor="GenderID" className="form-label">Giới tính</label>
+          <label htmlFor="genderID" className="form-label">Giới tính</label>
           <select
-            id="GenderID"
+            id="genderID"
             className="form-select"
-            value={formData.GenderID}
+            value={formData.genderID}
             onChange={onInputChange}
             required
           >
@@ -121,30 +168,40 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
           </select>
         </div>
 
-        {/* Role Selection */}
-        <div className="mb-4">
-          <label htmlFor="roleID" className="form-label">Vai trò</label>
-          <select
-            id="roleID"
-            className="form-select"
-            value={formData.roleID}
-            onChange={onInputChange}
-            required
-          >
-            <option value="">Chọn vai trò</option>
-            <option value="1">Người giúp việc</option>
-            <option value="2">Gia đình</option>
-          </select>
-        </div>
-
         {/* Introduction */}
         <div className="mb-4">
-          <label htmlFor="Introduction" className="form-label">Giới thiệu</label>
+          <label htmlFor="introduction" className="form-label">Giới thiệu</label>
           <textarea
-            id="Introduction"
+            id="introduction"
             className="form-control"
-            value={formData.Introduction}
+            value={formData.introduction}
             onChange={onInputChange}
+            required
+          />
+        </div>
+
+        {/* Address */}
+        <div className="mb-4">
+          <label htmlFor="address" className="form-label">Địa chỉ</label>
+          <input
+            id="address"
+            type="text"
+            value={formData.address}
+            onChange={onInputChange}
+            className="form-control"
+            required
+          />
+        </div>
+
+        {/* Profile Picture Upload */}
+        <div className="mb-4">
+          <label htmlFor="localProfilePicture" className="form-label">Ảnh đại diện</label>
+          <input
+            id="localProfilePicture"
+            type="file"
+            accept="image/*"
+            onChange={onInputChange}
+            className="form-control"
             required
           />
         </div>
