@@ -459,10 +459,7 @@
     line-height: 1.4;
 }
 
-/* =================== Housekeeper Management Styles =================== */
-
-/* Bảng danh sách Housekeepers */
-.housekeeper-table {
+.dashboard-table {
     width: 100%;
     border-collapse: collapse;
     background: var(--bg-color);
@@ -471,21 +468,21 @@
     overflow: hidden;
 }
 
-.housekeeper-table th,
-.housekeeper-table td {
+.dashboard-table th,
+.dashboard-table td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
 
-.housekeeper-table th {
+.dashboard-table th {
     background: var(--accent-color);
     color: var(--text-color);
     font-weight: bold;
     text-transform: uppercase;
 }
 
-.housekeeper-table tr:hover {
+.dashboard-table tr:hover {
     background: rgba(0, 0, 0, 0.05);
 }
 
@@ -578,7 +575,7 @@
 }
 
 /* Nút bấm */
-.housekeeper-btn {
+.dashboard-btn {
     width: 100px;
     padding: 8px 12px;
     border-radius: 5px;
@@ -589,21 +586,21 @@
     margin-right: 10px;
 }
 
-.housekeeper-btn-approve {
+.dashboard-btn-approve {
     background: var(--success-color);
     color: var(--bg-color);
 }
 
-.housekeeper-btn-approve:hover {
+.dashboard-btn-approve:hover {
     background: var(--success-color);
 }
 
-.housekeeper-btn-reject {
+.dashboard-btn-reject {
     background: var(--cancel-color);
     color: var(--bg-color);
 }
 
-.housekeeper-btn-reject:hover {
+.dashboard-btn-reject:hover {
     background: var(--cancel-color);
 }
 

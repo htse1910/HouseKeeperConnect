@@ -206,7 +206,7 @@ const UserVerificationPage = () => {
                 className="housekeeper-search"
             />
 
-            <table className="housekeeper-table">
+            <table className="dashboard-table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -250,21 +250,21 @@ const UserVerificationPage = () => {
                             <td>
                                 {hk.status === "Pending" && (
                                     <>
-                                        <button className="housekeeper-btn housekeeper-btn-approve" onClick={() => handleApprove(hk.id)}>
+                                        <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(hk.id)}>
                                             Approve
                                         </button>
-                                        <button className="housekeeper-btn housekeeper-btn-reject" onClick={() => handleReject(hk.id)}>
+                                        <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(hk.id)}>
                                             Reject
                                         </button>
                                     </>
                                 )}
                                 {hk.status === "Approved" && (
-                                    <button className="housekeeper-btn housekeeper-btn-reject" onClick={() => handleReject(hk.id)}>
+                                    <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(hk.id)}>
                                         Reject
                                     </button>
                                 )}
                                 {hk.status === "Rejected" && (
-                                    <button className="housekeeper-btn housekeeper-btn-approve" onClick={() => handleApprove(hk.id)}>
+                                    <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(hk.id)}>
                                         Approve
                                     </button>
                                 )}
