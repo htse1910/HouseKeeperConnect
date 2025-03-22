@@ -7,7 +7,6 @@ using BusinessObject.Models.JWTToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -25,6 +24,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IWalletService _walletService;
         private readonly IFamilyProfileService _familyProfileService;
         private readonly IHouseKeeperService _houseKeeperService;
+
         private static readonly char[] Characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
 
@@ -151,7 +151,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
             await _accountService.AddAccountAsync(account);
-            if (account.RoleID == 1) 
+            if (account.RoleID == 1)
             {
                 var housekeeper = new Housekeeper
                 {
@@ -160,7 +160,7 @@ namespace HouseKeeperConnect_API.Controllers
                 };
                 await _houseKeeperService.AddHousekeeperAsync(housekeeper);
             }
-            else if (account.RoleID == 2) 
+            else if (account.RoleID == 2)
             {
                 var family = new Family
                 {

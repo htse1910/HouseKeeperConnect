@@ -62,15 +62,14 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPost("AddSchedule")]
         [Authorize]
-        public async Task<ActionResult> AddSchedule([FromBody] ScheduleCreateDTO scheduleDTO)
+        public async Task<ActionResult> AddSchedule([FromQuery] ScheduleCreateDTO scheduleDTO)
         {
-            var schedule = new Housekeeper_Schedule
+            var schedule = _mapper.Map<Housekeeper_Schedule>(scheduleDTO);
+            if (scheduleDTO == null)
             {
-                HousekeeperID = scheduleDTO.HousekeeperID,
-                SlotID = scheduleDTO.SlotID,
-            };
+                return BadRequest("Invalid service data.");
+            }
 
-            // Add schedule to database
             await _scheduleService.AddScheduleAsync(schedule);
             return Ok("Housekeeper_Schedule added successfully!");
         }
@@ -80,7 +79,7 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult> UpdateSchedule([FromQuery] ScheduleUpdateDTO scheduleUpdateDTO)
         {
             var sche = _mapper.Map<Housekeeper_Schedule>(scheduleUpdateDTO);
-            var schedule = await _scheduleService.GetScheduleByIDAsync(scheduleUpdateDTO.ScheduleID);
+            var schedule = await _scheduleService.GetScheduleByIDAsync(scheduleUpdateDTO.Housekeeper_ScheduleID);
             if (schedule == null)
             {
                 Message = "Housekeeper_Schedule not found!";

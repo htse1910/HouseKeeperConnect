@@ -310,7 +310,6 @@ namespace DataAccess
                 return "Phone Number must be exactly 10 digits.";
             }
 
-
             if (string.IsNullOrWhiteSpace(AccountRegisterDTO.Password))
             {
                 return "Password is required.";

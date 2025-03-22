@@ -3,17 +3,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObject.Models
 {
-    public class Job_WorkingDays_Slots
+    public class Booking_Slots
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Job_WorkingDays_SlotsId { get; set; }
+        public int Booking_SlotsId { get; set; }
 
-        public int DayID { get; set; }
+        public int BookingID { get; set; }
+
+        [Range(0, 6)]
+        public int DayOfWeek { get; set; }
+
         public int SlotID { get; set; }
-        public int JobID { get; set; }
-        public virtual WorkingDays WorkingDays { get; set; }
+        public virtual Booking Booking { get; set; }
         public virtual Slot Slot { get; set; }
-        public virtual Job Job { get; set; }
     }
 }
