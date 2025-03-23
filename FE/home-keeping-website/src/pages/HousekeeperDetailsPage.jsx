@@ -5,6 +5,7 @@ import ProfileCard from "../components/ProfileCard";
 import ContactInfo from "../components/ContactInfo";
 import ProfileIntroduction from "../components/ProfileIntroduction";
 import CertificatesAndDocuments from "../components/CertificatesAndDocuments";
+import IDCardImages from "../components/IDCardImages";
 
 const HousekeeperProfilePage = () => {
   return (
@@ -13,7 +14,8 @@ const HousekeeperProfilePage = () => {
       <ProfileCard />
 
       {/* Introduction */}
-      <ProfileIntroduction/>
+      <ProfileIntroduction />
+      <IDCardImages />
 
       <div className="row mt-3">
         {/* Skills */}
@@ -49,7 +51,7 @@ const HousekeeperProfilePage = () => {
 
         {/* Certificates & Documents */}
         <CertificatesAndDocuments />
-        
+
       </div>
     </div>
   );

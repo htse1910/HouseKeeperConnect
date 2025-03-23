@@ -4,6 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import HousekeeperWelcomeCard from "../components/HousekeeperWelcomeCard";
 import SearchJobsCard from "../components/SearchJobsCard";
 import ScheduleManagementCard from "../components/ScheduleManagementCard";
+import RecentTransactionsCard from "../components/RecentTransactionsCard";
+import NotificationsCard from "../components/NotificationsCard";
 
 const HousekeeperDashboard = () => {
   return (
@@ -21,18 +23,12 @@ const HousekeeperDashboard = () => {
       <div className="row mt-4">
         {/* Notifications */}
         <div className="col-md-6">
-          <div className="card p-4 shadow-sm">
-            <h5 className="fw-semibold">Thông báo</h5>
-            <p className="text-muted text-center mt-3">Sẽ cập nhật sớm nhất</p>
-          </div>
+          <NotificationsCard />
         </div>
 
         {/* Recent Transactions */}
         <div className="col-md-6">
-          <div className="card p-4 shadow-sm">
-            <h5 className="fw-semibold">Giao dịch gần đây</h5>
-            <p className="text-muted text-center mt-3">Sẽ cập nhật sớm nhất</p>
-          </div>
+          <RecentTransactionsCard />
         </div>
       </div>
     </div>

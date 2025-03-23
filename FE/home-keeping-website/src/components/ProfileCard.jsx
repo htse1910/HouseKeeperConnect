@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaStar, FaEdit, FaCamera } from "react-icons/fa";
+import { Link } from "react-router-dom"; // ✅ Import this
 
 const ProfileCard = () => {
   const [name, setName] = useState("Chưa có");
@@ -73,7 +74,10 @@ const ProfileCard = () => {
       {/* Right Info */}
       <div>
         <h5 className="fw-bold mb-2">
-          Thông tin cá nhân <FaEdit style={{ cursor: "pointer" }} />
+          Thông tin cá nhân{" "}
+          <Link to="/housekeeper/update-id">
+            <FaEdit style={{ cursor: "pointer" }} />
+          </Link>
         </h5>
 
         <div className="d-flex align-items-center mb-1">
