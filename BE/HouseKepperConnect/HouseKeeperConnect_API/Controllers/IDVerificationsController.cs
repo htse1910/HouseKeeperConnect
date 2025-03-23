@@ -27,11 +27,11 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetAllIDVerifications")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<IDVerificationDisplayDTO>>> GetAllIDVerifications()
+        public async Task<ActionResult<IEnumerable<IDVerificationDisplayDTO>>> GetAllIDVerifications(int pageNumber, int pageSize)
         {
             try
             {
-                var idVerifications = await _idVerificationService.GetAllIDVerifysAsync();
+                var idVerifications = await _idVerificationService.GetAllIDVerifysAsync(pageNumber, pageSize);
                 if (idVerifications.Count == 0)
                 {
                     return NotFound("No ID verifications found!");

@@ -6,7 +6,7 @@ namespace Repositories.Interface
     {
         Task<int> CreateVerificationTaskAsync(VerificationTask task);
 
-        Task<List<VerificationTask>> GetPendingVerificationTasksAsync();
+        Task<List<VerificationTask>> GetPendingVerificationTasksAsync(int pageNumber, int pageSize);
 
         Task<bool> ApproveVerificationAsync(int taskId, int staffId, string notes);
 

@@ -23,11 +23,11 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("ReportList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<ReportDisplayDTO>>> GetAllReports()
+        public async Task<ActionResult<IEnumerable<ReportDisplayDTO>>> GetAllReports(int pageNumber, int pageSize)
         {
             try
             {
-                var reports = await _reportService.GetAllReportsAsync();
+                var reports = await _reportService.GetAllReportsAsync(pageNumber, pageSize);
                 if (reports.Count == 0)
                 {
                     return NotFound("No reports found!");

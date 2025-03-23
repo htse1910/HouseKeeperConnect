@@ -48,11 +48,11 @@ namespace HouseKeeperConnect_API.Controllers
         // GET: api/<AccountController>
         [HttpGet("AccountList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<AccountDisplayDTO>>> GetAllaccount()
+        public async Task<ActionResult<IEnumerable<AccountDisplayDTO>>> GetAllaccount(int pageNumber, int pageSize)
         {
             try
             {
-                var accountList = await _accountService.GetAllAccountsAsync();
+                var accountList = await _accountService.GetAllAccountsAsync(pageNumber, pageSize);
                 if (accountList.Count == 0)
                 {
                     return NotFound("Account list is empty!");

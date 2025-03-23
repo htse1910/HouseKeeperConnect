@@ -26,14 +26,14 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<IDVerification>> GetAllIDVerifysAsync()
+        public async Task<List<IDVerification>> GetAllIDVerifysAsync(int pageNumber, int pageSize)
         {
             var list = new List<IDVerification>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.IDVerification.ToListAsync();
+                    list = await context.IDVerification.AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

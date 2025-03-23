@@ -6,7 +6,7 @@ namespace Repositories
 {
     public class FamilyProfileRepository : IFamilyProfileRepository
     {
-        public async Task<List<Family>> GetAllFamilysAsync() => await FamilyProfileDAO.Instance.GetAllFamilysAsync();
+        public async Task<List<Family>> GetAllFamilysAsync(int pageNumber, int pageSize) => await FamilyProfileDAO.Instance.GetAllFamilysAsync(pageNumber, pageSize);
 
         public async Task<Family> GetFamilyByIDAsync(int fID) => await FamilyProfileDAO.Instance.GetFamilyByIDAsync(fID);
 

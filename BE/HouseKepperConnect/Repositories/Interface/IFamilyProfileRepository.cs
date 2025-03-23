@@ -4,7 +4,7 @@ namespace Repositories.Interface
 {
     public interface IFamilyProfileRepository
     {
-        Task<List<Family>> GetAllFamilysAsync();
+        Task<List<Family>> GetAllFamilysAsync(int pageNumber, int pageSize);
 
         Task<Family> GetFamilyByIDAsync(int fID);
 

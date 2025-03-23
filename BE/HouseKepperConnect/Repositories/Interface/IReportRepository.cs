@@ -4,7 +4,7 @@ namespace Repositories.Interface
 {
     public interface IReportRepository
     {
-        Task<List<Report>> GetAllReportsAsync();
+        Task<List<Report>> GetAllReportsAsync(int pageNumber, int pageSize);
 
         Task<Report> GetReportByIDAsync(int rID);
 

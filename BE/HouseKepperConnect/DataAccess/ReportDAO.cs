@@ -26,14 +26,14 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Report>> GetAllReportsAsync()
+        public async Task<List<Report>> GetAllReportsAsync(int pageNumber, int pageSize)
         {
             var list = new List<Report>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Report.ToListAsync();
+                    list = await context.Report.AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

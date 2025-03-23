@@ -3,7 +3,9 @@ using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
+using System.Drawing.Printing;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -24,11 +26,11 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("FamilyList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<FamilyDisplayDTO>>> GetAllFamilies()
+        public async Task<ActionResult<IEnumerable<FamilyDisplayDTO>>> GetAllFamilies(int pageNumber, int pageSize)
         {
             try
             {
-                var families = await _familyService.GetAllFamilysAsync();
+                var families = await _familyService.GetAllFamilysAsync(pageNumber, pageSize);
                 if (families.Count == 0)
                 {
                     return NotFound("Family list is empty!");
@@ -56,6 +58,30 @@ namespace HouseKeeperConnect_API.Controllers
             var familyDTO = _mapper.Map<FamilyDisplayDTO>(family);
             return Ok(familyDTO);
         }
+
+        [HttpGet("GetFamilyByAccountID")]
+        [Authorize]
+        public async Task<ActionResult<FamilyDisplayDTO>> GetFamilyByAccountID([FromQuery] int id)
+        {
+            var account = await _accountService.GetAccountByIDAsync(id);
+            if (account == null)
+            {
+                return NotFound("No account found!");
+            }
+
+            var family = await _familyService.GetFamilyByAccountIDAsync(account.AccountID);
+            if (family == null)
+            {
+                return NotFound("No family found!");
+            }
+
+            var displayFamily = new FamilyDisplayDTO();
+            _mapper.Map(family, displayFamily);
+            _mapper.Map(account, displayFamily);
+
+            return Ok(displayFamily);
+        }
+
 
         [HttpGet("SearchFamily")]
         [Authorize]
@@ -87,7 +113,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest("Only family can create profiles.");
             }
-            var existingFamilies = await _familyService.GetAllFamilysAsync();
+            var existingFamilies = await _familyService.GetAllFamilysAsync(1, 10);
             var existingFamily = existingFamilies.FirstOrDefault(f => f.AccountID == familyDTO.AccountID);
 
             if (existingFamily != null)

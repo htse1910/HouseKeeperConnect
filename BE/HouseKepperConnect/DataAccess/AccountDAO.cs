@@ -165,14 +165,14 @@ namespace DataAccess
             };
         }
 
-        public async Task<List<Account>> GetAllAccountsAsync()
+        public async Task<List<Account>> GetAllAccountsAsync(int pageNumber, int pageSize)
         {
             var list = new List<Account>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Account.ToListAsync();
+                    list = await context.Account.AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

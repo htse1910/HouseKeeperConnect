@@ -13,7 +13,7 @@ namespace Services
             _familyRepository = familyRepository;
         }
 
-        public async Task<List<Family>> GetAllFamilysAsync() => await _familyRepository.GetAllFamilysAsync();
+        public async Task<List<Family>> GetAllFamilysAsync(int pageNumber, int pageSize) => await _familyRepository.GetAllFamilysAsync(pageNumber, pageSize);
 
         public async Task<Family> GetFamilyByIDAsync(int fID) => await _familyRepository.GetFamilyByIDAsync(fID);
 

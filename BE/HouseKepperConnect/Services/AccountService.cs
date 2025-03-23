@@ -17,7 +17,7 @@ namespace Services
 
         public async Task<LoginInfoDTO> Login(JWTLoginModel model) => await _accountRepository.Login(model);
 
-        public async Task<List<Account>> GetAllAccountsAsync() => await _accountRepository.GetAllAccountsAsync();
+        public async Task<List<Account>> GetAllAccountsAsync(int pageNumber, int pageSize) => await _accountRepository.GetAllAccountsAsync(pageNumber, pageSize);
 
         public async Task<List<Account>> SearchAccountsByNameAsync(string name) => await _accountRepository.SearchAccountsByNameAsync(name);
 
