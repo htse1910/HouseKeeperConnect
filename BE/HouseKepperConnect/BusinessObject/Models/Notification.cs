@@ -10,10 +10,9 @@ namespace BusinessObject.Models
 
         public int AccountID { get; set; }
         public string Message { get; set; }
-        public bool IsRead { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public int Type { get; set; }
-        public int Status { get; set; }
+        public bool IsRead { get; set; } = false;
+        public string? RedirectUrl { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public virtual Account Account { get; set; }
     }

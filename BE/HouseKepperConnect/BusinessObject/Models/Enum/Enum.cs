@@ -59,4 +59,11 @@
         Completed = 4,
         Canceled = 5,
     }
+
+    public enum WithdrawStatus
+    {
+        Pending = 1,
+        Completed = 2,
+        Failed = 3
+    }
 }

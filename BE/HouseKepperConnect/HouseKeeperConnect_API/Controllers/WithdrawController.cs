@@ -15,15 +15,17 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IWithdrawService _withdrawService;
         private readonly IAccountService _accountService;
         private readonly IWalletService _walletService;
+        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
         private string Message;
 
-        public WithdrawController(IWithdrawService WithdrawService, IAccountService accountService, IMapper mapper, IWalletService walletService)
+        public WithdrawController(IWithdrawService WithdrawService, IAccountService accountService, IMapper mapper, IWalletService walletService, INotificationService notificationService)
         {
             _withdrawService = WithdrawService;
             _accountService = accountService;
             _mapper = mapper;
             _walletService = walletService;
+            _notificationService = notificationService;
         }
 
         [HttpGet("WithdrawList")]
@@ -157,6 +159,12 @@ namespace HouseKeeperConnect_API.Controllers
             wi.Status = (int)TransactionStatus.Pending;
 
             await _withdrawService.AddWithdrawAsync(wi);
+
+            var noti = new Notification();
+            noti.AccountID = wi.AccountID;
+            noti.Message = "Bạn đã tạo đơn rút " + wi.Amount +" VND"+ " về STK: " + wi.BankNumber + " thành công!";
+
+            await _notificationService.AddNotificationAsync(noti);
             Message = "Withdrawal Requested!";
             return Ok(Message);
         }
@@ -182,6 +190,32 @@ namespace HouseKeeperConnect_API.Controllers
             wi.Status = withdrawUpdateDTO.Status;
 
             await _withdrawService.UpdateWithdrawAsync(wi);
+
+            var wallet = await _walletService.GetWalletByUserAsync(wi.AccountID);
+
+            if (wallet == null)
+            {
+                Message = "Not account found!";
+                return NotFound(Message);
+            }
+
+            wallet.Balance += wi.Amount;
+            wallet.UpdatedAt = DateTime.Now;
+
+            await _walletService.UpdateWalletAsync(wallet);
+
+            var noti = new Notification();
+            noti.AccountID = wi.AccountID;
+            if (wi.Status == (int)WithdrawStatus.Completed)
+            {
+                noti.Message = "Bạn đã rút " + wi.Amount +"VND"+ " về STK: " + wi.BankNumber + " thành công!";
+            }
+            else
+            {
+                noti.Message = "Rút tiền thất bại. " + (int)wi.Amount +" VND"+ " đã được hoàn về ví của bạn! Vui lòng thử lại hoặc liên hệ hỗ trợ!";
+            }
+
+            await _notificationService.AddNotificationAsync(noti);
             Message = "Updated!";
             return Ok(Message);
         }

@@ -38,5 +38,6 @@ namespace BusinessObject.Models
 
         public virtual Role Role { get; set; }
         public virtual Wallet Wallet { get; set; }
+        public virtual IEnumerable<Notification> Notification { get; set; }
     }
 }
