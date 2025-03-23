@@ -4,7 +4,7 @@ namespace Repositories.Interface
 {
     public interface IIDVerificationRepository
     {
-        Task<List<IDVerification>> GetAllIDVerifysAsync();
+        Task<List<IDVerification>> GetAllIDVerifysAsync(int pageNumber, int pageSize);
 
         Task<IDVerification> GetIDVerifyByIDAsync(int id);
 

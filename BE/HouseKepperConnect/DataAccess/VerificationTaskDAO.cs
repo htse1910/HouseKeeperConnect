@@ -52,7 +52,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<VerificationTask>> GetPendingVerificationTasksAsync()
+        public async Task<List<VerificationTask>> GetPendingVerificationTasksAsync(int pageNumber, int pageSize)
         {
             try
             {
@@ -62,6 +62,7 @@ namespace DataAccess
                         .Include(t => t.IDVerification)
                         .Include(t => t.Account)
                         .Where(t => t.IDVerification.Status == 1)
+                        .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
                         .ToListAsync();
                 }
             }

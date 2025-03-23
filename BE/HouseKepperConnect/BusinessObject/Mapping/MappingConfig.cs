@@ -86,8 +86,9 @@ namespace BusinessObject.Mapping
 
         private void Map_List_Display_Family()
         {
-            CreateMap<Family, FamilyDisplayDTO>()
-                .ForMember(dest => dest.Introduction, opt => opt.MapFrom(src => src.Account.Introduction));
+            CreateMap<FamilyDisplayDTO, Family>().ReverseMap();
+            CreateMap<FamilyDisplayDTO, Account>().ReverseMap();
+
         }
 
         private void Map_Update_Family()

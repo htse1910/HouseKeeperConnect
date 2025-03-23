@@ -4,7 +4,7 @@ namespace Services.Interface
 {
     public interface IIDVerificationService
     {
-        Task<List<IDVerification>> GetAllIDVerifysAsync();
+        Task<List<IDVerification>> GetAllIDVerifysAsync(int pageNumber, int pageSize);
 
         Task<IDVerification> GetIDVerifyByIDAsync(int id);
 

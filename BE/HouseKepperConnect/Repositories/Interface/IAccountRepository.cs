@@ -8,7 +8,7 @@ namespace Repositories.Interface
     {
         Task<LoginInfoDTO> Login(JWTLoginModel model);
 
-        Task<List<Account>> GetAllAccountsAsync();
+        Task<List<Account>> GetAllAccountsAsync(int pageNumber, int pageSize);
 
         Task<List<Account>> SearchAccountsByNameAsync(string name);
 

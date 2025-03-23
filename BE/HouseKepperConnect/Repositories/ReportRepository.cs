@@ -6,7 +6,7 @@ namespace Repositories
 {
     public class ReportRepository : IReportRepository
     {
-        public async Task<List<Report>> GetAllReportsAsync() => await ReportDAO.Instance.GetAllReportsAsync();
+        public async Task<List<Report>> GetAllReportsAsync(int pageNumber, int pageSize) => await ReportDAO.Instance.GetAllReportsAsync(pageNumber, pageSize);
 
         public async Task<Report> GetReportByIDAsync(int rID) => await ReportDAO.Instance.GetReportByIDAsync(rID);
 

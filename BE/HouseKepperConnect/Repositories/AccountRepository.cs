@@ -10,7 +10,7 @@ namespace Repositories
     {
         public async Task<LoginInfoDTO> Login(JWTLoginModel model) => await AccountDAO.Instance.Login(model);
 
-        public async Task<List<Account>> GetAllAccountsAsync() => await AccountDAO.Instance.GetAllAccountsAsync();
+        public async Task<List<Account>> GetAllAccountsAsync(int pageNumber, int pageSize) => await AccountDAO.Instance.GetAllAccountsAsync(pageNumber, pageSize);
 
         public async Task<List<Account>> SearchAccountsByNameAsync(string name) => await AccountDAO.Instance.SearchAccountsByNameAsync(name);
 

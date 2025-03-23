@@ -41,11 +41,11 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("PendingTasksList")]
-        public async Task<IActionResult> GetPendingVerificationTasks()
+        public async Task<IActionResult> GetPendingVerificationTasks(int pageNumber, int pageSize)
         {
             try
             {
-                var tasks = await _verificationTaskService.GetPendingVerificationTasksAsync();
+                var tasks = await _verificationTaskService.GetPendingVerificationTasksAsync(pageNumber, pageSize);
                 if (tasks == null || !tasks.Any())
                 {
                     return NotFound("No pending verification tasks.");

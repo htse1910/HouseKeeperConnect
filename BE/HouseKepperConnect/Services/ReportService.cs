@@ -13,7 +13,7 @@ namespace Services
             _reportRepository = reportRepository;
         }
 
-        public async Task<List<Report>> GetAllReportsAsync() => await _reportRepository.GetAllReportsAsync();
+        public async Task<List<Report>> GetAllReportsAsync(int pageNumber, int pageSize) => await _reportRepository.GetAllReportsAsync(pageNumber, pageSize);
 
         public async Task<Report> GetReportByIDAsync(int rID) => await _reportRepository.GetReportByIDAsync(rID);
 

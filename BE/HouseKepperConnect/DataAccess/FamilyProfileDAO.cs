@@ -28,14 +28,14 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Family>> GetAllFamilysAsync()
+        public async Task<List<Family>> GetAllFamilysAsync(int pageNumber, int pageSize)
         {
             var list = new List<Family>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Family.ToListAsync();
+                    list = await context.Family.AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -66,7 +66,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    return await context.Family.Include(f => f.Account).SingleOrDefaultAsync(x => x.AccountID == accountID);
+                    return await context.Family.SingleOrDefaultAsync(x => x.AccountID == accountID);
                 }
             }
             catch (Exception ex)
