@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import IDVerificationForm from "../components/IDVerificationForm";
 
 const IDVerificationCreatePage = () => {
@@ -82,11 +83,18 @@ const IDVerificationCreatePage = () => {
 
   if (loading) return <div className="container py-4">Đang kiểm tra trạng thái xác minh...</div>;
 
-  if (existingVerification) {
-    return (
-      <div className="container py-4">
-        <h3 className="mb-4">Đã xác minh giấy tờ</h3>
+  return (
+    <div className="container py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h3 className="fw-bold">Xác minh giấy tờ tùy thân</h3>
+        <Link to="/housekeeper/update-verification" className="btn btn-warning">
+          Cập nhật giấy tờ xác minh
+        </Link>
+      </div>
+
+      {existingVerification ? (
         <div className="card p-4 shadow-sm">
+          <h5 className="fw-bold mb-3">Đã xác minh giấy tờ</h5>
           <p><strong>Mã xác minh:</strong> {existingVerification.verifyID}</p>
           <p><strong>Họ tên:</strong> {existingVerification.realName}</p>
           <p><strong>Số CMND/CCCD:</strong> {existingVerification.idNumber ?? "Không có"}</p>
@@ -95,14 +103,12 @@ const IDVerificationCreatePage = () => {
           <p><strong>Tạo lúc:</strong> {new Date(existingVerification.createdAt).toLocaleString()}</p>
           <p><strong>Cập nhật gần nhất:</strong> {new Date(existingVerification.updatedAt).toLocaleString()}</p>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container py-4">
-      <h3 className="mb-4">Xác minh giấy tờ tùy thân</h3>
-      <IDVerificationForm onSubmit={handleFormSubmit} />
+      ) : (
+        <>
+          <p className="text-muted mb-3">Bạn chưa xác minh, vui lòng gửi thông tin giấy tờ bên dưới.</p>
+          <IDVerificationForm onSubmit={handleFormSubmit} />
+        </>
+      )}
     </div>
   );
 };

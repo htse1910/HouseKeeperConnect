@@ -28,6 +28,7 @@ import HousekeeperScheduleManagement from './pages/HousekeeperScheduleManagement
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
 import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
+import UpdateVerificationPage from './pages/UpdateVerificationPage';
 
 function AppRoutes() {
   return (
@@ -57,6 +58,7 @@ function AppRoutes() {
         <Route path="/housekeeper/profile/update/:id" element={<UpdateHousekeeperAccountPage />} /> 
         <Route path="/housekeeper/schedule" element={<HousekeeperScheduleManagement />} />       
         <Route path="/housekeeper/upload-id" element={<IDVerificationCreatePage />} />
+        <Route path="/housekeeper/update-verification" element={<UpdateVerificationPage />} />
 
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
