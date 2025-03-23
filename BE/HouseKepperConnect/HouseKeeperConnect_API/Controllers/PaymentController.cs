@@ -1,4 +1,5 @@
-﻿using BusinessObject.Models.Enum;
+﻿using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -11,13 +12,15 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly ITransactionService _transactionService;
         private readonly IWalletService _walletService;
         private readonly IPaymentService _paymentService;
+        private readonly INotificationService _notificationService;
         private string Message;
 
-        public PaymentController(ITransactionService transactionService, IWalletService walletService, IPaymentService paymentService)
+        public PaymentController(ITransactionService transactionService, IWalletService walletService, IPaymentService paymentService, INotificationService notificationService)
         {
             _transactionService = transactionService;
             _walletService = walletService;
             _paymentService = paymentService;
+            _notificationService = notificationService;
         }
 
         [HttpGet("success")]
@@ -55,6 +58,12 @@ namespace HouseKeeperConnect_API.Controllers
             wallet.OnHold -= wallet.OnHold;
 
             await _walletService.UpdateWalletAsync(wallet);
+
+            var noti = new Notification();
+            noti.AccountID = trans.AccountID;
+            noti.Message = "Bạn đã nạp " + trans.Amount + " vào ví!";
+
+            await _notificationService.AddNotificationAsync(noti);
             Message = "PAID";
 
             return Ok(Message);
@@ -90,6 +99,12 @@ namespace HouseKeeperConnect_API.Controllers
                 wallet.OnHold -= trans.Amount;
 
                 await _walletService.UpdateWalletAsync(wallet);
+
+                var noti = new Notification();
+                noti.AccountID = trans.AccountID;
+                noti.Message = "Bạn đã hủy nạp " + trans.Amount + " vào ví!";
+
+                await _notificationService.AddNotificationAsync(noti);
                 return Ok("CANCELLED");
             }
             Message = "Payment is paid!";
@@ -135,6 +150,12 @@ namespace HouseKeeperConnect_API.Controllers
                 wallet.OnHold -= trans.Amount;
 
                 await _walletService.UpdateWalletAsync(wallet);
+
+                var noti = new Notification();
+                noti.AccountID = trans.AccountID;
+                noti.Message = "Đơn " + trans.TransactionID + " đã hết hạn! Giao dịch thất bại!";
+
+                await _notificationService.AddNotificationAsync(noti);
                 return Ok(status.status);
             }
 

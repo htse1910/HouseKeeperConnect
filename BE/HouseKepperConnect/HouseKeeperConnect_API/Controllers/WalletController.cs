@@ -2,7 +2,6 @@
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using BusinessObject.Models.PayOS;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -158,7 +157,7 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(paymentUrl);
         }
 
-        [HttpPut("Withdraw")]
+        /*[HttpPut("Withdraw")]
         [Authorize]
         public async Task<IActionResult> Withdraw([FromQuery] int accountID, decimal balance, string bankID)
         {
@@ -214,7 +213,7 @@ namespace HouseKeeperConnect_API.Controllers
             await _walletService.UpdateWalletAsync(wallet);
 
             return Ok(Message);
-        }
+        }*/
 
         [HttpPut("Disable")] //Admin only
         public async Task<IActionResult> WalletDisable(int id)

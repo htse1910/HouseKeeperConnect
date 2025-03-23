@@ -40,6 +40,8 @@ public static class ServiceExtentions
         services.AddScoped<IServiceService, ServiceService>();
         services.AddScoped<IVerificationTaskRepository, VerificationTaskRepository>();
         services.AddScoped<IVerificationTaskService, VerificationTaskService>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

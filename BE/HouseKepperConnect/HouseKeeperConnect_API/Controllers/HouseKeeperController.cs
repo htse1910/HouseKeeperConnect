@@ -15,15 +15,17 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IHouseKeeperService _housekeeperService;
         private readonly IAccountService _accountService;
         private readonly IIDVerificationService _verificationService;
+        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
         private string Message;
 
-        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService)
+        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService)
         {
             _housekeeperService = housekeeperService;
             _accountService = accountService;
             _mapper = mapper;
             _verificationService = verificationService;
+            _notificationService = notificationService;
         }
 
         [HttpGet("HousekeeperList")] //Admin
@@ -283,12 +285,32 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("update-verification-status")]
+        [Authorize]
         public async Task<IActionResult> UpdateVerificationStatus([FromQuery] int housekeeperId, [FromQuery] bool isVerified)
         {
             try
             {
+                var acc = await _housekeeperService.GetHousekeeperByIDAsync(housekeeperId);
+                if (acc == null)
+                {
+                    Message = "Account not found!";
+                    return NotFound(Message);
+                }
                 await _housekeeperService.UpdateIsVerifiedAsync(housekeeperId, isVerified);
-                return Ok("Verification status updated successfully.");
+                var noti = new Notification();
+                noti.AccountID = acc.AccountID;
+                if (isVerified == true)
+                {
+                    noti.Message = "Thông tin trắc học không hợp lệ, vui lòng kiểm tra lại!";
+                }
+                else
+                {
+                    noti.Message = "Thông tin trắc học xác nhận thành công!";
+                }
+
+                await _notificationService.AddNotificationAsync(noti);
+                Message = "Tài khoản của bạn đã được xác nhận!";
+                return Ok(Message);
             }
             catch (Exception ex)
             {
