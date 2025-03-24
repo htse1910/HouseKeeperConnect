@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../assets/styles/Job.css";
 
@@ -29,31 +29,31 @@ const JobPostingPage = () => {
         }));
     };
 
-    const validateForm = () => {
-        if (!formData.AccountID || !formData.JobName || !formData.Frequency || !formData.Location ||
-            !formData.ServiceID || !formData.StartDate || !formData.EndDate ||
-            !formData.StartSlot || !formData.EndSlot || formData.Price < 0) {
+    const validateForm = (data) => {
+        if (!data.AccountID || !data.JobName || !data.Frequency || !data.Location ||
+            !data.ServiceID || !data.StartDate || !data.EndDate ||
+            !data.StartSlot || !data.EndSlot || data.Price < 0) {
             return "Vui lòng điền đầy đủ thông tin hợp lệ.";
         }
-
-        if (formData.JobName.length > 255 || formData.Frequency.length > 100 || formData.Location.length > 255) {
+    
+        if (data.JobName.length > 255 || data.Frequency.length > 100 || data.Location.length > 255) {
             return "Một số trường vượt quá giới hạn ký tự cho phép.";
         }
-
-        if (formData.Description && formData.Description.length > 500) {
+    
+        if (data.Description && data.Description.length > 500) {
             return "Mô tả công việc không được vượt quá 500 ký tự.";
         }
-
-        if (new Date(formData.StartDate) > new Date(formData.EndDate)) {
+    
+        if (new Date(data.StartDate) > new Date(data.EndDate)) {
             return "Ngày bắt đầu không thể lớn hơn ngày kết thúc.";
         }
-
-        if (parseInt(formData.StartSlot) >= parseInt(formData.EndSlot)) {
+    
+        if (parseInt(data.StartSlot) >= parseInt(data.EndSlot)) {
             return "Giờ bắt đầu phải nhỏ hơn giờ kết thúc.";
         }
-
+    
         return null;
-    };
+    };    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -61,7 +61,27 @@ const JobPostingPage = () => {
         setMessage(null);
         setError(null);
 
-        const validationError = validateForm();
+        const authToken = localStorage.getItem("authToken");
+        const accountID = localStorage.getItem("accountID");
+
+        if (!authToken || !accountID) {
+            setError("Bạn cần đăng nhập để tiếp tục.");
+            setLoading(false);
+            return;
+        }
+
+        const dataToSubmit = {
+            ...formData,
+            AccountID: parseInt(accountID),
+            ServiceID: parseInt(formData.ServiceID),
+            StartSlot: parseInt(formData.StartSlot),
+            EndSlot: parseInt(formData.EndSlot),
+            Price: parseFloat(formData.Price),
+            StartDate: new Date(formData.StartDate).toISOString(),
+            EndDate: new Date(formData.EndDate).toISOString(),
+        };
+
+        const validationError = validateForm(dataToSubmit);
         if (validationError) {
             setError(validationError);
             setLoading(false);
@@ -69,8 +89,12 @@ const JobPostingPage = () => {
         }
 
         try {
-            await axios.post("http://localhost:5280/api/Job/AddJob", formData, {
-                headers: { "Content-Type": "application/json" },
+            console.log("Data gửi lên:", dataToSubmit);
+            await axios.post("http://localhost:5280/api/Job/AddJob", dataToSubmit, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`
+                },
             });
 
             setMessage("🎉 Công việc đã được đăng thành công!");
@@ -89,11 +113,13 @@ const JobPostingPage = () => {
             });
         } catch (err) {
             console.error("Lỗi khi đăng công việc:", err);
-            setError("❌ Đã xảy ra lỗi khi đăng công việc. Vui lòng thử lại.");
+            const serverMsg = err?.response?.data?.message || "Đã xảy ra lỗi khi đăng công việc.";
+            setError(`❌ ${serverMsg}`);
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="job-posting-container">
@@ -156,12 +182,12 @@ const JobPostingPage = () => {
                 {/* Ngày bắt đầu & Ngày kết thúc */}
                 <div className="job-posting-row">
                     <div className="job-posting-group">
-                        <label>Thời gian làm việc</label>
-                        <div className="job-posting-time-inputs">
-                            <input type="number" name="StartSlot" className="job-posting-time-input" min="1" value={formData.StartSlot} onChange={handleChange} placeholder="Bắt đầu" />
-                            <span>-</span>
-                            <input type="number" name="EndSlot" className="job-posting-time-input" min="1" value={formData.EndSlot} onChange={handleChange} placeholder="Kết thúc" />
-                        </div>
+                        <label>Ngày bắt đầu</label>
+                        <input type="date" name="StartDate" className="job-posting-input" value={formData.StartDate} onChange={handleChange} required />
+                    </div>
+                    <div className="job-posting-group">
+                        <label>Ngày kết thúc</label>
+                        <input type="date" name="EndDate" className="job-posting-input" value={formData.EndDate} onChange={handleChange} required />
                     </div>
                 </div>
 

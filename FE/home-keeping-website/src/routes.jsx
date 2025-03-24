@@ -66,10 +66,11 @@ function AppRoutes() {
         <Route path="/dashboard/jobs" element={<StaffJobModerationPage />} />
 
         {/* Family Pages */}
-        <Route path="/Family/profile" element={<FamilyProfilePage />} />
+        <Route path="/family/profile" element={<FamilyProfilePage />} />
         <Route path="/find-housekeepers" element={<FamilyHousekeeperSearchPage />} />
         <Route path="/job-posting" element={<FamilyJobPostingPage />} />
         <Route path="/my-posts" element={<FamilyJobManagementPage />} />
+        <Route path="/family/job/detail/:id" element={<JobDetailsPage />} />
       </Routes>
     </Layout>
   );

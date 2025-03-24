@@ -20,6 +20,8 @@ const StaffDashboardPage = () => {
     const [error, setError] = useState(null);
     const [userName, setUserName] = useState("");
 
+    const shouldShowLoadingOrError = loading || error;
+
     useEffect(() => {
         const storedName = localStorage.getItem("userName") || t("staff");
         setUserName(storedName);
@@ -92,19 +94,19 @@ const StaffDashboardPage = () => {
                     //axios.get(`http://localhost:5280/api/Transaction/Stats`, { headers }) // API thống kê giao dịch
                 ]);
             })
-            .then(([accountRes, newAccountRes/*, jobRes, transactionRes*/]) => {
-                const accountData = accountRes.data;
-                const newAccountData = newAccountRes.data;
+            .then(([accountsRes, newAccountRes/*, jobRes, transactionRes*/]) => {
+                const accountsData = accountsRes.data;
+                const newAccountsData = newAccountRes.data;
                 //const jobData = jobRes.data;
                 //const transactionData = transactionRes.data;
 
-                if (!accountData || !newAccountData /*|| !jobData || !transactionData*/) {
+                if (!accountsData || !newAccountsData /*|| !jobData || !transactionData*/) {
                     throw new Error(t("error_loading"));
                 }
                 setStatsData({
-                    totalHousekeepers: accountData.totalHousekeepers || 0,
-                    totalFamilies: accountData.totalFamilies || 0,
-                    newAccounts7Days: newAccountData.newAccounts7Days || 0,
+                    totalHousekeepers: accountsData.totalHousekeepers || 0,
+                    totalFamilies: accountsData.totalFamilies || 0,
+                    newAccounts7Days: newAccountsData.newAccounts7Days || 0,
                     /*totalJobs: jobData.totalJobs || 0,
                     completedJobs: jobData.completedJobs || 0,
                     completedJobs7Days: jobData.completedJobs7Days || 0,
@@ -121,26 +123,6 @@ const StaffDashboardPage = () => {
             });
     }, [isDemo]);
 
-    if (loading) {
-        return (
-            <div className="dashboard-container">
-                <span className="icon-loading"></span>
-                <p>{t("loading_data")}</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="dashboard-container">
-                <p className="error">❌ {error}</p>
-                <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                    {t("view_demo")}
-                </button>
-            </div>
-        );
-    }
-
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             return (
@@ -155,6 +137,29 @@ const StaffDashboardPage = () => {
         }
         return null;
     };
+
+    if (shouldShowLoadingOrError) {
+        return (
+            <div className="dashboard-container">
+                {loading && (
+                    <>
+                        <span className="icon-loading"></span>
+                        <p>{t("loading_data")}</p>
+                    </>
+                )}
+                {error && (
+                    <>
+                        <p className="error">❌ {error}</p>
+                        {!isDemo && (
+                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
+                                {t("view_demo")}
+                            </button>
+                        )}
+                    </>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="dashboard-container">

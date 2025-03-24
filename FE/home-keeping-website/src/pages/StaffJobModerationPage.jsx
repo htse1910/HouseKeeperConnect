@@ -27,6 +27,8 @@ const StaffJobModerationPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const shouldShowLoadingOrError = loading || error;
+
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const recordsPerPage = 10;
@@ -118,22 +120,25 @@ const StaffJobModerationPage = () => {
         setInputPage("");
     };
 
-    if (loading) {
+    if (shouldShowLoadingOrError) {
         return (
             <div className="dashboard-container">
-                <span className="icon-loading"></span>
-                <p>{t("loading_data")}</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="dashboard-container">
-                <p className="error">❌ {error}</p>
-                <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                    {t("view_demo")}
-                </button>
+                {loading && (
+                    <>
+                        <span className="icon-loading"></span>
+                        <p>{t("loading_data")}</p>
+                    </>
+                )}
+                {error && (
+                    <>
+                        <p className="error">❌ {error}</p>
+                        {!isDemo && (
+                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
+                                {t("view_demo")}
+                            </button>
+                        )}
+                    </>
+                )}
             </div>
         );
     }

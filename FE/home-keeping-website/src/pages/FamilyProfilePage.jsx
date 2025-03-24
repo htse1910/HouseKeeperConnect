@@ -10,12 +10,22 @@ const FamilyProfilePage = () => {
     const [searchParams] = useSearchParams();
     const isDemo = searchParams.get("demo") === "true";
 
+    const authToken = localStorage.getItem("authToken");
+    const accountID = localStorage.getItem("accountID");
+
+    const headers = {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json"
+    };
+
     const [accountInfo, setAccountInfo] = useState(null);
     const [family, setFamily] = useState(null);
     const [jobs, setJobs] = useState([]);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const shouldShowLoadingOrError = loading || error;
 
     useEffect(() => {
         if (isDemo) {
@@ -54,11 +64,8 @@ const FamilyProfilePage = () => {
         setLoading(true);
         setError(null);
 
-        const token = localStorage.getItem("authToken");
-        const accountID = localStorage.getItem("accountID");
-
-        if (!token) {
-            setError("error_auth");
+        if (!authToken) {
+            setError(t("error_auth"));
             setLoading(false);
             return;
         }
@@ -68,11 +75,6 @@ const FamilyProfilePage = () => {
             setLoading(false);
             return;
         }
-
-        const headers = {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        };
 
         // Gọi API để lấy thông tin tài khoản
         axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
@@ -111,22 +113,25 @@ const FamilyProfilePage = () => {
 
     }, [isDemo]);
 
-    if (loading) {
+    if (shouldShowLoadingOrError) {
         return (
             <div className="profile-container">
-                <span className="icon-loading"></span>
-                <p>{t("loading_data")}</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="profile-container">
-                <p className="error">❌ {error}</p>
-                <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                    {t("view_demo")}
-                </button>
+                {loading && (
+                    <>
+                        <span className="icon-loading"></span>
+                        <p>{t("loading_data")}</p>
+                    </>
+                )}
+                {error && (
+                    <>
+                        <p className="error">❌ {error}</p>
+                        {!isDemo && (
+                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
+                                {t("view_demo")}
+                            </button>
+                        )}
+                    </>
+                )}
             </div>
         );
     }

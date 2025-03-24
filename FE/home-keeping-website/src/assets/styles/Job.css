@@ -1,3 +1,12 @@
+.job-container {
+    padding: 40px 50px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: var(--bg-color);
+}
+
 .job-posting-container {
     max-width: 750px;
     margin: auto;
@@ -25,7 +34,8 @@
 .job-posting-row {
     display: flex;
     gap: 20px;
-    align-items: center; /* Căn giữa các input cùng dòng */
+    align-items: center;
+    /* Căn giữa các input cùng dòng */
 }
 
 /* Khi cần full width */
@@ -136,48 +146,48 @@
     padding: 32px;
     max-width: 1200px;
     margin: 0 auto;
-  }
-  
-  .job-management-header {
+}
+
+.job-management-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 32px;
-  }
-  
-  .job-management-stat {
+}
+
+.job-management-stat {
     background: #fff5e6;
     padding: 16px 20px;
     border-radius: 12px;
     flex: 1;
     margin-right: 16px;
-  }
-  
-  .job-management-stat:last-child {
+}
+
+.job-management-stat:last-child {
     margin-right: 0;
-  }
-  
-  .job-management-stat .title {
+}
+
+.job-management-stat .title {
     font-size: 14px;
     color: var(--text-secondary);
     margin-bottom: 8px;
-  }
-  
-  .job-management-stat .value {
+}
+
+.job-management-stat .value {
     font-size: 20px;
     font-weight: bold;
     color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-  
-  .job-management-stat .icon {
+}
+
+.job-management-stat .icon {
     color: var(--main-color);
     margin-left: 8px;
     font-size: 18px;
-  }
-  
-  .btn-primary-small {
+}
+
+.btn-primary-small {
     background: var(--main-color);
     color: white;
     border: none;
@@ -185,158 +195,251 @@
     border-radius: 8px;
     font-size: 13px;
     cursor: pointer;
-  }
-  
-  /* Layout trái-phải */
-  .job-management-layout {
+}
+
+/* Layout trái-phải */
+.job-management-layout {
     display: flex;
     gap: 32px;
     align-items: flex-start;
-  }
-  
-  .job-management-filters {
+}
+
+.job-management-filters {
     flex: 0 0 250px;
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-  
-  .job-management-filters label {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 9;
+    padding-top: 8px;
+}
+
+.job-management-filters label {
     font-weight: 500;
     color: var(--text-secondary);
-  }
-  
-  .job-management-filters select,
-  .job-management-filters input[type="date"] {
+}
+
+.job-management-filters select,
+.job-management-filters input[type="date"] {
     padding: 8px 12px;
     border: 1px solid var(--border);
     border-radius: 8px;
     font-size: 14px;
     background: white;
     color: var(--text-primary);
-  }
-  
-  .job-management-content {
+}
+
+.job-management-content {
     flex: 1;
-  }
-  
-  /* Tabs */
-  .job-management-tabs {
+}
+
+/* Tabs */
+.job-management-tabs {
     display: flex;
     gap: 24px;
     border-bottom: 1px solid var(--border-light);
     margin-bottom: 16px;
-  }
-  
-  .job-management-tabs span {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    padding: 12px 0;
+}
+
+.job-management-tabs span {
     padding: 8px 4px;
     cursor: pointer;
     color: var(--text-secondary);
     font-weight: 500;
-  }
-  
-  .job-management-tabs .active-tab {
+}
+
+.job-management-tabs .active-tab {
     color: var(--main-color);
     font-weight: 600;
     border-bottom: 2px solid var(--main-color);
-  }
-  
-  /* Job list */
-  .job-management-list {
+}
+
+/* Job list */
+.job-management-list {
     display: flex;
     flex-direction: column;
     gap: 16px;
-  }
-  
-  .job-management-card {
+}
+
+.job-management-card {
     background-color: white;
     border-radius: 12px;
     border: 1px solid var(--border);
     box-shadow: var(--shadow-light);
-    padding: 16px;
-  }
-  
-  .job-management-title {
+    padding: 16px 20px;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.job-management-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.job-management-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.job-management-status-badge {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.job-management-status-badge.status-0 {
+    background-color: #e7f1ff;
+    color: #007bff;
+}
+
+.job-management-status-badge.status-1 {
+    background-color: #d6f5e4;
+    color: #2ECC40;
+}
+
+.job-management-status-badge.status-2 {
+    background-color: #f0f0f0;
+    color: #777;
+}
+
+.job-management-title {
     font-size: 18px;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 8px;
-  }
-  
-  .job-management-info {
+}
+
+.job-management-info {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     font-size: 14px;
     color: var(--text-secondary);
     margin-bottom: 12px;
-  }
-  
-  .job-management-status {
+}
+
+.job-management-status {
     display: inline-block;
     padding: 4px 10px;
     font-size: 13px;
     font-weight: 500;
     border-radius: 999px;
     margin-bottom: 12px;
-  }
-  
-  .job-management-status.status-0 {
+}
+
+.job-management-status.status-0 {
     background-color: #e7f1ff;
     color: #007bff;
-  }
-  
-  .job-management-status.status-1 {
+}
+
+.job-management-status.status-1 {
     background-color: #d6f5e4;
     color: #2ECC40;
-  }
-  
-  .job-management-status.status-2 {
+}
+
+.job-management-status.status-2 {
     background-color: #f0f0f0;
     color: #777;
-  }
-  
-  .job-management-actions {
+}
+
+.job-management-actions {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-  }
-  
-  .job-management-actions button {
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.job-management-actions button {
     padding: 8px 16px;
     font-size: 14px;
     border-radius: 8px;
     cursor: pointer;
     transition: 0.2s ease;
-  }
-  
-  .btn-primary {
+}
+
+.btn-primary {
     background-color: var(--main-color);
     color: white;
     border: none;
-  }
-  
-  .btn-primary:hover {
+}
+
+.btn-primary:hover {
     opacity: 0.9;
-  }
-  
-  .btn-secondary {
+}
+
+.btn-secondary {
     background-color: #f2f2f2;
     color: #333;
     border: none;
-  }
-  
-  .btn-secondary:hover {
+}
+
+.btn-secondary:hover {
     background-color: #e0e0e0;
-  }
-  
-  .btn-cancel {
+}
+
+.btn-cancel {
     background-color: #FF4136;
     color: white;
     border: none;
-  }
-  
-  .btn-cancel:hover {
+}
+
+.btn-cancel:hover {
     opacity: 0.9;
-  }
-  
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-box {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: var(--shadow-light);
+    text-align: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.popup-box h4 {
+    margin-bottom: 12px;
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.popup-box p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.popup-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
