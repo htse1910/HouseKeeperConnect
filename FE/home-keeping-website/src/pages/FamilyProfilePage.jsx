@@ -10,6 +10,14 @@ const FamilyProfilePage = () => {
     const [searchParams] = useSearchParams();
     const isDemo = searchParams.get("demo") === "true";
 
+    const authToken = localStorage.getItem("authToken");
+    const accountID = localStorage.getItem("accountID");
+
+    const headers = {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json"
+    };
+
     const [accountInfo, setAccountInfo] = useState(null);
     const [family, setFamily] = useState(null);
     const [jobs, setJobs] = useState([]);
@@ -56,11 +64,8 @@ const FamilyProfilePage = () => {
         setLoading(true);
         setError(null);
 
-        const token = localStorage.getItem("authToken");
-        const accountID = localStorage.getItem("accountID");
-
-        if (!token) {
-            setError("error_auth");
+        if (!authToken) {
+            setError(t("error_auth"));
             setLoading(false);
             return;
         }
@@ -70,11 +75,6 @@ const FamilyProfilePage = () => {
             setLoading(false);
             return;
         }
-
-        const headers = {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        };
 
         // Gọi API để lấy thông tin tài khoản
         axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })

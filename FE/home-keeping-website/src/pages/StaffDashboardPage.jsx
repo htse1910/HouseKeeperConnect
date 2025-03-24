@@ -94,19 +94,19 @@ const StaffDashboardPage = () => {
                     //axios.get(`http://localhost:5280/api/Transaction/Stats`, { headers }) // API thống kê giao dịch
                 ]);
             })
-            .then(([accountRes, newAccountRes/*, jobRes, transactionRes*/]) => {
-                const accountData = accountRes.data;
-                const newAccountData = newAccountRes.data;
+            .then(([accountsRes, newAccountRes/*, jobRes, transactionRes*/]) => {
+                const accountsData = accountsRes.data;
+                const newAccountsData = newAccountRes.data;
                 //const jobData = jobRes.data;
                 //const transactionData = transactionRes.data;
 
-                if (!accountData || !newAccountData /*|| !jobData || !transactionData*/) {
+                if (!accountsData || !newAccountsData /*|| !jobData || !transactionData*/) {
                     throw new Error(t("error_loading"));
                 }
                 setStatsData({
-                    totalHousekeepers: accountData.totalHousekeepers || 0,
-                    totalFamilies: accountData.totalFamilies || 0,
-                    newAccounts7Days: newAccountData.newAccounts7Days || 0,
+                    totalHousekeepers: accountsData.totalHousekeepers || 0,
+                    totalFamilies: accountsData.totalFamilies || 0,
+                    newAccounts7Days: newAccountsData.newAccounts7Days || 0,
                     /*totalJobs: jobData.totalJobs || 0,
                     completedJobs: jobData.completedJobs || 0,
                     completedJobs7Days: jobData.completedJobs7Days || 0,

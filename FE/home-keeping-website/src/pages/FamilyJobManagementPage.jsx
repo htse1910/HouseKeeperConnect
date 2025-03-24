@@ -22,7 +22,7 @@ const generateFakeJobs = () => {
             title: titles[Math.floor(Math.random() * titles.length)],
             location: locations[Math.floor(Math.random() * locations.length)],
             salary: Math.floor(Math.random() * 100000) + 50000,
-            jobType: types[Math.floor(Math.random() * types.length)],
+            jobName: types[Math.floor(Math.random() * types.length)],
             status: statuses[Math.floor(Math.random() * statuses.length)],
             postedDate: new Date(Date.now() - randomDaysAgo * 86400000).toISOString()
         };
@@ -44,13 +44,18 @@ const FamilyJobManagementPage = () => {
     };
 
     const [jobs, setJobs] = useState([]);
+    const [housekeepers, setHousekeepers] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const shouldShowLoadingOrError = loading || error;
 
-    const [filter, setFilter] = useState({ status: "Tất cả", jobType: "Tất cả", date: "" });
-    const [activeTab, setActiveTab] = useState("active");
+    const [filter, setFilter] = useState({
+        status: "all",
+        jobName: "all",
+        date: ""
+    });
+    const [activeTab, setActiveTab] = useState("pending");
 
     const [jobToDelete, setJobToDelete] = useState(null);
 
@@ -67,45 +72,69 @@ const FamilyJobManagementPage = () => {
         setLoading(true);
         setError(null);
 
-        if (!accountID || !authToken) {
-            setError("Thiếu thông tin đăng nhập.");
+        if (!authToken) {
+            setError(t("error_auth"));
             setLoading(false);
             return;
         }
 
-        axios.get(`http://localhost:5280/api/Family/GetFamilyByAccountID?id=${accountID}`, { headers })
-            .then((res) => {
-                const family = res.data;
-                if (!family || !family.familyID) throw new Error("Không tìm thấy thông tin Family.");
+        if (!accountID) {
+            setError(t("error_account"));
+            setLoading(false);
+            return;
+        }
 
-                axios.get(`http://localhost:5280/api/Job/GetJobsByFamilyID?familyID=${family.familyID}`, { headers })
-                    .then((res2) => {
-                        setJobs(res2.data || []);
-                    })
-                    .catch((err) => {
-                        console.error("Lỗi khi lấy danh sách công việc:", err);
-                        setError("Không thể tải công việc.");
-                    })
-                    .finally(() => {
-                        setLoading(false);
-                    });
+        axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+            .then((accountRes) => {
+                const account = accountRes.data;
+                if (!account || !account.accountID) throw new Error(t("error_auth"));
+
+                return axios.get(`http://localhost:5280/api/Families/SearchFamilyByAccountId?accountId=${accountID}`, { headers });
+            })
+            .then((familyResponse) => {
+                const familyData = familyResponse.data?.[0];
+                if (!familyData) throw new Error(t("error_loading"));
+
+                return axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers });
+            })
+            .then((accountsRes) => {
+                const accountsData = accountsRes.data;
+                if (!accountsData) throw new Error("Accounts", t("error_loading"));
+                setHousekeepers(accountsData.totalHousekeepers);
+
+                return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
+            })
+            .then((jobRes) => {
+                setJobs(jobRes.data || []);
             })
             .catch((err) => {
-                console.error("Lỗi khi lấy Family:", err);
-                setError("Không thể tải thông tin người dùng.");
+                console.error("API Error:", err);
+                setError(t("error_loading"));
+            })
+            .finally(() => {
                 setLoading(false);
             });
+
     }, [isDemo]);
 
     const filteredJobs = jobs.filter(job => {
-        const { status, jobType, date } = filter;
-        if (status !== "Tất cả" && job.status.toString() !== status) return false;
-        if (jobType !== "Tất cả" && job.jobType !== jobType) return false;
+        const { status, jobName, date } = filter;
+
+        // Lọc theo dropdown
+        if (status !== "all" && job.status !== parseInt(status)) return false;
+        if (jobName !== "all" && job.jobName !== jobName) return false;
         if (date && job.postedDate.slice(0, 10) !== date) return false;
 
-        if (activeTab === "active") return job.status === 0;
-        if (activeTab === "hired") return job.status === 1;
-        if (activeTab === "completed") return job.status === 2;
+        // Chỉ lọc theo tab nếu dropdown status đang là all
+        if (status === "all") {
+            if (activeTab === "pending" && job.status !== 1) return false;
+            if (activeTab === "verified" && job.status !== 2) return false;
+            if (activeTab === "accepted" && job.status !== 3) return false;
+            if (activeTab === "completed" && job.status !== 4) return false;
+            if (activeTab === "expired" && job.status !== 5) return false;
+            if (activeTab === "canceled" && job.status !== 6) return false;
+        }
+
         return true;
     });
 
@@ -174,6 +203,10 @@ const FamilyJobManagementPage = () => {
         );
     }
 
+    const status4Jobs = jobs.filter((job) => job.status === 4).length;
+    console.log(jobs);
+    console.log(filteredJobs);
+
     return (
         <div className="job-management-page">
             {/* HEADER THỐNG KÊ */}
@@ -181,19 +214,19 @@ const FamilyJobManagementPage = () => {
                 <div className="job-management-stat">
                     <p className="title">{t("jobs_posted")}</p>
                     <div className="value">
-                        15 <i className="fa-solid fa-briefcase icon" />
+                        {jobs.length} <i className="fa-solid fa-briefcase icon" />
                     </div>
                 </div>
                 <div className="job-management-stat">
                     <p className="title">{t("jobs_completed")}</p>
                     <div className="value">
-                        8 <i className="fa-solid fa-check-circle icon" />
+                        {status4Jobs} <i className="fa-solid fa-check-circle icon" />
                     </div>
                 </div>
                 <div className="job-management-stat">
-                    <p className="title">{t("jobs_waiting")}</p>
+                    <p className="title">{t("housekeepers_waiting")}</p>
                     <div className="value">
-                        2M+{" "}
+                        {housekeepers}{" "}
                         <button className="btn-primary-small">{t("post_now")}</button>
                     </div>
                 </div>
@@ -204,17 +237,20 @@ const FamilyJobManagementPage = () => {
                 <div className="job-management-filters">
                     <label>{t("status")}</label>
                     <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
-                        <option value="Tất cả">{t("all")}</option>
-                        <option value="0">{t("recruiting")}</option>
-                        <option value="1">{t("hired")}</option>
-                        <option value="2">{t("completed")}</option>
+                        <option value="all">{t("all")}</option>
+                        <option value="1">{t("job_pending")}</option>
+                        <option value="2">{t("job_verified")}</option>
+                        <option value="3">{t("job_accepted")}</option>
+                        <option value="4">{t("job_completed")}</option>
+                        <option value="5">{t("job_expired")}</option>
+                        <option value="6">{t("job_canceled")}</option>
                     </select>
 
                     <label>{t("job_type")}</label>
-                    <select value={filter.jobType} onChange={(e) => setFilter({ ...filter, jobType: e.target.value })}>
-                        <option value="Tất cả">{t("all_job_types")}</option>
-                        <option value="Dọn dẹp">{t("cleaning")}</option>
-                        <option value="Nấu ăn">{t("cooking")}</option>
+                    <select value={filter.jobName} onChange={(e) => setFilter({ ...filter, jobName: e.target.value })}>
+                        <option value="all">{t("all_job_types")}</option>
+                        <option value="Chăm sóc trẻ">{t("babysitting")}</option>
+                        <option value="Lau dọn nhà cửa">{t("cleaning")}</option>
                     </select>
 
                     <label>{t("date")}</label>
@@ -227,13 +263,20 @@ const FamilyJobManagementPage = () => {
 
                 <div className="job-management-content">
                     <div className="job-management-tabs">
-                        {["active", "hired", "completed"].map((key) => (
+                        {[
+                            { key: "pending", label: t("job_pending") },
+                            { key: "verified", label: t("job_verified") },
+                            { key: "accepted", label: t("job_accepted") },
+                            { key: "completed", label: t("job_completed") },
+                            { key: "expired", label: t("job_expired") },
+                            { key: "canceled", label: t("job_canceled") },
+                        ].map((tab) => (
                             <span
-                                key={key}
-                                className={activeTab === key ? "active-tab" : ""}
-                                onClick={() => setActiveTab(key)}
+                                key={tab.key}
+                                className={activeTab === tab.key ? "active-tab" : ""}
+                                onClick={() => setActiveTab(tab.key)}
                             >
-                                {t(key)}
+                                {tab.label}
                             </span>
                         ))}
                     </div>
@@ -250,12 +293,20 @@ const FamilyJobManagementPage = () => {
                                             <div className="job-management-info">
                                                 <span>📅 {t("posted_days_ago", { days: Math.floor((Date.now() - new Date(job.postedDate)) / 86400000) })}</span>
                                                 <span><FaMapMarkerAlt /> {job.location}</span>
-                                                <span><FaMoneyBillWave /> {job.salary.toLocaleString()} VND/giờ</span>
+                                                <span>
+                                                    <FaMoneyBillWave />{" "}
+                                                    {job.salary != null ? job.salary.toLocaleString("vi-VN") : "Không rõ"} VND/giờ
+                                                </span>
                                             </div>
                                         </div>
 
                                         <div className={`job-management-status-badge status-${job.status}`}>
-                                            {job.status === 0 ? t("recruiting") : job.status === 1 ? t("hired") : t("completed")}
+                                            {job.status === 1 && t("job_pending")}
+                                            {job.status === 2 && t("job_verified")}
+                                            {job.status === 3 && t("job_accepted")}
+                                            {job.status === 4 && t("job_completed")}
+                                            {job.status === 5 && t("job_expired")}
+                                            {job.status === 6 && t("job_canceled")}
                                         </div>
                                     </div>
 
@@ -263,7 +314,7 @@ const FamilyJobManagementPage = () => {
                                         <button className="btn-secondary" onClick={() => navigate(`/family/job/update/${job.jobID}`)}>{t("edit")}</button>
                                         <button className="btn-cancel" onClick={() => handleDeleteClick(job)}>{t("delete")}</button>
                                         <button className="btn-primary" onClick={() => navigate(`/family/job/detail/${job.jobID}`)}>
-                                            {job.status === 0 ? t("view_applicants") : t("view_detail")}
+                                            {job.status === 2 ? t("view_applicants") : t("view_detail")}
                                         </button>
                                     </div>
                                 </div>
