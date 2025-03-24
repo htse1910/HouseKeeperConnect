@@ -33,7 +33,5 @@ namespace BusinessObject.Models
         public bool IsOffered { get; set; }
 
         public virtual Job Job { get; set; }
-
-        public virtual Service Service { get; set; }
     }
 }

@@ -162,7 +162,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             var noti = new Notification();
             noti.AccountID = wi.AccountID;
-            noti.Message = "Bạn đã tạo đơn rút " + wi.Amount +" VND"+ " về STK: " + wi.BankNumber + " thành công!";
+            noti.Message = "Bạn đã tạo đơn rút " + wi.Amount + " VND" + " về STK: " + wi.BankNumber + " thành công!";
 
             await _notificationService.AddNotificationAsync(noti);
             Message = "Withdrawal Requested!";
@@ -208,11 +208,11 @@ namespace HouseKeeperConnect_API.Controllers
             noti.AccountID = wi.AccountID;
             if (wi.Status == (int)WithdrawStatus.Completed)
             {
-                noti.Message = "Bạn đã rút " + wi.Amount +"VND"+ " về STK: " + wi.BankNumber + " thành công!";
+                noti.Message = "Bạn đã rút " + wi.Amount + "VND" + " về STK: " + wi.BankNumber + " thành công!";
             }
             else
             {
-                noti.Message = "Rút tiền thất bại. " + (int)wi.Amount +" VND"+ " đã được hoàn về ví của bạn! Vui lòng thử lại hoặc liên hệ hỗ trợ!";
+                noti.Message = "Rút tiền thất bại. " + (int)wi.Amount + " VND" + " đã được hoàn về ví của bạn! Vui lòng thử lại hoặc liên hệ hỗ trợ!";
             }
 
             await _notificationService.AddNotificationAsync(noti);

@@ -3,9 +3,7 @@ using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
-using System.Drawing.Printing;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -81,7 +79,6 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(displayFamily);
         }
-
 
         [HttpGet("SearchFamily")]
         [Authorize]
