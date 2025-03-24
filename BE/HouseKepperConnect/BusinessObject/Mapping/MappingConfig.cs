@@ -45,6 +45,7 @@ namespace BusinessObject.Mapping
             Map_Display_Notification();
             Map_Create_Notification();
             Map_Create_Job_Service();
+            Map_Create_Job_Slots();
         }
 
         private void Map_List_Register()
@@ -239,6 +240,11 @@ namespace BusinessObject.Mapping
         private void Map_Create_Job_Service()
         {
             CreateMap<Job_ServiceCreateDTO, Job_Service>();
+        }
+
+        private void Map_Create_Job_Slots()
+        {
+            CreateMap<Job_SlotsCreateDTO, Job_Slots>();
         }
     }
 }

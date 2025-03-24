@@ -43,5 +43,11 @@ namespace BusinessObject.DTO
 
         [Required]
         public List<int> ServiceIDs { get; set; }
+
+        [Required]
+        public List<int> SlotIDs { get; set; }
+
+        [Required]
+        public List<int> DayofWeek { get; set; }
     }
 }

@@ -44,6 +44,8 @@ public static class ServiceExtentions
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IJob_ServiceRepository, Job_ServiceRepository>();
         services.AddScoped<IJob_ServiceService, Job_ServiceService>();
+        services.AddScoped<IJob_SlotsRepository, Job_SlotsRepository>();
+        services.AddScoped<IJob_SlotsService, Job_SlotsService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

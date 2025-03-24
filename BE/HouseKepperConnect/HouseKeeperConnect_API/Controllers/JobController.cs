@@ -15,13 +15,15 @@ namespace HouseKeeperConnect_API.Controllers
     {
         private readonly IJobService _jobService;
         private readonly IJob_ServiceService _jobServiceService;
+        private readonly IJob_SlotsService _jobSlotsService;
         private string Message;
         private readonly IMapper _mapper;
 
-        public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService)
+        public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService)
         {
             _jobService = jobService;
             _jobServiceService = job_ServiceService;
+            _jobSlotsService = job_SlotsService;
             _mapper = mapper;
         }
 
@@ -93,6 +95,21 @@ namespace HouseKeeperConnect_API.Controllers
                 };
 
                 await _jobServiceService.AddJob_ServiceAsync(jobService);
+            }
+            // Add job slot ids
+            foreach (var slotID in jobCreateDTO.SlotIDs)
+            {
+                foreach (var day in jobCreateDTO.DayofWeek)
+                {
+                    var jobSlot = new Job_Slots
+                    {
+                        JobID = job.JobID,
+                        SlotID = slotID,
+                        DayOfWeek = day
+                    };
+
+                    await _jobSlotsService.AddJob_SlotsAsync(jobSlot);
+                }
             }
 
             return Ok("Job and its details added successfully!");
