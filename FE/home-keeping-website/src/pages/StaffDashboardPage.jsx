@@ -20,6 +20,8 @@ const StaffDashboardPage = () => {
     const [error, setError] = useState(null);
     const [userName, setUserName] = useState("");
 
+    const shouldShowLoadingOrError = loading || error;
+
     useEffect(() => {
         const storedName = localStorage.getItem("userName") || t("staff");
         setUserName(storedName);
@@ -121,26 +123,6 @@ const StaffDashboardPage = () => {
             });
     }, [isDemo]);
 
-    if (loading) {
-        return (
-            <div className="dashboard-container">
-                <span className="icon-loading"></span>
-                <p>{t("loading_data")}</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="dashboard-container">
-                <p className="error">❌ {error}</p>
-                <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                    {t("view_demo")}
-                </button>
-            </div>
-        );
-    }
-
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             return (
@@ -155,6 +137,29 @@ const StaffDashboardPage = () => {
         }
         return null;
     };
+
+    if (shouldShowLoadingOrError) {
+        return (
+            <div className="dashboard-container">
+                {loading && (
+                    <>
+                        <span className="icon-loading"></span>
+                        <p>{t("loading_data")}</p>
+                    </>
+                )}
+                {error && (
+                    <>
+                        <p className="error">❌ {error}</p>
+                        {!isDemo && (
+                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
+                                {t("view_demo")}
+                            </button>
+                        )}
+                    </>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="dashboard-container">

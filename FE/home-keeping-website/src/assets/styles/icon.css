@@ -24,3 +24,34 @@
 .star-icon.filled {
   color: var(--warning-color);
 }
+
+.btn-back-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  background-color: var(--main-color);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-light);
+  cursor: pointer;
+  z-index: 100;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.btn-back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.btn-back-to-top:hover {
+  transform: translateY(-2px);
+}

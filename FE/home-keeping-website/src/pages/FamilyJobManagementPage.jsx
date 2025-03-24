@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
 import "../assets/styles/Job.css";
@@ -29,17 +29,32 @@ const generateFakeJobs = () => {
     });
 };
 
-const FamilyJobManagePage = () => {
+const FamilyJobManagementPage = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const isDemo = searchParams.get("demo") === "true";
+
+    const accountID = localStorage.getItem("accountID");
+    const authToken = localStorage.getItem("authToken");
+
+    const headers = {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json"
+    };
 
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const shouldShowLoadingOrError = loading || error;
+
     const [filter, setFilter] = useState({ status: "Tất cả", jobType: "Tất cả", date: "" });
     const [activeTab, setActiveTab] = useState("active");
+
+    const [jobToDelete, setJobToDelete] = useState(null);
+
+    const [showBackToTop, setShowBackToTop] = useState(false);
 
     useEffect(() => {
         if (isDemo) {
@@ -52,19 +67,11 @@ const FamilyJobManagePage = () => {
         setLoading(true);
         setError(null);
 
-        const accountID = localStorage.getItem("accountID");
-        const authToken = localStorage.getItem("authToken");
-
         if (!accountID || !authToken) {
             setError("Thiếu thông tin đăng nhập.");
             setLoading(false);
             return;
         }
-
-        const headers = {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json"
-        };
 
         axios.get(`http://localhost:5280/api/Family/GetFamilyByAccountID?id=${accountID}`, { headers })
             .then((res) => {
@@ -90,28 +97,6 @@ const FamilyJobManagePage = () => {
             });
     }, [isDemo]);
 
-    if (loading) {
-        return (
-            <div className="dashboard-container">
-                <span className="icon-loading"></span>
-                <p>{t("loading_data")}</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="dashboard-container">
-                <p className="error">❌ {error}</p>
-                {!isDemo && (
-                    <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                        {t("view_demo")}
-                    </button>
-                )}
-            </div>
-        );
-    }
-
     const filteredJobs = jobs.filter(job => {
         const { status, jobType, date } = filter;
         if (status !== "Tất cả" && job.status.toString() !== status) return false;
@@ -123,6 +108,71 @@ const FamilyJobManagePage = () => {
         if (activeTab === "completed") return job.status === 2;
         return true;
     });
+
+    const handleDeleteClick = (job) => {
+        setJobToDelete(job);
+    };
+
+    const confirmDelete = async () => {
+        if (!jobToDelete) return;
+
+        try {
+            await axios.delete(`http://localhost:5280/api/Job/DeleteJob`, {
+                headers,
+                params: { id: jobToDelete.jobID }
+            });
+
+            setJobs((prev) => prev.filter((j) => j.jobID !== jobToDelete.jobID));
+            setJobToDelete(null);
+        } catch (err) {
+            console.error("Lỗi xoá công việc:", err);
+            alert("Không thể xoá công việc. Vui lòng thử lại.");
+        }
+    };
+
+    const cancelDelete = () => {
+        setJobToDelete(null);
+    };
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrollY = window.scrollY;
+            setShowBackToTop(scrollY > 150);
+        };
+
+        if (typeof window !== "undefined") {
+            window.addEventListener("scroll", handleScroll);
+        }
+
+        return () => {
+            if (typeof window !== "undefined") {
+                window.removeEventListener("scroll", handleScroll);
+            }
+        };
+    }, []);
+
+    if (shouldShowLoadingOrError) {
+        return (
+            <div className="job-container">
+                {loading && (
+                    <>
+                        <span className="icon-loading"></span>
+                        <p>{t("loading_data")}</p>
+                    </>
+                )}
+                {error && (
+                    <>
+                        <p className="error">❌ {error}</p>
+                        {!isDemo && (
+                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
+                                {t("view_demo")}
+                            </button>
+                        )}
+                    </>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="job-management-page">
@@ -194,19 +244,25 @@ const FamilyJobManagePage = () => {
                         <div className="job-management-list">
                             {filteredJobs.map((job) => (
                                 <div key={job.jobID} className="job-management-card">
-                                    <h3 className="job-management-title">{job.title}</h3>
-                                    <div className="job-management-info">
-                                        <span>📅 {t("posted_days_ago", { days: Math.floor((Date.now() - new Date(job.postedDate)) / 86400000) })}</span>
-                                        <span><FaMapMarkerAlt /> {job.location}</span>
-                                        <span><FaMoneyBillWave /> {job.salary.toLocaleString()} VND/giờ</span>
+                                    <div className="job-management-card-top">
+                                        <div className="job-management-left">
+                                            <h3 className="job-management-title">{job.title}</h3>
+                                            <div className="job-management-info">
+                                                <span>📅 {t("posted_days_ago", { days: Math.floor((Date.now() - new Date(job.postedDate)) / 86400000) })}</span>
+                                                <span><FaMapMarkerAlt /> {job.location}</span>
+                                                <span><FaMoneyBillWave /> {job.salary.toLocaleString()} VND/giờ</span>
+                                            </div>
+                                        </div>
+
+                                        <div className={`job-management-status-badge status-${job.status}`}>
+                                            {job.status === 0 ? t("recruiting") : job.status === 1 ? t("hired") : t("completed")}
+                                        </div>
                                     </div>
-                                    <div className={`job-management-status status-${job.status}`}>
-                                        {job.status === 0 ? t("recruiting") : job.status === 1 ? t("hired") : t("completed")}
-                                    </div>
+
                                     <div className="job-management-actions">
-                                        <button className="btn-secondary">{t("edit")}</button>
-                                        <button className="btn-cancel">{t("delete")}</button>
-                                        <button className="btn-primary">
+                                        <button className="btn-secondary" onClick={() => navigate(`/family/job/update/${job.jobID}`)}>{t("edit")}</button>
+                                        <button className="btn-cancel" onClick={() => handleDeleteClick(job)}>{t("delete")}</button>
+                                        <button className="btn-primary" onClick={() => navigate(`/family/job/detail/${job.jobID}`)}>
                                             {job.status === 0 ? t("view_applicants") : t("view_detail")}
                                         </button>
                                     </div>
@@ -216,9 +272,31 @@ const FamilyJobManagePage = () => {
                     )}
                 </div>
             </div>
+
+            {jobToDelete && (
+                <div className="popup-overlay">
+                    <div className="popup-box">
+                        <h4>{t("confirm_delete_title")}</h4>
+                        <p>{t("confirm_delete_text", { title: jobToDelete.title })}</p>
+                        <div className="popup-actions">
+                            <button onClick={confirmDelete} className="btn-cancel">{t("confirm")}</button>
+                            <button onClick={cancelDelete} className="btn-secondary">{t("cancel")}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showBackToTop && (
+                <button
+                    className={`btn-back-to-top show`}
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                >
+                    <i className="fa-solid fa-arrow-up" /> {t("back_to_top")}
+                </button>
+            )}
         </div>
     );
 
 };
 
-export default FamilyJobManagePage;
+export default FamilyJobManagementPage;
