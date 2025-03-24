@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250324112731_Fix_JobDetail")]
+    partial class Fix_JobDetail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -600,8 +603,11 @@ namespace BusinessObject.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RedirectUrl")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("NotificationsID");
 
@@ -1309,7 +1315,7 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.Notification", b =>
                 {
                     b.HasOne("BusinessObject.Models.Account", "Account")
-                        .WithMany("Notification")
+                        .WithMany()
                         .HasForeignKey("AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1470,8 +1476,6 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.Account", b =>
                 {
-                    b.Navigation("Notification");
-
                     b.Navigation("Wallet")
                         .IsRequired();
                 });

@@ -6,7 +6,7 @@ namespace BusinessObject.DTO
     {
         // Job fields
         [Required]
-        public int AccountID { get; set; }
+        public int FamilyID { get; set; } // Updated from AccountID to match Job.cs
 
         [Required]
         [StringLength(255, ErrorMessage = "Job name cannot exceed 255 characters.")]
@@ -14,19 +14,12 @@ namespace BusinessObject.DTO
 
         // JobDetail fields
         [Required]
-        [StringLength(100, ErrorMessage = "Frequency cannot exceed 100 characters.")]
-        public string Frequency { get; set; }
-
-        [Required]
         [StringLength(255, ErrorMessage = "Location cannot exceed 255 characters.")]
         public string Location { get; set; }
 
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Price must be at least 0.")]
         public decimal Price { get; set; }
-
-        [Required]
-        public int ServiceID { get; set; }
 
         [Required]
         public DateTime StartDate { get; set; }
@@ -44,5 +37,11 @@ namespace BusinessObject.DTO
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "End slot must be a positive integer.")]
         public int EndSlot { get; set; }
+
+        [Required]
+        public bool IsOffered { get; set; }
+
+        [Required]
+        public List<int> ServiceIDs { get; set; }
     }
 }

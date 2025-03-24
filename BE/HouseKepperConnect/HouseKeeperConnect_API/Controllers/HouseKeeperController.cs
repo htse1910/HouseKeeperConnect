@@ -56,7 +56,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetHousekeeperByAccountID")]
-        [Authorize(Policy ="Housekeeper")]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult<HouseKeeperDisplayDTO>> getHKByAccountID([FromQuery] int id)
         {
             var acc = await _accountService.GetAccountByIDAsync(id);

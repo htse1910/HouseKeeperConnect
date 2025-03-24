@@ -93,7 +93,6 @@ namespace HouseKeeperConnect_API.Controllers
             [FromQuery] int housekeeperId,
             [FromQuery] int familyId,
             [FromQuery] int serviceId,
-            [FromQuery] DateTime scheduledDate,
             [FromQuery] int bookingStatus
         )
         {

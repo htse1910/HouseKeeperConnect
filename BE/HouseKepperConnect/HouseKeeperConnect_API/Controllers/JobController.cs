@@ -14,12 +14,14 @@ namespace HouseKeeperConnect_API.Controllers
     public class JobController : ControllerBase
     {
         private readonly IJobService _jobService;
+        private readonly IJob_ServiceService _jobServiceService;
         private string Message;
         private readonly IMapper _mapper;
 
-        public JobController(IJobService jobService, IMapper mapper)
+        public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService)
         {
             _jobService = jobService;
+            _jobServiceService = job_ServiceService;
             _mapper = mapper;
         }
 
@@ -81,6 +83,17 @@ namespace HouseKeeperConnect_API.Controllers
             jobDetail.JobID = job.JobID;
             // Add job details
             await _jobService.AddJobDetailAsync(jobDetail);
+            //Add job service ids
+            foreach (var serviceID in jobCreateDTO.ServiceIDs)
+            {
+                var jobService = new Job_Service
+                {
+                    JobID = job.JobID,
+                    ServiceID = serviceID
+                };
+
+                await _jobServiceService.AddJob_ServiceAsync(jobService);
+            }
 
             return Ok("Job and its details added successfully!");
         }

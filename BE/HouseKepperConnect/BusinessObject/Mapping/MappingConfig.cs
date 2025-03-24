@@ -44,6 +44,7 @@ namespace BusinessObject.Mapping
             Map_Display_Transaction();
             Map_Display_Notification();
             Map_Create_Notification();
+            Map_Create_Job_Service();
         }
 
         private void Map_List_Register()
@@ -88,7 +89,6 @@ namespace BusinessObject.Mapping
         {
             CreateMap<FamilyDisplayDTO, Family>().ReverseMap();
             CreateMap<FamilyDisplayDTO, Account>().ReverseMap();
-
         }
 
         private void Map_Update_Family()
@@ -234,6 +234,11 @@ namespace BusinessObject.Mapping
         private void Map_Create_Notification()
         {
             CreateMap<NotificationCreateDTO, Notification>();
+        }
+
+        private void Map_Create_Job_Service()
+        {
+            CreateMap<Job_ServiceCreateDTO, Job_Service>();
         }
     }
 }
