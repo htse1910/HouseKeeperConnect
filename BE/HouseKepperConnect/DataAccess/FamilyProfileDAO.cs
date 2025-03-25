@@ -75,22 +75,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Family>> SearchFamilysByNameAsync(string name)
-        {
-            var list = new List<Family>();
-            try
-            {
-                using (var context = new PCHWFDBContext())
-                {
-                    list = await context.Family.Where(u => u.Nickname.Contains(name)).ToListAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return list;
-        }
+        
 
         public async Task AddFamilyAsync(Family Family)
         {

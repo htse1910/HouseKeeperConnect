@@ -12,7 +12,10 @@
         public int ReportStatus { get; set; }
 
         public int? ReviewByID { get; set; }
-        public virtual Account ReviewBy { get; set; }
+        public DateTime? ReviewedAt { get; set; } 
+
+        public string? StaffResponse { get; set; }
+        public virtual Account? ReviewBy { get; set; }
         public virtual Booking Booking { get; set; }
         public virtual Account Account { get; set; }
     }

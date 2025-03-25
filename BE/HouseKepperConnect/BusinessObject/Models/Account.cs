@@ -35,6 +35,8 @@ namespace BusinessObject.Models
         public int Status { get; set; }
 
         public string? Introduction { get; set; }
+        public string? Gender { get; set; }
+        public string? Nickname { get; set; }
 
         public virtual Role Role { get; set; }
         public virtual Wallet Wallet { get; set; }

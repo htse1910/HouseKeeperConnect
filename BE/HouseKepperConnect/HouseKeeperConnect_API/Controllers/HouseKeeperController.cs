@@ -289,7 +289,7 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(trans);
         }
 
-        [HttpPost("update-verification-status")]
+        [HttpPost("UpdateVerificationStatus")]
         [Authorize]
         public async Task<IActionResult> UpdateVerificationStatus([FromQuery] int housekeeperId, [FromQuery] bool isVerified)
         {
@@ -306,15 +306,15 @@ namespace HouseKeeperConnect_API.Controllers
                 noti.AccountID = acc.AccountID;
                 if (isVerified == true)
                 {
-                    noti.Message = "Thông tin trắc học không hợp lệ, vui lòng kiểm tra lại!";
+                    noti.Message = "Invalid information, please check again";
                 }
                 else
                 {
-                    noti.Message = "Thông tin trắc học xác nhận thành công!";
+                    noti.Message = "Confirmation information successful!";
                 }
 
                 await _notificationService.AddNotificationAsync(noti);
-                Message = "Tài khoản của bạn đã được xác nhận!";
+                Message = "Your account has been verified!";
                 return Ok(Message);
             }
             catch (Exception ex)

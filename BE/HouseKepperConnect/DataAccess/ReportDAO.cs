@@ -1,5 +1,6 @@
 ﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace DataAccess
 {
@@ -50,6 +51,20 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     return await context.Report.FirstOrDefaultAsync(r => r.ReportID == rID);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<List<Report>> GetReportsByAccountAsync(int accountId)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Report.Where(r => r.AccountID == accountId).ToListAsync();
                 }
             }
             catch (Exception ex)
