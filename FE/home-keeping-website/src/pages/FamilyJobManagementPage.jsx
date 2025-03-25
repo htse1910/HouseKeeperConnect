@@ -55,8 +55,6 @@ const FamilyJobManagementPage = () => {
         jobName: "all",
         date: ""
     });
-    const [activeTab, setActiveTab] = useState("pending");
-
     const [jobToDelete, setJobToDelete] = useState(null);
 
     const [showBackToTop, setShowBackToTop] = useState(false);
@@ -124,16 +122,6 @@ const FamilyJobManagementPage = () => {
         if (status !== "all" && job.status !== parseInt(status)) return false;
         if (jobName !== "all" && job.jobName !== jobName) return false;
         if (date && job.postedDate.slice(0, 10) !== date) return false;
-
-        // Chỉ lọc theo tab nếu dropdown status đang là all
-        if (status === "all") {
-            if (activeTab === "pending" && job.status !== 1) return false;
-            if (activeTab === "verified" && job.status !== 2) return false;
-            if (activeTab === "accepted" && job.status !== 3) return false;
-            if (activeTab === "completed" && job.status !== 4) return false;
-            if (activeTab === "expired" && job.status !== 5) return false;
-            if (activeTab === "canceled" && job.status !== 6) return false;
-        }
 
         return true;
     });
@@ -263,22 +251,7 @@ const FamilyJobManagementPage = () => {
 
                 <div className="job-management-content">
                     <div className="job-management-tabs">
-                        {[
-                            { key: "pending", label: t("job_pending") },
-                            { key: "verified", label: t("job_verified") },
-                            { key: "accepted", label: t("job_accepted") },
-                            { key: "completed", label: t("job_completed") },
-                            { key: "expired", label: t("job_expired") },
-                            { key: "canceled", label: t("job_canceled") },
-                        ].map((tab) => (
-                            <span
-                                key={tab.key}
-                                className={activeTab === tab.key ? "active-tab" : ""}
-                                onClick={() => setActiveTab(tab.key)}
-                            >
-                                {tab.label}
-                            </span>
-                        ))}
+                        <span className="active-tab">{t("jobs_posted")}</span>
                     </div>
 
                     {filteredJobs.length === 0 ? (

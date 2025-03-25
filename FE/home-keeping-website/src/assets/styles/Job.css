@@ -301,20 +301,35 @@
     white-space: nowrap;
 }
 
-.job-management-status-badge.status-0 {
-    background-color: #e7f1ff;
-    color: #007bff;
-}
-
 .job-management-status-badge.status-1 {
-    background-color: #d6f5e4;
-    color: #2ECC40;
-}
-
-.job-management-status-badge.status-2 {
     background-color: #f0f0f0;
     color: #777;
-}
+  }
+  
+  .job-management-status-badge.status-2 {
+    background-color: #e7f1ff;
+    color: #007bff;
+  }
+  
+  .job-management-status-badge.status-3 {
+    background-color: #fff5e6;
+    color: var(--main-color);
+  }
+  
+  .job-management-status-badge.status-4 {
+    background-color: #d6f5e4;
+    color: var(--success-color);
+  }
+  
+  .job-management-status-badge.status-5 {
+    background-color: #FFF8E7;
+    color: var(--main-color);
+  }
+  
+  .job-management-status-badge.status-6 {
+    background-color: #FFE4E4;
+    color: var(--cancel-color);
+  }  
 
 .job-management-title {
     font-size: 18px;
