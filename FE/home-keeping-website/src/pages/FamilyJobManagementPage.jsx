@@ -47,8 +47,10 @@ const FamilyJobManagementPage = () => {
     const [isNoJob, setIsNoJob] = useState(false);
 
     const [jobs, setJobs] = useState([]);
-    const [housekeepers, setHousekeepers] = useState(null);
     const [services, setServices] = useState([]);
+    const [jobServices, setJobServices] = useState([]);
+
+    const [housekeepers, setHousekeepers] = useState(null);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -89,6 +91,9 @@ const FamilyJobManagementPage = () => {
             return;
         }
 
+        let tempServices = [];
+        let tempJobServices = [];
+
         axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
             .then((accountRes) => {
                 const account = accountRes.data;
@@ -103,33 +108,50 @@ const FamilyJobManagementPage = () => {
                     throw new Error("NO_PROFILE");
                 }
 
-                return axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers });
-            })
-            .then((accountsRes) => {
-                const accountsData = accountsRes.data;
-                if (!accountsData) throw new Error("Accounts", t("error_loading"));
-                setHousekeepers(accountsData.totalHousekeepers);
+                const getJobServicesSafe = () =>
+                    axios.get(`http://localhost:5280/api/Job_Service/Job_ServiceList`, { headers })
+                        .then(res => Array.isArray(res.data) ? res.data : [])
+                        .catch(err => {
+                            console.warn("Không thể tải Job_ServiceList:", err.message);
+                            return [];
+                        });
 
-                return axios.get(`http://localhost:5280/api/Service/ServiceList`, { headers });
+                return Promise.all([
+                    axios.get(`http://localhost:5280/api/Service/ServiceList`, { headers }),
+                    getJobServicesSafe(),
+                    axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers })
+                ]);
             })
-            .then((serviceRes) => {
-                const serviceList = serviceRes.data || [];
-                setServices(serviceList);
+            .then(([serviceRes, jobServiceData, totalAccountRes]) => {
+                tempServices = serviceRes.data || [];
+                tempJobServices = jobServiceData || [];
+                setServices(tempServices);
+                setJobServices(tempJobServices);
+
+                const totalAccounts = totalAccountRes.data;
+                setHousekeepers(totalAccounts.totalHousekeepers || 0);
 
                 return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
             })
             .then((jobRes) => {
                 const rawJobs = jobRes.data || [];
 
+                const serviceMapByJob = {};
+                tempJobServices.forEach(({ jobID, serviceID }) => {
+                    if (!serviceMapByJob[jobID]) serviceMapByJob[jobID] = [];
+                    serviceMapByJob[jobID].push(serviceID);
+                });
+
                 const enrichedJobs = rawJobs.map((job) => {
-                    const matchedServices = services.filter((s) =>
-                        job.serviceIDs?.includes(s.serviceID)
-                    );
+                    const serviceIDs = serviceMapByJob[job.jobID] || [];
+                    const serviceNames = serviceIDs
+                        .map(id => tempServices.find(s => s.serviceID === id)?.serviceName)
+                        .filter(Boolean);
 
                     return {
                         ...job,
-                        jobTypeList: matchedServices.map((s) => s.serviceName),
-                        jobType: matchedServices[0]?.serviceName || "Không rõ", // chỉ để hiển thị nhanh
+                        jobTypeList: serviceNames,
+                        jobType: serviceNames.join(", ") || "Không rõ"
                     };
                 });
 
@@ -225,6 +247,15 @@ const FamilyJobManagementPage = () => {
         );
     }
 
+    const JOB_STATUS_MAP = {
+        1: t("job_pending"),
+        2: t("job_verified"),
+        3: t("job_accepted"),
+        4: t("job_completed"),
+        5: t("job_expired"),
+        6: t("job_canceled"),
+    };
+
     const status4Jobs = jobs.filter((job) => job.status === 4).length;
     console.log(jobs);
     console.log(filteredJobs);
@@ -262,12 +293,9 @@ const FamilyJobManagementPage = () => {
                     <label>{t("status")}</label>
                     <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
                         <option value="all">{t("all")}</option>
-                        <option value="1">{t("job_pending")}</option>
-                        <option value="2">{t("job_verified")}</option>
-                        <option value="3">{t("job_accepted")}</option>
-                        <option value="4">{t("job_completed")}</option>
-                        <option value="5">{t("job_expired")}</option>
-                        <option value="6">{t("job_canceled")}</option>
+                        {Object.entries(JOB_STATUS_MAP).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
+                        ))}
                     </select>
 
                     <label>{t("job_type")}</label>
@@ -324,12 +352,7 @@ const FamilyJobManagementPage = () => {
                                         </div>
 
                                         <div className={`job-management-status-badge status-${job.status}`}>
-                                            {job.status === 1 && t("job_pending")}
-                                            {job.status === 2 && t("job_verified")}
-                                            {job.status === 3 && t("job_accepted")}
-                                            {job.status === 4 && t("job_completed")}
-                                            {job.status === 5 && t("job_expired")}
-                                            {job.status === 6 && t("job_canceled")}
+                                            {JOB_STATUS_MAP[job.status]}
                                         </div>
                                     </div>
 
