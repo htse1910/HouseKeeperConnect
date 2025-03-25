@@ -24,9 +24,6 @@ namespace Services
         public async Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId) =>
             await _bookingRepository.GetBookingsByHousekeeperIDAsync(housekeeperId);
 
-        public async Task<List<Booking>> GetBookingsByFamilyIDAsync(int familyId) =>
-            await _bookingRepository.GetBookingsByFamilyIDAsync(familyId);
-
         public async Task<List<Booking>> GetBookingsByJobIDAsync(int jobId) =>
             await _bookingRepository.GetBookingsByJobIDAsync(jobId);
 

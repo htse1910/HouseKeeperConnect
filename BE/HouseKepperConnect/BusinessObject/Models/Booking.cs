@@ -18,15 +18,6 @@ namespace BusinessObject.Models
         [ForeignKey("Family")]
         public int FamilyID { get; set; }
 
-        [ForeignKey("Service")]
-        public int ServiceID { get; set; }
-
-        [Required]
-        public DateTime StartDate { get; set; }
-
-        [Required]
-        public DateTime EndDate { get; set; }
-
         [Required]
         public DateTime CreatedAt { get; set; }
 
@@ -36,6 +27,5 @@ namespace BusinessObject.Models
         public virtual Job Job { get; set; }
         public virtual Housekeeper Housekeeper { get; set; }
         public virtual Family Family { get; set; }
-        public virtual Service Service { get; set; }
     }
 }
