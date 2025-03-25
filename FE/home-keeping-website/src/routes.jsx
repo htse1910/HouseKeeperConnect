@@ -24,6 +24,7 @@ import UserVerificationPage from './pages/UserVerificationPage';
 import StaffJobModerationPage from './pages/StaffJobModerationPage';
 import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage'; // ✅ Import new page
 import FamilyHousekeeperSearchPage from './pages/FamilyHousekeeperSearchPage';
+import FamilyTransactionPage from './pages/FamilyTransactionPage';
 import HousekeeperScheduleManagement from './pages/HousekeeperScheduleManagement';
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
 import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
@@ -71,6 +72,7 @@ function AppRoutes() {
         <Route path="/job-posting" element={<FamilyJobPostingPage />} />
         <Route path="/my-posts" element={<FamilyJobManagementPage />} />
         <Route path="/family/job/detail/:id" element={<JobDetailsPage />} />
+        <Route path="/family/transaction" element={<FamilyTransactionPage />} />
       </Routes>
     </Layout>
   );
