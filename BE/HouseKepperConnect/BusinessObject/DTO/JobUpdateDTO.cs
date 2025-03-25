@@ -23,5 +23,6 @@
         public int? StartSlot { get; set; }
 
         public int? EndSlot { get; set; }
+        public int? HousekeeperID { get; set; }
     }
 }
