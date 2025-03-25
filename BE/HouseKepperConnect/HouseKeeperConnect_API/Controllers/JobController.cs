@@ -5,6 +5,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -16,15 +17,17 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IJobService _jobService;
         private readonly IJob_ServiceService _jobServiceService;
         private readonly IJob_SlotsService _jobSlotsService;
+        private readonly IBookingService _bookingService;
         private string Message;
         private readonly IMapper _mapper;
 
-        public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService)
+        public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService)
         {
             _jobService = jobService;
             _jobServiceService = job_ServiceService;
             _jobSlotsService = job_SlotsService;
             _mapper = mapper;
+            _bookingService = bookingService;
         }
 
         [HttpGet("JobList")]
@@ -157,6 +160,20 @@ namespace HouseKeeperConnect_API.Controllers
 
                     await _jobSlotsService.AddJob_SlotsAsync(jobSlot);
                 }
+            }
+            // Create Booking if isOffered = true**
+            if (jobCreateDTO.IsOffered && jobCreateDTO.HousekeeperID.HasValue)
+            {
+                var newBooking = new Booking
+                {
+                    JobID = job.JobID,
+                    HousekeeperID = jobCreateDTO.HousekeeperID.Value,
+                    FamilyID = jobCreateDTO.FamilyID,
+                    CreatedAt = DateTime.UtcNow,
+                    BookingStatus = (int)BookingStatus.Pending
+                };
+
+                await _bookingService.AddBookingAsync(newBooking);
             }
 
             return Ok("Job and its details added successfully!");
