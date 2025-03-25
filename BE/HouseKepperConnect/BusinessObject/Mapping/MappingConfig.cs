@@ -46,6 +46,7 @@ namespace BusinessObject.Mapping
             Map_Create_Notification();
             Map_Create_Job_Service();
             Map_Create_Job_Slots();
+            Map_Display_Job();
         }
 
         private void Map_List_Register()
@@ -245,6 +246,12 @@ namespace BusinessObject.Mapping
         private void Map_Create_Job_Slots()
         {
             CreateMap<Job_SlotsCreateDTO, Job_Slots>();
+        }
+
+        private void Map_Display_Job()
+        {
+            CreateMap<JobDisplayDTO, Job>().ReverseMap();
+            CreateMap<JobDisplayDTO, JobDetail>().ReverseMap();
         }
     }
 }

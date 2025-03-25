@@ -1,24 +1,30 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BusinessObject.DTO
 {
-    public class JobCreateDTO
+    public class JobDisplayDTO
     {
-        // Job fields
-        [Required]
-        public int FamilyID { get; set; } // Updated from AccountID to match Job.cs
+        public int JobID { get; set; }
 
-        [Required]
-        [StringLength(255, ErrorMessage = "Job name cannot exceed 255 characters.")]
+        public int FamilyID { get; set; }
+
+        [Required, MaxLength(255)]
         public string JobName { get; set; }
 
-        // JobDetail fields
+        public int Status { get; set; }
+
         [Required]
-        [StringLength(255, ErrorMessage = "Location cannot exceed 255 characters.")]
+        [StringLength(255)]
         public string Location { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Price must be at least 0.")]
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
 
         [Required]
@@ -27,7 +33,7 @@ namespace BusinessObject.DTO
         [Required]
         public DateTime EndDate { get; set; }
 
-        [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
+        [StringLength(500)]
         public string Description { get; set; }
 
         [Required]
