@@ -54,6 +54,53 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(job);
         }
 
+        [HttpGet("GetJobDetailByID")]
+        [Authorize]
+        public async Task<ActionResult<JobDisplayDTO>> GetJobDetailByID([FromQuery] int id)
+        {
+            var job = await _jobService.GetJobByIDAsync(id);
+            if (job == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+            if (jobDetail == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+
+            var services = new List<int>();
+            var slots = new List<int>();
+            var days = new List<int>();
+
+            var JobSlotDay = await _jobSlotsService.GetAllJob_SlotsAsync();
+            var JobService = await _jobServiceService.GetAllJob_ServicesAsync();
+
+            /*            foreach ( var SlotDay in JobSlotDay)
+                        {
+                            slots.Add(SlotDay.SlotID);
+                            days.Add(SlotDay.DayOfWeek);
+                        }
+
+                        foreach ( var ser in JobService)
+                        {
+                            services.Add(ser.ServiceID);
+                        }*/
+
+            var displayDTO = new JobDisplayDTO();
+
+            _mapper.Map(job, displayDTO);
+            _mapper.Map(jobDetail, displayDTO);
+
+            displayDTO.SlotIDs = JobSlotDay.Select(slot => slot.SlotID).Distinct().ToList();
+            displayDTO.DayofWeek = JobSlotDay.Select(slot => slot.DayOfWeek).Distinct().ToList();
+            displayDTO.ServiceIDs = JobService.Select(service => service.ServiceID).Distinct().ToList();
+
+            return Ok(displayDTO);
+        }
+
         [HttpGet("GetJobsByAccountID")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<Job>>> GetJobsByAccountID([FromQuery] int accountId)
