@@ -80,20 +80,7 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(displayFamily);
         }
 
-        [HttpGet("SearchFamily")]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<FamilyDisplayDTO>>> SearchFamiliesByName([FromQuery] string name)
-        {
-            var families = await _familyService.SearchFamilysByNameAsync(name);
-            var familyDTOs = _mapper.Map<List<FamilyDisplayDTO>>(families);
-
-            if (familyDTOs.Count == 0)
-            {
-                Message = "No families found!";
-                return NotFound(Message);
-            }
-            return Ok(familyDTOs);
-        }
+        
 
         [HttpPost("AddFamilyProfile")]
         [Authorize(Policy = "Family")]
@@ -176,7 +163,7 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound("No family profile found!");
                 }
 
-                Family.Nickname = familyDTO.Nickname;
+               
 
                 await _familyService.UpdateFamilyAsync(Family);
 
