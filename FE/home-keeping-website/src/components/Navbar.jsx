@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import "../assets/styles/Navbar.css";
 import logo from "../assets/images/logo.png";
-import { FaGlobe, FaSearch, FaBars, FaCaretDown, FaUser, FaSignOutAlt, FaTachometerAlt } from "react-icons/fa";
+import { FaGlobe, FaSearch, FaBars, FaCaretDown, FaUser, FaSignOutAlt, FaTachometerAlt, FaWallet } from "react-icons/fa";
 import userAvatar from "../assets/images/default-avatar.png";
 import { UserRoleContext } from "./UserRoleProvider";
 import { useMenuItems } from "./menuConfig";
@@ -101,6 +101,9 @@ function Navbar() {
                   </button>
                   <button onClick={() => navigate(`/${userRole.toLowerCase()}/profile`)}>
                     <FaUser /> {t("profile")}
+                  </button>
+                  <button onClick={() => navigate(`/${userRole.toLowerCase()}/wallet`)}>
+                    <FaWallet /> {t("wallet")}
                   </button>
                   <button onClick={handleLogout}>
                     <FaSignOutAlt /> {t("logout")}
