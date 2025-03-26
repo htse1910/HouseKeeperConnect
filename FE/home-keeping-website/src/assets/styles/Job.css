@@ -8,123 +8,297 @@
 }
 
 .job-posting-container {
-    max-width: 750px;
-    margin: auto;
-    padding: 30px;
-    background: var(--bg-color);
-    box-shadow: var(--box-shadow);
-    border-radius: var(--border-radius);
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .job-posting-title {
-    text-align: center;
-    color: var(--text-color);
-    font-weight: bold;
     font-size: 24px;
-    margin-bottom: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--primary-color);
 }
 
 .job-posting-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
 }
 
-/* Chỉnh layout hàng ngang */
 .job-posting-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
-    align-items: center;
-    /* Căn giữa các input cùng dòng */
 }
 
-/* Khi cần full width */
+.job-posting-group {
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+}
+
 .job-posting-full-width {
     width: 100%;
 }
 
-/* Nhóm input */
-.job-posting-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
+.job-posting-group label {
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text-color);
 }
 
-/* Input và Select */
 .job-posting-input,
 .job-posting-select,
 .job-posting-textarea {
-    padding: 12px;
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: 16px;
-    transition: all 0.3s ease-in-out;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    margin-top: 4px;
     width: 100%;
+    box-sizing: border-box;
 }
 
-/* Hiệu ứng khi focus */
-.job-posting-input:focus,
-.job-posting-select:focus,
-.job-posting-textarea:focus {
-    border-color: var(--main-color);
-    box-shadow: 0 0 6px rgba(255, 149, 0, 0.3);
+.job-posting-select[multiple] {
+    height: 100px;
+    resize: vertical;
+    padding: 10px;
 }
 
-/* Thời gian làm việc */
 .job-posting-time-inputs {
     display: flex;
     align-items: center;
-    gap: 12px;
-    width: 100%;
+    gap: 8px;
 }
 
-.job-posting-time-input {
-    flex: 1;
-    padding: 12px;
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: 16px;
+.day-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 6px 12px;
+    padding-top: 6px;
 }
 
-/* Giữ khoảng cách giữa các input thời gian */
-.job-posting-time-inputs span {
-    font-weight: bold;
-    font-size: 18px;
+.job-posting-textarea {
+    min-height: 80px;
 }
 
-/* Submit button */
 .job-posting-submit-btn {
-    width: 100%;
-    padding: 14px;
-    font-size: 18px;
+    margin-top: 24px;
+    padding: 12px 32px;
+    font-size: 16px;
     font-weight: bold;
-    border-radius: var(--border-radius);
-    transition: background 0.3s ease;
-    margin-top: 20px;
+    background-color: #ff9500;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    align-self: center;
+    transition: background-color 0.3s ease;
+    width: fit-content;
 }
 
 .job-posting-submit-btn:hover {
-    background: var(--secondary-color);
+    background-color: #e08000;
 }
 
-/* Hiển thị thông báo */
 .job-posting-alert {
-    text-align: center;
+    font-size: 15px;
     padding: 10px;
-    border-radius: var(--border-radius);
-    font-weight: bold;
+    border-radius: 6px;
 }
 
 .job-posting-success {
-    background: var(--success-color);
-    color: white;
+    background-color: #e9f8ea;
+    color: #2ecc40;
 }
 
 .job-posting-error {
-    background: var(--error-color);
-    color: white;
+    background-color: #ffeaea;
+    color: #ff4136;
 }
+
+.job-posting-form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Section chia nhóm logic (căn hàng 2 cột) */
+.job-posting-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.job-posting-section-full {
+    grid-template-columns: 1fr;
+}
+
+/* Mỗi cặp input */
+.job-posting-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 240px;
+}
+
+/* Checkbox dịch vụ dạng thẻ */
+.job-posting-service-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+}
+
+.job-posting-checkbox-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fafafa;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.job-posting-checkbox-card:hover {
+    border-color: var(--main-color);
+    background-color: #fff5e6;
+}
+
+.job-posting-checkbox-card input[type="checkbox"] {
+    accent-color: var(--main-color);
+}
+
+.job-posting-checkbox-card,
+.job-posting-checkbox-day {
+  justify-content: center;
+  text-align: center;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  padding: 6px 12px;
+  transition: all 0.2s ease;
+  background-color: #f8f8f8;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.job-posting-checkbox-card:hover,
+.job-posting-checkbox-day:hover {
+  background-color: #fff7ec;
+  border-color: var(--main-color);
+}
+
+.job-posting-checkbox-card input[type="checkbox"]:checked + span,
+.job-posting-checkbox-day input[type="checkbox"]:checked + span {
+  background-color: var(--main-color);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--main-color);
+  border-color: var(--main-color);
+}
+
+/* Checkbox ngày trong tuần */
+.job-posting-day-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px 12px;
+}
+
+.job-posting-checkbox-day {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.job-posting-checkbox-day input[type="checkbox"],
+.job-posting-checkbox-card input[type="checkbox"] {
+    display: none;
+}
+
+.job-posting-checkbox-day span,
+.job-posting-checkbox-card span {
+  display: inline-block;
+  background: var(--light-gray);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.job-posting-checkbox-day input[type="checkbox"]:checked + span,
+.job-posting-checkbox-card input[type="checkbox"]:checked + span {
+  background: var(--main-color);
+  color: white;
+}
+
+.job-posting-checkbox-card span,
+.job-posting-checkbox-day span {
+  background-color: transparent !important;
+}
+
+.job-posting-checkbox-card input[type="checkbox"]:checked + span,
+.job-posting-checkbox-day input[type="checkbox"]:checked + span {
+  background-color: var(--main-color);
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.job-posting-checkbox-card:has(input[type="checkbox"]:checked),
+.job-posting-checkbox-day:has(input[type="checkbox"]:checked) {
+  background-color: var(--main-color);
+  border-color: var(--main-color);
+}
+
+.job-posting-checkbox-card input[type="checkbox"]:checked + span:hover,
+.job-posting-checkbox-day input[type="checkbox"]:checked + span:hover {
+  background-color: transparent !important;
+}
+
+.job-posting-price-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .job-posting-price-wrapper input {
+    flex: 1;
+    padding-right: 100px; /* chừa chỗ cho VNĐ */
+  }
+  
+  .job-posting-vnd-suffix {
+    position: absolute;
+    right: 12px;
+    color: #666;
+    font-size: 14px;
+    pointer-events: none;
+    white-space: nowrap;
+  }  
+
+/* Submit button */
+.job-posting-submit-btn {
+    margin-top: 12px;
+    padding: 12px 32px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    align-self: center;
+}
+
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -304,32 +478,32 @@
 .job-management-status-badge.status-1 {
     background-color: #f0f0f0;
     color: #777;
-  }
-  
-  .job-management-status-badge.status-2 {
+}
+
+.job-management-status-badge.status-2 {
     background-color: #e7f1ff;
     color: #007bff;
-  }
-  
-  .job-management-status-badge.status-3 {
+}
+
+.job-management-status-badge.status-3 {
     background-color: #fff5e6;
     color: var(--main-color);
-  }
-  
-  .job-management-status-badge.status-4 {
+}
+
+.job-management-status-badge.status-4 {
     background-color: #d6f5e4;
     color: var(--success-color);
-  }
-  
-  .job-management-status-badge.status-5 {
+}
+
+.job-management-status-badge.status-5 {
     background-color: #FFF8E7;
     color: var(--main-color);
-  }
-  
-  .job-management-status-badge.status-6 {
+}
+
+.job-management-status-badge.status-6 {
     background-color: #FFE4E4;
     color: var(--cancel-color);
-  }  
+}
 
 .job-management-title {
     font-size: 18px;
