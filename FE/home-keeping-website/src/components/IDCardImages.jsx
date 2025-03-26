@@ -21,13 +21,13 @@ const IDCardImages = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.frontPhoto) {
-          setFrontPhoto(`data:image/jpeg;base64,${data.frontPhoto}`);
+          setFrontPhoto(data.frontPhoto);
         }
         if (data.backPhoto) {
-          setBackPhoto(`data:image/jpeg;base64,${data.backPhoto}`);
+          setBackPhoto(data.backPhoto);
         }
         if (data.facePhoto) {
-          setFacePhoto(`data:image/jpeg;base64,${data.facePhoto}`);
+          setFacePhoto(data.facePhoto);
         }
       })
       .catch((err) => console.error("Lỗi khi lấy ảnh CMND:", err));

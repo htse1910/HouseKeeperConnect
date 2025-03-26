@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaMoneyBillWave, FaWallet, FaInfoCircle } from "react-icons/fa";
+import { FaMoneyBillWave, FaWallet, FaInfoCircle, FaClock } from "react-icons/fa";
 
 const RecentTransactionsCard = () => {
   const [transactions, setTransactions] = useState([]);
@@ -89,29 +89,38 @@ const RecentTransactionsCard = () => {
       ) : transactions.length === 0 ? (
         <p className="text-muted text-center">Không có giao dịch nào gần đây.</p>
       ) : (
-        <ul className="list-group list-group-flush">
-          {transactions.map((tx, index) => (
-            <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <strong>{tx.description || "Giao dịch"}</strong><br />
-                <small className="text-muted">
-                  {new Date(tx.createdDate).toLocaleDateString()}
-                </small>
-              </div>
-              <div className="text-end">
-                <span className="text-success fw-bold">
-                  <FaMoneyBillWave className="me-1" />
-                  {tx.amount.toLocaleString("vi-VN")}₫
-                </span>
-                <br />
-                <span className={getStatusClass(tx.status)}>
-                  <FaInfoCircle className="me-1" />
-                  {getStatusLabel(tx.status)}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+          <ul className="list-group list-group-flush small">
+            {transactions.map((tx, index) => (
+              <li
+                key={index}
+                className="list-group-item px-2 py-2"
+              >
+                <div className="d-flex justify-content-between align-items-start">
+                  <div className="me-2">
+                    <FaMoneyBillWave className="text-success me-2" />
+                  </div>
+                  <div className="flex-grow-1">
+                    <div className="d-flex justify-content-between">
+                      <span className="text-break fw-semibold">{tx.description || "Giao dịch"}</span>
+                      <span className={`ms-2 ${getStatusClass(tx.status)}`}>
+                        <FaInfoCircle className="me-1" />
+                        {getStatusLabel(tx.status)}
+                      </span>
+                    </div>
+                    <small className="text-muted d-flex align-items-center mt-1">
+                      <FaClock className="me-1" />
+                      {new Date(tx.createdDate).toLocaleString()}
+                    </small>
+                    <div className="fw-bold text-success mt-1">
+                      {tx.amount.toLocaleString("vi-VN")}₫
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

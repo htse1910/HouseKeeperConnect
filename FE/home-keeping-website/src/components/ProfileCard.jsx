@@ -34,7 +34,7 @@ const ProfileCard = () => {
         setRating(typeof data.rating === "number" ? data.rating : 0);
 
         if (data.localProfilePicture) {
-          setPhoto(`data:image/jpeg;base64,${data.localProfilePicture}`);
+          setPhoto(data.localProfilePicture); // use direct URL
         }
       })
       .catch((err) => console.error("Lỗi khi lấy dữ liệu người dùng:", err));
