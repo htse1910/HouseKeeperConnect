@@ -1,53 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import IDVerificationForm from "../components/IDVerificationForm";
 
 const IDVerificationCreatePage = () => {
-  const [existingVerification, setExistingVerification] = useState(null);
-  const [loading, setLoading] = useState(true);
-
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
-  const housekeeperID = localStorage.getItem("housekeeperID");
-  const verifyID = localStorage.getItem("verifyID");
-
-  useEffect(() => {
-    if (!verifyID || !authToken) {
-      setLoading(false);
-      return;
-    }
-
-    fetch(`http://localhost:5280/api/IDVerifications/GetIDVerificationByID?id=${verifyID}`, {
-      headers: { Authorization: `Bearer ${authToken}` },
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) setExistingVerification(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Lỗi khi kiểm tra xác minh:", err);
-        setLoading(false);
-      });
-  }, [verifyID, authToken]);
-
-  const updateVerificationStatus = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:5280/api/HouseKeeper/update-verification-status?housekeeperId=${housekeeperID}&isVerified=true`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${authToken}` },
-        }
-      );
-      const result = await response.text();
-      if (response.ok) alert("✅ Trạng thái xác minh đã được cập nhật!");
-      else alert("⚠️ Không thể cập nhật trạng thái xác minh: " + result);
-    } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái xác minh:", error);
-      alert("❌ Đã xảy ra lỗi khi cập nhật.");
-    }
-  };
 
   const handleFormSubmit = async (formData) => {
     const body = new FormData();
@@ -71,7 +28,6 @@ const IDVerificationCreatePage = () => {
 
       if (response.ok) {
         alert("✅ " + (result.message || "Xác minh thành công!"));
-        await updateVerificationStatus();
       } else {
         alert("⚠️ " + (result.message || "Không thể gửi xác minh."));
       }
@@ -80,8 +36,6 @@ const IDVerificationCreatePage = () => {
       alert("❌ Lỗi khi gửi dữ liệu.");
     }
   };
-
-  if (loading) return <div className="container py-4">Đang kiểm tra trạng thái xác minh...</div>;
 
   return (
     <div className="container py-4">
@@ -92,23 +46,8 @@ const IDVerificationCreatePage = () => {
         </Link>
       </div>
 
-      {existingVerification ? (
-        <div className="card p-4 shadow-sm">
-          <h5 className="fw-bold mb-3">Đã xác minh giấy tờ</h5>
-          <p><strong>Mã xác minh:</strong> {existingVerification.verifyID}</p>
-          <p><strong>Họ tên:</strong> {existingVerification.realName}</p>
-          <p><strong>Số CMND/CCCD:</strong> {existingVerification.idNumber ?? "Không có"}</p>
-          <p><strong>Ngày sinh:</strong> {new Date(existingVerification.dateOfBirth).toLocaleDateString()}</p>
-          <p><strong>Trạng thái:</strong> {existingVerification.status === 1 ? "Active" : "Inactive"}</p>
-          <p><strong>Tạo lúc:</strong> {new Date(existingVerification.createdAt).toLocaleString()}</p>
-          <p><strong>Cập nhật gần nhất:</strong> {new Date(existingVerification.updatedAt).toLocaleString()}</p>
-        </div>
-      ) : (
-        <>
-          <p className="text-muted mb-3">Bạn chưa xác minh, vui lòng gửi thông tin giấy tờ bên dưới.</p>
-          <IDVerificationForm onSubmit={handleFormSubmit} />
-        </>
-      )}
+      <p className="text-muted mb-3">Bạn chưa xác minh, vui lòng gửi thông tin giấy tờ bên dưới.</p>
+      <IDVerificationForm onSubmit={handleFormSubmit} />
     </div>
   );
 };

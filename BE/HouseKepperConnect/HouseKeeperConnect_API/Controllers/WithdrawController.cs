@@ -199,7 +199,13 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            wallet.Balance += wi.Amount;
+            /*wallet.Balance += wi.Amount;
+            wallet.UpdatedAt = DateTime.Now;*/
+            if (withdrawUpdateDTO.Status == 3)
+            {
+                wallet.Balance += wi.Amount;
+            }
+
             wallet.UpdatedAt = DateTime.Now;
 
             await _walletService.UpdateWalletAsync(wallet);
