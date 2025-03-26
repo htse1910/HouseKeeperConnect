@@ -257,7 +257,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error updating account: {ex.Message}");
+                throw new Exception(ex.Message);
             }
         }
 
@@ -274,7 +274,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error updating account: {ex.Message}");
+                throw new Exception(ex.Message);
             }
         }
 
@@ -289,7 +289,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                throw new Exception("Error checking email existence: " + ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -377,7 +377,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while changing Account status: " + ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -442,7 +442,7 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                throw new Exception("Error retrieving account statistics: " + ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -462,7 +462,22 @@ namespace DataAccess
             }
             catch (Exception ex)
             {
-                throw new Exception("Error fetching new Housekeeper and Family accounts: " + ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<int?> GetRoleIDByAccountIDAsync(int accountID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Account.Where(a => a.AccountID == accountID) .Select(a => (int?)a.RoleID).FirstOrDefaultAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
     }

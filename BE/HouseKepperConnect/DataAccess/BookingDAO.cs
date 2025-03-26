@@ -39,7 +39,6 @@ namespace DataAccess
                         .Include(b => b.Job)
                         .Include(b => b.Housekeeper)
                         .Include(b => b.Family)
-                        .Include(b => b.Service)
                         .ToListAsync();
                 }
             }
@@ -61,7 +60,6 @@ namespace DataAccess
                         .Include(b => b.Job)
                         .Include(b => b.Housekeeper)
                         .Include(b => b.Family)
-                        .Include(b => b.Service)
                         .SingleOrDefaultAsync(b => b.BookingID == id);
                 }
             }
@@ -79,7 +77,6 @@ namespace DataAccess
                 .Where(b => b.FamilyID == familyId)
                 .Include(b => b.Job)
                 .Include(b => b.Housekeeper)
-                .Include(b => b.Service)
                 .ToListAsync();
         }
 

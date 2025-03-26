@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250324182807_Fix_ReportTable")]
+    partial class Fix_ReportTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,9 +47,6 @@ namespace BusinessObject.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Gender")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("GoogleId")
                         .HasColumnType("nvarchar(max)");
 
@@ -62,9 +62,6 @@ namespace BusinessObject.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nickname")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
@@ -131,6 +128,9 @@ namespace BusinessObject.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("FamilyID")
                         .HasColumnType("int");
 
@@ -140,6 +140,12 @@ namespace BusinessObject.Migrations
                     b.Property<int>("JobID")
                         .HasColumnType("int");
 
+                    b.Property<int>("ServiceID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("BookingID");
 
                     b.HasIndex("FamilyID");
@@ -147,6 +153,8 @@ namespace BusinessObject.Migrations
                     b.HasIndex("HousekeeperID");
 
                     b.HasIndex("JobID");
+
+                    b.HasIndex("ServiceID");
 
                     b.ToTable("Booking");
                 });
@@ -221,8 +229,8 @@ namespace BusinessObject.Migrations
                     b.Property<int?>("JobListed")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TotalApplicant")
-                        .HasColumnType("int");
+                    b.Property<string>("Nickname")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("FamilyID");
 
@@ -478,9 +486,6 @@ namespace BusinessObject.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("HousekeeperID")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsOffered")
                         .HasColumnType("bit");
 
@@ -499,8 +504,6 @@ namespace BusinessObject.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("JobDetailID");
-
-                    b.HasIndex("HousekeeperID");
 
                     b.HasIndex("JobID");
 
@@ -1076,11 +1079,19 @@ namespace BusinessObject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BusinessObject.Models.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Family");
 
                     b.Navigation("Housekeeper");
 
                     b.Navigation("Job");
+
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Booking_Slots", b =>
@@ -1238,17 +1249,11 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.JobDetail", b =>
                 {
-                    b.HasOne("BusinessObject.Models.Housekeeper", "Housekeeper")
-                        .WithMany()
-                        .HasForeignKey("HousekeeperID");
-
                     b.HasOne("BusinessObject.Models.Job", "Job")
                         .WithMany()
                         .HasForeignKey("JobID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Housekeeper");
 
                     b.Navigation("Job");
                 });

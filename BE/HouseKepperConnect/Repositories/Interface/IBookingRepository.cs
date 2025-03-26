@@ -10,8 +10,6 @@ namespace Repositories.Interface
 
         Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId);
 
-        Task<List<Booking>> GetBookingsByFamilyIDAsync(int familyId);
-
         Task<List<Booking>> GetBookingsByJobIDAsync(int jobId);
 
         Task AddBookingAsync(Booking booking);

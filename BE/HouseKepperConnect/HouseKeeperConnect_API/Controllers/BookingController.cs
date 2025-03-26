@@ -12,8 +12,8 @@ namespace HouseKeeperConnect_API.Controllers
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
-        private string Message;
         private readonly IMapper _mapper;
+        private string Message;
 
         public BookingController(IBookingService bookingService, IMapper mapper)
         {
@@ -21,14 +21,14 @@ namespace HouseKeeperConnect_API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("BookingList")]
+        [HttpGet("GetBookings")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<Booking>>> GetBookingsAsync()
         {
             var bookings = await _bookingService.GetAllBookingsAsync();
             if (bookings == null || !bookings.Any())
             {
-                Message = "No records found!";
+                Message = "No records!";
                 return NotFound(Message);
             }
             return Ok(bookings);
@@ -41,46 +41,20 @@ namespace HouseKeeperConnect_API.Controllers
             var booking = await _bookingService.GetBookingByIDAsync(id);
             if (booking == null)
             {
-                Message = "No records found!";
+                Message = "No records!";
                 return NotFound(Message);
             }
             return Ok(booking);
         }
 
-        [HttpGet("GetBookingsByHousekeeperID")]
+        [HttpGet("GetBookingByHousekeeperID")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetBookingsByHousekeeperID([FromQuery] int housekeeperId)
+        public async Task<ActionResult<IEnumerable<Booking>>> GetBookingByHousekeeperID([FromQuery] int housekeeperId)
         {
             var bookings = await _bookingService.GetBookingsByHousekeeperIDAsync(housekeeperId);
             if (bookings == null || !bookings.Any())
             {
-                Message = "No records found!";
-                return NotFound(Message);
-            }
-            return Ok(bookings);
-        }
-
-        [HttpGet("GetBookingsByFamilyID")]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetBookingsByFamilyID([FromQuery] int familyId)
-        {
-            var bookings = await _bookingService.GetBookingsByFamilyIDAsync(familyId);
-            if (bookings == null || !bookings.Any())
-            {
-                Message = "No records found!";
-                return NotFound(Message);
-            }
-            return Ok(bookings);
-        }
-
-        [HttpGet("GetBookingsByJobID")]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetBookingsByJobID([FromQuery] int jobId)
-        {
-            var bookings = await _bookingService.GetBookingsByJobIDAsync(jobId);
-            if (bookings == null || !bookings.Any())
-            {
-                Message = "No records found!";
+                Message = "No records!";
                 return NotFound(Message);
             }
             return Ok(bookings);
@@ -88,57 +62,37 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPost("AddBooking")]
         [Authorize]
-        public async Task<ActionResult> AddBooking(
-            [FromQuery] int jobId,
-            [FromQuery] int housekeeperId,
-            [FromQuery] int familyId,
-            [FromQuery] int serviceId,
-            [FromQuery] int bookingStatus
-        )
+        public async Task<ActionResult> AddBooking([FromBody] BookingCreateDTO bookingCreateDTO)
         {
-            var booking = new Booking
+            if (bookingCreateDTO == null)
             {
-                JobID = jobId,
-                HousekeeperID = housekeeperId,
-                FamilyID = familyId,
-                ServiceID = serviceId,
-                BookingStatus = bookingStatus,
-                CreatedAt = DateTime.Now
-            };
-
+                return BadRequest("Invalid booking data.");
+            }
+            var booking = _mapper.Map<Booking>(bookingCreateDTO);
             await _bookingService.AddBookingAsync(booking);
-            Message = "Booking created successfully!";
-            return Ok(Message);
+            return Ok("Booking added successfully!");
         }
 
         [HttpPut("UpdateBooking")]
         [Authorize]
-        public async Task<ActionResult> UpdateBooking([FromQuery] BookingUpdateDTO bookingUpdateDTO)
+        public async Task<ActionResult> UpdateBooking([FromBody] BookingUpdateDTO bookingUpdateDTO)
         {
-            var booking = _mapper.Map<Booking>(bookingUpdateDTO);
-            var existingBooking = await _bookingService.GetBookingByIDAsync(bookingUpdateDTO.BookingID);
-            if (existingBooking == null)
+            var booking = await _bookingService.GetBookingByIDAsync(bookingUpdateDTO.BookingID);
+            if (booking == null)
             {
-                Message = "Booking not found!";
+                Message = "No records!";
                 return NotFound(Message);
             }
 
+            _mapper.Map(bookingUpdateDTO, booking);
             await _bookingService.UpdateBookingAsync(booking);
-            Message = "Booking updated successfully!";
-            return Ok(Message);
+            return Ok("Booking updated successfully!");
         }
 
         [HttpDelete("DeleteBooking")]
         [Authorize]
         public async Task<ActionResult> DeleteBooking([FromQuery] int id)
         {
-            var booking = await _bookingService.GetBookingByIDAsync(id);
-            if (booking == null)
-            {
-                Message = "No records found!";
-                return NotFound(Message);
-            }
-
             await _bookingService.DeleteBookingAsync(id);
             Message = "Booking deleted successfully!";
             return Ok(Message);

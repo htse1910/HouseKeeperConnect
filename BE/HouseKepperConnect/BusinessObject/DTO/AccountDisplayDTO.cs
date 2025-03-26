@@ -26,5 +26,7 @@ namespace BusinessObject.DTO
         public string? Provider { get; set; } // "Google" hoặc "Local"
         public string? ProfilePicture { get; set; } // Ảnh đại diện Google
         public int Status { get; set; }
+        public string? Gender { get; set; }
+        public string? Nickname { get; set; }
     }
 }

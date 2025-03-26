@@ -47,6 +47,7 @@ namespace BusinessObject.Mapping
             Map_Create_Job_Service();
             Map_Create_Job_Slots();
             Map_Display_Job();
+            Map_Create_Booking_Slots();
         }
 
         private void Map_List_Register()
@@ -252,6 +253,11 @@ namespace BusinessObject.Mapping
         {
             CreateMap<JobDisplayDTO, Job>().ReverseMap();
             CreateMap<JobDisplayDTO, JobDetail>().ReverseMap();
+        }
+
+        private void Map_Create_Booking_Slots()
+        {
+            CreateMap<Booking_SlotsCreateDTO, Booking_Slots>();
         }
     }
 }

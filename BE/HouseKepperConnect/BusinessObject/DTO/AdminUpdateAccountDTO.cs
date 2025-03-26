@@ -10,7 +10,7 @@ namespace BusinessObject.DTO
         [Required(ErrorMessage = "Password is required.")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Phone is required.")]
+        [Required(ErrorMessage = "Status is required.")]
         public int Status { get; set; }
     }
 }

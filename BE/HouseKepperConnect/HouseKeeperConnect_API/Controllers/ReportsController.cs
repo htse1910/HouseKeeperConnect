@@ -3,7 +3,10 @@ using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
+using Services;
 using Services.Interface;
+using System.Security.Claims;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -11,14 +14,15 @@ namespace HouseKeeperConnect_API.Controllers
     public class ReportsController : ControllerBase
     {
         private readonly IReportService _reportService;
+        private readonly IAccountService _accountService;
         private string Message;
         private readonly IMapper _mapper;
 
-        public ReportsController(IReportService reportService, IMapper mapper)
+        public ReportsController(IReportService reportService, IMapper mapper, IAccountService accountService)
         {
             _reportService = reportService;
-
             _mapper = mapper;
+            _accountService = accountService;
         }
 
         [HttpGet("ReportList")]
@@ -42,7 +46,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
-        [HttpGet("GetReport")]
+        [HttpGet("GetReportById")]
         [Authorize]
         public async Task<ActionResult<ReportDisplayDTO>> GetReportById([FromQuery] int id)
         {
@@ -55,6 +59,21 @@ namespace HouseKeeperConnect_API.Controllers
             var ReportDTO = _mapper.Map<ReportDisplayDTO>(Report);
             return Ok(ReportDTO);
         }
+
+        [HttpGet("GetReportByAccountId")]
+        [Authorize]
+        public async Task<ActionResult<ReportDisplayDTO>> GetReportByAccountId([FromQuery] int accountId)
+        {
+            var Report = await _reportService.GetReportsByAccountAsync(accountId);
+            if (Report == null)
+            {
+                return NotFound("Report not found!");
+            }
+
+            var ReportDTO = _mapper.Map<ReportDisplayDTO>(Report);
+            return Ok(ReportDTO);
+        }
+
 
         [HttpPost("CreateReport")]
         public async Task<ActionResult> CreateReport([FromQuery] ReportCreateDTO reportCreateDTO)
@@ -73,7 +92,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("UpdateReport")]
         [Authorize]
-        public async Task<ActionResult> UpdateReport([FromQuery] ReportUpdateDTO reportUpdateDTO)
+        public async Task<ActionResult> UpdateReport([FromQuery]  ReportUpdateDTO reportUpdateDTO)
         {
             try
             {
@@ -82,9 +101,23 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     return NotFound("Report not found!");
                 }
+                if (reportUpdateDTO.ReviewByID == null)
+                {
+                    return BadRequest("ReviewByID is required!");
+                }
 
+                var reviewerAccount = await _accountService.GetAccountByIDAsync(reportUpdateDTO.ReviewByID.Value);
+                if (reviewerAccount == null)
+                {
+                    return NotFound("Reviewer account not found!");
+                }
+
+                if (reviewerAccount.RoleID != 3)
+                {
+                    return BadRequest("Only staff can review reports!");
+                }
                 var updatedReport = _mapper.Map(reportUpdateDTO, existingReport);
-
+                existingReport.ReviewedAt = DateTime.UtcNow;
                 await _reportService.UpdateReportAsync(updatedReport);
                 return Ok("Report updated successfully!");
             }
