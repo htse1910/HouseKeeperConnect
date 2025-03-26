@@ -48,6 +48,10 @@ public static class ServiceExtentions
         services.AddScoped<IJob_SlotsService, Job_SlotsService>();
         services.AddScoped<IBooking_SlotsService, Booking_SlotsService>();
         services.AddScoped<IBooking_SlotsRepository, Booking_SlotsRepository>();
+        services.AddScoped<IHousekeeperSkillMappingRepository, HousekeeperSkillMappingRepository>();
+        services.AddScoped<IHousekeeperSkillMappingService, HousekeeperSkillMappingService>();
+        services.AddScoped<IHousekeeperSkillRepository, HousekeeperSkillRepository>();
+        services.AddScoped<IHousekeeperSkillService, HousekeeperSkillService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

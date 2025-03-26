@@ -48,6 +48,11 @@ namespace BusinessObject.Mapping
             Map_Create_Job_Slots();
             Map_Display_Job();
             Map_Create_Booking_Slots();
+            Map_Display_HouseKeeperSkill();
+            Map_Create_HouseKeeperSkill();
+            Map_Update_HouseKeeperSkill();
+            Map_Display_HouseKeeperSkillMapping();
+            Map_Create_HouseKeeperSkillMapping();
         }
 
         private void Map_List_Register()
@@ -258,6 +263,27 @@ namespace BusinessObject.Mapping
         private void Map_Create_Booking_Slots()
         {
             CreateMap<Booking_SlotsCreateDTO, Booking_Slots>();
+        }
+
+        private void Map_Display_HouseKeeperSkill()
+        {
+            CreateMap<HouseKeeperSkillDisplayDTO, HouseKeeperSkill>().ReverseMap();
+        }
+        private void Map_Create_HouseKeeperSkill()
+        {
+            CreateMap<HousekeeperSkillCreateDTO, HouseKeeperSkill>();
+        }
+        private void Map_Update_HouseKeeperSkill()
+        {
+            CreateMap<HousekeeperSkillUpdateDTO, HouseKeeperSkill>();
+        }
+        private void Map_Display_HouseKeeperSkillMapping()
+        {
+            CreateMap<HousekeeperSkillMappingDisplayDTO, HousekeeperSkillMapping>().ReverseMap();
+        }
+        private void Map_Create_HouseKeeperSkillMapping()
+        {
+            CreateMap<HousekeeperSkillMappingCreateDTO, HousekeeperSkillMapping>();
         }
     }
 }
