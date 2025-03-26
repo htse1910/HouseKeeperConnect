@@ -8,14 +8,15 @@ const CertificatesAndDocuments = () => {
   const [verifyStatus, setVerifyStatus] = useState("...");
   const [verifyID, setVerifyID] = useState(null);
 
-  const housekeeperID = localStorage.getItem("housekeeperID");
+  const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
-    if (!housekeeperID || !authToken) return;
+    if (!accountID || !authToken) return;
 
-    // Step 1: Get verifyID
-    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByID?id=${housekeeperID}`, {
+    // Step 1: Get verifyID using accountID
+    // Step 1: Get verifyID using accountID
+    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByID?id=${accountID}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
@@ -24,6 +25,7 @@ const CertificatesAndDocuments = () => {
       .then((data) => {
         if (data.verifyID) {
           setVerifyID(data.verifyID);
+          localStorage.setItem("verifyID", data.verifyID); // ✅ Save to localStorage
 
           // Step 2: Use verifyID to fetch ID verification data
           return fetch(`http://localhost:5280/api/IDVerifications/GetIDVerificationByID?id=${data.verifyID}`, {
@@ -49,7 +51,7 @@ const CertificatesAndDocuments = () => {
         }
       })
       .catch((err) => console.error("Lỗi khi lấy thông tin giấy tờ:", err));
-  }, [housekeeperID, authToken]);
+  }, [accountID, authToken]);
 
   return (
     <div className="col-md-6 d-flex">

@@ -7,6 +7,7 @@ import { FaGlobe, FaSearch, FaBars, FaCaretDown, FaUser, FaSignOutAlt, FaTachome
 import userAvatar from "../assets/images/default-avatar.png";
 import { UserRoleContext } from "./UserRoleProvider";
 import { useMenuItems } from "./menuConfig";
+import NotificationButton from "./NotificationButton";
 
 function Navbar() {
   const { t, i18n } = useTranslation();
@@ -89,6 +90,7 @@ function Navbar() {
           onMouseLeave={() => setUserMenuVisible(false)} >
           {userRole && userRole !== "Guest" ? (
             <>
+              <NotificationButton />
               <img
                 src={userAvatar}
                 alt="User Avatar"
