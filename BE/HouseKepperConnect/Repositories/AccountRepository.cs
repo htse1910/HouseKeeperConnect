@@ -37,7 +37,7 @@ namespace Repositories
         public async Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync() => await AccountDAO.Instance.GetTotalAccountAsync();
 
         public async Task<List<Account>> GetNewAccout() => await AccountDAO.Instance.GetNewAccout();
-        public async Task<int?> GetRoleIDByAccountIDAsync(int accountID) => await AccountDAO.Instance.GetRoleIDByAccountIDAsync((int)accountID);
 
+        public async Task<int?> GetRoleIDByAccountIDAsync(int accountID) => await AccountDAO.Instance.GetRoleIDByAccountIDAsync((int)accountID);
     }
 }

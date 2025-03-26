@@ -9,6 +9,7 @@ namespace Repositories
         public async Task<List<Report>> GetAllReportsAsync(int pageNumber, int pageSize) => await ReportDAO.Instance.GetAllReportsAsync(pageNumber, pageSize);
 
         public async Task<Report> GetReportByIDAsync(int rID) => await ReportDAO.Instance.GetReportByIDAsync(rID);
+
         public async Task<List<Report>> GetReportsByAccountAsync(int accountId) => await ReportDAO.Instance.GetReportsByAccountAsync(accountId);
 
         public async Task AddReportAsync(Report Report) => await ReportDAO.Instance.AddReportAsync(Report);

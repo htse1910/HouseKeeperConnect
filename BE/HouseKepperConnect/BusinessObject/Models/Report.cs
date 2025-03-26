@@ -12,7 +12,7 @@
         public int ReportStatus { get; set; }
 
         public int? ReviewByID { get; set; }
-        public DateTime? ReviewedAt { get; set; } 
+        public DateTime? ReviewedAt { get; set; }
 
         public string? StaffResponse { get; set; }
         public virtual Account? ReviewBy { get; set; }

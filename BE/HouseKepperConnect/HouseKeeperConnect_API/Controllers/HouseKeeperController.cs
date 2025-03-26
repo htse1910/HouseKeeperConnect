@@ -1,7 +1,7 @@
-﻿using AutoMapper;
+﻿using Appwrite;
+using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
-using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -16,16 +16,18 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IAccountService _accountService;
         private readonly IIDVerificationService _verificationService;
         private readonly INotificationService _notificationService;
+        private readonly Client _appwriteClient;
         private readonly IMapper _mapper;
         private string Message;
 
-        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService)
+        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService, Client appwriteClient)
         {
             _housekeeperService = housekeeperService;
             _accountService = accountService;
             _mapper = mapper;
             _verificationService = verificationService;
             _notificationService = notificationService;
+            _appwriteClient = appwriteClient;
         }
 
         [HttpGet("HousekeeperList")] //Admin
@@ -38,7 +40,50 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No records!";
                 return NotFound(Message);
             }
-            var nTr = _mapper.Map<HouseKeeperDisplayDTO>(trans);
+
+            var nTr = new List<HouseKeeperDisplayDTO>();
+
+            foreach (var item in trans)
+            {
+                if (item.VerifyID.HasValue)
+                {
+                    var nHk = new HouseKeeperDisplayDTO
+                    {
+                        AccountID = item.AccountID,
+                        Address = item.Account.Address,
+                        BackPhoto = item.IDVerification.BackPhoto,
+                        BankAccountNumber = item.Account.BankAccountNumber,
+                        Email = item.Account.Email,
+                        FacePhoto = item.IDVerification.FacePhoto,
+                        FrontPhoto = item.IDVerification.FrontPhoto,
+                        GoogleProfilePicture = item.Account.GoogleProfilePicture,
+                        Introduction = item.Account.Introduction,
+                        LocalProfilePicture = item.Account.LocalProfilePicture,
+                        Name = item.Account.Name,
+                        Phone = item.Account.Phone,
+                        Gender = item.Account.Gender.GetValueOrDefault(),
+                    };
+                    nTr.Add(nHk);
+                }
+                else
+                {
+                    var nHk = new HouseKeeperDisplayDTO
+                    {
+                        AccountID = item.AccountID,
+                        Address = item.Account.Address,
+                        BankAccountNumber = item.Account.BankAccountNumber,
+                        Email = item.Account.Email,
+                        GoogleProfilePicture = item.Account.GoogleProfilePicture,
+                        Introduction = item.Account.Introduction,
+                        LocalProfilePicture = item.Account.LocalProfilePicture,
+                        Name = item.Account.Name,
+                        Phone = item.Account.Phone,
+                        Gender = item.Account.Gender.GetValueOrDefault(),
+                    };
+                    nTr.Add(nHk);
+                }
+            }
+
             return Ok(nTr);
         }
 
@@ -56,7 +101,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetHousekeeperByAccountID")]
-        [Authorize(Policy = "Housekeeper")]
+        [Authorize]
         public async Task<ActionResult<HouseKeeperDisplayDTO>> getHKByAccountID([FromQuery] int id)
         {
             var acc = await _accountService.GetAccountByIDAsync(id);
@@ -150,7 +195,7 @@ namespace HouseKeeperConnect_API.Controllers
             try
             {
                 //<--------------------------------------------------------------------------------->// Update Account
-                var newAcc = _mapper.Map<Account>(hk);
+                /*var newAcc = _mapper.Map<Account>(hk);
 
                 var Acc = await _accountService.GetAccountByIDAsync(hk.AccountID);
                 if (Acc == null)
@@ -266,7 +311,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
 
                 await _housekeeperService.UpdateHousekeeperAsync(oHk);
-                Message = "Housekeeper Updated!";
+                Message = "Housekeeper Updated!";*/
                 return Ok(Message);
             }
             catch (Exception ex)

@@ -33,11 +33,10 @@ namespace HouseKeeperConnect_API.Controllers
         [HttpPost("send")]
         public async Task<IActionResult> SendMessage([FromQuery] ChatDTO chatDto)
         {
-            
             if (chatDto == null || chatDto.FromAccountId <= 0 || chatDto.ToAccountId <= 0 || string.IsNullOrWhiteSpace(chatDto.Message))
             {
                 return BadRequest("Invalid chat message. Ensure all fields are provided.");
-            }  
+            }
             var fromAccount = await _accountService.GetAccountByIDAsync(chatDto.FromAccountId);
             var toAccount = await _accountService.GetAccountByIDAsync(chatDto.ToAccountId);
 
@@ -45,7 +44,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest("One or both accounts do not exist.");
             }
-         
+
             var chat = new Chat
             {
                 FromAccountID = chatDto.FromAccountId,

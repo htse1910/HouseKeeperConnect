@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using BusinessObject.Models;
-using AutoMapper;
-using Services.Interface;
-using DataAccess;
-using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
 using BusinessObject.DTO;
+using BusinessObject.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -75,8 +68,6 @@ namespace HouseKeeperConnect_API.Controllers
             await _housekeeperSkillService.AddHouseKeeperSkillAsync(skill);
             return Ok("Skill created successfully!");
         }
-        
-        
 
         [HttpPut("UpdateHousekeeperSkill")]
         [Authorize]
@@ -99,6 +90,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpDelete("DeleteHousekeeperSkill")]
         [Authorize]
         public async Task<ActionResult> DeleteHousekeeperSkill([FromQuery] int id)

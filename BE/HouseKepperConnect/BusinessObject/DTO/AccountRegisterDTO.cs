@@ -31,8 +31,10 @@ namespace BusinessObject.DTO
 
         [Required(ErrorMessage = "Address is required.")]
         public string Address { get; set; }
+
         [Required(ErrorMessage = "Gender is required.")]
-        public string? Gender { get; set; }
+        public int? Gender { get; set; }
+
         [Required(ErrorMessage = "Nickname is required.")]
         public string? Nickname { get; set; }
     }

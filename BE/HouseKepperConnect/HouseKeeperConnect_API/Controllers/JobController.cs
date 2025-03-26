@@ -5,7 +5,6 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers

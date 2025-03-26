@@ -4,7 +4,9 @@ namespace BusinessObject.DTO
 {
     public class HouseKeeperDisplayDTO
     {
+        public int AccountID { get; set; }
         public string Name { get; set; }
+        public int Gender { get; set; }
 
         [EmailAddress]
         public string Email { get; set; }
@@ -12,7 +14,8 @@ namespace BusinessObject.DTO
         [Phone]
         public string? Phone { get; set; }
 
-        public byte[] LocalProfilePicture { get; set; }
+        public string LocalProfilePicture { get; set; }
+        public string? GoogleProfilePicture { get; set; }
 
         [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]
         public string? BankAccountNumber { get; set; }
@@ -20,10 +23,10 @@ namespace BusinessObject.DTO
         public string? Introduction { get; set; }
         public string Address { get; set; }
 
-        public byte[] FrontPhoto { get; set; }
+        public string FrontPhoto { get; set; }
 
-        public byte[] BackPhoto { get; set; }
+        public string BackPhoto { get; set; }
 
-        public byte[] FacePhoto { get; set; }
+        public string FacePhoto { get; set; }
     }
 }

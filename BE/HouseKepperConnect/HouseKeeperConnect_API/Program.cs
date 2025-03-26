@@ -1,4 +1,6 @@
+using Appwrite;
 using BusinessObject.Mapping;
+using BusinessObject.Models.AppWrite;
 using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -34,6 +36,16 @@ builder.Services.AddAuthentication(options =>
     googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
     googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
+
+var appwriteSettings = builder.Configuration.GetSection("Appwrite").Get<AppwriteSettings>();
+
+// Configure Appwrite Client
+var client = new Client()
+    .SetEndpoint(appwriteSettings.Endpoint) // Your Appwrite endpoint
+    .SetProject(appwriteSettings.ProjectId) // Your project ID
+    .SetKey(appwriteSettings.ApiKey); // Optional: Your API key if needed
+
+builder.Services.AddSingleton(client);
 
 builder.Services.AddCustomServices();
 

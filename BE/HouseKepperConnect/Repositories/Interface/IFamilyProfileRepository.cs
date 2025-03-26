@@ -14,8 +14,6 @@ namespace Repositories.Interface
 
         Task UpdateFamilyAsync(Family Family);
 
-        
-
         Task<List<Family>> SearchFamiliesByAccountIDAsync(int accountId);
 
         Task<Family> GetFamilyByAccountIDAsync(int accountId);

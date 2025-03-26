@@ -35,6 +35,7 @@ namespace Services.Interface
         Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync();
 
         Task<List<Account>> GetNewAccout();
+
         Task<int?> GetRoleIDByAccountIDAsync(int accountID);
     }
 }

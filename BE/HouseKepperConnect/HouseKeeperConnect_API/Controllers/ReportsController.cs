@@ -3,10 +3,7 @@ using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
-using Services;
 using Services.Interface;
-using System.Security.Claims;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -74,7 +71,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(ReportDTO);
         }
 
-
         [HttpPost("CreateReport")]
         public async Task<ActionResult> CreateReport([FromQuery] ReportCreateDTO reportCreateDTO)
         {
@@ -92,7 +88,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("UpdateReport")]
         [Authorize]
-        public async Task<ActionResult> UpdateReport([FromQuery]  ReportUpdateDTO reportUpdateDTO)
+        public async Task<ActionResult> UpdateReport([FromQuery] ReportUpdateDTO reportUpdateDTO)
         {
             try
             {

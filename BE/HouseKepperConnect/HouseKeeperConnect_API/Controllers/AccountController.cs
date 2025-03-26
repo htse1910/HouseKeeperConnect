@@ -1,12 +1,16 @@
-﻿using AutoMapper;
+﻿using Appwrite;
+using Appwrite.Models;
+using Appwrite.Services;
+using AutoMapper;
 using BusinessObject.DTO;
-
 using BusinessObject.Models;
+using BusinessObject.Models.AppWrite;
 using BusinessObject.Models.Enum;
 using BusinessObject.Models.JWTToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -20,10 +24,12 @@ namespace HouseKeeperConnect_API.Controllers
 
         private readonly IMapper _mapper;
         private string Message;
-        private readonly IPasswordHasher<Account> _passwordHasher;
+        private readonly IPasswordHasher<BusinessObject.Models.Account> _passwordHasher;
         private readonly IWalletService _walletService;
         private readonly IFamilyProfileService _familyProfileService;
         private readonly IHouseKeeperService _houseKeeperService;
+        private readonly IConfiguration _configuration;
+        private readonly Client _appWriteClient;
 
         private static readonly char[] Characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
@@ -35,7 +41,7 @@ namespace HouseKeeperConnect_API.Controllers
                 .Select(_ => Characters[random.Next(Characters.Length)]).ToArray());
         }
 
-        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<Account> passwordHasher, IWalletService walletService, IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService)
+        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<BusinessObject.Models.Account> passwordHasher, IWalletService walletService, IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService, IConfiguration configuration)
         {
             _accountService = accountService;
             _mapper = mapper;
@@ -43,6 +49,14 @@ namespace HouseKeeperConnect_API.Controllers
             _walletService = walletService;
             _familyProfileService = familyProfileService;
             _houseKeeperService = houseKeeperService;
+            _configuration = configuration;
+            AppwriteSettings appW = new AppwriteSettings()
+            {
+                ProjectId = configuration.GetValue<string>("Appwrite:ProjectId"),
+                Endpoint = configuration.GetValue<string>("Appwrite:Endpoint"),
+                ApiKey = configuration.GetValue<string>("Appwrite:ApiKey")
+            };
+            _appWriteClient = new Client().SetProject(appW.ProjectId).SetEndpoint(appW.Endpoint).SetKey(appW.ApiKey);
         }
 
         // GET: api/<AccountController>
@@ -136,42 +150,59 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest("Invalid role selection!");
             }
-            var account = _mapper.Map<Account>(accountRegisterDTO);
-            account.Status = (int)AccountStatus.Active;
-            account.CreatedAt = DateTime.Now;
-            account.UpdatedAt = DateTime.Now;
-            account.Password = _passwordHasher.HashPassword(account, accountRegisterDTO.Password);
-            account.Introduction = accountRegisterDTO.Introduction;
-            if (accountRegisterDTO.LocalProfilePicture != null)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await accountRegisterDTO.LocalProfilePicture.CopyToAsync(memoryStream);
-                    account.LocalProfilePicture = memoryStream.ToArray();
-                }
-            }
-            await _accountService.AddAccountAsync(account);
-            if (account.RoleID == 1)
+
+            var storage = new Storage(_appWriteClient);
+            var buckID = "67e3d029000d5b9dd68e";
+            var projectID = _configuration.GetValue<string>("Appwrite:ProjectId");
+            List<string> perms = new List<string>() { Permission.Write(Appwrite.Role.Any()), Permission.Read(Appwrite.Role.Any()) };
+
+            var id = Guid.NewGuid().ToString();
+            var avatar = InputFile.FromStream(
+        accountRegisterDTO.LocalProfilePicture.OpenReadStream(),
+        accountRegisterDTO.LocalProfilePicture.FileName,
+        accountRegisterDTO.LocalProfilePicture.ContentType
+        );
+            var response = await storage.CreateFile(
+                buckID,
+                id,
+                avatar,
+                perms,
+                null
+                );
+            var avatarID = response.Id;
+            var avatarUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response.BucketId}/files/{avatarID}/view?project={projectID}";
+
+            var acc = _mapper.Map<BusinessObject.Models.Account>(accountRegisterDTO);
+
+            acc.Status = (int)AccountStatus.Active;
+            acc.CreatedAt = DateTime.Now;
+            acc.UpdatedAt = DateTime.Now;
+            acc.Password = _passwordHasher.HashPassword(acc, accountRegisterDTO.Password);
+            acc.Introduction = accountRegisterDTO.Introduction;
+            acc.LocalProfilePicture = avatarUrl;
+
+            await _accountService.AddAccountAsync(acc);
+            if (acc.RoleID == 1)
             {
                 var housekeeper = new Housekeeper
                 {
-                    AccountID = account.AccountID,
+                    AccountID = acc.AccountID,
                     VerifyID = null,
                 };
                 await _houseKeeperService.AddHousekeeperAsync(housekeeper);
             }
-            else if (account.RoleID == 2)
+            else if (acc.RoleID == 2)
             {
                 var family = new Family
                 {
-                    AccountID = account.AccountID,
+                    AccountID = acc.AccountID,
                 };
                 await _familyProfileService.AddFamilyAsync(family);
             }
 
             var wallet = new Wallet
             {
-                AccountID = account.AccountID,
+                AccountID = acc.AccountID,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 Status = 1
@@ -193,7 +224,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(validationResult);
             }
 
-            var account = _mapper.Map<Account>(accountUpdateDTO);
+            var account = _mapper.Map<BusinessObject.Models.Account>(accountUpdateDTO);
             var u = await _accountService.GetAccountByIDAsync(account.AccountID);
             if (u == null)
             {
@@ -217,7 +248,7 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<IActionResult> AdminUpdate(AdminUpdateAccountDTO adminUpdateDTO)
         {
-            var account = _mapper.Map<Account>(adminUpdateDTO);
+            var account = _mapper.Map<BusinessObject.Models.Account>(adminUpdateDTO);
             var u = await _accountService.GetAccountByIDAsync(account.AccountID);
             if (u == null)
             {

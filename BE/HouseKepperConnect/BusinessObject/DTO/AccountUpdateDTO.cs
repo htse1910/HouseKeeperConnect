@@ -18,6 +18,7 @@ namespace BusinessObject.DTO
 
         [Required(ErrorMessage = "Phone is required.")]
         public int Phone { get; set; }
+
         [Required(ErrorMessage = "Nickname is required.")]
         public string? Nickname { get; set; }
     }

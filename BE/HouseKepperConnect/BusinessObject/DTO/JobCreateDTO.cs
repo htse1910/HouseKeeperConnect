@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObject.DTO
 {
@@ -33,7 +32,7 @@ namespace BusinessObject.DTO
 
         [Required]
         public bool IsOffered { get; set; }
-    
+
         public int? HousekeeperID { get; set; }
 
         [Required]
