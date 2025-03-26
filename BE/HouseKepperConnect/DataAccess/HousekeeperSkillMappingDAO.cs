@@ -1,10 +1,5 @@
 ﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess
 {
@@ -13,7 +8,8 @@ namespace DataAccess
         private static HousekeeperSkillMappingDAO instance;
         private static readonly object instanceLock = new object();
 
-        private HousekeeperSkillMappingDAO() { }
+        private HousekeeperSkillMappingDAO()
+        { }
 
         public static HousekeeperSkillMappingDAO Instance
         {
@@ -32,7 +28,7 @@ namespace DataAccess
 
         public async Task<List<HousekeeperSkillMapping>> GetSkillsByHousekeeperIdAsync(int housekeeperId)
         {
-            try 
+            try
             {
                 using (var context = new PCHWFDBContext())
                 {
@@ -41,13 +37,11 @@ namespace DataAccess
                         .Include(hs => hs.HouseKeeperSkill)
                         .ToListAsync();
                 }
-
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-
         }
 
         public async Task AddSkillToHousekeeperAsync(HousekeeperSkillMapping housekeeperMapSkill)

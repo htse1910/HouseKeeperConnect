@@ -31,6 +31,7 @@ namespace BusinessObject.Models
 
         [Required]
         public bool IsOffered { get; set; }
+
         public int? HousekeeperID { get; set; }
 
         public virtual Job Job { get; set; }

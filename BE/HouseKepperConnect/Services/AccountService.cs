@@ -44,6 +44,7 @@ namespace Services
         public async Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync() => await _accountRepository.GetTotalAccountAsync();
 
         public async Task<List<Account>> GetNewAccout() => await _accountRepository.GetNewAccout();
-        public async Task<int?> GetRoleIDByAccountIDAsync(int accountID) => await _accountRepository.GetRoleIDByAccountIDAsync(accountID); 
+
+        public async Task<int?> GetRoleIDByAccountIDAsync(int accountID) => await _accountRepository.GetRoleIDByAccountIDAsync(accountID);
     }
 }

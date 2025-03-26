@@ -77,4 +77,10 @@
         Friday = 5,
         Saturday = 6,
     }
+
+    public enum Gender
+    {
+        Male = 1,
+        Female = 2,
+    }
 }

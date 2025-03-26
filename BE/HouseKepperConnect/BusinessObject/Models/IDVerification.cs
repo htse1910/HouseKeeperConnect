@@ -14,13 +14,13 @@ namespace BusinessObject.Models
         public DateTime? DateOfBirth { get; set; }
 
         [Required]
-        public byte[] FrontPhoto { get; set; }
+        public string FrontPhoto { get; set; }
 
         [Required]
-        public byte[] BackPhoto { get; set; }
+        public string BackPhoto { get; set; }
 
         [Required]
-        public byte[] FacePhoto { get; set; }
+        public string FacePhoto { get; set; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

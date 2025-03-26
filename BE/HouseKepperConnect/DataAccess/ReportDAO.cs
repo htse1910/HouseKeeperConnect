@@ -1,6 +1,5 @@
 ﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 
 namespace DataAccess
 {
@@ -58,6 +57,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task<List<Report>> GetReportsByAccountAsync(int accountId)
         {
             try

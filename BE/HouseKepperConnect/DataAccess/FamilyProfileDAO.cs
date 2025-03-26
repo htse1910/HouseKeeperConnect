@@ -75,8 +75,6 @@ namespace DataAccess
             }
         }
 
-        
-
         public async Task AddFamilyAsync(Family Family)
         {
             try

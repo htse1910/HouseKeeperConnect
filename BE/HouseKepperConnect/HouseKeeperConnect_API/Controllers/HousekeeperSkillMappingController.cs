@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
-using DataAccess;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Repositories.Interface;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -15,11 +11,10 @@ namespace HouseKeeperConnect_API.Controllers
     [ApiController]
     public class HousekeeperSkillMappingController : ControllerBase
     {
-
         private readonly IHousekeeperSkillMappingService _housekeeperSkillMappingService;
         private readonly IMapper _mapper;
         private readonly IHouseKeeperService _housekeeperService;
-        private readonly IHousekeeperSkillService _housekeeperSkillService; 
+        private readonly IHousekeeperSkillService _housekeeperSkillService;
 
         public HousekeeperSkillMappingController(IHousekeeperSkillMappingService housekeeperSkillMappingService, IMapper mapper, IHouseKeeperService housekeeperService, IHousekeeperSkillService housekeeperSkillService)
         {
@@ -28,6 +23,7 @@ namespace HouseKeeperConnect_API.Controllers
             _housekeeperService = housekeeperService;
             _housekeeperSkillService = housekeeperSkillService;
         }
+
         [HttpGet("GetSkillsByHousekeeperID")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<HousekeeperSkillMappingDisplayDTO>>> GetSkillsByHousekeeperId(int housekeeperId)
@@ -49,20 +45,18 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest("Invalid data.");
             }
-          
+
             var housekeeper = await _housekeeperService.GetHousekeeperByIDAsync(housekeeperSkillMappingCreateDTO.HousekeeperID);
             if (housekeeper == null)
             {
                 return NotFound("Housekeeper not found!");
             }
 
-            
             var skill = await _housekeeperSkillService.GetHouseKeeperSkillByIDAsync(housekeeperSkillMappingCreateDTO.HouseKeeperSkillID);
             if (skill == null)
             {
                 return NotFound("Skill not found!");
             }
-
 
             var existingMapping = await _housekeeperSkillMappingService.GetSkillsByHousekeeperIdAsync(housekeeperSkillMappingCreateDTO.HousekeeperID);
             if (existingMapping != null)
@@ -86,6 +80,5 @@ namespace HouseKeeperConnect_API.Controllers
             await _housekeeperSkillMappingService.RemoveSkillFromHousekeeperAsync(housekeeperId, skillId);
             return Ok("Skill removed successfully!");
         }
-
     }
 }

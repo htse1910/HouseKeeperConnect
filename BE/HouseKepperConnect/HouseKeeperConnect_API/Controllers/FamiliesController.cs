@@ -80,8 +80,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(displayFamily);
         }
 
-        
-
         [HttpPost("AddFamilyProfile")]
         [Authorize(Policy = "Family")]
         public async Task<ActionResult<string>> AddFamilyProfile(AddFamilyProfileDTO familyDTO)
@@ -162,8 +160,6 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     return NotFound("No family profile found!");
                 }
-
-               
 
                 await _familyService.UpdateFamilyAsync(Family);
 

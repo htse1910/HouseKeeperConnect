@@ -16,8 +16,6 @@ namespace Repositories
 
         public async Task UpdateFamilyAsync(Family Family) => FamilyProfileDAO.Instance.UpdateFamilyAsync(Family);
 
-        
-
         public async Task<List<Family>> SearchFamiliesByAccountIDAsync(int accountId) => await FamilyProfileDAO.Instance.SearchFamiliesByAccountIDAsync(accountId);
 
         public async Task<Family> GetFamilyByAccountIDAsync(int accountId) => await FamilyProfileDAO.Instance.GetFamilyByAccountIDAsync(accountId);

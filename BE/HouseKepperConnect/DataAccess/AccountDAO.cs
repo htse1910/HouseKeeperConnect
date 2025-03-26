@@ -472,7 +472,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    return await context.Account.Where(a => a.AccountID == accountID) .Select(a => (int?)a.RoleID).FirstOrDefaultAsync();
+                    return await context.Account.Where(a => a.AccountID == accountID).Select(a => (int?)a.RoleID).FirstOrDefaultAsync();
                 }
             }
             catch (Exception ex)

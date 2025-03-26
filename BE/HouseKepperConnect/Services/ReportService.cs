@@ -18,6 +18,7 @@ namespace Services
         public async Task<Report> GetReportByIDAsync(int rID) => await _reportRepository.GetReportByIDAsync(rID);
 
         public async Task<List<Report>> GetReportsByAccountAsync(int accountId) => await _reportRepository.GetReportsByAccountAsync(accountId);
+
         public async Task AddReportAsync(Report Report) => await _reportRepository.AddReportAsync(Report);
 
         public async Task DeleteReportAsync(int id) => await _reportRepository.DeleteReportAsync(id);
