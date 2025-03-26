@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const CertificatesAndDocuments = () => {
-  const [realName, setRealName] = useState("...");
-  const [idNumber, setIdNumber] = useState("Chưa có");
-  const [dateOfBirth, setDateOfBirth] = useState("...");
+  const [realName, setRealName] = useState(null);
+  const [idNumber, setIdNumber] = useState(null);
+  const [dateOfBirth, setDateOfBirth] = useState(null);
   const [verifyStatus, setVerifyStatus] = useState("...");
   const [verifyID, setVerifyID] = useState(null);
 
@@ -14,8 +14,6 @@ const CertificatesAndDocuments = () => {
   useEffect(() => {
     if (!accountID || !authToken) return;
 
-    // Step 1: Get verifyID using accountID
-    // Step 1: Get verifyID using accountID
     fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByID?id=${accountID}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -25,9 +23,8 @@ const CertificatesAndDocuments = () => {
       .then((data) => {
         if (data.verifyID) {
           setVerifyID(data.verifyID);
-          localStorage.setItem("verifyID", data.verifyID); // ✅ Save to localStorage
+          localStorage.setItem("verifyID", data.verifyID);
 
-          // Step 2: Use verifyID to fetch ID verification data
           return fetch(`http://localhost:5280/api/IDVerifications/GetIDVerificationByID?id=${data.verifyID}`, {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -38,16 +35,28 @@ const CertificatesAndDocuments = () => {
       .then((res) => res?.json())
       .then((verification) => {
         if (verification) {
-          setRealName(verification.realName || "Chưa có");
-          setIdNumber(verification.idNumber || "Chưa có");
-          setDateOfBirth(
-            verification.dateOfBirth
-              ? new Date(verification.dateOfBirth).toLocaleDateString()
-              : "Chưa có"
-          );
-          setVerifyStatus(
-            verification.status === 1 ? "Đã xác minh" : "Chưa xác minh"
-          );
+          if (verification.realName && verification.realName !== "Chưa có") {
+            setRealName(verification.realName);
+          }
+
+          if (verification.idNumber && verification.idNumber !== "Chưa có") {
+            setIdNumber(verification.idNumber);
+          }
+
+          if (verification.dateOfBirth) {
+            setDateOfBirth(new Date(verification.dateOfBirth).toLocaleDateString());
+          }
+
+          switch (verification.status) {
+            case 1:
+              setVerifyStatus("Đang chờ");
+              break;
+            case 2:
+              setVerifyStatus("Đã xác minh");
+              break;
+            default:
+              setVerifyStatus("Không rõ");
+          }
         }
       })
       .catch((err) => console.error("Lỗi khi lấy thông tin giấy tờ:", err));
@@ -58,9 +67,9 @@ const CertificatesAndDocuments = () => {
       <div className="card p-4 shadow-sm w-100 h-100">
         <h5 className="fw-bold mb-3">Giấy tờ</h5>
         <ul className="list-unstyled">
-          <li><strong>Họ tên:</strong> {realName}</li>
-          <li><strong>Số CMND/CCCD:</strong> {idNumber}</li>
-          <li><strong>Ngày sinh:</strong> {dateOfBirth}</li>
+          {realName && <li><strong>Họ tên:</strong> {realName}</li>}
+          {idNumber && <li><strong>Số CMND/CCCD:</strong> {idNumber}</li>}
+          {dateOfBirth && <li><strong>Ngày sinh:</strong> {dateOfBirth}</li>}
           <li><strong>Trạng thái:</strong> {verifyStatus}</li>
         </ul>
         <Link to="/housekeeper/upload-id" className="btn btn-outline-primary mt-2">
