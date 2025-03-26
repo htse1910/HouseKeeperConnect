@@ -62,7 +62,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPost("AddBooking")]
         [Authorize]
-        public async Task<ActionResult> AddBooking([FromBody] BookingCreateDTO bookingCreateDTO)
+        public async Task<ActionResult> AddBooking([FromQuery] BookingCreateDTO bookingCreateDTO)
         {
             if (bookingCreateDTO == null)
             {
@@ -75,7 +75,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPut("UpdateBooking")]
         [Authorize]
-        public async Task<ActionResult> UpdateBooking([FromBody] BookingUpdateDTO bookingUpdateDTO)
+        public async Task<ActionResult> UpdateBooking([FromQuery] BookingUpdateDTO bookingUpdateDTO)
         {
             var booking = await _bookingService.GetBookingByIDAsync(bookingUpdateDTO.BookingID);
             if (booking == null)
