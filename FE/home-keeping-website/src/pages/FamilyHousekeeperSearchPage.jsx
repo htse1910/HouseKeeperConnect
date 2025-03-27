@@ -194,9 +194,22 @@ const FamilyHousekeeperSearchPage = () => {
                                 )}
                             </h5>
 
-                            <p className="search-page-info"><span>📍</span> {h.address}</p>
-                            <p className="search-page-info"><span>⭐</span> {h.rating?.toFixed(1)}</p>
-                            <p className="search-page-info"><span>💰</span> {h.salary?.toLocaleString()} VND/giờ</p>
+                            <p className="search-page-info">
+                                <span className="location-icon"></span>
+                                {h.address}
+                            </p>
+                            <p className="search-page-info">
+                                {Array.from({ length: 5 }, (_, index) => (
+                                    <span key={index} className={`star-icon ${index < h.rating ? "filled" : ""}`}>
+                                        ★
+                                    </span>
+                                ))}
+                                {h.rating?.toFixed(1)}
+                            </p>
+                            <p className="search-page-info">
+                                <span className="salary-icon">💰</span>
+                                {h.salary?.toLocaleString()} VNĐ/giờ
+                            </p>
 
                             <div className="search-page-skill-tags">
                                 {h.skills?.map((skill, i) => (
