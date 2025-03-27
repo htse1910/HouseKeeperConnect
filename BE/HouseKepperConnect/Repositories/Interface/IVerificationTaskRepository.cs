@@ -4,12 +4,11 @@ namespace Repositories.Interface
 {
     public interface IVerificationTaskRepository
     {
-        Task<int> CreateVerificationTaskAsync(VerificationTask task);
+        
+        Task<List<VerificationTask>> GetPendingTasksAsync(int pageNumber, int pageSize);
 
-        Task<List<VerificationTask>> GetPendingVerificationTasksAsync(int pageNumber, int pageSize);
-
-        Task<bool> ApproveVerificationAsync(int taskId, int staffId, string notes);
-
-        Task<bool> RejectVerificationAsync(int taskId, int staffId, string notes);
+        Task<VerificationTask> GetByIdAsync(int taskId);
+        Task CreateVerificationTaskAsync(VerificationTask task);
+        Task UpdateVerificationTaskAsync(VerificationTask task);
     }
 }

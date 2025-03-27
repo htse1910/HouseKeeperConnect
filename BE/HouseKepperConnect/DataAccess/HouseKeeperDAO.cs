@@ -135,13 +135,13 @@ namespace DataAccess
             }
         }
 
-        public async Task UpdateIsVerifiedAsync(int housekeeperId, bool isVerified)
+        public async Task UpdateIsVerifiedAsync(int verifyId, bool isVerified)
         {
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    var housekeeper = await context.Housekeeper.SingleOrDefaultAsync(x => x.HousekeeperID == housekeeperId);
+                    var housekeeper = await context.Housekeeper.SingleOrDefaultAsync(x => x.VerifyID == verifyId);
                     if (housekeeper != null)
                     {
                         housekeeper.IsVerified = isVerified;
@@ -154,5 +154,6 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
     }
 }

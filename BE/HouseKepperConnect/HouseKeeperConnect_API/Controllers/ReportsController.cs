@@ -113,7 +113,7 @@ namespace HouseKeeperConnect_API.Controllers
                     return BadRequest("Only staff can review reports!");
                 }
                 var updatedReport = _mapper.Map(reportUpdateDTO, existingReport);
-                existingReport.ReviewedAt = DateTime.UtcNow;
+                existingReport.ReviewedAt = DateTime.Now;
                 await _reportService.UpdateReportAsync(updatedReport);
                 return Ok("Report updated successfully!");
             }

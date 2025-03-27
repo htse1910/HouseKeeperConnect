@@ -18,6 +18,6 @@ namespace Repositories.Interface
 
         Task<List<Housekeeper>> GetPendingHousekeepersAsync(int pageNumber, int pageSize);
 
-        Task UpdateIsVerifiedAsync(int housekeeperId, bool isVerified);
+        Task UpdateIsVerifiedAsync(int verifyId, bool isVerified);
     }
 }

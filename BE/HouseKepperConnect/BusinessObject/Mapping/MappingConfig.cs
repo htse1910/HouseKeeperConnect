@@ -86,6 +86,7 @@ namespace BusinessObject.Mapping
         private void Map_List_Display_Report()
         {
             CreateMap<Report, ReportDisplayDTO>().ReverseMap();
+
         }
 
         private void Map_Add_Family_Profile()
@@ -97,6 +98,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<FamilyDisplayDTO, Family>().ReverseMap();
             CreateMap<FamilyDisplayDTO, Account>().ReverseMap();
+
         }
 
         private void Map_Update_Family()
