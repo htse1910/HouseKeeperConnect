@@ -27,6 +27,7 @@ import FamilyHousekeeperSearchPage from './pages/FamilyHousekeeperSearchPage';
 import FamilyTransactionPage from './pages/FamilyTransactionPage';
 import HousekeeperScheduleManagement from './pages/HousekeeperScheduleManagement';
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
+import FamilyJobDetailsPage from './pages/FamilyJobDetailsPage';
 import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
 import UpdateVerificationPage from './pages/UpdateVerificationPage';
@@ -72,7 +73,8 @@ function AppRoutes() {
         <Route path="/find-housekeepers" element={<FamilyHousekeeperSearchPage />} />
         <Route path="/job-posting" element={<FamilyJobPostingPage />} />
         <Route path="/my-posts" element={<FamilyJobManagementPage />} />
-        <Route path="/family/job/detail/:id" element={<JobDetailsPage />} />
+        <Route path="/family/job/update/:id" element={<JobDetailsPage />} />
+        <Route path="/family/job/detail/:id" element={<FamilyJobDetailsPage />} />
         <Route path="/family/transaction" element={<FamilyTransactionPage />} />
       </Routes>
     </Layout>
