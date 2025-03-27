@@ -1,4 +1,6 @@
-﻿namespace BusinessObject.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BusinessObject.DTOs
 {
     public class JobUpdateDTO
     {
@@ -7,6 +9,9 @@
         public string JobName { get; set; }
 
         public int FamilyID { get; set; }
+        public int Status { get; set; }
+        [Required]
+        public int JobType { get; set; }
 
         // JobDetail fields
         public string Location { get; set; }
