@@ -77,6 +77,11 @@
         Friday = 5,
         Saturday = 6,
     }
+    public enum JobType
+    {
+        FullTime = 1,
+        PartTime = 2,
+    }
 
     public enum Gender
     {

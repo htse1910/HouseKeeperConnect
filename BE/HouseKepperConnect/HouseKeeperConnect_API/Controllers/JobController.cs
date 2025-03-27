@@ -31,16 +31,17 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("JobList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Job>>> GetJobsAsync()
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync()
         {
             var jobs = await _jobService.GetAllJobsAsync();
+
             if (jobs == null || !jobs.Any())
             {
-                Message = "No records!";
-                return NotFound(Message);
+                return NotFound("No records!");
             }
+            var jobDTOs = _mapper.Map<List<JobDisplayDTO>>(jobs);
 
-            return Ok(jobs);
+            return Ok(jobDTOs);
         }
 
         [HttpGet("GetJobByID")]

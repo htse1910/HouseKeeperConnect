@@ -90,7 +90,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
+                    var oneWeekAgo = DateTime.Now.AddDays(-7);
                     var jobs = await context.Job
                 .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Completed)
                 .ToListAsync();
@@ -145,8 +145,7 @@ namespace DataAccess
         {
             try
             {
-                using (var context = new PCHWFDBContext())
-                {
+                using (var context = new PCHWFDBContext()) {
                     context.Job.Add(job);
                     await context.SaveChangesAsync();
                 }
