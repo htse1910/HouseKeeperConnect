@@ -53,6 +53,11 @@ namespace BusinessObject.Mapping
             Map_Update_HouseKeeperSkill();
             Map_Display_HouseKeeperSkillMapping();
             Map_Create_HouseKeeperSkillMapping();
+            Map_Display_Violation();
+            Map_Create_Violation();
+            Map_Update_Violation();
+            Map_Display_Housekeeper_Violation();
+            Map_Create_Housekeeper_Violation();
         }
 
         private void Map_List_Register()
@@ -290,6 +295,29 @@ namespace BusinessObject.Mapping
         private void Map_Create_HouseKeeperSkillMapping()
         {
             CreateMap<HousekeeperSkillMappingCreateDTO, HousekeeperSkillMapping>();
+        }
+        private void Map_Display_Violation()
+        {
+            CreateMap<ViolationDisplayDTO, Violation>().ReverseMap();
+        }
+
+        private void Map_Create_Violation()
+        {
+            CreateMap<ViolationCreateDTO, Violation>();
+        }
+
+        private void Map_Update_Violation()
+        {
+            CreateMap<ViolationUpdateDTO, Violation>();
+        }
+        private void Map_Display_Housekeeper_Violation()
+        {
+            CreateMap<Housekeeper_ViolationDisplayDTO, Housekeeper_Violation>().ReverseMap();
+        }
+
+        private void Map_Create_Housekeeper_Violation()
+        {
+            CreateMap<Housekeeper_ViolationCreateDTO, Housekeeper_Violation>();
         }
     }
 }
