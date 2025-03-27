@@ -10,7 +10,6 @@
   "post_job": "Đăng công việc",
   "my_posts": "Công việc đã đăng",
   "find_housekeepers": "Tìm giúp việc",
-
   "dashboard": "Bảng điều khiển",
   "users": "Người dùng",
   "approval": "Kiểm duyệt",
@@ -21,12 +20,10 @@
   "profile": "Trang cá nhân",
   "wallet": "Ví tiền",
   "logout": "Đăng xuất",
-
   "dashboard_welcome_message": "Chào mừng trở lại, {{name}}!",
   "dashboard_welcome_detail_housekeeper": "Khám phá những công việc phù hợp với bạn.",
   "dashboard_welcome_detail_family": "Khám phá những người đồng hành phù hợp với bạn.",
   "select_category": "Chọn một danh mục từ menu để quản lý dữ liệu.",
-
   "account_verification": "Xác minh tài khoản",
   "staff": "Nhân viên",
   "jobs": "Công việc",
@@ -35,19 +32,16 @@
   "reviews": "Đánh giá",
   "disputes": "Tranh chấp",
   "faqs_policies": "Hướng dẫn",
-
   "stats_title": "Thống kê hoạt động",
   "total_housekeepers": "Tổng số người giúp việc",
   "total_families": "Tổng số gia đình",
   "total_jobs": "Tổng số công việc",
   "total_transactions": "Tổng số giao dịch",
-  
   "loading_data": "Đang tải dữ liệu...",
   "error_loading": "Không thể tải dữ liệu.",
   "error_auth": "Không tìm thấy thông tin đăng nhập.",
   "error_account": "Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại.",
   "view_demo": "Xem giao diện demo",
-
   "dashboard_jobs": {
     "available": "Công việc khả dụng",
     "filter": "Lọc",
@@ -75,24 +69,16 @@
     "withdrawable": "Có thể rút",
     "withdraw": "Rút tiền"
   },
-
   "actions": "Hành động",
-  "all": "Tất cả",
-  "all_job_types": "Tất cả loại công việc",
   "amount": "Số tiền",
   "babysitting": "Trông trẻ",
   "back_to_top": "Lên đầu trang",
   "cancel": "Hủy",
   "cleaning": "Dọn dẹp",
   "confirm": "Xác nhận",
-  "confirm_delete_title": "Bạn có chắc muốn xoá mục này không?",
   "created_date": "Ngày tạo",
-  "date": "Ngày",
-  "delete": "Xóa",
   "demo": "Dữ liệu mẫu",
   "description": "Mô tả",
-  "details": "Chi tiết",
-  "edit": "Chỉnh sửa",
   "enter_reject_reason": "Nhập lý do từ chối",
   "family_name": "Tên gia đình",
   "fee": "Phí",
@@ -105,10 +91,7 @@
   "job_moderation_title": "Danh sách kiểm duyệt công việc",
   "job_pending": "Đang chờ",
   "job_title": "Tiêu đề công việc",
-  "job_type": "Loại công việc",
   "job_verified": "Công việc đã xác minh",
-  "jobs_completed": "Công việc đã hoàn thành",
-  "jobs_posted": "Công việc đã đăng",
   "location": "Địa điểm",
   "no_description": "Không có mô tả",
   "no_jobs_found": "Không tìm thấy công việc nào",
@@ -130,6 +113,28 @@
   "transaction_type": "Loại giao dịch",
   "transaction_unknown": "Không rõ loại giao dịch",
   "transaction_withdraw": "Giao dịch rút tiền",
-  "view_applicants": "Xem người ứng tuyển",
-  "view_detail": "Xem chi tiết"
+  "job": {
+    "posted": "Công việc đã đăng",
+    "completed": "Công việc đã hoàn thành",
+    "type": "Loại công việc",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "detail": "Chi tiết",
+    "view_applicants": "Xem người ứng tuyển",
+    "view_detail": "Xem chi tiết",
+    "not_sure": "Không rõ",
+    "delete_failed": "Không thể xoá công việc. Vui lòng thử lại.",
+    "posted_days_ago": "{{days}} ngày trước"
+  },
+  "popup": {
+    "confirm_delete_title": "Bạn có chắc muốn xoá mục này không?",
+    "confirm_delete_text": "Bạn có chắc chắn muốn xoá \"{{title}}\" không?"
+  },
+  "filter": {
+    "all": "Tất cả",
+    "all_job_types": "Tất cả loại công việc",
+    "start_date": "Ngày bắt đầu"
+  },
+  "no_jobs_yet": "Bạn chưa đăng công việc nào.",
+  "no_family_profile": "Bạn chưa tạo hồ sơ gia đình."
 }

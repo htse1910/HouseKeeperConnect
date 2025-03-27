@@ -1,33 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
+import axios from "axios";
+import useFamilyJobs from "../hooks/useFamilyJobs"; // ✅ Nhớ import hook mới
 import "../assets/styles/Job.css";
-
-const generateFakeJobs = () => {
-    const titles = [
-        "Dọn dẹp nhà cửa", "Nấu ăn gia đình", "Chăm sóc trẻ em",
-        "Giặt giũ quần áo", "Vệ sinh nhà tắm", "Rửa chén bát",
-        "Dọn dẹp sân vườn", "Ủi quần áo", "Nấu tiệc cuối tuần", "Tổng vệ sinh ngày lễ"
-    ];
-    const locations = ["Quận 1", "Quận 3", "Gò Vấp", "Tân Bình", "Bình Thạnh", "Thủ Đức"];
-    const types = ["Dọn dẹp", "Nấu ăn"];
-    const statuses = [0, 1, 2];
-
-    return Array.from({ length: 40 }, (_, i) => {
-        const randomDaysAgo = Math.floor(Math.random() * 15);
-        return {
-            jobID: i + 1,
-            title: titles[Math.floor(Math.random() * titles.length)],
-            location: locations[Math.floor(Math.random() * locations.length)],
-            salary: Math.floor(Math.random() * 100000) + 50000,
-            jobName: types[Math.floor(Math.random() * types.length)],
-            status: statuses[Math.floor(Math.random() * statuses.length)],
-            postedDate: new Date(Date.now() - randomDaysAgo * 86400000).toISOString()
-        };
-    });
-};
 
 const FamilyJobManagementPage = () => {
     const { t } = useTranslation();
@@ -38,160 +15,77 @@ const FamilyJobManagementPage = () => {
     const accountID = localStorage.getItem("accountID");
     const authToken = localStorage.getItem("authToken");
 
-    const headers = {
-        Authorization: `Bearer ${authToken}`,
-        "Content-Type": "application/json"
-    };
+    const {
+        jobs,
+        services,
+        jobServices,
+        housekeepers,
+        loading,
+        error,
+        isNoProfile,
+        isNoJob,
+        setJobs
+    } = useFamilyJobs({ isDemo, accountID, authToken, t });
 
-    const [isNoProfile, setIsNoProfile] = useState(false);
-    const [isNoJob, setIsNoJob] = useState(false);
-
-    const [jobs, setJobs] = useState([]);
-    const [services, setServices] = useState([]);
-    const [jobServices, setJobServices] = useState([]);
-
-    const [housekeepers, setHousekeepers] = useState(null);
-
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    const shouldShowLoadingOrError = loading || error;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const defaultDate = tomorrow.toISOString().split("T")[0];
 
     const [filter, setFilter] = useState({
         status: "all",
         jobName: "all",
-        date: ""
+        start_date: defaultDate
     });
+    
     const [jobToDelete, setJobToDelete] = useState(null);
-
     const [showBackToTop, setShowBackToTop] = useState(false);
 
-    useEffect(() => {
-        if (isDemo) {
-            setJobs(generateFakeJobs());
-            setLoading(false);
-            setError(null);
-            return;
-        }
+    const text = {
+        jobsPosted: t("job.posted"),
+        jobsCompleted: t("job.completed"),
+        jobType: t("job.type"),
+        all: t("filter.all"),
+        allJobTypes: t("filter.all_job_types"),
+        noJobsYet: t("no_jobs_yet"),
+        noJobsFound: t("no_jobs_found"),
+        noProfile: t("no_family_profile"),
+        confirmDeleteTitle: t("popup.confirm_delete_title"),
+        confirmDeleteText: (title) => t("popup.confirm_delete_text", { title }),
+        backToTop: t("back_to_top"),
+        viewApplicants: t("job.view_applicants"),
+        viewDetail: t("job.view_detail"),
+    };
 
-        setLoading(true);
-        setError(null);
-        setIsNoProfile(false);
-        setIsNoJob(false);
+    const jobStatusMap = React.useMemo(() => ({
+        1: t("job_pending"),
+        2: t("job_verified"),
+        3: t("job_accepted"),
+        4: t("job_completed"),
+        5: t("job_expired"),
+        6: t("job_canceled"),
+    }), [t]);
 
-        if (!authToken) {
-            setError(t("error_auth"));
-            setLoading(false);
-            return;
-        }
-
-        if (!accountID) {
-            setError(t("error_account"));
-            setLoading(false);
-            return;
-        }
-
-        let tempServices = [];
-        let tempJobServices = [];
-
-        axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-            .then((accountRes) => {
-                const account = accountRes.data;
-                if (!account || !account.accountID) throw new Error(t("error_auth"));
-
-                return axios.get(`http://localhost:5280/api/Families/SearchFamilyByAccountId?accountId=${accountID}`, { headers });
-            })
-            .then((familyResponse) => {
-                const familyData = familyResponse.data?.[0];
-                if (!familyData) {
-                    setIsNoProfile(true);
-                    throw new Error("NO_PROFILE");
-                }
-
-                const getJobServicesSafe = () =>
-                    axios.get(`http://localhost:5280/api/Job_Service/Job_ServiceList`, { headers })
-                        .then(res => Array.isArray(res.data) ? res.data : [])
-                        .catch(err => {
-                            console.warn("Không thể tải Job_ServiceList:", err.message);
-                            return [];
-                        });
-
-                return Promise.all([
-                    axios.get(`http://localhost:5280/api/Service/ServiceList`, { headers }),
-                    getJobServicesSafe(),
-                    axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers })
-                ]);
-            })
-            .then(([serviceRes, jobServiceData, totalAccountRes]) => {
-                tempServices = serviceRes.data || [];
-                tempJobServices = jobServiceData || [];
-                setServices(tempServices);
-                setJobServices(tempJobServices);
-
-                const totalAccounts = totalAccountRes.data;
-                setHousekeepers(totalAccounts.totalHousekeepers || 0);
-
-                return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
-            })
-            .then((jobRes) => {
-                const rawJobs = jobRes.data || [];
-
-                const serviceMapByJob = {};
-                tempJobServices.forEach(({ jobID, serviceID }) => {
-                    if (!serviceMapByJob[jobID]) serviceMapByJob[jobID] = [];
-                    serviceMapByJob[jobID].push(serviceID);
-                });
-
-                const enrichedJobs = rawJobs.map((job) => {
-                    const serviceIDs = serviceMapByJob[job.jobID] || [];
-                    const serviceNames = serviceIDs
-                        .map(id => tempServices.find(s => s.serviceID === id)?.serviceName)
-                        .filter(Boolean);
-
-                    return {
-                        ...job,
-                        jobTypeList: serviceNames,
-                        jobType: serviceNames.join(", ") || "Không rõ"
-                    };
-                });
-
-                setJobs(enrichedJobs);
-                if (enrichedJobs.length === 0) setIsNoJob(true);
-            })
-            .catch((err) => {
-                if (err.message !== "NO_PROFILE") {
-                    console.error("API Error:", err);
-                    setError(t("error_loading"));
-                }
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, [isDemo]);
+    const shouldShowLoadingOrError = loading || error;
 
     const filteredJobs = jobs.filter(job => {
         const { status, jobName, date } = filter;
-
-        // Lọc theo dropdown
         if (status !== "all" && job.status !== parseInt(status)) return false;
-        if (filter.jobName !== "all" && !job.jobTypeList?.includes(filter.jobName)) {
-            return false;
-        }
-        if (date && job.postedDate.slice(0, 10) !== date) return false;
-
+        if (jobName !== "all" && !job.jobTypeList?.includes(jobName)) return false;
+        if (date && job.createdDate.slice(0, 10) !== date) return false;
         return true;
     });
 
-    const handleDeleteClick = (job) => {
-        setJobToDelete(job);
-    };
+    const handleDeleteClick = (job) => setJobToDelete(job);
 
     const confirmDelete = async () => {
         if (!jobToDelete) return;
 
         try {
             await axios.delete(`http://localhost:5280/api/Job/DeleteJob`, {
-                headers,
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    "Content-Type": "application/json"
+                },
                 params: { id: jobToDelete.jobID }
             });
 
@@ -199,13 +93,11 @@ const FamilyJobManagementPage = () => {
             setJobToDelete(null);
         } catch (err) {
             console.error("Lỗi xoá công việc:", err);
-            alert("Không thể xoá công việc. Vui lòng thử lại.");
+            alert(t("job.delete_failed"));
         }
     };
 
-    const cancelDelete = () => {
-        setJobToDelete(null);
-    };
+    const cancelDelete = () => setJobToDelete(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -213,15 +105,8 @@ const FamilyJobManagementPage = () => {
             setShowBackToTop(scrollY > 150);
         };
 
-        if (typeof window !== "undefined") {
-            window.addEventListener("scroll", handleScroll);
-        }
-
-        return () => {
-            if (typeof window !== "undefined") {
-                window.removeEventListener("scroll", handleScroll);
-            }
-        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     if (shouldShowLoadingOrError) {
@@ -247,15 +132,6 @@ const FamilyJobManagementPage = () => {
         );
     }
 
-    const JOB_STATUS_MAP = {
-        1: t("job_pending"),
-        2: t("job_verified"),
-        3: t("job_accepted"),
-        4: t("job_completed"),
-        5: t("job_expired"),
-        6: t("job_canceled"),
-    };
-
     const status4Jobs = jobs.filter((job) => job.status === 4).length;
     console.log(jobs);
     console.log(filteredJobs);
@@ -265,13 +141,13 @@ const FamilyJobManagementPage = () => {
             {/* HEADER THỐNG KÊ */}
             <div className="job-management-header">
                 <div className="job-management-stat">
-                    <p className="title">{t("jobs_posted")}</p>
+                    <p className="title">{text.jobsPosted}</p>
                     <div className="value">
                         {jobs.length} <i className="fa-solid fa-briefcase icon" />
                     </div>
                 </div>
                 <div className="job-management-stat">
-                    <p className="title">{t("jobs_completed")}</p>
+                    <p className="title">{text.jobsCompleted}</p>
                     <div className="value">
                         {status4Jobs} <i className="fa-solid fa-check-circle icon" />
                     </div>
@@ -292,18 +168,18 @@ const FamilyJobManagementPage = () => {
                 <div className="job-management-filters">
                     <label>{t("status")}</label>
                     <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
-                        <option value="all">{t("all")}</option>
-                        {Object.entries(JOB_STATUS_MAP).map(([value, label]) => (
+                        <option value="all">{text.all}</option>
+                        {Object.entries(jobStatusMap).map(([value, label]) => (
                             <option key={value} value={value}>{label}</option>
                         ))}
                     </select>
 
-                    <label>{t("job_type")}</label>
+                    <label>{text.jobType}</label>
                     <select
                         value={filter.jobName}
                         onChange={(e) => setFilter({ ...filter, jobName: e.target.value })}
                     >
-                        <option value="all">{t("all_job_types")}</option>
+                        <option value="all">{text.allJobTypes}</option>
                         {services.map((s) => (
                             <option key={s.serviceID} value={s.serviceName}>
                                 {s.serviceName}
@@ -311,27 +187,27 @@ const FamilyJobManagementPage = () => {
                         ))}
                     </select>
 
-                    <label>{t("date")}</label>
+                    <label>{t("filter.start_date")}</label>
                     <input
                         type="date"
-                        value={filter.date}
+                        value={filter.start_date}
                         onChange={(e) => setFilter({ ...filter, date: e.target.value })}
                     />
                 </div>
 
                 <div className="job-management-content">
                     <div className="job-management-tabs">
-                        <span className="active-tab">{t("jobs_posted")}</span>
+                        <span className="active-tab">{text.jobsPosted}</span>
                     </div>
 
                     {filteredJobs.length === 0 ? (
                         <>
                             {isNoProfile ? (
-                                <p>{t("no_family_profile")}</p>
+                                <p>{text.noProfile}</p>
                             ) : isNoJob ? (
-                                <p>{t("no_jobs_yet")}</p>
+                                <p>{text.noJobsYet}</p>
                             ) : (
-                                <p>{t("no_jobs_found")}</p>
+                                <p>{text.noJobsFound}</p>
                             )}
                         </>
                     ) : (
@@ -340,27 +216,27 @@ const FamilyJobManagementPage = () => {
                                 <div key={job.jobID} className="job-management-card">
                                     <div className="job-management-card-top">
                                         <div className="job-management-left">
-                                            <h3 className="job-management-title">{job.title}</h3>
+                                            <h3 className="job-management-title">{job.jobName}</h3>
                                             <div className="job-management-info">
-                                                <span>📅 {t("posted_days_ago", { days: Math.floor((Date.now() - new Date(job.postedDate)) / 86400000) })}</span>
+                                                <span>📅 {t("job.posted_days_ago", { days: Math.floor((Date.now() - new Date(job.createdDate)) / 86400000) })}</span>
                                                 <span><FaMapMarkerAlt /> {job.location}</span>
                                                 <span>
                                                     <FaMoneyBillWave />{" "}
-                                                    {job.salary != null ? job.salary.toLocaleString("vi-VN") : "Không rõ"} VND/giờ
+                                                    {job.salary != null ? job.salary.toLocaleString("vi-VN") : t("job.not_sure")} VND/giờ
                                                 </span>
                                             </div>
                                         </div>
 
                                         <div className={`job-management-status-badge status-${job.status}`}>
-                                            {JOB_STATUS_MAP[job.status]}
+                                            {jobStatusMap[job.status]}
                                         </div>
                                     </div>
 
                                     <div className="job-management-actions">
-                                        <button className="btn-secondary" onClick={() => navigate(`/family/job/update/${job.jobID}`)}>{t("edit")}</button>
-                                        <button className="btn-cancel" onClick={() => handleDeleteClick(job)}>{t("delete")}</button>
+                                        <button className="btn-secondary" onClick={() => navigate(`/family/job/update/${job.jobID}`)}>{t("job.edit")}</button>
+                                        <button className="btn-cancel" onClick={() => handleDeleteClick(job)}>{t("job.delete")}</button>
                                         <button className="btn-primary" onClick={() => navigate(`/family/job/detail/${job.jobID}`)}>
-                                            {job.status === 2 ? t("view_applicants") : t("view_detail")}
+                                            {job.status === 2 ? text.viewApplicants : text.viewDetail}
                                         </button>
                                     </div>
                                 </div>
@@ -373,8 +249,8 @@ const FamilyJobManagementPage = () => {
             {jobToDelete && (
                 <div className="popup-overlay">
                     <div className="popup-box">
-                        <h4>{t("confirm_delete_title")}</h4>
-                        <p>{t("confirm_delete_text", { title: jobToDelete.title })}</p>
+                        <h4>{text.confirmDeleteTitle}</h4>
+                        <p>{text.confirmDeleteText(jobToDelete.jobName)}</p>
                         <div className="popup-actions">
                             <button onClick={confirmDelete} className="btn-cancel">{t("confirm")}</button>
                             <button onClick={cancelDelete} className="btn-secondary">{t("cancel")}</button>
@@ -388,7 +264,7 @@ const FamilyJobManagementPage = () => {
                     className={`btn-back-to-top show`}
                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 >
-                    <i className="fa-solid fa-arrow-up" /> {t("back_to_top")}
+                    <i className="fa-solid fa-arrow-up" /> {text.backToTop}
                 </button>
             )}
         </div>

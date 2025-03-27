@@ -179,32 +179,32 @@
 
 .job-posting-checkbox-card,
 .job-posting-checkbox-day {
-  justify-content: center;
-  text-align: center;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  border-radius: 10px;
-  padding: 6px 12px;
-  transition: all 0.2s ease;
-  background-color: #f8f8f8;
-  font-weight: 500;
-  border: 1px solid transparent;
+    justify-content: center;
+    text-align: center;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    padding: 6px 12px;
+    transition: all 0.2s ease;
+    background-color: #f8f8f8;
+    font-weight: 500;
+    border: 1px solid transparent;
 }
 
 .job-posting-checkbox-card:hover,
 .job-posting-checkbox-day:hover {
-  background-color: #fff7ec;
-  border-color: var(--main-color);
+    background-color: #fff7ec;
+    border-color: var(--main-color);
 }
 
-.job-posting-checkbox-card input[type="checkbox"]:checked + span,
-.job-posting-checkbox-day input[type="checkbox"]:checked + span {
-  background-color: var(--main-color);
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 0 0 1px var(--main-color);
-  border-color: var(--main-color);
+.job-posting-checkbox-card input[type="checkbox"]:checked+span,
+.job-posting-checkbox-day input[type="checkbox"]:checked+span {
+    background-color: var(--main-color);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 0 0 1px var(--main-color);
+    border-color: var(--main-color);
 }
 
 /* Checkbox ngày trong tuần */
@@ -228,66 +228,67 @@
 
 .job-posting-checkbox-day span,
 .job-posting-checkbox-card span {
-  display: inline-block;
-  background: var(--light-gray);
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  transition: 0.2s ease;
-  cursor: pointer;
+    display: inline-block;
+    background: var(--light-gray);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: 0.2s ease;
+    cursor: pointer;
 }
 
-.job-posting-checkbox-day input[type="checkbox"]:checked + span,
-.job-posting-checkbox-card input[type="checkbox"]:checked + span {
-  background: var(--main-color);
-  color: white;
+.job-posting-checkbox-day input[type="checkbox"]:checked+span,
+.job-posting-checkbox-card input[type="checkbox"]:checked+span {
+    background: var(--main-color);
+    color: white;
 }
 
 .job-posting-checkbox-card span,
 .job-posting-checkbox-day span {
-  background-color: transparent !important;
+    background-color: transparent !important;
 }
 
-.job-posting-checkbox-card input[type="checkbox"]:checked + span,
-.job-posting-checkbox-day input[type="checkbox"]:checked + span {
-  background-color: var(--main-color);
-  color: white;
-  font-weight: 600;
-  border-radius: 8px;
-  box-shadow: none;
+.job-posting-checkbox-card input[type="checkbox"]:checked+span,
+.job-posting-checkbox-day input[type="checkbox"]:checked+span {
+    background-color: var(--main-color);
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: none;
 }
 
 .job-posting-checkbox-card:has(input[type="checkbox"]:checked),
 .job-posting-checkbox-day:has(input[type="checkbox"]:checked) {
-  background-color: var(--main-color);
-  border-color: var(--main-color);
+    background-color: var(--main-color);
+    border-color: var(--main-color);
 }
 
-.job-posting-checkbox-card input[type="checkbox"]:checked + span:hover,
-.job-posting-checkbox-day input[type="checkbox"]:checked + span:hover {
-  background-color: transparent !important;
+.job-posting-checkbox-card input[type="checkbox"]:checked+span:hover,
+.job-posting-checkbox-day input[type="checkbox"]:checked+span:hover {
+    background-color: transparent !important;
 }
 
 .job-posting-price-wrapper {
     position: relative;
     display: flex;
     align-items: center;
-  }
-  
-  .job-posting-price-wrapper input {
+}
+
+.job-posting-price-wrapper input {
     flex: 1;
-    padding-right: 100px; /* chừa chỗ cho VNĐ */
-  }
-  
-  .job-posting-vnd-suffix {
+    padding-right: 100px;
+    /* chừa chỗ cho VNĐ */
+}
+
+.job-posting-vnd-suffix {
     position: absolute;
     right: 12px;
     color: #666;
     font-size: 14px;
     pointer-events: none;
     white-space: nowrap;
-  }  
+}
 
 /* Submit button */
 .job-posting-submit-btn {
@@ -559,6 +560,192 @@
     border-radius: 8px;
     cursor: pointer;
     transition: 0.2s ease;
+}
+
+/* === FAMILY JOB DETAIL PAGE === */
+.job-detail-container {
+    display: flex;
+    gap: 32px;
+    padding: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.job-detail-main {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.job-detail-sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.job-detail-card {
+    background: white;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+}
+
+.job-detail-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.job-detail-meta {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: #555;
+    align-items: center;
+}
+
+.job-detail-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.job-detail-review {
+    margin-bottom: 16px;
+}
+
+.job-detail-stars {
+    display: flex;
+    gap: 4px;
+    color: var(--warning-color);
+}
+
+.job-detail-sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.job-detail-candidate {
+    display: flex;
+    gap: 12px;
+}
+
+.job-detail-candidate img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.job-detail-rating {
+    font-size: 14px;
+    color: var(--warning-color);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.job-detail-tags {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.job-detail-tags .tag {
+    background: #eee;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.job-detail-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.job-detail-similar {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+}
+
+.job-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .job-detail-candidate {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .job-detail-candidate:last-child {
+    border-bottom: none;
+  }
+  
+  .job-detail-candidate > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .job-detail-sidebar .job-detail-card {
+    padding: 16px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+  }
+  
+  .job-detail-sidebar .btn-primary,
+  .job-detail-sidebar .btn-secondary {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+  
+  .job-management-status-badge {
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: inline-block;
+  }
+  
+.job-management-status-badge.status-1 {
+    background-color: #f0f0f0;
+    color: #777;
+}
+
+.job-management-status-badge.status-2 {
+    background-color: #e7f1ff;
+    color: #007bff;
+}
+
+.job-management-status-badge.status-3 {
+    background-color: #fff5e6;
+    color: var(--main-color);
+}
+
+.job-management-status-badge.status-4 {
+    background-color: #d6f5e4;
+    color: var(--success-color);
+}
+
+.job-management-status-badge.status-5 {
+    background-color: #FFF8E7;
+    color: var(--main-color);
+}
+
+.job-management-status-badge.status-6 {
+    background-color: #FFE4E4;
+    color: var(--cancel-color);
 }
 
 .btn-primary {

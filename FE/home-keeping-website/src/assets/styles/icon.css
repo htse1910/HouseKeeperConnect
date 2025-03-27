@@ -25,6 +25,41 @@
   color: var(--warning-color);
 }
 
+.location-icon {
+  width: 15px;
+  height: 15px;
+  background: #FF4136;
+  border-radius: 50% 50% 50% 2%;
+  transform: rotate(-45deg);
+  position: relative;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.location-icon::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.salary-icon {
+  width: 22px;
+  height: 22px;
+  background-color: var(--light-gray);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+}
+
 .btn-back-to-top {
   position: fixed;
   bottom: 40px;
