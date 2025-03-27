@@ -50,7 +50,7 @@ namespace HouseKeeperConnect_API.Controllers
                 FromAccountID = chatDto.FromAccountId,
                 ToAccountID = chatDto.ToAccountId,
                 Content = chatDto.Message,
-                SendAt = DateTime.UtcNow
+                SendAt = DateTime.Now
             };
 
             try

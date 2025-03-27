@@ -6,7 +6,7 @@ namespace DataAccess
 {
     public class FamilyProfileDAO
     {
-        private readonly IMapper _mapper;
+        
         private static FamilyProfileDAO instance;
         private static readonly object instancelock = new object();
 
@@ -35,7 +35,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Family.AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Family.Include(a => a.Account).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

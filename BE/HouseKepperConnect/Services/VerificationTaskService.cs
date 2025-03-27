@@ -13,12 +13,9 @@ namespace Services
             _verificationTaskRepository = verificationTaskRepository;
         }
 
-        public async Task<int> CreateVerificationTaskAsync(VerificationTask task) => await _verificationTaskRepository.CreateVerificationTaskAsync(task);
-
-        public async Task<List<VerificationTask>> GetPendingVerificationTasksAsync(int pageNumber, int pageSize) => await _verificationTaskRepository.GetPendingVerificationTasksAsync(pageNumber, pageSize);
-
-        public async Task<bool> ApproveVerificationAsync(int taskId, int staffId, string notes) => await _verificationTaskRepository.ApproveVerificationAsync(taskId, staffId, notes);
-
-        public async Task<bool> RejectVerificationAsync(int taskId, int staffId, string notes) => await _verificationTaskRepository.RejectVerificationAsync(taskId, staffId, notes);
-    }
+        public async Task<List<VerificationTask>> GetPendingTasksAsync(int pageNumber, int pageSize) => await _verificationTaskRepository.GetPendingTasksAsync(pageNumber, pageSize);
+        public async Task<VerificationTask> GetByIdAsync(int taskId) => await _verificationTaskRepository.GetByIdAsync(taskId);
+        public async Task CreateVerificationTaskAsync(VerificationTask task) => await _verificationTaskRepository.CreateVerificationTaskAsync(task);
+        public async Task UpdateVerificationTaskAsync(VerificationTask task) => await _verificationTaskRepository.UpdateVerificationTaskAsync(task);
+    } 
 }

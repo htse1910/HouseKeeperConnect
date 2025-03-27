@@ -26,26 +26,38 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<FamilyDisplayDTO>>> GetAllFamilies(int pageNumber, int pageSize)
         {
-            try
+            var families = await _familyService.GetAllFamilysAsync(pageNumber, pageSize);
+            if (families.Count == 0)
             {
-                var families = await _familyService.GetAllFamilysAsync(pageNumber, pageSize);
-                if (families.Count == 0)
-                {
-                    return NotFound("Family list is empty!");
-                }
+                 return NotFound("Family list is empty!");
+            }
 
-                var familyDTOs = _mapper.Map<List<FamilyDisplayDTO>>(families);
-                return Ok(familyDTOs);
-            }
-            catch (Exception ex)
+            var familyList = new List<FamilyDisplayDTO>();
+
+            foreach (var item in families)
             {
-                return BadRequest(ex.Message);
+                var familyDTO = new FamilyDisplayDTO
+                {
+                    AccountID = item.AccountID,
+                    Address = item.Account.Address,
+                    BankAccountNumber = item.Account.BankAccountNumber,
+                    Email = item.Account.Email,
+                    GoogleProfilePicture = item.Account.GoogleProfilePicture,
+                    Introduction = item.Account.Introduction,
+                    LocalProfilePicture = item.Account.LocalProfilePicture,
+                    Name = item.Account.Name,
+                    Phone = item.Account.Phone,
+                    Gender = item.Account.Gender.GetValueOrDefault(),
+                };
+
+                familyList.Add(familyDTO);
             }
+            return Ok(familyList);
         }
 
-        [HttpGet("GetFamily")]
+        [HttpGet("GetFamilyByID")]
         [Authorize]
-        public async Task<ActionResult<FamilyDisplayDTO>> GetFamilyById([FromQuery] int id)
+        public async Task<ActionResult<Family>> GetFamilyById([FromQuery] int id)
         {
             var family = await _familyService.GetFamilyByIDAsync(id);
             if (family == null)
@@ -53,8 +65,8 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("Family not found!");
             }
 
-            var familyDTO = _mapper.Map<FamilyDisplayDTO>(family);
-            return Ok(familyDTO);
+            //var familyDTO = _mapper.Map<FamilyDisplayDTO>(family);
+            return Ok(family);
         }
 
         [HttpGet("GetFamilyByAccountID")]

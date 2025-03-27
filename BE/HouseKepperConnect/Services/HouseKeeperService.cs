@@ -27,6 +27,6 @@ namespace Services
 
         public async Task<List<Housekeeper>> GetPendingHousekeepersAsync(int pageNumber, int pageSize) => await _houseKeeperRepository.GetPendingHousekeepersAsync(pageNumber, pageSize);
 
-        public async Task UpdateIsVerifiedAsync(int housekeeperId, bool isVerified) => await _houseKeeperRepository.UpdateIsVerifiedAsync(housekeeperId, isVerified);
+        public async Task UpdateIsVerifiedAsync(int verifyId, bool isVerified) => await _houseKeeperRepository.UpdateIsVerifiedAsync(verifyId, isVerified);
     }
 }

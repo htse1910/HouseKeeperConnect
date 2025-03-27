@@ -26,43 +26,18 @@ namespace DataAccess
             }
         }
 
-        public async Task<int> CreateVerificationTaskAsync(VerificationTask task)
+        public async Task<List<VerificationTask>> GetPendingTasksAsync(int pageNumber, int pageSize)
         {
+            var list = new List<VerificationTask>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    var verificationExists = await context.IDVerification.AnyAsync(v => v.VerifyID == task.VerifyID);
-                    if (!verificationExists)
-                    {
-                        throw new Exception($"IDVerification với ID {task.VerifyID} không tồn tại.");
-                    }
-
-                    task.Status = 1; // Pending
-                    task.AssignedDate = DateTime.UtcNow;
-
-                    context.VerificationTask.Add(task);
-                    await context.SaveChangesAsync();
-                    return task.TaskID;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi tạo VerificationTask: " + ex.Message);
-            }
-        }
-
-        public async Task<List<VerificationTask>> GetPendingVerificationTasksAsync(int pageNumber, int pageSize)
-        {
-            try
-            {
-                using (var context = new PCHWFDBContext())
-                {
-                    return await context.VerificationTask
-                        .Include(t => t.IDVerification)
-                        .Include(t => t.Account)
-                        .Where(t => t.IDVerification.Status == 1)
-                        .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
+                    list = await context.VerificationTask
+                        .Where(t => t.Status == 1) 
+                        .AsNoTracking()
+                        .Skip((pageNumber - 1) * pageSize)
+                        .Take(pageSize)
                         .ToListAsync();
                 }
             }
@@ -70,42 +45,56 @@ namespace DataAccess
             {
                 throw new Exception(ex.Message);
             }
+            return list;
         }
-
-        public async Task<bool> ApproveVerificationAsync(int taskId, int staffId, string notes)
+        public async Task<VerificationTask> GetByIdAsync(int taskId)
         {
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    var staff = await context.Account.FirstOrDefaultAsync(a => a.AccountID == staffId && a.RoleID == 3);
-                    if (staff == null)
-                    {
-                        throw new UnauthorizedAccessException("You do not have permission to approve verification.");
-                    }
-                    var task = await context.VerificationTask
+                    return await context.VerificationTask
                         .Include(t => t.IDVerification)
+                        .AsNoTracking()
                         .FirstOrDefaultAsync(t => t.TaskID == taskId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task CreateVerificationTaskAsync(VerificationTask task)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    context.VerificationTask.Add(task);
+                    await context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task UpdateVerificationTaskAsync(VerificationTask task)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    context.VerificationTask.Attach(task);
+                    context.Entry(task).State = EntityState.Modified;
 
-                    if (task == null || task.IDVerification == null || task.IDVerification.Status != 1)
+                    if (task.IDVerification != null)
                     {
-                        return false;
-                    }
-
-                    task.AccountID = staffId;
-                    task.IDVerification.Status = 2;
-                    task.Status = 2;
-                    task.CompletedDate = DateTime.UtcNow;
-                    task.Notes = notes;
-
-                    var housekeeper = await context.Housekeeper.FirstOrDefaultAsync(h => h.VerifyID == task.IDVerification.VerifyID);
-                    if (housekeeper != null)
-                    {
-                        housekeeper.IsVerified = true;
+                        context.IDVerification.Attach(task.IDVerification);
+                        context.Entry(task.IDVerification).State = EntityState.Modified;
                     }
 
                     await context.SaveChangesAsync();
-                    return true;
                 }
             }
             catch (Exception ex)
@@ -114,40 +103,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<bool> RejectVerificationAsync(int taskId, int staffId, string notes)
-        {
-            try
-            {
-                using (var context = new PCHWFDBContext())
-                {
-                    var staff = await context.Account.FirstOrDefaultAsync(a => a.AccountID == staffId && a.RoleID == 3);
-                    if (staff == null)
-                    {
-                        throw new UnauthorizedAccessException("You do not have permission to reject verification.");
-                    }
-                    var task = await context.VerificationTask
-                        .Include(t => t.IDVerification)
-                        .FirstOrDefaultAsync(t => t.TaskID == taskId);
 
-                    if (task == null || task.IDVerification == null || task.IDVerification.Status != 1)
-                    {
-                        return false;
-                    }
 
-                    task.AccountID = staffId;
-                    task.IDVerification.Status = 3;
-                    task.Status = 2;
-                    task.CompletedDate = DateTime.UtcNow;
-                    task.Notes = notes;
-
-                    await context.SaveChangesAsync();
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
     }
 }

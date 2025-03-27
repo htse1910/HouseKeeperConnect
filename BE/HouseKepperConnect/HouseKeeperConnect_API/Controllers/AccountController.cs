@@ -180,7 +180,7 @@ namespace HouseKeeperConnect_API.Controllers
             acc.Password = _passwordHasher.HashPassword(acc, accountRegisterDTO.Password);
             acc.Introduction = accountRegisterDTO.Introduction;
             acc.LocalProfilePicture = avatarUrl;
-
+            acc.Gender = (int)accountRegisterDTO.Gender;
             await _accountService.AddAccountAsync(acc);
             if (acc.RoleID == 1)
             {
