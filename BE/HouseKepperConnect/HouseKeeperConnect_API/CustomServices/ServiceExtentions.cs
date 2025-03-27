@@ -52,6 +52,10 @@ public static class ServiceExtentions
         services.AddScoped<IHousekeeperSkillMappingService, HousekeeperSkillMappingService>();
         services.AddScoped<IHousekeeperSkillRepository, HousekeeperSkillRepository>();
         services.AddScoped<IHousekeeperSkillService, HousekeeperSkillService>();
+        services.AddScoped<IViolationRepository, ViolationRepository>();
+        services.AddScoped<IViolationService, ViolationService>();
+        services.AddScoped<IHousekeeper_ViolationRepository, Housekeeper_ViolationRepository>();
+        services.AddScoped<IHousekeeper_ViolationService, Housekeeper_ViolationService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

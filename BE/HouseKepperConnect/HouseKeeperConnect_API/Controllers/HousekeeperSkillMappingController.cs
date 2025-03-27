@@ -39,7 +39,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPost("AddSkill")]
         [Authorize]
-        public async Task<IActionResult> AddSkillToHousekeeper([FromBody] HousekeeperSkillMappingCreateDTO housekeeperSkillMappingCreateDTO)
+        public async Task<IActionResult> AddSkillToHousekeeper([FromQuery] HousekeeperSkillMappingCreateDTO housekeeperSkillMappingCreateDTO)
         {
             if (housekeeperSkillMappingCreateDTO == null)
             {
@@ -59,10 +59,11 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             var existingMapping = await _housekeeperSkillMappingService.GetSkillsByHousekeeperIdAsync(housekeeperSkillMappingCreateDTO.HousekeeperID);
-            if (existingMapping != null)
+            if (existingMapping.Any(hs => hs.HouseKeeperSkillID == housekeeperSkillMappingCreateDTO.HouseKeeperSkillID))
             {
                 return BadRequest("Housekeeper already has this skill!");
             }
+
             var skillEntity = _mapper.Map<HousekeeperSkillMapping>(housekeeperSkillMappingCreateDTO);
             await _housekeeperSkillMappingService.AddSkillToHousekeeperAsync(skillEntity);
             return Ok("Skill added successfully!");
