@@ -26,6 +26,8 @@
   "select_category": "Select a category from the menu to manage data.",
   "account_verification": "Account Verification",
   "staff": "Staff",
+  "male": "Male",
+  "female": "Female",
   "jobs": "Jobs",
   "transactions": "Transactions",
   "staff_support": "Support",

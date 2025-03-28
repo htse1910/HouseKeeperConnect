@@ -26,6 +26,8 @@
   "select_category": "Chọn một danh mục từ menu để quản lý dữ liệu.",
   "account_verification": "Xác minh tài khoản",
   "staff": "Nhân viên",
+  "male": "Nam",
+  "female": "Nữ",
   "jobs": "Công việc",
   "transactions": "Giao dịch",
   "staff_support": "Hỗ trợ",
