@@ -39,7 +39,7 @@ const FamilyProfilePage = () => {
 
             setFamily({
                 nickname: "Tường Vi",
-                gender: "Nữ",
+                gender: 2,
                 address: "Quận 1, TP.HCM",
                 rating: 4.5,
                 introduction: "Chúng tôi là một gia đình nhỏ ở TP.HCM, cần tìm người giúp việc hỗ trợ dọn dẹp và chăm sóc trẻ nhỏ.",
@@ -83,10 +83,10 @@ const FamilyProfilePage = () => {
                 if (!account || !account.accountID) throw new Error(t("error_auth"));
                 setAccountInfo(account);
 
-                return axios.get(`http://localhost:5280/api/Families/SearchFamilyByAccountId?accountId=${accountID}`, { headers });
+                return axios.get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers });
             })
             .then((familyResponse) => {
-                const familyData = familyResponse.data?.[0];
+                const familyData = familyResponse.data;
                 if (!familyData) throw new Error(t("error_loading"));
                 setFamily(familyData);
 
@@ -94,24 +94,42 @@ const FamilyProfilePage = () => {
                 return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
             })
             .then((jobResponse) => {
-                const jobData = jobResponse.data || [];
-                const formattedJobs = jobData.map((job) => ({
-                    title: job.jobName,
-                    date: new Date(job.createdAt).toLocaleDateString("vi-VN"),
-                    status: job.status === 0 ? "Chưa hoàn thành" : "Hoàn thành"
-                }));
-                setJobs(formattedJobs);
+                if (!Array.isArray(jobResponse.data)) {
+                    console.warn("API Job không trả về danh sách hợp lệ.");
+                    setJobs([]);
+                } else {
+                    const jobData = jobResponse.data || [];
+                    const formattedJobs = jobData.map((job) => ({
+                        title: job.jobName,
+                        date: new Date(job.createdAt).toLocaleDateString("vi-VN"),
+                        status: job.status === 0 ? "Chưa hoàn thành" : "Hoàn thành"
+                    }));
+                    setJobs(formattedJobs);
+                }
             })
             .catch((err) => {
-                console.error("API Error:", err);
-                setError(t("error_loading"));
-                setLoading(false);
+                if (err.response && err.response.status === 404) {
+                    console.warn("Không có công việc nào được đăng (404 - No records).");
+                    setJobs([]);
+                } else {
+                    console.error("API Error:", err);
+                    setError(t("error_loading"));
+                    setLoading(false);
+                }
             })
             .finally(() => {
                 setLoading(false);
             });
 
     }, [isDemo]);
+
+    const mapGender = (genderID) => {
+        switch (genderID) {
+          case 1: return t("male");
+          case 2: return t("female");
+          default: return "Không rõ";
+        }
+      };      
 
     if (shouldShowLoadingOrError) {
         return (
@@ -142,9 +160,11 @@ const FamilyProfilePage = () => {
             <div className="profile-header">
                 <div className="profile-avatar-section">
                     <div className="profile-avatar">
-                        <img src={accountInfo?.profilePicture || defaultAvatar} alt="Avatar" />
+                        <img src={family?.localProfilePicture || family?.googleProfilePicture || defaultAvatar} 
+                        crossOrigin="anonymous"
+                        alt="Avatar" />
                     </div>
-                    <h2 className="profile-name">{accountInfo?.name || "Chưa có thông tin"}</h2>
+                    <h2 className="profile-name">{family?.name || "Chưa có thông tin"}</h2>
                 </div>
                 {/* Thông tin cá nhân */}
                 <div className="profile-details">
@@ -158,10 +178,10 @@ const FamilyProfilePage = () => {
                         <span className="rating-score">({family.rating?.toFixed(1) || "0.0"})</span>
                     </div>
                     <p className="profile-label"><strong>Tên thường gọi:</strong> {family?.nickname || "Không xác định"}</p>
-                    <p className="profile-label"><strong>Giới tính:</strong> {family?.gender || "Không rõ"}</p>
+                    <p className="profile-label"><strong>Giới tính:</strong> {mapGender(family?.gender)}</p>
                     <p className="profile-label"><strong>Địa chỉ thường trú:</strong> {family?.address || "Chưa có địa chỉ"}</p>
-                    <p className="profile-label"><strong>Email:</strong> {accountInfo?.email || "Không có email"}</p>
-                    <p className="profile-label"><strong>Số điện thoại:</strong> {accountInfo?.phone || "Không có số điện thoại"}</p>
+                    <p className="profile-label"><strong>Email:</strong> {family?.email || "Không có email"}</p>
+                    <p className="profile-label"><strong>Số điện thoại:</strong> {family?.phone || "Không có số điện thoại"}</p>
                 </div>
             </div>
 
@@ -171,7 +191,7 @@ const FamilyProfilePage = () => {
                     {/* Giới thiệu về gia đình */}
                     <div className="profile-section">
                         <h2 className="section-title">Giới thiệu về gia đình</h2>
-                        <p className="profile-introduction">{family?.introduce || "Không có thông tin giới thiệu."}</p>
+                        <p className="profile-introduction">{family?.introduction || "Không có thông tin giới thiệu."}</p>
                     </div>
 
                     {/* Các kỹ năng gia đình tìm kiếm */}
@@ -224,7 +244,7 @@ const FamilyProfilePage = () => {
                                         <p className="review-text">{review.comment}</p>
                                     </div>
                                 ))
-                            ) : (<p className="no-reviews">Chưa có đánh giá nào.</p>)}
+                            ) : (<p>Chưa có đánh giá nào.</p>)}
                         </div>
                     </div>
                 </div>

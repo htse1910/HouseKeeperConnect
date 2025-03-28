@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import axios from "axios";
 import "../assets/styles/Job.css";
 
-const JobPostingPage = () => {
+const FamilyJobPostingPage = () => {
+    const { t } = useTranslation();
+
     const today = new Date();
     const start = today.toISOString().split("T")[0];
 
@@ -26,7 +29,7 @@ const JobPostingPage = () => {
 
     const [services, setServices] = useState([]);
     const [slots, setSlots] = useState([]);
-    const [familyID, setFamilyID] = useState(null);
+    const [family, setFamily] = useState([]);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
@@ -40,29 +43,52 @@ const JobPostingPage = () => {
     };
 
     useEffect(() => {
-        if (authToken && accountID) {
-            axios
-                .get(`http://localhost:5280/api/Service/ServiceList`, { headers })
-                .then((res) => setServices(res.data || []))
-                .catch((err) => {
-                    console.error("Không thể tải dịch vụ:", err);
-                    setServices([]);
-                });
-
-            axios
-                .get(`http://localhost:5280/api/Slot/SlotList`, { headers })
-                .then((res) => setSlots(res.data || []))
-                .catch((err) => {
-                    console.error("Không thể tải Slot:", err);
-                    setSlots([]);
-                });
-
-            axios
-                .get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers })
-                .then((res) => setFamilyID(res.data?.familyID || null))
-                .catch((err) => console.error("Không thể lấy FamilyID:", err));
-        }
-    }, []);
+        if (!authToken || !accountID) return;
+    
+        const headers = {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+        };
+    
+        setLoading(true);
+    
+        axios
+            .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+            .then((res) => {
+                const account = res.data;
+                if (!account?.accountID) throw new Error(t("error_auth"));
+    
+                axios
+                    .get(`http://localhost:5280/api/Service/ServiceList`, { headers })
+                    .then((res) => setServices(res.data || []))
+                    .catch((err) => {
+                        console.error("Không thể tải dịch vụ:", err);
+                        setServices([]);
+                    });
+    
+                axios
+                    .get(`http://localhost:5280/api/Slot/SlotList`, { headers })
+                    .then((res) => setSlots(res.data || []))
+                    .catch((err) => {
+                        console.error("Không thể tải Slot:", err);
+                        setSlots([]);
+                    });
+    
+                axios
+                    .get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers })
+                    .then((res) => setFamily(res.data || null))
+                    .catch((err) => console.error("Không thể lấy Family:", err));
+            })
+            .catch((err) => {
+                console.error(t("error_loading"), err);
+                setServices([]);
+                setSlots([]);
+                setFamily([]);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, []);     
 
     const handleChange = (e) => {
         const { name, value, checked } = e.target;
@@ -90,7 +116,7 @@ const JobPostingPage = () => {
 
     const validateForm = (data) => {
         if (
-            !familyID ||
+            !family.familyID ||
             !data.JobName ||
             !data.Location ||
             !data.StartDate ||
@@ -123,7 +149,7 @@ const JobPostingPage = () => {
 
         const dataToSubmit = {
             ...formData,
-            FamilyID: familyID,
+            FamilyID: family.familyID,
             StartSlot: parseInt(formData.StartSlot),
             EndSlot: parseInt(formData.EndSlot),
             SlotIDs: [parseInt(formData.StartSlot), parseInt(formData.EndSlot)],
@@ -180,8 +206,8 @@ const JobPostingPage = () => {
 
             <form onSubmit={handleSubmit} className="job-posting-form-grid">
                 {/* Tiêu đề & Địa điểm */}
-                <div className="job-posting-section">
-                    <div className="job-posting-pair">
+                <div className="job-posting-group">
+                    <div className="job-posting-row">
                         <label>Tiêu đề công việc</label>
                         <input
                             type="text"
@@ -193,13 +219,13 @@ const JobPostingPage = () => {
                             required
                         />
                     </div>
-                    <div className="job-posting-pair">
+                    <div className="job-posting-row">
                         <label>Địa điểm</label>
                         <input
                             type="text"
                             name="Location"
                             className="job-posting-input"
-                            value={formData.Location}
+                            value={formData.Location || family?.address || ""}
                             onChange={handleChange}
                             placeholder="Nhập địa điểm làm việc, ví dụ: Quận 1, TP.HCM"
                             required
@@ -209,7 +235,7 @@ const JobPostingPage = () => {
 
                 {/* Dịch vụ */}
                 <div className="job-posting-section job-posting-section-full">
-                    <label>Loại công việc (có thể chọn nhiều)</label>
+                    <label>{t("jobPost.serviceTypeLabel")}</label>
                     <div className="job-posting-service-checkboxes">
                         {services.map((service) => (
                             <label key={service.serviceID} className="job-posting-checkbox-card">
@@ -220,7 +246,7 @@ const JobPostingPage = () => {
                                     checked={formData.ServiceIDs.includes(service.serviceID)}
                                     onChange={handleChange}
                                 />
-                                <span>{service.serviceName}</span>
+                                <span>{t(`serviceName.${service.serviceName}`)}</span>
                             </label>
                         ))}
                     </div>
@@ -228,16 +254,16 @@ const JobPostingPage = () => {
 
                 {/* Ngày làm việc */}
                 <div className="job-posting-section job-posting-section-full">
-                    <label>Ngày làm việc trong tuần</label>
+                    <label>{t("jobPost.workingDaysLabel")}</label>
                     <div className="job-posting-day-checkboxes">
                         {[
-                            { value: 0, label: "Chủ Nhật" },
-                            { value: 1, label: "Thứ Hai" },
-                            { value: 2, label: "Thứ Ba" },
-                            { value: 3, label: "Thứ Tư" },
-                            { value: 4, label: "Thứ Năm" },
-                            { value: 5, label: "Thứ Sáu" },
-                            { value: 6, label: "Thứ Bảy" },
+                            { value: 0, label: t("workingDays.sunday") },
+                            { value: 1, label: t("workingDays.monday") },
+                            { value: 2, label: t("workingDays.tuesday") },
+                            { value: 3, label: t("workingDays.wednesday") },
+                            { value: 4, label: t("workingDays.thursday") },
+                            { value: 5, label: t("workingDays.friday") },
+                            { value: 6, label: t("workingDays.saturday") },
                         ].map((day) => (
                             <label key={day.value} className="job-posting-checkbox-day">
                                 <input
@@ -362,4 +388,4 @@ const JobPostingPage = () => {
     );
 };
 
-export default JobPostingPage;
+export default FamilyJobPostingPage;

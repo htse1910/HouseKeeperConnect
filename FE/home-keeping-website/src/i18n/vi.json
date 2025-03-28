@@ -26,6 +26,8 @@
   "select_category": "Chọn một danh mục từ menu để quản lý dữ liệu.",
   "account_verification": "Xác minh tài khoản",
   "staff": "Nhân viên",
+  "male": "Nam",
+  "female": "Nữ",
   "jobs": "Công việc",
   "transactions": "Giao dịch",
   "staff_support": "Hỗ trợ",
@@ -136,5 +138,60 @@
     "start_date": "Ngày bắt đầu"
   },
   "no_jobs_yet": "Bạn chưa đăng công việc nào.",
-  "no_family_profile": "Bạn chưa tạo hồ sơ gia đình."
+  "no_family_profile": "Bạn chưa tạo hồ sơ gia đình.",
+  "jobPost": {
+    "serviceTypeLabel": "Loại công việc (có thể chọn nhiều)",
+    "workingDaysLabel": "Ngày làm việc trong tuần"
+  },
+  "workingDays": {
+    "sunday": "Chủ Nhật",
+    "monday": "Thứ Hai",
+    "tuesday": "Thứ Ba",
+    "wednesday": "Thứ Tư",
+    "thursday": "Thứ Năm",
+    "friday": "Thứ Sáu",
+    "saturday": "Thứ Bảy"
+  },
+  "serviceType": {
+    "Cleaning": "Dọn dẹp",
+    "Laundry": "Giặt ủi",
+    "Cooking": "Nấu ăn",
+    "Childcare": "Trông trẻ",
+    "Elderly care": "Chăm sóc người già",
+    "Gardening": "Làm vườn",
+    "Pet care": "Chăm sóc thú cưng",
+    "Grocery shopping": "Đi chợ",
+    "Dishwashing": "Rửa chén",
+    "Car wash": "Rửa xe"
+  },
+  "serviceName": {
+    "General house cleaning": "Dọn dẹp thông thường",
+    "Deep cleaning": "Dọn dẹp chuyên sâu",
+    "Post-construction cleanup": "Dọn sau xây dựng",
+    "Wash and fold": "Giặt và gấp",
+    "Dry cleaning pickup": "Nhận đồ giặt khô",
+    "Ironing service": "Ủi đồ",
+    "Meal prep": "Chuẩn bị bữa ăn",
+    "Family dinner service": "Nấu bữa tối cho gia đình",
+    "Private chef": "Đầu bếp riêng",
+    "Babysitting": "Trông trẻ",
+    "After-school care": "Chăm sóc sau giờ học",
+    "Full-day nanny": "Bảo mẫu cả ngày",
+    "Companionship": "Bầu bạn",
+    "Medication reminders": "Nhắc uống thuốc",
+    "Assistance with mobility": "Hỗ trợ di chuyển",
+    "Lawn mowing": "Cắt cỏ",
+    "Plant watering": "Tưới cây",
+    "Weed removal": "Nhổ cỏ",
+    "Dog walking": "Dắt chó đi dạo",
+    "Cat sitting": "Trông mèo",
+    "Pet grooming": "Chải chuốt cho thú cưng",
+    "Weekly grocery run": "Đi chợ hàng tuần",
+    "Errand assistance": "Hỗ trợ việc vặt",
+    "After-party cleanup": "Dọn sau tiệc",
+    "Daily dishwashing": "Rửa chén hằng ngày",
+    "Exterior wash": "Rửa bên ngoài xe",
+    "Interior detailing": "Vệ sinh nội thất xe",
+    "Full car service": "Rửa xe toàn diện"
+  }
 }

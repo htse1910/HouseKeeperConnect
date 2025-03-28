@@ -26,6 +26,8 @@
   "select_category": "Select a category from the menu to manage data.",
   "account_verification": "Account Verification",
   "staff": "Staff",
+  "male": "Male",
+  "female": "Female",
   "jobs": "Jobs",
   "transactions": "Transactions",
   "staff_support": "Support",
@@ -136,5 +138,60 @@
     "date": "Date"
   },
   "no_jobs_yet": "You haven't posted any job yet.",
-  "no_family_profile": "You haven't created a family profile."
+  "no_family_profile": "You haven't created a family profile.",
+  "jobPost": {
+    "serviceTypeLabel": "Type of work (you can choose multiple)",
+    "workingDaysLabel": "Working Days"
+  },
+  "workingDays": {
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+  },
+  "serviceType": {
+    "Cleaning": "Cleaning",
+    "Laundry": "Laundry",
+    "Cooking": "Cooking",
+    "Childcare": "Childcare",
+    "Elderly care": "Elderly care",
+    "Gardening": "Gardening",
+    "Pet care": "Pet care",
+    "Grocery shopping": "Grocery shopping",
+    "Dishwashing": "Dishwashing",
+    "Car wash": "Car wash"
+  },
+  "serviceName": {
+    "General house cleaning": "General house cleaning",
+    "Deep cleaning": "Deep cleaning",
+    "Post-construction cleanup": "Post-construction cleanup",
+    "Wash and fold": "Wash and fold",
+    "Dry cleaning pickup": "Dry cleaning pickup",
+    "Ironing service": "Ironing service",
+    "Meal prep": "Meal prep",
+    "Family dinner service": "Family dinner service",
+    "Private chef": "Private chef",
+    "Babysitting": "Babysitting",
+    "After-school care": "After-school care",
+    "Full-day nanny": "Full-day nanny",
+    "Companionship": "Companionship",
+    "Medication reminders": "Medication reminders",
+    "Assistance with mobility": "Assistance with mobility",
+    "Lawn mowing": "Lawn mowing",
+    "Plant watering": "Plant watering",
+    "Weed removal": "Weed removal",
+    "Dog walking": "Dog walking",
+    "Cat sitting": "Cat sitting",
+    "Pet grooming": "Pet grooming",
+    "Weekly grocery run": "Weekly grocery run",
+    "Errand assistance": "Errand assistance",
+    "After-party cleanup": "After-party cleanup",
+    "Daily dishwashing": "Daily dishwashing",
+    "Exterior wash": "Exterior wash",
+    "Interior detailing": "Interior detailing",
+    "Full car service": "Full car service"
+  }
 }
