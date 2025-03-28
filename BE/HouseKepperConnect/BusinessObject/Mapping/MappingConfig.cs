@@ -263,13 +263,14 @@ namespace BusinessObject.Mapping
 
         private void Map_Display_Job()
         {
-            CreateMap<Job, JobDisplayDTO>()
+            CreateMap<Job, JobDetailDisplayDTO>()
                 .ForMember(dest => dest.ServiceIDs, opt => opt.MapFrom(src => src.Job_Services != null ? src.Job_Services.Select(js => js.ServiceID).ToList() : new List<int>()))
                 .ForMember(dest => dest.SlotIDs, opt => opt.MapFrom(src => src.Job_Slots != null ? src.Job_Slots.Select(js => js.SlotID).ToList() : new List<int>()))
-                .ForMember(dest => dest.DayofWeek, opt => opt.MapFrom(src => src.Job_Slots != null ? src.Job_Slots.Select(js => js.DayOfWeek).Distinct().ToList() : new List<int>()))
-                .ReverseMap();
+                .ForMember(dest => dest.DayofWeek, opt => opt.MapFrom(src => src.Job_Slots != null ? src.Job_Slots.Select(js => js.DayOfWeek).Distinct().ToList() : new List<int>()));
+            CreateMap<Job, JobDisplayDTO>();
+            CreateMap<JobDetail, JobDisplayDTO>();
+            CreateMap<JobDetail, JobDetailDisplayDTO>();
 
-            CreateMap<JobDetail, JobDisplayDTO>().ReverseMap();
         }
 
         private void Map_Create_Booking_Slots()
