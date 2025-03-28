@@ -58,6 +58,7 @@ namespace BusinessObject.Mapping
             Map_Update_Violation();
             Map_Display_Housekeeper_Violation();
             Map_Create_Housekeeper_Violation();
+            Map_Reset_Password();
         }
 
         private void Map_List_Register()
@@ -323,6 +324,10 @@ namespace BusinessObject.Mapping
         private void Map_Create_Housekeeper_Violation()
         {
             CreateMap<Housekeeper_ViolationCreateDTO, Housekeeper_Violation>();
+        }
+        private void Map_Reset_Password()
+        {
+            CreateMap<ResetPasswordDTO, Account>();
         }
     }
 }

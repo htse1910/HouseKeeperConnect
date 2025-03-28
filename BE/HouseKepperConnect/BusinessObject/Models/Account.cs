@@ -38,6 +38,10 @@ namespace BusinessObject.Models
         public int? Gender { get; set; }
         public string? Nickname { get; set; }
 
+        // Thêm để hỗ trợ reset password
+        public string? PasswordResetToken { get; set; }
+        public DateTime? ResetTokenExpiry { get; set; }
+
         public virtual Role Role { get; set; }
         public virtual Wallet Wallet { get; set; }
         public virtual IEnumerable<Notification> Notification { get; set; }

@@ -48,7 +48,7 @@ var client = new Client()
 builder.Services.AddSingleton(client);
 
 builder.Services.AddCustomServices();
-
+builder.Services.AddSingleton<EmailHelper>();
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
