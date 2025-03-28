@@ -17,6 +17,6 @@ namespace BusinessObject.DTOs
         public int FamilyID { get; set; }
 
         [Required]
-        public int BookingStatus { get; set; }
+        public int Status { get; set; }
     }
 }

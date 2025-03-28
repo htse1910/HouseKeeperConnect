@@ -4,11 +4,11 @@ namespace BusinessObject.DTO
 {
     public class FamilyDisplayDTO
     {
-
         public int AccountID { get; set; }
         public int FamilyID { get; set; }
         public string Name { get; set; }
         public int Gender { get; set; }
+
         [EmailAddress]
         public string Email { get; set; }
 

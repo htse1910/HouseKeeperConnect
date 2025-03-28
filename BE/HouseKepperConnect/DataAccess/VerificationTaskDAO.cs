@@ -34,7 +34,7 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     list = await context.VerificationTask
-                        .Where(t => t.Status == 1) 
+                        .Where(t => t.Status == 1)
                         .AsNoTracking()
                         .Skip((pageNumber - 1) * pageSize)
                         .Take(pageSize)
@@ -47,6 +47,7 @@ namespace DataAccess
             }
             return list;
         }
+
         public async Task<VerificationTask> GetByIdAsync(int taskId)
         {
             try
@@ -64,6 +65,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task CreateVerificationTaskAsync(VerificationTask task)
         {
             try
@@ -79,6 +81,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task UpdateVerificationTaskAsync(VerificationTask task)
         {
             try
@@ -102,8 +105,5 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
-
-
-
     }
 }

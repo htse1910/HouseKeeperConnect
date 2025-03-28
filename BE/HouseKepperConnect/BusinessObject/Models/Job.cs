@@ -15,8 +15,10 @@ namespace BusinessObject.Models
         public string JobName { get; set; }
 
         public int Status { get; set; }
+
         [Required]
         public int JobType { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
         public virtual Family Family { get; set; }

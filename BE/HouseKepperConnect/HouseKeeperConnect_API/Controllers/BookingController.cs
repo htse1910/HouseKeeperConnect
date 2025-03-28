@@ -13,12 +13,20 @@ namespace HouseKeeperConnect_API.Controllers
     public class BookingController : ControllerBase
     {
         private readonly IBookingService _bookingService;
+        private readonly IJobService _jobService;
+        private readonly IJob_ServiceService _jobServiceService;
+        private readonly IJob_SlotsService _jobSlotsService;
         private readonly IMapper _mapper;
+        private readonly IBooking_SlotsService _bookingSlotsService;
         private string Message;
 
-        public BookingController(IBookingService bookingService, IMapper mapper)
+        public BookingController(IBookingService bookingService, IJobService jobService, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBooking_SlotsService booking_SlotsService, IMapper mapper)
         {
             _bookingService = bookingService;
+            _jobService = jobService;
+            _jobServiceService = job_ServiceService;
+            _jobSlotsService = job_SlotsService;
+            _bookingSlotsService = booking_SlotsService;
             _mapper = mapper;
         }
 
@@ -50,15 +58,36 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetBookingByHousekeeperID")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Booking>>> GetBookingByHousekeeperID([FromQuery] int housekeeperId)
+        public async Task<ActionResult<IEnumerable<object>>> GetBookingByHousekeeperID([FromQuery] int housekeeperId)
         {
             var bookings = await _bookingService.GetBookingsByHousekeeperIDAsync(housekeeperId);
             if (bookings == null || !bookings.Any())
             {
-                Message = "No records!";
-                return NotFound(Message);
+                return NotFound("No records!");
             }
-            return Ok(bookings);
+
+            var result = new List<object>();
+
+            foreach (var booking in bookings)
+            {
+                var job = await _jobService.GetJobByIDAsync(booking.JobID);
+                var jobDetail = job != null ? await _jobService.GetJobDetailByJobIDAsync(job.JobID) : null;
+
+                var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(booking.JobID);
+                var jobServices = await _jobServiceService.GetJob_ServicesByJobIDAsync(booking.JobID);
+
+                result.Add(new
+                {
+                    booking.BookingID,
+                    booking.JobID,
+                    JobDetail = jobDetail,
+                    SlotIDs = jobSlots.Select(js => js.SlotID).Distinct().ToList(),
+                    DayofWeek = jobSlots.Select(js => js.DayOfWeek).Distinct().ToList(),
+                    ServiceIDs = jobServices.Select(js => js.ServiceID).Distinct().ToList()
+                });
+            }
+
+            return Ok(result);
         }
 
         [HttpPost("AddBooking")]
@@ -69,9 +98,30 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest("Invalid booking data.");
             }
+
+            // Map Booking DTO to Booking entity
             var booking = _mapper.Map<Booking>(bookingCreateDTO);
+
+            // Add booking to database
             await _bookingService.AddBookingAsync(booking);
-            return Ok("Booking added successfully!");
+
+            // Retrieve all Job_Slots associated with the given JobID
+            var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(bookingCreateDTO.JobID);
+
+            if (jobSlots != null && jobSlots.Any())
+            {
+                var bookingSlots = jobSlots.Select(js => new Booking_Slots
+                {
+                    BookingID = booking.BookingID,  // The newly created BookingID
+                    SlotID = js.SlotID,
+                    DayOfWeek = js.DayOfWeek
+                }).ToList();
+
+                // Save all BookingSlots
+                await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlots);
+            }
+
+            return Ok("Booking added successfully with all related slots!");
         }
 
         [HttpPut("UpdateBooking")]

@@ -7,6 +7,7 @@ namespace Services
     public class Booking_SlotsService : IBooking_SlotsService
     {
         private readonly IBooking_SlotsRepository _bookingSlotsRepository;
+        private readonly PCHWFDBContext _dbContext;
 
         public Booking_SlotsService(IBooking_SlotsRepository bookingSlotsRepository)
         {
@@ -28,9 +29,13 @@ namespace Services
             return await _bookingSlotsRepository.GetBooking_SlotsByBookingIDAsync(bookingId);
         }
 
-        public async Task AddBooking_SlotsAsync(Booking_Slots bookingSlots)
+        public async Task AddBooking_SlotsAsync(List<Booking_Slots> bookingSlots)
         {
-            await _bookingSlotsRepository.AddBooking_SlotsAsync(bookingSlots);
+            if (bookingSlots == null || !bookingSlots.Any())
+                throw new ArgumentException("Booking slots list cannot be empty.");
+
+            await _dbContext.Booking_Slots.AddRangeAsync(bookingSlots); // Bulk insert
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteBooking_SlotsAsync(int id)

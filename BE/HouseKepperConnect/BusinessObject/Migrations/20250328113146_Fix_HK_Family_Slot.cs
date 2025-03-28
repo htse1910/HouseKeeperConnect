@@ -22,7 +22,6 @@ namespace BusinessObject.Migrations
                 name: "FK_Job_Slots_Slot_SlotID",
                 table: "Job_Slots");
 
-
             migrationBuilder.DropForeignKey(
                 name: "FK_Booking_Slots_Slot_SlotID",
                 table: "Booking_Slots");

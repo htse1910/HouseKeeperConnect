@@ -10,6 +10,7 @@ namespace BusinessObject.DTOs
 
         public int FamilyID { get; set; }
         public int Status { get; set; }
+
         [Required]
         public int JobType { get; set; }
 

@@ -7,9 +7,11 @@ namespace BusinessObject.Models
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ViolationID { get; set; }
+
         [Required]
         [StringLength(100)]
         public string Name { get; set; }
+
         [MaxLength(500)]
         public string Description { get; set; }
     }

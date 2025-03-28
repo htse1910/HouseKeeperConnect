@@ -67,7 +67,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    totalNotis = await context.Notification.Where(n => n.IsRead == false && n.AccountID==id).CountAsync();
+                    totalNotis = await context.Notification.Where(n => n.IsRead == false && n.AccountID == id).CountAsync();
                 }
             }
             catch (Exception ex)
