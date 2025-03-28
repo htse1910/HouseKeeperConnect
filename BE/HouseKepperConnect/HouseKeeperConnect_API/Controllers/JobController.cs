@@ -33,13 +33,25 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync()
         {
-            var jobs = await _jobService.GetAllJobsAsync();
+            var jobs = await _jobService.GetAllDetailJobsAsync();
 
             if (jobs == null || !jobs.Any())
             {
                 return NotFound("No records!");
             }
-            var jobDTOs = _mapper.Map<List<JobDisplayDTO>>(jobs);
+            var jobDTOs = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                var nJ = new JobDisplayDTO();
+                nJ.JobID = j.JobID;
+                nJ.FamilyID = j.Job.FamilyID;
+                nJ.JobType = j.Job.JobType;
+                nJ.JobName = j.Job.JobName;
+                nJ.Location = j.Location;
+                nJ.Price = j.Price;
+                nJ.Status = j.Job.Status;
+                jobDTOs.Add(nJ);
+            }
 
             return Ok(jobDTOs);
         }
@@ -59,7 +71,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetJobDetailByID")]
         [Authorize]
-        public async Task<ActionResult<JobDisplayDTO>> GetJobDetailByID([FromQuery] int id)
+        public async Task<ActionResult<JobDetailDisplayDTO>> GetJobDetailByID([FromQuery] int id)
         {
             var job = await _jobService.GetJobByIDAsync(id);
             if (job == null)
@@ -92,7 +104,7 @@ namespace HouseKeeperConnect_API.Controllers
                             services.Add(ser.ServiceID);
                         }*/
 
-            var displayDTO = new JobDisplayDTO();
+            var displayDTO = new JobDetailDisplayDTO();
 
             _mapper.Map(job, displayDTO);
             _mapper.Map(jobDetail, displayDTO);
@@ -106,15 +118,96 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetJobsByAccountID")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Job>>> GetJobsByAccountID([FromQuery] int accountId)
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsByAccountID([FromQuery] int accountId)
         {
-            var jobs = await _jobService.GetJobsByAccountIDAsync(accountId);
+            var jobs = await _jobService.GetAllDetailJobsAsync();
+            var jobDTOs = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                if (j.Job.Family.AccountID == accountId)
+                {
+                    var nJ = new JobDisplayDTO();
+                    nJ.JobID = j.JobID;
+                    nJ.FamilyID = j.Job.FamilyID;
+                    nJ.JobType = j.Job.JobType;
+                    nJ.JobName = j.Job.JobName;
+                    nJ.Location = j.Location;
+                    nJ.Price = j.Price;
+                    nJ.Status = j.Job.Status;
+                    jobDTOs.Add(nJ);
+                }
+            }
+
+            return Ok(jobDTOs);
+        }
+
+        [HttpGet("SearchJob")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> SearchJob([FromQuery] string name)
+        {
+            var jobs = await _jobService.SearchJobsAsync(name);
+            if (jobs == null || !jobs.Any())
+            {
+                return NotFound("No records!");
+            }
+            var jobDTOs = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                var nJ = new JobDisplayDTO();
+                nJ.JobID = j.JobID;
+                nJ.FamilyID = j.Job.FamilyID;
+                nJ.JobType = j.Job.JobType;
+                nJ.JobName = j.Job.JobName;
+                nJ.Location = j.Location;
+                nJ.Price = j.Price;
+                nJ.Status = j.Job.Status;
+                jobDTOs.Add(nJ);
+            }
+
+            return Ok(jobDTOs);
+
+        }
+
+        [HttpGet("SearchJobsWithConditions")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> SearchJobsWithConditions([FromQuery] string name, string? location, decimal? minPrice, decimal? maxPrice, int? jobType)
+        {
+            var jobs = await _jobService.SearchJobByConditionsAssync(name, location, minPrice, maxPrice, jobType);
             if (jobs == null || !jobs.Any())
             {
                 Message = "No records!";
                 return NotFound(Message);
             }
-            return Ok(jobs);
+            var jobL = new List<Job>();
+            foreach (var j in jobs)
+            {
+                var item = await _jobService.GetJobByIDAsync(j.JobID);
+                if (item == null)
+                {
+                    Message = "No job found!";
+                    return NotFound(Message);
+                }
+                jobL.Add(item);
+            }
+
+            var jobDisplay = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                foreach (var jo in jobL)
+                {
+                    var nJ = new JobDisplayDTO();
+                    nJ.JobID = j.JobID;
+                    nJ.JobName = jo.JobName;
+                    nJ.FamilyID = jo.FamilyID;
+                    nJ.Location = j.Location;
+                    nJ.Price = j.Price;
+                    nJ.Status = jo.Status;
+                    nJ.JobType = jo.JobType;
+
+                    jobDisplay.Add(nJ);
+                }
+            }
+            return Ok(jobDisplay);
         }
 
         [HttpPost("AddJob")]
@@ -169,7 +262,7 @@ namespace HouseKeeperConnect_API.Controllers
                     JobID = job.JobID,
                     HousekeeperID = jobCreateDTO.HousekeeperID.Value,
                     FamilyID = jobCreateDTO.FamilyID,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.Now,
                     BookingStatus = (int)BookingStatus.Pending
                 };
 

@@ -30,5 +30,12 @@ namespace Repositories
         public Task UpdateJobAsync(Job job) => _jobDAO.UpdateJobAsync(job);
 
         public Task UpdateJobDetailAsync(JobDetail jobdetail) => _jobDAO.UpdateJobDetailAsync(jobdetail);
+
+        public Task<List<JobDetail>> SearchJobByConditionsAssync(string name, string location = null, decimal? minPrice = null
+            , decimal? maxPrice = null, int? jobType = null) => _jobDAO.SearchJobByConditionsAsync(name, location, minPrice, maxPrice, jobType);
+
+        public async Task<List<JobDetail>> GetAllDetailJobsAsync() => await _jobDAO.GetAllDetailJobsAsync();
+
+        public async Task<List<JobDetail>> SearchJobsAsync(string name) => await _jobDAO.SearchJobsAsync(name);
     }
 }

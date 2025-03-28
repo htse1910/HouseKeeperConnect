@@ -36,5 +36,12 @@ namespace Services
         public async Task UpdateJobAsync(Job job) => await _jobRepository.UpdateJobAsync(job);
 
         public async Task UpdateJobDetailAsync(JobDetail jobdetail) => await _jobRepository.UpdateJobDetailAsync(jobdetail);
+
+        public async Task<List<JobDetail>> SearchJobByConditionsAssync(string name, string location = null, decimal? minPrice = null,
+            decimal? maxPrice = null, int? jobType = null) => await _jobRepository.SearchJobByConditionsAssync(name, location, minPrice, maxPrice, jobType);
+
+        public async Task<List<JobDetail>> GetAllDetailJobsAsync() => await _jobRepository.GetAllDetailJobsAsync();
+
+        public async Task<List<JobDetail>> SearchJobsAsync(string name) => await _jobRepository.SearchJobsAsync(name);
     }
 }

@@ -47,6 +47,41 @@ namespace DataAccess
             return list;
         }
 
+        public async Task<List<JobDetail>> SearchJobsAsync(string name)
+        {
+            var list = new List<JobDetail>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.JobDetail.Include(j => j.Job).Include(j => j.Job.Family)
+                        .Where(j => j.Job.JobName.Contains(name) && j.Job.Status == (int)JobStatus.Verified && j.HousekeeperID == null).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
+
+        public async Task<List<JobDetail>> GetAllDetailJobsAsync()
+        {
+            var list = new List<JobDetail>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.JobDetail.Include(j => j.Job).Include(j => j.Job.Family).Include(j => j.Job.Family.Account).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
+
         public async Task<Job> GetJobByIDAsync(int id)
         {
             Job job = new Job();
@@ -63,6 +98,52 @@ namespace DataAccess
             }
             return job;
         }
+
+        public async Task<List<JobDetail>> SearchJobByConditionsAsync(string name, string location = null, decimal? minPrice = null, decimal? maxPrice = null, int? jobType = null)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var query = context.JobDetail.Include(j => j.Job).AsQueryable();
+
+                    // Filter by job name
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        query = query.Where(j => j.Job.JobName.Contains(name));
+                    }
+
+                    // Filter by location
+                    if (!string.IsNullOrWhiteSpace(location))
+                    {
+                        query = query.Where(j => j.Location.Contains(location));
+                    }
+
+                    // Filter by price range
+                    if (minPrice.HasValue)
+                    {
+                        query = query.Where(j => j.Price >= minPrice.Value);
+                    }
+                    if (maxPrice.HasValue)
+                    {
+                        query = query.Where(j => j.Price <= maxPrice.Value);
+                    }
+
+                    // Filter by job type (as an integer)
+                    if (jobType.HasValue)
+                    {
+                        query = query.Where(j => j.Job.JobType == jobType.Value);
+                    }
+
+                    return await query.ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
 
         public async Task<JobDetail> GetJobDetailByJobIDAsync(int id)
         {
@@ -146,7 +227,8 @@ namespace DataAccess
         {
             try
             {
-                using (var context = new PCHWFDBContext()) {
+                using (var context = new PCHWFDBContext())
+                {
                     context.Job.Add(job);
                     await context.SaveChangesAsync();
                 }

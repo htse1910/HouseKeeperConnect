@@ -17,8 +17,8 @@ namespace BusinessObject.Models
         public int Status { get; set; }
         [Required]
         public int JobType { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime UpdatedDate { get; set; } = DateTime.Now;
         public virtual Family Family { get; set; }
         public virtual ICollection<Job_Service> Job_Services { get; set; } = new List<Job_Service>();
         public virtual ICollection<Job_Slots> Job_Slots { get; set; } = new List<Job_Slots>();
