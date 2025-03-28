@@ -19,6 +19,7 @@ namespace BusinessObject.Models
         public int JobCompleted { get; set; } = 0;
 
         public int JobsApplied { get; set; } = 0;
+        public int? WorkType { get; set; }
 
         [ForeignKey("IDVerification")]
         public int? VerifyID { get; set; }

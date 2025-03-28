@@ -23,7 +23,7 @@ namespace Services
 
         public async Task<List<Notification>> GetNotificationsByUserAsync(int uId, int pageNumber, int pageSize) => await _notificationRepository.GetNotificationsByUserAsync(uId, pageNumber, pageSize);
 
-        public async Task<int> GetTotalNotisAsync() => await _notificationRepository.GetTotalNotisAsync();
+        public async Task<int> GetTotalNotisByUserAsync(int id) => await _notificationRepository.GetTotalNotisByUserAsync(id);
 
         public async Task UpdateNotificationAsync(Notification noti) => await _notificationRepository.UpdateNotificationAsync(noti);
     }

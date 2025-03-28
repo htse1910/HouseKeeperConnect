@@ -37,11 +37,11 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(nWi);
         }
 
-        [HttpGet("GetTotalUnReadNotifications")]
+        [HttpGet("GetTotalUnReadNotiByUser")]
         [Authorize]
-        public async Task<ActionResult<int>> GetTotalUnNoti()
+        public async Task<ActionResult<int>> GetTotalUnNoti([FromQuery] int id)
         {
-            var num = await _notificationService.GetTotalNotisAsync();
+            var num = await _notificationService.GetTotalNotisByUserAsync(id);
             if (num == 0)
             {
                 Message = "No records!";

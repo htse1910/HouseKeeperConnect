@@ -31,5 +31,6 @@ namespace BusinessObject.Models
 
         public virtual Wallet Wallet { get; set; }
         public virtual Account Account { get; set; }
+        public virtual Withdraw Withdraw { get; set; }
     }
 }

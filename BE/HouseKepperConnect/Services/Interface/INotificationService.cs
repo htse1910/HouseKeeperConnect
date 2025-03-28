@@ -8,7 +8,7 @@ namespace Services.Interface
 
         Task<Notification> GetNotificationByIDAsync(int id);
 
-        Task<int> GetTotalNotisAsync();
+        Task<int> GetTotalNotisByUserAsync(int id);
 
         Task<List<Notification>> GetNotificationsByUserAsync(int uId, int pageNumber, int pageSize);
 

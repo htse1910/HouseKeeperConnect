@@ -61,6 +61,16 @@ namespace BusinessObject.Models
                 new Role { RoleID = 3, RoleName = "Staff" },
                 new Role { RoleID = 4, RoleName = "Admin" }
                 );
+
+            modelBuilder.Entity<Slot>().HasData(
+                new Slot { SlotID = 1, Time = "8H - 9H" },
+                new Slot { SlotID = 2, Time = "10H - 11H" },
+                new Slot { SlotID = 3, Time = "12H - 13H" },
+                new Slot { SlotID = 4, Time = "14H - 15H" },
+                new Slot { SlotID = 5, Time = "16H - 17H" },
+                new Slot { SlotID = 6, Time = "18H - 19H" },
+                new Slot { SlotID = 7, Time = "20H - 21H" }
+                );
         }
     }
 }

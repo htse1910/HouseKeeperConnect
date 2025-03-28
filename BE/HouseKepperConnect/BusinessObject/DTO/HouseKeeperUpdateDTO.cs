@@ -15,6 +15,8 @@ namespace BusinessObject.DTO
         [Phone]
         public string? Phone { get; set; }
 
+        public int WorkType { get; set; }
+
         public IFormFile LocalProfilePicture { get; set; }
 
         [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]

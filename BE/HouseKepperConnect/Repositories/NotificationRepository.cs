@@ -16,7 +16,7 @@ namespace Repositories
 
         public async Task<List<Notification>> GetNotificationsByUserAsync(int uId, int pageNumber, int pageSize) => await NotificationDAO.Instance.GetNotificationsByUserAsync(uId, pageNumber, pageSize);
 
-        public async Task<int> GetTotalNotisAsync() => await NotificationDAO.Instance.GetTotalNotisAsync();
+        public async Task<int> GetTotalNotisByUserAsync(int id) => await NotificationDAO.Instance.GetTotalNotisByUserAsync(id);
 
         public async Task UpdateNotificationAsync(Notification noti) => await NotificationDAO.Instance.UpdateNotificationAsync(noti);
     }

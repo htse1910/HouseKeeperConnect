@@ -88,4 +88,10 @@
         Male = 1,
         Female = 2,
     }
+
+    public enum WorkType
+    {
+        Fulltime = 1,
+        PartTime = 2,
+    }
 }

@@ -60,14 +60,14 @@ namespace DataAccess
             return Notification;
         }
 
-        public async Task<int> GetTotalNotisAsync()
+        public async Task<int> GetTotalNotisByUserAsync(int id)
         {
             int totalNotis;
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    totalNotis = await context.Notification.Where(n => n.IsRead == false).CountAsync();
+                    totalNotis = await context.Notification.Where(n => n.IsRead == false && n.AccountID==id).CountAsync();
                 }
             }
             catch (Exception ex)

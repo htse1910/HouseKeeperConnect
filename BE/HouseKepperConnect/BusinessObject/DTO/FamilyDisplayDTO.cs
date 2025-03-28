@@ -6,6 +6,7 @@ namespace BusinessObject.DTO
     {
 
         public int AccountID { get; set; }
+        public int FamilyID { get; set; }
         public string Name { get; set; }
         public int Gender { get; set; }
         [EmailAddress]
