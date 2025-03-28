@@ -7,10 +7,12 @@ using BusinessObject.Models;
 using BusinessObject.Models.AppWrite;
 using BusinessObject.Models.Enum;
 using BusinessObject.Models.JWTToken;
+using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Scripting;
 using Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -30,7 +32,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IHouseKeeperService _houseKeeperService;
         private readonly IConfiguration _configuration;
         private readonly Client _appWriteClient;
-
+        private readonly EmailHelper _emailHelper;
         private static readonly char[] Characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
 
@@ -41,7 +43,7 @@ namespace HouseKeeperConnect_API.Controllers
                 .Select(_ => Characters[random.Next(Characters.Length)]).ToArray());
         }
 
-        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<BusinessObject.Models.Account> passwordHasher, IWalletService walletService, IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService, IConfiguration configuration)
+        public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<BusinessObject.Models.Account> passwordHasher, IWalletService walletService, IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService, IConfiguration configuration, EmailHelper emailHelper)
         {
             _accountService = accountService;
             _mapper = mapper;
@@ -57,6 +59,7 @@ namespace HouseKeeperConnect_API.Controllers
                 ApiKey = configuration.GetValue<string>("Appwrite:ApiKey")
             };
             _appWriteClient = new Client().SetProject(appW.ProjectId).SetEndpoint(appW.Endpoint).SetKey(appW.ApiKey);
+            _emailHelper = emailHelper;
         }
 
         // GET: api/<AccountController>
@@ -326,5 +329,47 @@ namespace HouseKeeperConnect_API.Controllers
             var accountDTOs = _mapper.Map<List<AccountDisplayDTO>>(accounts);
             return Ok(accountDTOs);
         }
+        [HttpPost("Request-forgot-password")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] string email)
+        {
+            // Kiểm tra tài khoản có tồn tại không
+            var account = await _accountService.GetAccountByEmailAsync(email);
+            if (account == null) return NotFound("Email không tồn tại.");
+
+            // Tạo token đặt lại mật khẩu
+            string token = Guid.NewGuid().ToString();
+            DateTime expiry = DateTime.UtcNow.AddHours(1);
+            await _accountService.SavePasswordResetTokenAsync(account.AccountID, token, expiry);
+
+            // Gửi email
+            string resetLink = $"https://your-frontend.com/reset-password?token={token}";
+            string subject = "Password Reset Request";
+            string body = $"Click <a href='{resetLink}'>here</a> to reset your password.";
+
+            await _emailHelper.SendEmailAsync(email, subject, body);
+            return Ok("Email đặt lại mật khẩu đã được gửi.");
+        }
+
+        [HttpPost("Reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO model)
+        {
+            if (model.NewPassword != model.ConfirmPassword)
+            {
+                return BadRequest("Mật khẩu xác nhận không khớp.");
+            }
+
+            var account = await _accountService.GetAccountByResetTokenAsync(model.Token);
+            if (account == null)
+            {
+                return BadRequest("Token không hợp lệ hoặc đã hết hạn.");
+            }
+
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword); 
+            await _accountService.UpdatePasswordAsync(account.AccountID, hashedPassword);
+
+            return Ok("Mật khẩu đã được đặt lại thành công.");
+        }
+
+
     }
 }

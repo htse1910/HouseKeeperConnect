@@ -480,5 +480,79 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
+        //resetpassword
+        public async Task<Account> GetAccountByEmailAsync(string email)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Account.FirstOrDefaultAsync(a => a.Email == email);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task SavePasswordResetTokenAsync(int accountId, string token, DateTime expiry)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var account = await context.Account.FindAsync(accountId);
+                    if (account != null)
+                    {
+                        account.PasswordResetToken = token;
+                        account.ResetTokenExpiry = expiry;
+                        await context.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<Account> GetAccountByResetTokenAsync(string token)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Account.FirstOrDefaultAsync(a => a.PasswordResetToken == token && a.ResetTokenExpiry > DateTime.Now);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task UpdatePasswordAsync(int accountId, string hashedPassword)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var account = await context.Account.FindAsync(accountId);
+                    if (account != null)
+                    {
+                        account.Password = hashedPassword;
+                        account.PasswordResetToken = null;
+                        account.ResetTokenExpiry = null;
+                        await context.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
     }
 }
