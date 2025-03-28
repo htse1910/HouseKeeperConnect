@@ -26,8 +26,8 @@ const ProfileCard = () => {
         setName(data.name?.trim() || "Chưa có");
         setNickname(data.nickName?.trim() || "Chưa có");
 
-        if (data.gender === 0) setGender("Nam");
-        else if (data.gender === 1) setGender("Nữ");
+        if (data.gender === 1) setGender("Nam");
+        else if (data.gender === 2) setGender("Nữ");
         else setGender("Chưa có");
 
         setWorkArea(data.address?.trim() || "Chưa có");

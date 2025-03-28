@@ -72,6 +72,22 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
           </div>
         </div>
 
+        {/* Nickname */}
+        <div className="mb-4">
+          <label htmlFor="nickname" className="form-label">
+            Nickname <span className="text-danger">*</span> <small className="text-danger">required</small>
+          </label>
+          <input
+            id="nickname"
+            type="text"
+            value={formData.nickname}
+            onChange={onInputChange}
+            className="form-control"
+            required
+          />
+          <small className="text-muted">string</small>
+        </div>
+
         {/* Email */}
         <div className="mb-4">
           <label htmlFor="email" className="form-label">Email</label>
@@ -197,7 +213,7 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
         <div className="mb-4">
           <label htmlFor="localProfilePicture" className="form-label">Ảnh đại diện</label>
           <input
-            id="localProfilePicture"
+            id="LocalProfilePicture"
             type="file"
             accept="image/*"
             onChange={onInputChange}
