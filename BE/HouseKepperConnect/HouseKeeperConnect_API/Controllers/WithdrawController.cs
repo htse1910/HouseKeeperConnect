@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -16,16 +17,18 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IAccountService _accountService;
         private readonly IWalletService _walletService;
         private readonly INotificationService _notificationService;
+        private readonly ITransactionService _transactionService;
         private readonly IMapper _mapper;
         private string Message;
 
-        public WithdrawController(IWithdrawService WithdrawService, IAccountService accountService, IMapper mapper, IWalletService walletService, INotificationService notificationService)
+        public WithdrawController(IWithdrawService WithdrawService, IAccountService accountService, IMapper mapper, IWalletService walletService, INotificationService notificationService, ITransactionService transactionService)
         {
             _withdrawService = WithdrawService;
             _accountService = accountService;
             _mapper = mapper;
             _walletService = walletService;
             _notificationService = notificationService;
+            _transactionService = transactionService;
         }
 
         [HttpGet("WithdrawList")]
@@ -153,9 +156,27 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _walletService.UpdateWalletAsync(wallet);
 
+            int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+            var trans = new Transaction
+            {
+                TransactionID = orderCode,
+                WalletID = wallet.WalletID,
+                AccountID = acc.AccountID,
+                Amount = withdrawCreateDTO.Amount,
+                Fee = 0,
+                CreatedDate = DateTime.Now,
+                Description = "Rút tiền về tài khoản bank",
+                UpdatedDate = DateTime.Now,
+                TransactionType = (int)TransactionType.Withdrawal,
+                Status = (int)TransactionStatus.Pending,
+            };
+
+            await _transactionService.AddTransactionAsync(trans);
+
             var wi = _mapper.Map<Withdraw>(withdrawCreateDTO);
             wi.RequestDate = DateTime.Now;
             wi.BankNumber = acc.BankAccountNumber;
+            wi.TransactionID = orderCode;
             wi.Status = (int)TransactionStatus.Pending;
 
             await _withdrawService.AddWithdrawAsync(wi);
@@ -201,7 +222,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             /*wallet.Balance += wi.Amount;
             wallet.UpdatedAt = DateTime.Now;*/
-            if (withdrawUpdateDTO.Status == 3)
+            if (withdrawUpdateDTO.Status == (int)WithdrawStatus.Failed)
             {
                 wallet.Balance += wi.Amount;
             }
@@ -210,16 +231,29 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _walletService.UpdateWalletAsync(wallet);
 
+            var trans = await _transactionService.GetTransactionByIDAsync(wi.TransactionID);
+
+            if(trans == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+
+
             var noti = new Notification();
             noti.AccountID = wi.AccountID;
             if (wi.Status == (int)WithdrawStatus.Completed)
             {
+                trans.Status = (int)TransactionStatus.Completed;
                 noti.Message = "Bạn đã rút " + wi.Amount + "VND" + " về STK: " + wi.BankNumber + " thành công!";
             }
             else
             {
+                trans.Status = (int)TransactionStatus.Canceled;
                 noti.Message = "Rút tiền thất bại. " + (int)wi.Amount + " VND" + " đã được hoàn về ví của bạn! Vui lòng thử lại hoặc liên hệ hỗ trợ!";
             }
+
+            await _transactionService.UpdateTransactionAsync(trans);
 
             await _notificationService.AddNotificationAsync(noti);
             Message = "Updated!";

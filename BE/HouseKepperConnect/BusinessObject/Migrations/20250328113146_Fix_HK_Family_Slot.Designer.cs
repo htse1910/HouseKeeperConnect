@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250328113146_Fix_HK_Family_Slot")]
+    partial class Fix_HK_Family_Slot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1075,15 +1078,9 @@ namespace BusinessObject.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("TransactionID")
-                        .HasColumnType("int");
-
                     b.HasKey("WithdrawID");
 
                     b.HasIndex("AccountID");
-
-                    b.HasIndex("TransactionID")
-                        .IsUnique();
 
                     b.ToTable("Withdraw");
                 });
@@ -1523,15 +1520,7 @@ namespace BusinessObject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BusinessObject.Models.Transaction", "Transaction")
-                        .WithOne("Withdraw")
-                        .HasForeignKey("BusinessObject.Models.Withdraw", "TransactionID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Account");
-
-                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Account", b =>
@@ -1547,12 +1536,6 @@ namespace BusinessObject.Migrations
                     b.Navigation("Job_Services");
 
                     b.Navigation("Job_Slots");
-                });
-
-            modelBuilder.Entity("BusinessObject.Models.Transaction", b =>
-                {
-                    b.Navigation("Withdraw")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

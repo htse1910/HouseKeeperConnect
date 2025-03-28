@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250327210744_Add_WorkType_HK")]
+    partial class Add_WorkType_HK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,7 +306,7 @@ namespace BusinessObject.Migrations
                     b.Property<int?>("VerifyID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("WorkType")
+                    b.Property<int>("WorkType")
                         .HasColumnType("int");
 
                     b.HasKey("HousekeeperID");
@@ -874,43 +877,6 @@ namespace BusinessObject.Migrations
                     b.HasKey("SlotID");
 
                     b.ToTable("Slot");
-
-                    b.HasData(
-                        new
-                        {
-                            SlotID = 1,
-                            Time = "8H - 9H"
-                        },
-                        new
-                        {
-                            SlotID = 2,
-                            Time = "10H - 11H"
-                        },
-                        new
-                        {
-                            SlotID = 3,
-                            Time = "12H - 13H"
-                        },
-                        new
-                        {
-                            SlotID = 4,
-                            Time = "14H - 15H"
-                        },
-                        new
-                        {
-                            SlotID = 5,
-                            Time = "16H - 17H"
-                        },
-                        new
-                        {
-                            SlotID = 6,
-                            Time = "18H - 19H"
-                        },
-                        new
-                        {
-                            SlotID = 7,
-                            Time = "20H - 21H"
-                        });
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Transaction", b =>
@@ -1075,15 +1041,9 @@ namespace BusinessObject.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("TransactionID")
-                        .HasColumnType("int");
-
                     b.HasKey("WithdrawID");
 
                     b.HasIndex("AccountID");
-
-                    b.HasIndex("TransactionID")
-                        .IsUnique();
 
                     b.ToTable("Withdraw");
                 });
@@ -1329,7 +1289,7 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.Job_Service", b =>
                 {
                     b.HasOne("BusinessObject.Models.Job", "Job")
-                        .WithMany("Job_Services")
+                        .WithMany()
                         .HasForeignKey("JobID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1348,7 +1308,7 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.Job_Slots", b =>
                 {
                     b.HasOne("BusinessObject.Models.Job", "Job")
-                        .WithMany("Job_Slots")
+                        .WithMany()
                         .HasForeignKey("JobID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1523,15 +1483,7 @@ namespace BusinessObject.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BusinessObject.Models.Transaction", "Transaction")
-                        .WithOne("Withdraw")
-                        .HasForeignKey("BusinessObject.Models.Withdraw", "TransactionID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Account");
-
-                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Account", b =>
@@ -1539,19 +1491,6 @@ namespace BusinessObject.Migrations
                     b.Navigation("Notification");
 
                     b.Navigation("Wallet")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BusinessObject.Models.Job", b =>
-                {
-                    b.Navigation("Job_Services");
-
-                    b.Navigation("Job_Slots");
-                });
-
-            modelBuilder.Entity("BusinessObject.Models.Transaction", b =>
-                {
-                    b.Navigation("Withdraw")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

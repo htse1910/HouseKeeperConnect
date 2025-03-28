@@ -18,7 +18,9 @@ namespace BusinessObject.Models
         public decimal Amount { get; set; }
         public DateTime RequestDate { get; set; }
         public int Status { get; set; }
+        public int TransactionID { get; set; }
 
         public virtual Account Account { get; set; }
+        public virtual Transaction Transaction { get; set; }
     }
 }
