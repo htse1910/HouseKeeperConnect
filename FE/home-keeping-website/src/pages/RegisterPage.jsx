@@ -8,6 +8,7 @@ import axios from 'axios';
 function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
+    nickname: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -17,7 +18,7 @@ function RegisterPage() {
     genderID: '',
     introduction: '',
     address: '',
-    localProfilePicture: null
+    LocalProfilePicture: null
   });
 
   const [countdown, setCountdown] = useState(null);
@@ -25,7 +26,7 @@ function RegisterPage() {
 
   const handleInputChange = (e) => {
     const { id, value, files } = e.target;
-    if (id === 'localProfilePicture') {
+    if (id === 'LocalProfilePicture') {
       setFormData((prev) => ({ ...prev, [id]: files[0] }));
     } else {
       setFormData((prev) => ({ ...prev, [id]: value }));
@@ -40,17 +41,29 @@ function RegisterPage() {
       return;
     }
 
-    if (!formData.localProfilePicture) {
+    if (!formData.LocalProfilePicture) {
       toast.error('Please upload a profile picture!');
       return;
     }
 
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (value) formDataToSend.append(key, value);
+      if (value === null || value === '') return;
+    
+      // Fix keys that must match backend exactly (case-sensitive)
+      if (key === 'genderID') {
+        formDataToSend.append('Gender', parseInt(value, 10));
+      } else if (key === 'roleID') {
+        formDataToSend.append('RoleID', parseInt(value, 10));
+      } else {
+        formDataToSend.append(key, value);
+      }
     });
-
+    
     try {
+      for (let pair of formDataToSend.entries()) {
+        console.log(`${pair[0]}: ${pair[1]}`);
+      }      
       const registerResponse = await axios.post(
         `http://localhost:5280/api/Account/Register`,
         formDataToSend,

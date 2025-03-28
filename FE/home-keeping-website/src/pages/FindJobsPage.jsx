@@ -7,12 +7,22 @@ function FindJobsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({ location: "", jobType: "", salary: "" });
   const [currentPage, setCurrentPage] = useState(1);
+  const [allJobs, setAllJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
-  const jobsPerPage = 3;
+  const jobsPerPage = 9;
+
+  const authToken = localStorage.getItem("authToken");
+
+  // All districts of HCMC
+  const hcmDistricts = [
+    "Quận 1", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8",
+    "Quận 10", "Quận 11", "Quận 12", "Quận Bình Tân", "Quận Bình Thạnh",
+    "Quận Gò Vấp", "Quận Phú Nhuận", "Quận Tân Bình", "Quận Tân Phú",
+    "Huyện Bình Chánh", "Huyện Cần Giờ", "Huyện Củ Chi", "Huyện Hóc Môn", "Huyện Nhà Bè",
+    "Thành phố Thủ Đức"
+  ];
 
   useEffect(() => {
-    const authToken = localStorage.getItem("authToken");
-
     fetch("http://localhost:5280/api/Job/JobList", {
       method: "GET",
       headers: {
@@ -21,26 +31,90 @@ function FindJobsPage() {
       },
     })
       .then((response) => response.json())
-      .then((data) => setJobs(data))
+      .then((data) => {
+        setAllJobs(data);
+        setJobs(data);
+      })
       .catch((error) => console.error("Error fetching jobs:", error));
   }, []);
 
-  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+  const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      setJobs(allJobs);
+      return;
+    }
+
+    fetch(`http://localhost:5280/api/Job/SearchJob?name=${encodeURIComponent(searchTerm)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setJobs(data);
+        setCurrentPage(1);
+      })
+      .catch((err) => console.error("Search error:", err));
+  };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Function to extract only the date from timestamp
-  const formatDate = (timestamp) => {
-    return timestamp ? timestamp.split("T")[0] : "N/A";
+  const handleApplyFilter = () => {
+    let filtered = [...allJobs];
+
+    if (filters.location) {
+      filtered = filtered.filter((job) =>
+        job.location?.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
+
+    if (filters.jobType) {
+      const type = filters.jobType === "fulltime" ? 1 : 2;
+      filtered = filtered.filter((job) => job.jobType === type);
+    }
+
+    if (filters.salary) {
+      filtered = filtered.filter((job) => {
+        const salary = job.price || 0;
+        switch (filters.salary) {
+          case "500-1000": return salary >= 500000 && salary <= 1000000;
+          case "1000-1500": return salary > 1000000 && salary <= 1500000;
+          case "1500-2500": return salary > 1500000 && salary <= 2500000;
+          case "2500+": return salary > 2500000;
+          default: return true;
+        }
+      });
+    }
+
+    setJobs(filtered);
+    setCurrentPage(1);
+  };
+
+  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+
+  const getJobTypeLabel = (type) => (type === 1 ? "Full-time" : type === 2 ? "Part-time" : "Không xác định");
+  const getJobStatusLabel = (status) => {
+    switch (status) {
+      case 1: return "Đang chờ duyệt";
+      case 2: return "Đã duyệt";
+      case 3: return "Đã nhận";
+      case 4: return "Hoàn thành";
+      case 5: return "Hết hạn";
+      case 6: return "Đã hủy";
+      default: return "Không xác định";
+    }
   };
 
   return (
     <div className="container-fluid p-0">
       {/* Search & Filters */}
-      <div className="d-flex flex-column align-items-center justify-content-center" style={{ backgroundColor: "#ffedd5", minHeight: "220px" }}>
+      <div className="d-flex flex-column align-items-center justify-content-center" style={{ backgroundColor: "#ffedd5", minHeight: "240px" }}>
+        {/* Search row */}
         <div className="input-group w-75 shadow-sm mb-3">
           <span className="input-group-text bg-white border-end-0 px-3">
             <FaSearch className="text-muted" />
@@ -52,33 +126,40 @@ function FindJobsPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <button className="btn btn-warning px-4" onClick={handleSearch}>Tìm kiếm</button>
         </div>
 
+        {/* Filter row */}
         <div className="w-75">
           <div className="row g-2">
             <div className="col-3">
-              <select className="form-select w-100" name="location" value={filters.location} onChange={handleFilterChange}>
-                <option value="">Địa điểm</option>
-                <option value="Hanoi">Hà Nội</option>
-                <option value="HCM">Hồ Chí Minh</option>
+              <select className="form-select" name="location" value={filters.location} onChange={handleFilterChange}>
+                <option value="">Tất cả địa điểm</option>
+                {hcmDistricts.map((district, idx) => (
+                  <option key={idx} value={district}>{district}</option>
+                ))}
               </select>
             </div>
             <div className="col-3">
-              <select className="form-select w-100" name="jobType" value={filters.jobType} onChange={handleFilterChange}>
-                <option value="">Loại công việc</option>
+              <select className="form-select" name="jobType" value={filters.jobType} onChange={handleFilterChange}>
+                <option value="">Tất cả loại</option>
                 <option value="fulltime">Full-time</option>
                 <option value="parttime">Part-time</option>
               </select>
             </div>
             <div className="col-3">
-              <select className="form-select w-100" name="salary" value={filters.salary} onChange={handleFilterChange}>
-                <option value="">Mức lương</option>
-                <option value="below5m">Dưới 5 triệu</option>
-                <option value="5m-10m">5-10 triệu</option>
+              <select className="form-select" name="salary" value={filters.salary} onChange={handleFilterChange}>
+                <option value="">Tất cả mức lương</option>
+                <option value="500-1000">500k - 1M</option>
+                <option value="1000-1500">1M - 1.5M</option>
+                <option value="1500-2500">1.5M - 2.5M</option>
+                <option value="2500+">Trên 2.5M</option>
               </select>
             </div>
             <div className="col-3">
-              <button className="btn text-white w-100" style={{ backgroundColor: "#ff9900" }}>Tìm kiếm</button>
+              <button className="btn btn-outline-primary w-100" onClick={handleApplyFilter}>
+                Áp dụng bộ lọc
+              </button>
             </div>
           </div>
         </div>
@@ -92,15 +173,11 @@ function FindJobsPage() {
               <div className="card shadow-sm p-3 mb-4 border-0">
                 <div className="card-body">
                   <h5 className="fw-bold">{job.jobName}</h5>
-                  <p className="text-muted">
-                    <FaUser className="me-1" /> {job.account?.name}
-                  </p>
-                  <p className="mb-1"><FaMapMarkerAlt className="text-muted" /> Chưa cập nhật</p>
-                  <p className="mb-1"><FaMoneyBillWave className="text-muted" /> Lương: Chưa cập nhật</p>
-                  <p className="mb-1"><FaClock className="text-muted" /> Ngày đăng: {formatDate(job.account?.createdAt)}</p>
-                  <span className="badge text-white" style={{ backgroundColor: "#99ccff" }}>
-                    Công việc
-                  </span>
+                  <p className="text-muted"><FaUser className="me-1" /> Gia đình ID: {job.familyID ?? "Không rõ"}</p>
+                  <p className="mb-1"><FaMapMarkerAlt className="text-muted" /> {job.location ?? "Chưa cập nhật"}</p>
+                  <p className="mb-1"><FaMoneyBillWave className="text-muted" /> {job.price?.toLocaleString()} VND</p>
+                  <p className="mb-1"><FaClock className="text-muted" /> {getJobStatusLabel(job.status)}</p>
+                  <p className="mb-1">Loại: {getJobTypeLabel(job.jobType)}</p>
                   <Link to={`/job/${job.jobID}`} className="btn btn-outline-warning w-100 mt-3">Xem chi tiết</Link>
                 </div>
               </div>
