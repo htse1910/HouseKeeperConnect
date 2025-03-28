@@ -91,7 +91,6 @@ namespace BusinessObject.Mapping
         private void Map_List_Display_Report()
         {
             CreateMap<Report, ReportDisplayDTO>().ReverseMap();
-
         }
 
         private void Map_Add_Family_Profile()
@@ -103,7 +102,6 @@ namespace BusinessObject.Mapping
         {
             CreateMap<FamilyDisplayDTO, Family>().ReverseMap();
             CreateMap<FamilyDisplayDTO, Account>().ReverseMap();
-
         }
 
         private void Map_Update_Family()
@@ -270,7 +268,6 @@ namespace BusinessObject.Mapping
             CreateMap<Job, JobDisplayDTO>();
             CreateMap<JobDetail, JobDisplayDTO>();
             CreateMap<JobDetail, JobDetailDisplayDTO>();
-
         }
 
         private void Map_Create_Booking_Slots()
@@ -302,6 +299,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<HousekeeperSkillMappingCreateDTO, HousekeeperSkillMapping>();
         }
+
         private void Map_Display_Violation()
         {
             CreateMap<ViolationDisplayDTO, Violation>().ReverseMap();
@@ -316,6 +314,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<ViolationUpdateDTO, Violation>();
         }
+
         private void Map_Display_Housekeeper_Violation()
         {
             CreateMap<Housekeeper_ViolationDisplayDTO, Housekeeper_Violation>().ReverseMap();

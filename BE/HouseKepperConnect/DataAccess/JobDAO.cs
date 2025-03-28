@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -143,7 +142,6 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
-
 
         public async Task<JobDetail> GetJobDetailByJobIDAsync(int id)
         {

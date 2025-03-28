@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BusinessObject.DTO
 {
     public class BookingDisplayDTO
     {
-
         [Required]
         public int JobID { get; set; }
 
@@ -23,6 +17,6 @@ namespace BusinessObject.DTO
         public DateTime CreatedAt { get; set; }
 
         [Required]
-        public int BookingStatus { get; set; }
+        public int Status { get; set; }
     }
 }

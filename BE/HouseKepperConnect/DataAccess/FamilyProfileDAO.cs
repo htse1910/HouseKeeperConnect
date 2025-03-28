@@ -1,12 +1,10 @@
-﻿using AutoMapper;
-using BusinessObject.Models;
+﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
 {
     public class FamilyProfileDAO
     {
-        
         private static FamilyProfileDAO instance;
         private static readonly object instancelock = new object();
 

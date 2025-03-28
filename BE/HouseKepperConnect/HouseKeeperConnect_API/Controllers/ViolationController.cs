@@ -2,7 +2,6 @@
 using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -20,6 +19,7 @@ namespace HouseKeeperConnect_API.Controllers
             _violationService = violationService;
             _mapper = mapper;
         }
+
         [HttpGet("ViolationList")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<ViolationDisplayDTO>>> GetAllViolations(int pageNumber, int pageSize)

@@ -29,7 +29,7 @@ namespace HouseKeeperConnect_API.Controllers
             var families = await _familyService.GetAllFamilysAsync(pageNumber, pageSize);
             if (families.Count == 0)
             {
-                 return NotFound("Family list is empty!");
+                return NotFound("Family list is empty!");
             }
 
             var familyList = new List<FamilyDisplayDTO>();

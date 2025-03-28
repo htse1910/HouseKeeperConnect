@@ -4,7 +4,6 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -233,12 +232,11 @@ namespace HouseKeeperConnect_API.Controllers
 
             var trans = await _transactionService.GetTransactionByIDAsync(wi.TransactionID);
 
-            if(trans == null)
+            if (trans == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
             }
-
 
             var noti = new Notification();
             noti.AccountID = wi.AccountID;

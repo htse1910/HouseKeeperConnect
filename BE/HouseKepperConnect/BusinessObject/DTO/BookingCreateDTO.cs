@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BusinessObject.DTO
 {
@@ -10,14 +9,5 @@ namespace BusinessObject.DTO
 
         [Required]
         public int HousekeeperID { get; set; }
-
-        [Required]
-        public int FamilyID { get; set; }
-
-        [Required]
-        public DateTime CreatedAt { get; set; }
-
-        [Required]
-        public int BookingStatus { get; set; }
     }
 }

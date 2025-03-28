@@ -2,7 +2,6 @@
 using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -17,7 +16,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IViolationService _violationService;
         private readonly IMapper _mapper;
 
-        public Housekeeper_ViolationController(IHousekeeper_ViolationService housekeeperViolationService,IHouseKeeperService housekeeperService,IViolationService violationService,IMapper mapper)
+        public Housekeeper_ViolationController(IHousekeeper_ViolationService housekeeperViolationService, IHouseKeeperService housekeeperService, IViolationService violationService, IMapper mapper)
         {
             _housekeeperViolationService = housekeeperViolationService;
             _housekeeperService = housekeeperService;
@@ -25,7 +24,6 @@ namespace HouseKeeperConnect_API.Controllers
             _mapper = mapper;
         }
 
-        
         [HttpGet("GetViolationsByHousekeeperId")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<Housekeeper_ViolationDisplayDTO>>> GetViolationsByHousekeeperId([FromQuery] int housekeeperId)
@@ -40,7 +38,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(violationDTOs);
         }
 
-        
         [HttpPost("AddViolation")]
         [Authorize]
         public async Task<IActionResult> AddViolationToHousekeeper([FromQuery] Housekeeper_ViolationCreateDTO violationDTO)
@@ -75,7 +72,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok("Violation added successfully!");
         }
 
-        
         [HttpDelete("RemoveViolation")]
         [Authorize]
         public async Task<IActionResult> RemoveViolationFromHousekeeper([FromQuery] int housekeeperId, [FromQuery] int violationId)

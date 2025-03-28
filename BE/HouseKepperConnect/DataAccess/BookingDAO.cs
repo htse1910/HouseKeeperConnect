@@ -38,7 +38,6 @@ namespace DataAccess
                     list = await context.Booking
                         .Include(b => b.Job)
                         .Include(b => b.Housekeeper)
-                        .Include(b => b.Family)
                         .ToListAsync();
                 }
             }
@@ -59,7 +58,6 @@ namespace DataAccess
                     booking = await context.Booking
                         .Include(b => b.Job)
                         .Include(b => b.Housekeeper)
-                        .Include(b => b.Family)
                         .SingleOrDefaultAsync(b => b.BookingID == id);
                 }
             }
@@ -70,15 +68,15 @@ namespace DataAccess
             return booking;
         }
 
-        public async Task<List<Booking>> GetBookingsByFamilyIDAsync(int familyId)
-        {
-            using var context = new PCHWFDBContext();
-            return await context.Booking
-                .Where(b => b.FamilyID == familyId)
-                .Include(b => b.Job)
-                .Include(b => b.Housekeeper)
-                .ToListAsync();
-        }
+        /*        public async Task<List<Booking>> GetBookingsByFamilyIDAsync(int familyId)
+                {
+                    using var context = new PCHWFDBContext();
+                    return await context.Booking
+                        .Where(b => b.FamilyID == familyId)
+                        .Include(b => b.Job)
+                        .Include(b => b.Housekeeper)
+                        .ToListAsync();
+                }*/
 
         public async Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId)
         {

@@ -3,7 +3,6 @@ using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -11,7 +10,6 @@ namespace HouseKeeperConnect_API.Controllers
     [Route("api/[controller]")]
     public class VerificationTasksController : ControllerBase
     {
-        
         private readonly IVerificationTaskService _verificationTaskService;
         private readonly IAccountService _accountService;
         private readonly IHouseKeeperService _housekeeperService;
@@ -85,7 +83,6 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
-
         [HttpPut("Approve")]
         [Authorize]
         public async Task<ActionResult> ApproveVerification(int taskId, [FromQuery] VerificationRequestDTO request)
@@ -108,9 +105,9 @@ namespace HouseKeeperConnect_API.Controllers
                 task.Status = 2;
                 task.CompletedDate = DateTime.Now;
                 task.Notes = request.Notes;
-                task.IDVerification.Status = 2; 
+                task.IDVerification.Status = 2;
                 await _verificationTaskService.UpdateVerificationTaskAsync(task);
-              
+
                 await _housekeeperService.UpdateIsVerifiedAsync(task.IDVerification.VerifyID, true);
                 return Ok("Verification task approved successfully.");
             }
@@ -142,7 +139,7 @@ namespace HouseKeeperConnect_API.Controllers
                 task.Status = 2;
                 task.CompletedDate = DateTime.Now;
                 task.Notes = request.Notes;
-                task.IDVerification.Status = 3; 
+                task.IDVerification.Status = 3;
 
                 await _verificationTaskService.UpdateVerificationTaskAsync(task);
 
@@ -153,6 +150,5 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
     }
 }

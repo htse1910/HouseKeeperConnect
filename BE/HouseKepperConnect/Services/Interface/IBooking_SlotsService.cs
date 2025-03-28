@@ -10,7 +10,7 @@ namespace Services.Interface
 
         Task<List<Booking_Slots>> GetBooking_SlotsByBookingIDAsync(int bookingId);
 
-        Task AddBooking_SlotsAsync(Booking_Slots bookingSlots);
+        Task AddBooking_SlotsAsync(List<Booking_Slots> bookingSlots);
 
         Task DeleteBooking_SlotsAsync(int id);
     }
