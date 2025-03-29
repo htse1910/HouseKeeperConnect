@@ -105,20 +105,23 @@ namespace HouseKeeperConnect_API.Controllers
             // Add booking to database
             await _bookingService.AddBookingAsync(booking);
 
-            // Retrieve all Job_Slots associated with the given JobID
+            // Retrieve Job_Slots associated with the JobID using DAO function
             var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(bookingCreateDTO.JobID);
 
             if (jobSlots != null && jobSlots.Any())
             {
-                var bookingSlots = jobSlots.Select(js => new Booking_Slots
+                foreach (var jobSlot in jobSlots)
                 {
-                    BookingID = booking.BookingID,  // The newly created BookingID
-                    SlotID = js.SlotID,
-                    DayOfWeek = js.DayOfWeek
-                }).ToList();
+                    var bookingSlot = new Booking_Slots
+                    {
+                        BookingID = booking.BookingID, // Newly created BookingID
+                        SlotID = jobSlot.SlotID,
+                        DayOfWeek = jobSlot.DayOfWeek
+                    };
 
-                // Save all BookingSlots
-                await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlots);
+                    // Save each BookingSlot individually
+                    await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
+                }
             }
 
             return Ok("Booking added successfully with all related slots!");
