@@ -56,7 +56,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Invalid booking slots data.");
             }
             var bookingSlot = _mapper.Map<Booking_Slots>(bookingSlotsCreateDTO);
-            await _bookingSlotsService.AddBooking_SlotsAsync(new List<Booking_Slots> { bookingSlot });
+            await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
             return Ok("Booking slots added successfully!");
         }
 
