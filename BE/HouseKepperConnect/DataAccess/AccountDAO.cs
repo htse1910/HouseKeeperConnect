@@ -554,5 +554,27 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task InvalidateResetTokenAsync(int accountId)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var account = await context.Account.FindAsync(accountId);
+                    if (account != null)
+                    {
+                        account.PasswordResetToken = null;
+                        account.ResetTokenExpiry = null;
+                        await context.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
     }
 }

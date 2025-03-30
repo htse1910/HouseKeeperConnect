@@ -45,5 +45,6 @@ namespace Repositories.Interface
         Task<Account> GetAccountByResetTokenAsync(string token);
 
         Task UpdatePasswordAsync(int accountId, string hashedPassword);
-    }
+        Task InvalidateResetTokenAsync(int accountId);
+     }
 }

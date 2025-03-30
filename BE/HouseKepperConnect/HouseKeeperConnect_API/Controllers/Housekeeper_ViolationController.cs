@@ -24,11 +24,17 @@ namespace HouseKeeperConnect_API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("GetViolationsByHousekeeperId")]
+        [HttpGet("GetViolationsByAccountId")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Housekeeper_ViolationDisplayDTO>>> GetViolationsByHousekeeperId([FromQuery] int housekeeperId)
+        public async Task<ActionResult<IEnumerable<Housekeeper_ViolationDisplayDTO>>> GetViolationsByAccountId([FromQuery] int accountId)
         {
-            var violations = await _housekeeperViolationService.GetViolationByHousekeeperIdAsync(housekeeperId);
+            var housekeeper = await _housekeeperService.GetHousekeeperByUserAsync(accountId);
+            if (housekeeper == null)
+            {
+                return NotFound("Housekeeper not found for this account!");
+            }
+
+            var violations = await _housekeeperViolationService.GetViolationByHousekeeperIdAsync(housekeeper.HousekeeperID);
             if (violations == null || violations.Count == 0)
             {
                 return NotFound("No violations found for this housekeeper!");
@@ -40,50 +46,57 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPost("AddViolation")]
         [Authorize]
-        public async Task<IActionResult> AddViolationToHousekeeper([FromQuery] Housekeeper_ViolationCreateDTO violationDTO)
+        public async Task<IActionResult> AddViolationToHousekeeper([FromQuery] int accountId, [FromQuery] int violationId)
         {
-            if (violationDTO == null)
-            {
-                return BadRequest("Invalid data.");
-            }
-
-            var housekeeper = await _housekeeperService.GetHousekeeperByIDAsync(violationDTO.HousekeeperID);
+            var housekeeper = await _housekeeperService.GetHousekeeperByUserAsync(accountId);
             if (housekeeper == null)
             {
-                return NotFound("Housekeeper not found!");
+                return NotFound("Housekeeper not found for this account!");
             }
 
-            var violation = await _violationService.GetViolationByIDAsync(violationDTO.ViolationID);
+            var violation = await _violationService.GetViolationByIDAsync(violationId);
             if (violation == null)
             {
                 return NotFound("Violation not found!");
             }
 
-            var existingViolation = await _housekeeperViolationService.GetViolationByHousekeeperIdAsync(violationDTO.HousekeeperID);
-            if (existingViolation.Any(v => v.ViolationID == violationDTO.ViolationID))
+            var existingViolations = await _housekeeperViolationService.GetViolationByHousekeeperIdAsync(housekeeper.HousekeeperID);
+            if (existingViolations.Any(v => v.ViolationID == violationId))
             {
                 return BadRequest("Housekeeper already has this violation!");
             }
 
-            var violationEntity = _mapper.Map<Housekeeper_Violation>(violationDTO);
-            violationEntity.ViolationDate = DateTime.Now;
-            await _housekeeperViolationService.AddViolationToHousekeeperAsync(violationEntity);
+            var violationEntity = new Housekeeper_Violation
+            {
+                HousekeeperID = housekeeper.HousekeeperID,
+                ViolationID = violationId,
+                ViolationDate = DateTime.Now
+            };
 
+            await _housekeeperViolationService.AddViolationToHousekeeperAsync(violationEntity);
             return Ok("Violation added successfully!");
         }
 
+
         [HttpDelete("RemoveViolation")]
         [Authorize]
-        public async Task<IActionResult> RemoveViolationFromHousekeeper([FromQuery] int housekeeperId, [FromQuery] int violationId)
+        public async Task<IActionResult> RemoveViolationFromHousekeeper([FromQuery] int accountId, [FromQuery] int violationId)
         {
-            var existingViolations = await _housekeeperViolationService.GetViolationByHousekeeperIdAsync(housekeeperId);
+            var housekeeper = await _housekeeperService.GetHousekeeperByUserAsync(accountId);
+            if (housekeeper == null)
+            {
+                return NotFound("Housekeeper not found for this account!");
+            }
+
+            var existingViolations = await _housekeeperViolationService.GetViolationByHousekeeperIdAsync(housekeeper.HousekeeperID);
             if (!existingViolations.Any(v => v.ViolationID == violationId))
             {
                 return NotFound("Violation not found for this housekeeper!");
             }
 
-            await _housekeeperViolationService.RemoveViolationFromHousekeeperAsync(housekeeperId, violationId);
+            await _housekeeperViolationService.RemoveViolationFromHousekeeperAsync(housekeeper.HousekeeperID, violationId);
             return Ok("Violation removed successfully!");
         }
+
     }
 }
