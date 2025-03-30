@@ -2,6 +2,7 @@
 using BusinessObject.DTO;
 using BusinessObject.DTOs;
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -89,9 +90,6 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(result);
         }
-
-        [HttpPost("AddBooking")]
-        [Authorize]
         public async Task<ActionResult> AddBooking([FromQuery] BookingCreateDTO bookingCreateDTO)
         {
             if (bookingCreateDTO == null)
@@ -99,32 +97,61 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Invalid booking data.");
             }
 
-            // Map Booking DTO to Booking entity
-            var booking = _mapper.Map<Booking>(bookingCreateDTO);
-
-            // Add booking to database
-            await _bookingService.AddBookingAsync(booking);
-
-            // Retrieve Job_Slots associated with the JobID using DAO function
-            var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(bookingCreateDTO.JobID);
-
-            if (jobSlots != null && jobSlots.Any())
+            // 🔹 Retrieve the Job from the database
+            var job = await _jobService.GetJobByIDAsync(bookingCreateDTO.JobID);
+            if (job == null)
             {
-                foreach (var jobSlot in jobSlots)
-                {
-                    var bookingSlot = new Booking_Slots
-                    {
-                        BookingID = booking.BookingID, // Newly created BookingID
-                        SlotID = jobSlot.SlotID,
-                        DayOfWeek = jobSlot.DayOfWeek
-                    };
-
-                    // Save each BookingSlot individually
-                    await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
-                }
+                return NotFound("Job not found.");
             }
 
-            return Ok("Booking added successfully with all related slots!");
+            // 🔹 Check job type (Full-Time or Part-Time)
+            if (job.JobType == 1) // Full-Time → Recurring bookings
+            {
+                var jobdetail = await _jobService.GetJobDetailByJobIDAsync(bookingCreateDTO.JobID);
+                DateTime currentDate = jobdetail.StartDate;
+                var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(bookingCreateDTO.JobID);
+                while (currentDate <= jobdetail.EndDate)
+                {   
+                    foreach (var jobSlot in jobSlots)
+                    {
+                        DateTime bookingDate = GetNextDayOfWeek(currentDate, jobSlot.DayOfWeek);
+
+                        if (bookingDate > jobdetail.EndDate)
+                            break; // Stop if past EndDate
+
+                        var newBooking = new Booking
+                        {
+                            JobID = job.JobID,
+                            HousekeeperID = bookingCreateDTO.HousekeeperID,
+                            CreatedAt = DateTime.UtcNow,
+                            Status = (int)BookingStatus.Pending
+                        };
+
+                        await _bookingService.AddBookingAsync(newBooking);
+                    }
+
+                    currentDate = currentDate.AddDays(7);
+                }
+            }
+            else //  Part-Time
+            {
+                var newBooking = new Booking
+                {
+                    JobID = job.JobID,
+                    HousekeeperID = bookingCreateDTO.HousekeeperID,
+                    CreatedAt = DateTime.Now,
+                    Status = (int)BookingStatus.Pending
+                };
+
+                await _bookingService.AddBookingAsync(newBooking);
+            }
+            DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
+            {
+                int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
+                return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
+            }
+
+            return Ok("Booking(s) added successfully!");
         }
 
         [HttpPut("UpdateBooking")]
