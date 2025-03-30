@@ -1,10 +1,10 @@
+using System.Text;
 using Appwrite;
 using BusinessObject.Mapping;
 using BusinessObject.Models.AppWrite;
 using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 

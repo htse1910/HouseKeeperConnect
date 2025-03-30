@@ -1,5 +1,4 @@
-﻿using Appwrite;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
@@ -204,7 +203,6 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound(Message);
                 }
 
-
                 Acc.Phone = newAcc.Phone;
                 Acc.Introduction = newAcc.Introduction;
                 Acc.Name = newAcc.Name;
@@ -230,8 +228,6 @@ namespace HouseKeeperConnect_API.Controllers
 
                 if (id != null)
                 {
-                    
-
                     id.UpdatedAt = DateTime.Now;
                     await _verificationService.UpdateIDVerifyAsync(id);
                     oHk.VerifyID = id.VerifyID;

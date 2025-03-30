@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Scripting;
 using Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -33,6 +32,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IConfiguration _configuration;
         private readonly Client _appWriteClient;
         private readonly EmailHelper _emailHelper;
+
         private static readonly char[] Characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
 
@@ -329,6 +329,7 @@ namespace HouseKeeperConnect_API.Controllers
             var accountDTOs = _mapper.Map<List<AccountDisplayDTO>>(accounts);
             return Ok(accountDTOs);
         }
+
         [HttpPost("Request-forgot-password")]
         public async Task<IActionResult> RequestPasswordReset([FromBody] string email)
         {
@@ -364,12 +365,10 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Token không hợp lệ hoặc đã hết hạn.");
             }
 
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword); 
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
             await _accountService.UpdatePasswordAsync(account.AccountID, hashedPassword);
 
             return Ok("Mật khẩu đã được đặt lại thành công.");
         }
-
-
     }
 }

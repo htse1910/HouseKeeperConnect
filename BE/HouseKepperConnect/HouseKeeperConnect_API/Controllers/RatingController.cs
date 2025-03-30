@@ -2,7 +2,6 @@
 using BusinessObject.DTO;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -19,7 +18,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IMapper _mapper;
         private string Message;
 
-        public RatingController(IRatingService ratingService, IHouseKeeperService houseKeeperService, 
+        public RatingController(IRatingService ratingService, IHouseKeeperService houseKeeperService,
             IFamilyProfileService familyProfileService, INotificationService notificationService, IMapper mapper)
         {
             _ratingService = ratingService;
@@ -27,7 +26,6 @@ namespace HouseKeeperConnect_API.Controllers
             _familyProfileService = familyProfileService;
             _notificationService = notificationService;
             _mapper = mapper;
-
         }
 
         [HttpGet("RatingList")]
@@ -35,7 +33,7 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult<RatingDisplayDTO>> GetRatingList(int pageNumber, int pageSize)
         {
             var list = await _ratingService.GetAllRatingsAsync(pageNumber, pageSize);
-            if(list == null)
+            if (list == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
@@ -43,7 +41,6 @@ namespace HouseKeeperConnect_API.Controllers
 
             var nL = _mapper.Map<List<RatingDisplayDTO>>(list);
             return Ok(list);
-
         }
 
         [HttpGet("GetRatingByID")]
@@ -51,7 +48,7 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult<Rating>> GetRatingByID(int id)
         {
             var ra = await _ratingService.GetRatingByIDAsync(id);
-            if(ra == null)
+            if (ra == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
@@ -82,7 +79,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(nRi);
         }
-        
+
         [HttpGet("GetRatingListByFA")]
         [Authorize]
         public async Task<ActionResult<List<RatingDisplayDTO>>> getRatingsByFA(int id, int pageNumber, int pageSize)
@@ -133,13 +130,29 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _ratingService.AddRatingAsync(ra);
 
+            var raL = await _ratingService.GetRatingsByHKAsync(hk.HousekeeperID);
+            var totalRating = raL.Count;
+            var totalScore = 0;
+
+            foreach (var r in raL)
+            {
+                totalScore += r.Score;
+            }
+
+            var finalScore = (decimal)totalScore / totalRating;
+
+            hk.Rating = Math.Round(finalScore, 1);
+            hk.NumberOfRatings = totalRating;
+
+            await _houseKeeperService.UpdateHousekeeperAsync(hk);
+
             var noti = new Notification();
             noti.AccountID = ratingCreateDTO.Reviewee;
             noti.RedirectUrl = "";
             noti.Message = fa.Account.Name + " đã đánh giá bạn " + ratingCreateDTO.Score + " sao!";
 
             await _notificationService.AddNotificationAsync(noti);
-            Message = fa.Account.Nickname + " has rated " + hk.Account.Nickname+" !";
+            Message = fa.Account.Nickname + " has rated " + hk.Account.Nickname + " !";
 
             return Ok(Message);
         }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessObject.Models;
+﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -65,6 +60,7 @@ namespace DataAccess
             return Rating;
         }
 
+        //With paging
         public async Task<List<Rating>> GetRatingsByHKAsync(int uId, int pageNumber, int pageSize)
         {
             var trans = new List<Rating>();
@@ -82,6 +78,24 @@ namespace DataAccess
             }
             return trans;
         }
+
+        public async Task<List<Rating>> GetRatingsByHKAsync(int uId)
+        {
+            var trans = new List<Rating>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    trans = await context.Rating.Include(t => t.Housekeeper).Where(t => t.HouseKeeperID == uId).OrderBy(n => n.CreateAt).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return trans;
+        }
+
         public async Task<List<Rating>> GetRatingsByFAAsync(int uId, int pageNumber, int pageSize)
         {
             var trans = new List<Rating>();

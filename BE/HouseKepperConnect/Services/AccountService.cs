@@ -1,7 +1,6 @@
 ﻿using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.JWTToken;
-using Microsoft.AspNetCore.Identity;
 using Repositories.Interface;
 using Services.Interface;
 
@@ -47,9 +46,13 @@ namespace Services
         public async Task<List<Account>> GetNewAccout() => await _accountRepository.GetNewAccout();
 
         public async Task<int?> GetRoleIDByAccountIDAsync(int accountID) => await _accountRepository.GetRoleIDByAccountIDAsync(accountID);
+
         public async Task<Account> GetAccountByEmailAsync(string email) => await _accountRepository.GetAccountByEmailAsync(email);
+
         public async Task SavePasswordResetTokenAsync(int accountId, string token, DateTime expiry) => await _accountRepository.SavePasswordResetTokenAsync(accountId, token, expiry);
+
         public async Task<Account> GetAccountByResetTokenAsync(string token) => await _accountRepository.GetAccountByResetTokenAsync(token);
+
         public async Task UpdatePasswordAsync(int accountId, string hashedPassword) => await _accountRepository.UpdatePasswordAsync(accountId, hashedPassword);
     }
 }

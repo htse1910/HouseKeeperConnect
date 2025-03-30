@@ -326,10 +326,12 @@ namespace BusinessObject.Mapping
         {
             CreateMap<Housekeeper_ViolationCreateDTO, Housekeeper_Violation>();
         }
+
         private void Map_Reset_Password()
         {
             CreateMap<ResetPasswordDTO, Account>();
         }
+
         private void Map_Display_Rating()
         {
             CreateMap<RatingDisplayDTO, Rating>().ReverseMap();
