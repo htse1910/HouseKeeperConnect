@@ -57,6 +57,7 @@ namespace BusinessObject.Mapping
             Map_Create_Violation();
             Map_Update_Violation();
             Map_Display_Housekeeper_Violation();
+            Map_Display_Rating();
             Map_Create_Housekeeper_Violation();
             Map_Reset_Password();
         }
@@ -328,6 +329,10 @@ namespace BusinessObject.Mapping
         private void Map_Reset_Password()
         {
             CreateMap<ResetPasswordDTO, Account>();
+        }
+        private void Map_Display_Rating()
+        {
+            CreateMap<RatingDisplayDTO, Rating>().ReverseMap();
         }
     }
 }
