@@ -20,6 +20,7 @@ namespace BusinessObject.Models
 
         public int JobsApplied { get; set; } = 0;
         public int? WorkType { get; set; }
+        public int NumberOfRatings { get; set; }
 
         [ForeignKey("IDVerification")]
         public int? VerifyID { get; set; }
@@ -27,5 +28,6 @@ namespace BusinessObject.Models
         public virtual Account Account { get; set; }
 
         public virtual IDVerification IDVerification { get; set; }
+        public virtual IEnumerable<Rating> Ratings { get; set; }
     }
 }

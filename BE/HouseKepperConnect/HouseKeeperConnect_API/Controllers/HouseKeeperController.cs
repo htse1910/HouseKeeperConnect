@@ -2,6 +2,7 @@
 using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -16,18 +17,16 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IAccountService _accountService;
         private readonly IIDVerificationService _verificationService;
         private readonly INotificationService _notificationService;
-        private readonly Client _appwriteClient;
         private readonly IMapper _mapper;
         private string Message;
 
-        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService, Client appwriteClient)
+        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService)
         {
             _housekeeperService = housekeeperService;
             _accountService = accountService;
             _mapper = mapper;
             _verificationService = verificationService;
             _notificationService = notificationService;
-            _appwriteClient = appwriteClient;
         }
 
         [HttpGet("HousekeeperList")] //Admin
@@ -49,6 +48,7 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     var nHk = new HouseKeeperDisplayDTO
                     {
+                        HousekeeperID = item.HousekeeperID,
                         AccountID = item.AccountID,
                         Address = item.Account.Address,
                         BackPhoto = item.IDVerification.BackPhoto,
@@ -69,6 +69,7 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     var nHk = new HouseKeeperDisplayDTO
                     {
+                        HousekeeperID = item.HousekeeperID,
                         AccountID = item.AccountID,
                         Address = item.Account.Address,
                         BankAccountNumber = item.Account.BankAccountNumber,
@@ -194,8 +195,7 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
-                //<--------------------------------------------------------------------------------->// Update Account
-                /*var newAcc = _mapper.Map<Account>(hk);
+                var newAcc = _mapper.Map<Account>(hk);
 
                 var Acc = await _accountService.GetAccountByIDAsync(hk.AccountID);
                 if (Acc == null)
@@ -204,16 +204,6 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound(Message);
                 }
 
-                if (hk.LocalProfilePicture != null)
-                {
-                    byte[] pic;
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await hk.LocalProfilePicture.CopyToAsync(memoryStream);
-                        pic = memoryStream.ToArray();
-                    }
-                    Acc.LocalProfilePicture = pic;
-                }
 
                 Acc.Phone = newAcc.Phone;
                 Acc.Introduction = newAcc.Introduction;
@@ -240,38 +230,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 if (id != null)
                 {
-                    byte[] front, face, back;
-
-                    // ✅ Read uploaded images
-                    if (hk.FrontPhoto != null)
-                    {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            await hk.FrontPhoto.CopyToAsync(memoryStream);
-                            front = memoryStream.ToArray();
-                        }
-                        id.FrontPhoto = front;
-                    }
-
-                    if (hk.FacePhoto != null)
-                    {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            await hk.FacePhoto.CopyToAsync(memoryStream);
-                            face = memoryStream.ToArray();
-                        }
-                        id.FacePhoto = face;
-                    }
-
-                    if (hk.BackPhoto != null)
-                    {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            await hk.BackPhoto.CopyToAsync(memoryStream);
-                            back = memoryStream.ToArray();
-                        }
-                        id.BackPhoto = back;
-                    }
+                    
 
                     id.UpdatedAt = DateTime.Now;
                     await _verificationService.UpdateIDVerifyAsync(id);
@@ -281,37 +240,19 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     var nId = new IDVerification();
 
-                    byte[] nFront, nFace, nBack;
-
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await hk.FrontPhoto.CopyToAsync(memoryStream);
-                        nFront = memoryStream.ToArray();
-                    }
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await hk.FacePhoto.CopyToAsync(memoryStream);
-                        nFace = memoryStream.ToArray();
-                    }
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await hk.BackPhoto.CopyToAsync(memoryStream);
-                        nBack = memoryStream.ToArray();
-                    }
-
                     nId.Status = (int)VerificationStatus.Pending;
                     nId.CreatedAt = DateTime.Now;
                     nId.UpdatedAt = DateTime.Now;
-                    nId.FrontPhoto = nFront;
+                    /*nId.FrontPhoto = nFront;
                     nId.FacePhoto = nFace;
-                    nId.BackPhoto = nBack;
+                    nId.BackPhoto = nBack;*/
 
                     await _verificationService.AddIDVerifyAsync(nId);
                     oHk.VerifyID = nId.VerifyID;
                 }
 
                 await _housekeeperService.UpdateHousekeeperAsync(oHk);
-                Message = "Housekeeper Updated!";*/
+                Message = "Housekeeper Updated!";
                 return Ok(Message);
             }
             catch (Exception ex)

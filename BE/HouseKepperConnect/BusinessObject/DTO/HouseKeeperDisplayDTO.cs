@@ -4,6 +4,7 @@ namespace BusinessObject.DTO
 {
     public class HouseKeeperDisplayDTO
     {
+        public int HousekeeperID { get; set; }
         public int AccountID { get; set; }
         public string Name { get; set; }
         public int Gender { get; set; }
