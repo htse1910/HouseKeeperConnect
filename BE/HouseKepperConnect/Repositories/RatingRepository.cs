@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessObject.Models;
+﻿using BusinessObject.Models;
 using DataAccess;
 using Repositories.Interface;
 
@@ -22,6 +17,9 @@ namespace Repositories
         public async Task<List<Rating>> GetRatingsByFAAsync(int uId, int pageNumber, int pageSize) => await RatingDAO.Instance.GetRatingsByFAAsync(uId, pageNumber, pageSize);
 
         public async Task<List<Rating>> GetRatingsByHKAsync(int uId, int pageNumber, int pageSize) => await RatingDAO.Instance.GetRatingsByHKAsync(uId, pageNumber, pageSize);
+
+        public async Task<List<Rating>> GetRatingsByHKAsync(int uId) => await RatingDAO.Instance.GetRatingsByHKAsync(uId);
+
         public async Task UpdateRatingAsync(Rating noti) => await RatingDAO.Instance.UpdateRatingAsync(noti);
     }
 }

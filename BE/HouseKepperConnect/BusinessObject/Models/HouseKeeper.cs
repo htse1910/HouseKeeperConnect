@@ -12,7 +12,7 @@ namespace BusinessObject.Models
         [ForeignKey("Account")]
         public int AccountID { get; set; }
 
-        public int? Rating { get; set; }
+        public decimal? Rating { get; set; }
 
         public bool IsVerified { get; set; } = false;
 

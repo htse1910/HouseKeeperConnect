@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessObject.Models;
+﻿using BusinessObject.Models;
 using Repositories.Interface;
 using Services.Interface;
 
@@ -17,6 +12,7 @@ namespace Services
         {
             _repository = repository;
         }
+
         public async Task AddRatingAsync(Rating ra) => await _repository.AddRatingAsync(ra);
 
         public async Task DeleteRatingAsync(int id) => await _repository.DeleteRatingAsync(id);
@@ -28,6 +24,8 @@ namespace Services
         public async Task<List<Rating>> GetRatingsByFAAsync(int uId, int pageNumber, int pageSize) => await _repository.GetRatingsByFAAsync(uId, pageNumber, pageSize);
 
         public async Task<List<Rating>> GetRatingsByHKAsync(int uId, int pageNumber, int pageSize) => await _repository.GetRatingsByHKAsync(uId, pageNumber, pageSize);
+
+        public async Task<List<Rating>> GetRatingsByHKAsync(int uId) => await _repository.GetRatingsByHKAsync(uId);
 
         public async Task UpdateRatingAsync(Rating noti) => await _repository.UpdateRatingAsync(noti);
     }
