@@ -34,6 +34,7 @@ namespace DataAccess
                 {
                     return await context.HousekeeperSkillMapping
                         .Where(hs => hs.HousekeeperID == housekeeperId)
+                        .Include(hs => hs.Housekeeper)
                         .Include(hs => hs.HouseKeeperSkill)
                         .ToListAsync();
                 }
