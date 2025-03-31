@@ -1,8 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Mapping;
 using BusinessObject.Models;
@@ -13,6 +9,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DataAccess
 {
@@ -554,27 +554,5 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
-
-        public async Task InvalidateResetTokenAsync(int accountId)
-        {
-            try
-            {
-                using (var context = new PCHWFDBContext())
-                {
-                    var account = await context.Account.FindAsync(accountId);
-                    if (account != null)
-                    {
-                        account.PasswordResetToken = null;
-                        account.ResetTokenExpiry = null;
-                        await context.SaveChangesAsync();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
     }
 }

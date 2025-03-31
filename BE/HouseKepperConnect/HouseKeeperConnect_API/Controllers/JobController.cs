@@ -164,18 +164,59 @@ namespace HouseKeeperConnect_API.Controllers
             // Create Booking if isOffered = true**
             if (jobCreateDTO.IsOffered && jobCreateDTO.HousekeeperID.HasValue)
             {
-                var newBooking = new Booking
+                if (jobCreateDTO.JobType == 1) // Full-Time job → Multiple bookings
                 {
-                    JobID = job.JobID,
-                    HousekeeperID = jobCreateDTO.HousekeeperID.Value,
-                    CreatedAt = DateTime.UtcNow,
-                    Status = (int)BookingStatus.Pending
-                };
+                    DateTime currentDate = jobCreateDTO.StartDate;
 
-                await _bookingService.AddBookingAsync(newBooking);
+                    while (currentDate <= jobCreateDTO.EndDate)
+                    {
+                        foreach (var day in jobCreateDTO.DayofWeek)
+                        {
+                            DateTime bookingDate = GetNextDayOfWeek(currentDate, day);
+
+                            if (bookingDate > jobCreateDTO.EndDate)
+                                break; // Stop if past EndDate
+
+                            var newBooking = new Booking
+                            {
+                                JobID = job.JobID,
+                                HousekeeperID = jobCreateDTO.HousekeeperID.Value,
+                                CreatedAt = DateTime.UtcNow,
+                                Status = (int)BookingStatus.Pending
+                            };
+
+                            await _bookingService.AddBookingAsync(newBooking);
+                        }
+
+                        currentDate = currentDate.AddDays(7); // Move to the next week
+                    }
+                }
+                else // Part-Time job → One-time booking
+                {
+                    var newBooking = new Booking
+                    {
+                        JobID = job.JobID,
+                        HousekeeperID = jobCreateDTO.HousekeeperID.Value,
+                        CreatedAt = DateTime.UtcNow,
+                        Status = (int)BookingStatus.Pending
+                    };
+
+                    await _bookingService.AddBookingAsync(newBooking);
+                }
+            }
+            DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
+            {
+                int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
+                return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
             }
 
             return Ok("Job and its details added successfully!");
+        }
+
+        private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
+        {
+            int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
+            return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
         }
 
         [HttpPut("UpdateJob")]
