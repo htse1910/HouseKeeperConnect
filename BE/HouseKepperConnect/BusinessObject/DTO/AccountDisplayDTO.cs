@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using BusinessObject.Models.Enum;
+﻿using BusinessObject.Models.Enum;
+using System.ComponentModel.DataAnnotations;
 
 namespace BusinessObject.DTO
 {

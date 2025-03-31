@@ -77,7 +77,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok("Violation added successfully!");
         }
 
-
         [HttpDelete("RemoveViolation")]
         [Authorize]
         public async Task<IActionResult> RemoveViolationFromHousekeeper([FromQuery] int accountId, [FromQuery] int violationId)
@@ -97,6 +96,5 @@ namespace HouseKeeperConnect_API.Controllers
             await _housekeeperViolationService.RemoveViolationFromHousekeeperAsync(housekeeper.HousekeeperID, violationId);
             return Ok("Violation removed successfully!");
         }
-
     }
 }
