@@ -18,11 +18,11 @@ export function useMenuItems() {
     ],
     Family: [
       { label: t("home"), link: "/" },
-      { label: t("post_job"), link: "/job-posting" },
-      { label: t("my_posts"), link: "/my-posts" },
-      { label: t("find_housekeepers"), link: "/find-housekeepers" },
-      { label: t("messages"), link: "/messages" },
-      { label: t("support"), link: "/support", dropdown: true },
+      { label: t("post_job"), link: "/family/post-job" },
+      { label: t("my_posts"), link: "/family/my-posts" },
+      { label: t("find_housekeepers"), link: "/family/find-housekeepers" },
+      { label: t("messages"), link: "/family/messages" },
+      { label: t("support"), link: "/family/support", dropdown: true },
     ],
     Admin: [
       { label: t("dashboard"), link: "/dashboard" },
