@@ -372,8 +372,5 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok("Mật khẩu đã được đặt lại thành công.");
         }
-
-
-
     }
 }

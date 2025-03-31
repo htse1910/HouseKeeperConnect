@@ -1,5 +1,5 @@
-﻿using System.Collections.Concurrent;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 
 namespace HouseKeeperConnect_API.CustomServices
 {
