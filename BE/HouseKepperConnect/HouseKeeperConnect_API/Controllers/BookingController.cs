@@ -2,7 +2,6 @@
 using BusinessObject.DTO;
 using BusinessObject.DTOs;
 using BusinessObject.Models;
-using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -100,76 +99,32 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Invalid booking data.");
             }
 
-            try
+            // Map Booking DTO to Booking entity
+            var booking = _mapper.Map<Booking>(bookingCreateDTO);
+
+            // Add booking to database
+            await _bookingService.AddBookingAsync(booking);
+
+            // Retrieve Job_Slots associated with the JobID using DAO function
+            var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(bookingCreateDTO.JobID);
+
+            if (jobSlots != null && jobSlots.Any())
             {
-                // 🔹 Retrieve the Job from the database
-                var job = await _jobService.GetJobByIDAsync(bookingCreateDTO.JobID);
-                if (job == null)
+                foreach (var jobSlot in jobSlots)
                 {
-                    return NotFound("Job not found.");
-                }
-
-                // 🔹 Fetch job details (For full-time bookings)
-                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(bookingCreateDTO.JobID);
-
-                // 🔹 Fetch job slots (These determine when slots should be booked)
-                var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(bookingCreateDTO.JobID);
-                if (jobSlots == null || !jobSlots.Any())
-                {
-                    return BadRequest("No slots found for the job.");
-                }
-
-                // 🔹 Create a single Booking entry
-                var newBooking = new Booking
-                {
-                    JobID = job.JobID,
-                    HousekeeperID = bookingCreateDTO.HousekeeperID,
-                    CreatedAt = DateTime.Now,
-                    Status = (int)BookingStatus.Pending
-                };
-
-                await _bookingService.AddBookingAsync(newBooking);
-
-                // 🔹 Loop through weeks and save BookingSlots one by one
-                DateTime currentDate = jobDetail.StartDate;
-
-                while (currentDate <= jobDetail.EndDate)
-                {
-                    foreach (var slot in jobSlots)
+                    var bookingSlot = new Booking_Slots
                     {
-                        DateTime bookingDate = GetNextDayOfWeek(currentDate, slot.DayOfWeek);
+                        BookingID = booking.BookingID, // Newly created BookingID
+                        SlotID = jobSlot.SlotID,
+                        DayOfWeek = jobSlot.DayOfWeek
+                    };
 
-                        if (bookingDate > jobDetail.EndDate)
-                            continue; // Skip if the date is out of range
-
-                        var newBookingSlot = new Booking_Slots
-                        {
-                            BookingID = newBooking.BookingID, // Associate with the single booking
-                            SlotID = slot.SlotID, // Correct slot assignment
-                            DayOfWeek = slot.DayOfWeek,
-                        };
-
-                        // 🔹 Save each BookingSlot immediately
-                        await _bookingSlotsService.AddBooking_SlotsAsync(newBookingSlot);
-                    }
-
-                    currentDate = currentDate.AddDays(7); // Move to the next week
+                    // Save each BookingSlot individually
+                    await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
                 }
-
-                return Ok("Booking created successfully with associated slots!");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error in AddBooking: {ex.Message}");
-                return StatusCode(500, "An internal server error occurred.");
-            }
-        }
 
-        // 🔹 Helper function to find the next correct day of the week
-        private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
-        {
-            int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
-            return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
+            return Ok("Booking added successfully with all related slots!");
         }
 
         [HttpPut("UpdateBooking")]
