@@ -326,6 +326,252 @@
     background: var(--secondary-color);
 }
 
+/* Phần chào mừng */
+.dashboard-heading {
+    font-size: var(--font-size-title);
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.dashboard-subtext {
+    font-size: var(--font-size-label);
+    color: var(--text-alt-color);
+    margin-bottom: 20px;
+}
+
+.dashboard-username {
+    color: var(--main-color);
+}
+
+/* Thống kê thẻ tổng quan */
+.dashboard-cards {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.dashboard-card {
+    flex: 1;
+    min-width: 250px;
+    padding: 24px;
+    background: var(--box-background-color);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+}
+
+.dashboard-card-title {
+    font-size: 14px;
+    color: var(--text-alt-color);
+    margin-top: 10px;
+}
+
+.dashboard-card-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-top: 8px;
+}
+
+.dashboard-card .btn-primary {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    font-size: 14px;
+    background: var(--main-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.dashboard-card .btn-primary:hover {
+    background: var(--secondary-color);
+}
+
+/* Hành động nhanh */
+.dashboard-actions {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.dashboard-action-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    background: var(--bg-color);
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    min-height: 100px;
+}
+
+.dashboard-action-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.dashboard-action-desc {
+    font-size: 14px;
+    color: var(--text-alt-color);
+}
+
+/* Thông báo & Giao dịch */
+.dashboard-grid-2col {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.dashboard-box {
+    flex: 1;
+    min-width: 300px;
+    background: var(--bg-color);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+}
+
+.dashboard-box-title {
+    font-size: var(--font-size-heading);
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.dashboard-notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.dashboard-notification-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.dashboard-notification-text {
+    font-size: var(--font-size-small);
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.dashboard-notification-time {
+    font-size: var(--font-size-tiny);
+    color: var(--text-alt-color);
+}
+
+/* Thẻ thống kê */
+.stat-card-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 260px;
+    background: #FFF3E0;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--box-shadow);
+}
+
+.stat-card-label {
+    font-size: var(--font-size-small);
+    color: var(--text-alt-color);
+}
+
+.stat-card-value {
+    font-size: var(--font-size-heading);
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.stat-card-icon {
+    font-size: 28px;
+    color: var(--main-color);
+}
+
+/* Nút Nạp tiền */
+.deposit-button {
+    background: var(--main-color);
+    color: white;
+    font-weight: bold;
+    font-size: var(--font-size-small);
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+.deposit-button:hover {
+    background: var(--secondary-color);
+}
+
+/* Hành động nhanh */
+.quick-action-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.quick-action-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--bg-color);
+    padding: 16px 20px;
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    gap: 14px;
+    min-width: 260px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.quick-action-card:hover {
+    background-color: var(--background-color);
+    /* 👈 nhẹ nhàng nổi lên */
+    transform: translateY(-2px);
+    /* 👈 đẩy lên một chút */
+}
+
+.quick-action-icon {
+    font-size: 24px;
+    color: var(--main-color);
+    transition: transform 0.2s ease;
+}
+
+.quick-action-title {
+    font-size: var(--font-size-label);
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.quick-action-desc {
+    font-size: var(--font-size-small);
+    color: var(--text-alt-color);
+}
+
+/* Trạng thái hoàn thành trong bảng */
+.status-approved {
+    color: var(--success-color);
+    font-weight: bold;
+}
+
 /* Sidebar dành riêng cho Staff Dashboard */
 .staff-dashboard-layout {
     display: flex;
@@ -375,7 +621,7 @@
 }
 
 .staff-dashboard-content .dashboard-heading {
-    font-size: 24px;
+    font-size: var(--font-size-title);
     font-weight: bold;
 }
 
@@ -472,6 +718,7 @@
 .dashboard-table td {
     padding: 12px 15px;
     text-align: left;
+    font-size: var(--font-size-small);
     border-bottom: 1px solid var(--border-color);
 }
 

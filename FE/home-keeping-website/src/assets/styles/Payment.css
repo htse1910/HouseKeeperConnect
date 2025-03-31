@@ -1,0 +1,99 @@
+.form-input {
+  width: 100%;
+  padding: 12px;
+  font-size: var(--font-size-label);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.success-text {
+  color: var(--success-color);
+  font-weight: bold;
+  font-size: var(--font-size-small);
+}
+
+.deposit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.deposit-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.deposit-input-wrapper .form-input {
+  padding-right: 60px;
+  flex: 1;
+}
+
+.vnd-suffix {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--font-size-label);
+  color: var(--text-color);
+  pointer-events: none;
+}
+
+.deposit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.payment-result-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: var(--bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.payment-result-title {
+  font-size: var(--font-size-title);
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.payment-result-message {
+  font-size: var(--font-size-label);
+  color: var(--text-alt-color);
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.payment-info-box {
+  background: #f6f6f6;
+  padding: 16px;
+  border-radius: 10px;
+  font-size: var(--font-size-label);
+  margin-top: 10px;
+}
+
+.payment-balance {
+  font-weight: bold;
+  margin-top: 20px;
+  font-size: var(--font-size-label);
+  color: var(--success-color);
+}
+
+.payment-note {
+  font-size: var(--font-size-small);
+  color: #777;
+}
+
+.btn-secondary {
+  background: var(--secondary-color);
+  color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}

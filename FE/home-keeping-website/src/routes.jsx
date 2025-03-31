@@ -23,11 +23,13 @@ import StaffDashboardPage from './pages/StaffDashboardPage';
 import UserVerificationPage from './pages/UserVerificationPage';
 import StaffJobModerationPage from './pages/StaffJobModerationPage';
 import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage'; // ✅ Import new page
+import FamilyDashboardPage from './pages/FamilyDashboardPage';
 import FamilyHousekeeperSearchPage from './pages/FamilyHousekeeperSearchPage';
 import FamilyTransactionPage from './pages/FamilyTransactionPage';
 import HousekeeperScheduleManagement from './pages/HousekeeperScheduleManagement';
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
 import FamilyJobDetailsPage from './pages/FamilyJobDetailsPage';
+import FamilyDepositPage from "./pages/FamilyDepositPage";
 import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
 import UpdateVerificationPage from './pages/UpdateVerificationPage';
@@ -45,7 +47,7 @@ function AppRoutes() {
 
         {/* Role-Based Dashboard Routes */}
         <Route path="/housekeeper/dashboard" element={<HousekeeperDashboardPage />} />
-        <Route path="/family-dashboard" element={<FamilyDashboard />} />
+        <Route path="/family-dashboard" element={<FamilyDashboardPage />} />
         <Route path="/staff-dashboard" element={<StaffDashboardPage />} />
 
         {/* Job & Profile Related Pages */}
@@ -63,19 +65,22 @@ function AppRoutes() {
         <Route path="/housekeeper/upload-id" element={<IDVerificationCreatePage />} />
         <Route path="/housekeeper/update-verification" element={<UpdateVerificationPage />} />
         <Route path="/housekeeper/wallet" element={<HousekeeperWalletPage />} /> {/* ✅ New route */}
+        
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
         <Route path="/dashboard/user" element={<UserVerificationPage />} />
         <Route path="/dashboard/jobs" element={<StaffJobModerationPage />} />
 
         {/* Family Pages */}
+        <Route path="/family/dashboard" element={<FamilyDashboardPage />} />
         <Route path="/family/profile" element={<FamilyProfilePage />} />
-        <Route path="/find-housekeepers" element={<FamilyHousekeeperSearchPage />} />
-        <Route path="/job-posting" element={<FamilyJobPostingPage />} />
-        <Route path="/my-posts" element={<FamilyJobManagementPage />} />
+        <Route path="/family/find-housekeepers" element={<FamilyHousekeeperSearchPage />} />
+        <Route path="/family/post-job" element={<FamilyJobPostingPage />} />
+        <Route path="/family/my-posts" element={<FamilyJobManagementPage />} />
         <Route path="/family/job/update/:id" element={<JobDetailsPage />} />
         <Route path="/family/job/detail/:id" element={<FamilyJobDetailsPage />} />
-        <Route path="/family/transaction" element={<FamilyTransactionPage />} />
+        <Route path="/family/deposit" element={<FamilyDepositPage />} />
+        <Route path="family/transactions" element={<FamilyTransactionPage />} />
       </Routes>
     </Layout>
   );
