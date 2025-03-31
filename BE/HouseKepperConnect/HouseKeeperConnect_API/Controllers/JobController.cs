@@ -212,6 +212,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok("Job and its details added successfully!");
         }
+
         private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
         {
             int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);

@@ -90,6 +90,9 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost("AddBooking")]
+        [Authorize]
         public async Task<ActionResult> AddBooking([FromQuery] BookingCreateDTO bookingCreateDTO)
         {
             if (bookingCreateDTO == null)
@@ -97,44 +100,26 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Invalid booking data.");
             }
 
-            // 🔹 Retrieve the Job from the database
-            var job = await _jobService.GetJobByIDAsync(bookingCreateDTO.JobID);
-            if (job == null)
+            try
             {
-                return NotFound("Job not found.");
-            }
-
-            // 🔹 Check job type (Full-Time or Part-Time)
-            if (job.JobType == 1) // Full-Time → Recurring bookings
-            {
-                var jobdetail = await _jobService.GetJobDetailByJobIDAsync(bookingCreateDTO.JobID);
-                DateTime currentDate = jobdetail.StartDate;
-                var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(bookingCreateDTO.JobID);
-                while (currentDate <= jobdetail.EndDate)
-                {   
-                    foreach (var jobSlot in jobSlots)
-                    {
-                        DateTime bookingDate = GetNextDayOfWeek(currentDate, jobSlot.DayOfWeek);
-
-                        if (bookingDate > jobdetail.EndDate)
-                            break; // Stop if past EndDate
-
-                        var newBooking = new Booking
-                        {
-                            JobID = job.JobID,
-                            HousekeeperID = bookingCreateDTO.HousekeeperID,
-                            CreatedAt = DateTime.UtcNow,
-                            Status = (int)BookingStatus.Pending
-                        };
-
-                        await _bookingService.AddBookingAsync(newBooking);
-                    }
-
-                    currentDate = currentDate.AddDays(7);
+                // 🔹 Retrieve the Job from the database
+                var job = await _jobService.GetJobByIDAsync(bookingCreateDTO.JobID);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
                 }
-            }
-            else //  Part-Time
-            {
+
+                // 🔹 Fetch job details (For full-time bookings)
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(bookingCreateDTO.JobID);
+
+                // 🔹 Fetch job slots (These determine when slots should be booked)
+                var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(bookingCreateDTO.JobID);
+                if (jobSlots == null || !jobSlots.Any())
+                {
+                    return BadRequest("No slots found for the job.");
+                }
+
+                // 🔹 Create a single Booking entry
                 var newBooking = new Booking
                 {
                     JobID = job.JobID,
@@ -144,14 +129,47 @@ namespace HouseKeeperConnect_API.Controllers
                 };
 
                 await _bookingService.AddBookingAsync(newBooking);
-            }
-            DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
-            {
-                int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
-                return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
-            }
 
-            return Ok("Booking(s) added successfully!");
+                // 🔹 Loop through weeks and save BookingSlots one by one
+                DateTime currentDate = jobDetail.StartDate;
+
+                while (currentDate <= jobDetail.EndDate)
+                {
+                    foreach (var slot in jobSlots)
+                    {
+                        DateTime bookingDate = GetNextDayOfWeek(currentDate, slot.DayOfWeek);
+
+                        if (bookingDate > jobDetail.EndDate)
+                            continue; // Skip if the date is out of range
+
+                        var newBookingSlot = new Booking_Slots
+                        {
+                            BookingID = newBooking.BookingID, // Associate with the single booking
+                            SlotID = slot.SlotID, // Correct slot assignment
+                            DayOfWeek = slot.DayOfWeek,
+                        };
+
+                        // 🔹 Save each BookingSlot immediately
+                        await _bookingSlotsService.AddBooking_SlotsAsync(newBookingSlot);
+                    }
+
+                    currentDate = currentDate.AddDays(7); // Move to the next week
+                }
+
+                return Ok("Booking created successfully with associated slots!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AddBooking: {ex.Message}");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        // 🔹 Helper function to find the next correct day of the week
+        private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
+        {
+            int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
+            return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
         }
 
         [HttpPut("UpdateBooking")]

@@ -32,7 +32,6 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IConfiguration _configuration;
         private readonly Client _appWriteClient;
         private readonly EmailHelper _emailHelper;
-
         private static readonly char[] Characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
 
@@ -329,7 +328,6 @@ namespace HouseKeeperConnect_API.Controllers
             var accountDTOs = _mapper.Map<List<AccountDisplayDTO>>(accounts);
             return Ok(accountDTOs);
         }
-
         [HttpPost("Request-forgot-password")]
         public async Task<IActionResult> RequestPasswordReset([FromBody] string email)
         {
@@ -339,7 +337,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             // Tạo token đặt lại mật khẩu
             string token = Guid.NewGuid().ToString();
-            DateTime expiry = DateTime.Now.AddHours(1);
+            DateTime expiry = DateTime.UtcNow.AddHours(1);
             await _accountService.SavePasswordResetTokenAsync(account.AccountID, token, expiry);
 
             // Gửi email
@@ -352,28 +350,23 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("Reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO resetPasswordDTO)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO model)
         {
-            if (resetPasswordDTO.NewPassword != resetPasswordDTO.ConfirmPassword)
+            if (model.NewPassword != model.ConfirmPassword)
             {
                 return BadRequest("Mật khẩu xác nhận không khớp.");
             }
 
-            var account = await _accountService.GetAccountByResetTokenAsync(resetPasswordDTO.Token);
+            var account = await _accountService.GetAccountByResetTokenAsync(model.Token);
             if (account == null)
             {
                 return BadRequest("Token không hợp lệ hoặc đã hết hạn.");
             }
 
-            var passwordHasher = new PasswordHasher<BusinessObject.Models.Account>();
-            string hashedPassword = passwordHasher.HashPassword(account, resetPasswordDTO.NewPassword);
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
             await _accountService.UpdatePasswordAsync(account.AccountID, hashedPassword);
-            await _accountService.InvalidateResetTokenAsync(account.AccountID);
 
             return Ok("Mật khẩu đã được đặt lại thành công.");
         }
-
-
-
     }
 }
