@@ -40,8 +40,6 @@ namespace Repositories
 
         public async Task<int?> GetRoleIDByAccountIDAsync(int accountID) => await AccountDAO.Instance.GetRoleIDByAccountIDAsync((int)accountID);
 
-
-
         public async Task<Account> GetAccountByEmailAsync(string email) => await AccountDAO.Instance.GetAccountByEmailAsync(email);
 
         public async Task SavePasswordResetTokenAsync(int accountId, string token, DateTime expiry) => await AccountDAO.Instance.SavePasswordResetTokenAsync(accountId, token, expiry);
@@ -49,5 +47,7 @@ namespace Repositories
         public async Task<Account> GetAccountByResetTokenAsync(string token) => await AccountDAO.Instance.GetAccountByResetTokenAsync(token);
 
         public async Task UpdatePasswordAsync(int accountId, string hashedPassword) => await AccountDAO.Instance.UpdatePasswordAsync(accountId, hashedPassword);
-    }
+        public async Task InvalidateResetTokenAsync(int accountId) => await AccountDAO.Instance.InvalidateResetTokenAsync(accountId);
+        
+        }
 }

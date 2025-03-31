@@ -38,10 +38,13 @@ namespace Services.Interface
 
         Task<int?> GetRoleIDByAccountIDAsync(int accountID);
 
-
         Task<Account> GetAccountByEmailAsync(string email);
+
         Task SavePasswordResetTokenAsync(int accountId, string token, DateTime expiry);
+
         Task<Account> GetAccountByResetTokenAsync(string token);
+
         Task UpdatePasswordAsync(int accountId, string hashedPassword);
+        Task InvalidateResetTokenAsync(int accountId);
     }
 }

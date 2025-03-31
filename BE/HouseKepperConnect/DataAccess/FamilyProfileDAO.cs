@@ -64,7 +64,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    return await context.Family.SingleOrDefaultAsync(x => x.AccountID == accountID);
+                    return await context.Family.Include(f => f.Account).SingleOrDefaultAsync(x => x.AccountID == accountID);
                 }
             }
             catch (Exception ex)

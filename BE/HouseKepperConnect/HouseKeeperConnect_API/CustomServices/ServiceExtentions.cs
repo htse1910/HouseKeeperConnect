@@ -56,6 +56,8 @@ public static class ServiceExtentions
         services.AddScoped<IViolationService, ViolationService>();
         services.AddScoped<IHousekeeper_ViolationRepository, Housekeeper_ViolationRepository>();
         services.AddScoped<IHousekeeper_ViolationService, Housekeeper_ViolationService>();
+        services.AddScoped<IRatingRepository, RatingRepository>();
+        services.AddScoped<IRatingService, RatingService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

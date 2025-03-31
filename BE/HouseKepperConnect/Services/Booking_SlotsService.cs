@@ -30,7 +30,7 @@ namespace Services
 
         public async Task AddBooking_SlotsAsync(Booking_Slots bookingSlots)
         {
-           await _bookingSlotsRepository.AddBooking_SlotsAsync(bookingSlots);
+            await _bookingSlotsRepository.AddBooking_SlotsAsync(bookingSlots);
         }
 
         public async Task DeleteBooking_SlotsAsync(int id)

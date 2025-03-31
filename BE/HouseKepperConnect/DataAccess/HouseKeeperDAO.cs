@@ -67,7 +67,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    trans = await context.Housekeeper.SingleOrDefaultAsync(x => x.AccountID == uId);
+                    trans = await context.Housekeeper.Include(h => h.Account).SingleOrDefaultAsync(x => x.AccountID == uId);
                 }
             }
             catch (Exception ex)

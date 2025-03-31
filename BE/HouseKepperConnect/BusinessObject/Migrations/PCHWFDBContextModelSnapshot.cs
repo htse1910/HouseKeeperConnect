@@ -298,8 +298,11 @@ namespace BusinessObject.Migrations
                     b.Property<int>("JobsApplied")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Rating")
+                    b.Property<int>("NumberOfRatings")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("Rating")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int?>("VerifyID")
                         .HasColumnType("int");
@@ -1409,13 +1412,13 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.Rating", b =>
                 {
                     b.HasOne("BusinessObject.Models.Family", "Family")
-                        .WithMany()
+                        .WithMany("Ratings")
                         .HasForeignKey("FamilyID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("BusinessObject.Models.Housekeeper", "Housekeeper")
-                        .WithMany()
+                        .WithMany("Ratings")
                         .HasForeignKey("HouseKeeperID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1533,6 +1536,16 @@ namespace BusinessObject.Migrations
 
                     b.Navigation("Wallet")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.Family", b =>
+                {
+                    b.Navigation("Ratings");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.Housekeeper", b =>
+                {
+                    b.Navigation("Ratings");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Job", b =>

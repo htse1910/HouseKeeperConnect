@@ -57,6 +57,7 @@ namespace BusinessObject.Mapping
             Map_Create_Violation();
             Map_Update_Violation();
             Map_Display_Housekeeper_Violation();
+            Map_Display_Rating();
             Map_Create_Housekeeper_Violation();
             Map_Reset_Password();
         }
@@ -293,7 +294,8 @@ namespace BusinessObject.Mapping
 
         private void Map_Display_HouseKeeperSkillMapping()
         {
-            CreateMap<HousekeeperSkillMappingDisplayDTO, HousekeeperSkillMapping>().ReverseMap();
+            CreateMap<HousekeeperSkillMappingDisplayDTO, HousekeeperSkillMapping>().ReverseMap()
+                .ForMember(dest => dest.AccountID, opt => opt.MapFrom(src => src.Housekeeper.AccountID)); 
         }
 
         private void Map_Create_HouseKeeperSkillMapping()
@@ -318,16 +320,23 @@ namespace BusinessObject.Mapping
 
         private void Map_Display_Housekeeper_Violation()
         {
-            CreateMap<Housekeeper_ViolationDisplayDTO, Housekeeper_Violation>().ReverseMap();
+            CreateMap<Housekeeper_ViolationDisplayDTO, Housekeeper_Violation>().ReverseMap()
+                 .ForMember(dest => dest.AccountID, opt => opt.MapFrom(src => src.Housekeeper.AccountID)); ;
         }
 
         private void Map_Create_Housekeeper_Violation()
         {
             CreateMap<Housekeeper_ViolationCreateDTO, Housekeeper_Violation>();
         }
+
         private void Map_Reset_Password()
         {
             CreateMap<ResetPasswordDTO, Account>();
+        }
+
+        private void Map_Display_Rating()
+        {
+            CreateMap<RatingDisplayDTO, Rating>().ReverseMap();
         }
     }
 }

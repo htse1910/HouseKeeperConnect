@@ -40,6 +40,7 @@ namespace BusinessObject.Models
 
         // Thêm để hỗ trợ reset password
         public string? PasswordResetToken { get; set; }
+
         public DateTime? ResetTokenExpiry { get; set; }
 
         public virtual Role Role { get; set; }

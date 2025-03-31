@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.constraintlayout)
     implementation(libs.lifecycle.runtime.ktx)
+    implementation libs.activity
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
