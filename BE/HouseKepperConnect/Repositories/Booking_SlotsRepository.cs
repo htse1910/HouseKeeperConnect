@@ -10,9 +10,9 @@ namespace Repositories
     {
         private readonly Booking_SlotsDAO _bookingSlotsDAO;
 
-        public Booking_SlotsRepository(Booking_SlotsDAO bookingSlotsDAO)
+        public Booking_SlotsRepository()
         {
-            _bookingSlotsDAO = bookingSlotsDAO;
+            _bookingSlotsDAO = Booking_SlotsDAO.Instance;
         }
 
         public Task AddBooking_SlotsAsync(Booking_Slots bookingSlots) => _bookingSlotsDAO.AddBooking_SlotAsync(bookingSlots);

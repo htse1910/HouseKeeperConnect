@@ -28,7 +28,7 @@ namespace HouseKeeperConnect_API.Controllers
             _notificationService = notificationService;
         }
 
-        [HttpGet("HousekeeperList")] //Admin
+        [HttpGet("HousekeeperDisplay")] //Admin
         [Authorize]
         public async Task<ActionResult<IEnumerable<HouseKeeperDisplayDTO>>> GetHousekeepersAsync(int pageNumber, int pageSize)
         {
@@ -60,6 +60,7 @@ namespace HouseKeeperConnect_API.Controllers
                         LocalProfilePicture = item.Account.LocalProfilePicture,
                         Name = item.Account.Name,
                         Phone = item.Account.Phone,
+                        WorkType = item.WorkType,
                         Gender = item.Account.Gender.GetValueOrDefault(),
                     };
                     nTr.Add(nHk);
@@ -78,6 +79,7 @@ namespace HouseKeeperConnect_API.Controllers
                         LocalProfilePicture = item.Account.LocalProfilePicture,
                         Name = item.Account.Name,
                         Phone = item.Account.Phone,
+                        WorkType = item.WorkType,
                         Gender = item.Account.Gender.GetValueOrDefault(),
                     };
                     nTr.Add(nHk);
@@ -86,6 +88,42 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(nTr);
         }
+        [HttpGet("HousekeeperList")] //Admin
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<HousekeeperListDTO>>> GetListHousekeepersAsync(int pageNumber, int pageSize)
+        {
+            var trans = await _housekeeperService.GetAllHousekeepersAsync(pageNumber, pageSize);
+            if (trans == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+
+            var nTr = new List<HousekeeperListDTO>();
+
+            foreach (var item in trans)
+            {
+
+                var nHk = new HousekeeperListDTO
+                {
+                    Nickname = item.Account.Nickname,
+                    Address = item.Account.Address,
+                    Phone = item.Account.Phone,
+                    Email = item.Account.Email,
+                    Gender = item.Account.Gender.GetValueOrDefault(),
+                    WorkType = item.WorkType,
+                    Rating = item.Rating,
+                    LocalProfilePicture = item.Account.LocalProfilePicture,
+
+
+
+                };
+                nTr.Add(nHk);
+            }
+            return Ok(nTr);
+        }
+
+  
 
         [HttpGet("GetHousekeeperByID")]
         [Authorize]

@@ -15,7 +15,7 @@ namespace BusinessObject.DTO
         [Phone]
         public string? Phone { get; set; }
 
-        public int WorkType { get; set; }
+        public int? WorkType { get; set; }
 
         public string LocalProfilePicture { get; set; }
         public string? GoogleProfilePicture { get; set; }
