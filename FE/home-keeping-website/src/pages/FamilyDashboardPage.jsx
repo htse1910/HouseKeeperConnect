@@ -46,13 +46,27 @@ function FamilyDashboardPage() {
         axios
             .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
             .then((res) => {
-                const acc = res.data;
-                if (!acc?.accountID) throw new Error(t("error_auth"));
-                setUserName(acc.name || "...");
-                setBalance(acc.balance || 0);
+                const acccountData = res.data;
+                if (!acccountData?.accountID) throw new Error(t("error_auth"));
+                setUserName(acccountData.name || "...");
+
+                return axios.get(`http://localhost:5280/api/wallet/getWallet?id=${accountID}`, { headers });
+            })
+            .then((walletResponse) => {
+                const walletData = walletResponse.data;
+                if (!walletData) throw new Error(t("error_loading"));
+
+                setBalance(walletData.balance || 0);
+
+                return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
+            })
+            .then((jobsResponse) => {
+                const jobsData = jobsResponse.data;
+                if (!jobsData) throw new Error(t("error_loading"));
+
                 setJobStats({
-                    activeJobs: acc.jobListed || 0,
-                    applicants: acc.totalApplicant || 0
+                    activeJobs: jobsData.length || 0,
+                    applicants: jobsData.totalApplicant || 0
                 });
                 setError(null);
             })

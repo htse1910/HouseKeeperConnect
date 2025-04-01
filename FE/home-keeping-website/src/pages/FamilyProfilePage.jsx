@@ -90,7 +90,6 @@ const FamilyProfilePage = () => {
                 if (!familyData) throw new Error(t("error_loading"));
                 setFamily(familyData);
 
-                // Sau khi có accountID hợp lệ, mới gọi API lấy danh sách công việc
                 return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
             })
             .then((jobResponse) => {
