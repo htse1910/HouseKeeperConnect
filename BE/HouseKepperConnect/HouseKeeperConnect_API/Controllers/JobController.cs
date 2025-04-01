@@ -5,6 +5,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -18,6 +19,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IJob_SlotsService _jobSlotsService;
         private readonly IBookingService _bookingService;
         private readonly IBooking_SlotsService _bookingSlotsService;
+        private readonly INotificationService _notificationService;
         private string Message;
         private readonly IMapper _mapper;
 
@@ -192,6 +194,21 @@ namespace HouseKeeperConnect_API.Controllers
 
                         foreach (var slotID in jobCreateDTO.SlotIDs)
                         {
+                            // ✅ Check if slot is already booked (only for IsOffered = 1)
+                            if (jobCreateDTO.IsOffered == true)
+                            {
+                                bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(
+                                    jobCreateDTO.HousekeeperID.Value, slotID, day, jobCreateDTO.StartDate, jobCreateDTO.EndDate
+                                );
+
+                                if (isSlotBooked)
+                                {
+                                    // Slot is already booked, return an error message
+                                    return Conflict($"Slot {slotID} for day {day} is already booked in the selected date range.");
+                                }
+                            }
+
+                            // ✅ Add new BookingSlot if not booked
                             var bookingSlot = new Booking_Slots
                             {
                                 BookingID = newBooking.BookingID,
@@ -206,15 +223,28 @@ namespace HouseKeeperConnect_API.Controllers
                     currentDate = currentDate.AddDays(7); // Move to the next week
                 }
             }
+            if (jobCreateDTO.FamilyID > 0)
+            {
+                var notification = new Notification
+                {
+                    AccountID = jobCreateDTO.FamilyID, // Assuming FamilyID represents the UserID
+                    Message = $"A new job (ID: {job.JobID}) has been created.",
+                    CreatedDate = DateTime.Now
+                };
+
+                await _notificationService.AddNotificationAsync(notification);
+            }
 
             return Ok("Job and its details added successfully!");
         }
+
 
         private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
         {
             int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
             return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
         }
+
 
         [HttpPut("UpdateJob")]
         [Authorize]

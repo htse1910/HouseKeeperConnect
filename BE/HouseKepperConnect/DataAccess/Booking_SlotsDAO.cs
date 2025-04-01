@@ -67,5 +67,29 @@ namespace DataAccess
                 await context.SaveChangesAsync();
             }
         }
+        public async Task<bool> IsSlotBooked(int housekeeperId, int slotId, int dayOfWeek, DateTime startDate, DateTime endDate)
+        {
+            using var context = new PCHWFDBContext();
+
+            return await context.Booking_Slots
+                .AnyAsync(b => b.Booking.HousekeeperID == housekeeperId &&
+                               b.SlotID == slotId &&
+                               b.DayOfWeek == dayOfWeek &&
+                               context.JobDetail
+                                   .Any(jd => jd.JobID == b.Booking.JobID &&
+                                              jd.StartDate <= endDate &&
+                                              jd.EndDate >= startDate));
+        }
+        public async Task<List<int>> GetBookedSlotsByHousekeeper(int housekeeperId, DateTime startDate, DateTime endDate)
+        {
+            using var context = new PCHWFDBContext();
+            return await context.Booking_Slots
+                .Include(bs => bs.Booking)
+                .Where(bs => bs.Booking.HousekeeperID == housekeeperId &&
+                             bs.Booking.CreatedAt >= startDate &&
+                             bs.Booking.CreatedAt <= endDate)
+                .Select(bs => bs.SlotID)
+                .ToListAsync();
+        }
     }
 }
