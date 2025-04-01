@@ -39,8 +39,10 @@ const HousekeeperWelcomeCard = () => {
       .then((data) => {
         setJobsApplied(data.jobsApplied || 0);
         setJobsAccepted(data.jobCompleted || 0);
+        localStorage.setItem("housekeeperID", data.housekeeperID); // Save ID to localStorage
       })
       .catch((error) => console.error("Lỗi khi lấy dữ liệu công việc:", error));
+
   }, [accountID, authToken]);
 
   return (

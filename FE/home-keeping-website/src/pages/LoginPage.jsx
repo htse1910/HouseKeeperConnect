@@ -115,6 +115,16 @@ function LoginPage() {
                 <input id="password" type="password" value={formData.password} onChange={handleInputChange} className="form-control border-start-0" required />
               </div>
             </div>
+            
+            <div className="text-end mb-3">
+              <button
+                type="button"
+                className="btn btn-link p-0 text-decoration-none"
+                onClick={() => navigate('/forgot-password')}
+              >
+                Quên mật khẩu?
+              </button>
+            </div>
 
             <button type="submit" className="btn btn-warning text-white fw-bold w-100 mb-3">Đăng nhập</button>
 

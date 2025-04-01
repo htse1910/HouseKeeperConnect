@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function UpdateHousekeeperPage() {
   const navigate = useNavigate();
@@ -16,11 +18,10 @@ function UpdateHousekeeperPage() {
   const [frontPhoto, setFrontPhoto] = useState(null);
   const [backPhoto, setBackPhoto] = useState(null);
   const [facePhoto, setFacePhoto] = useState(null);
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (!accountId || !authToken) {
-      setMessage("Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại.");
+      toast.error("Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại.");
       return;
     }
 
@@ -39,7 +40,10 @@ function UpdateHousekeeperPage() {
         setBankAccount(data.bankAccountNumber || "");
         setLocation(data.address || "");
       })
-      .catch((error) => console.error("Error fetching housekeeper details:", error));
+      .catch((error) => {
+        console.error("Error fetching housekeeper details:", error);
+        toast.error("Lỗi khi tải thông tin.");
+      });
   }, [accountId, authToken]);
 
   const handleSubmit = async (e) => {
@@ -70,22 +74,22 @@ function UpdateHousekeeperPage() {
 
       const text = await response.text();
       if (response.ok) {
-        setMessage("Cập nhật thành công!");
-        navigate(`/housekeeper/${accountId}`);
+        toast.success("✅ Cập nhật thành công!");
+        setTimeout(() => navigate(-1), 1500); // 👈 Go back after 1.5s
       } else {
-        setMessage(text || "Có lỗi xảy ra.");
+        toast.error(text || "❌ Có lỗi xảy ra.");
       }
     } catch (error) {
       console.error("Lỗi khi cập nhật:", error);
-      setMessage("Lỗi khi cập nhật.");
+      toast.error("❌ Lỗi khi cập nhật.");
     }
   };
 
   return (
     <div className="container my-5">
+      <ToastContainer />
       <div className="card shadow-sm p-4">
         <h2 className="mb-4">Cập nhật thông tin người giúp việc</h2>
-        {message && <p className="alert alert-info">{message}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
