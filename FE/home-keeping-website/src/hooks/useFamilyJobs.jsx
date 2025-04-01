@@ -92,25 +92,52 @@ const useFamilyJobs = ({ isDemo, accountID, authToken, t }) => {
 
         return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
       })
-      .then((jobRes) => {
-        const rawJobs = jobRes.data || [];
+      .then((jobResponse) => {
+        const jobList = jobResponse.data;
+        if (!Array.isArray(jobList)) {
+          console.warn("API Job không trả về danh sách hợp lệ.");
+          setJobs([]);
+          return;
+        }
 
-        const serviceMap = {};
-        tempJobServices.forEach(({ jobID, serviceID }) => {
-          if (!serviceMap[jobID]) serviceMap[jobID] = [];
-          serviceMap[jobID].push(serviceID);
-        });
+        const jobDetailPromises = jobList.map(job =>
+          axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
+            .then(response => response.data)
+            .catch(err => {
+              console.warn(`Không thể lấy chi tiết job ID ${job.jobID}`, err);
+              return null;
+            })
+        );
 
-        const enriched = rawJobs.map((job) => {
-          const serviceIDs = serviceMap[job.jobID] || [];
-          const serviceNames = serviceIDs
-            .map(id => tempServices.find(s => s.serviceID === id)?.serviceName)
-            .filter(Boolean);
-          return { ...job, jobTypeList: serviceNames, jobType: serviceNames.join(", ") || "Không rõ" };
-        });
+        return Promise.all(jobDetailPromises)
+          .then((detailedJobs) => {
+            const validJobs = detailedJobs.filter(job => job !== null);
 
-        setJobs(enriched);
-        if (enriched.length === 0) setIsNoJob(true);
+            const formattedJobs = validJobs.map(jobDetail => {
+              const originalJob = jobList.find(j => j.jobID === jobDetail.jobID);
+              const createDate = originalJob?.createdDate || jobDetail.createdDate;
+
+              return {
+                jobID: jobDetail.jobID,
+                jobName: jobDetail.jobName,
+                createdDate: createDate,
+                startDate: new Date(jobDetail.startDate).toLocaleDateString("vi-VN"),
+                endDate: new Date(jobDetail.endDate).toLocaleDateString("vi-VN"),
+                status: jobDetail.status,
+                salary: jobDetail.price,
+                location: jobDetail.location,
+                description: jobDetail.description,
+                serviceIDs: jobDetail.serviceIDs || [],
+                jobTypeList: (jobDetail.serviceIDs || []).map(id => {
+                  const service = tempServices.find(s => s.serviceID === id);
+                  return service?.serviceName;
+                }).filter(Boolean),
+              };
+            });
+
+            setJobs(formattedJobs);
+            if (formattedJobs.length === 0) setIsNoJob(true);
+          });
       })
       .catch((err) => {
         if (err.message !== "NO_PROFILE") {

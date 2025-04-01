@@ -82,6 +82,32 @@ const FamilyJobDetailsPage = () => {
             });
     }, [jobId, isDemo]);
 
+    const [services, setServices] = useState([]);
+
+    useEffect(() => {
+        if (!job?.serviceIDs || job.serviceIDs.length === 0) return;
+
+        const fetchServiceDetails = async () => {
+            try {
+                const servicePromises = job.serviceIDs.map(id =>
+                    axios.get(`http://localhost:5280/api/Service/GetServiceByID?id=${id}`, { headers })
+                        .then(res => res.data)
+                        .catch((err) => {
+                            console.warn(`Không thể lấy serviceID ${id}`, err);
+                            return null;
+                        })
+                );
+
+                const results = await Promise.all(servicePromises);
+                setServices(results.filter(Boolean));
+            } catch (err) {
+                console.error("Lỗi khi lấy dịch vụ:", err);
+            }
+        };
+
+        fetchServiceDetails();
+    }, [job]);
+
     if (shouldShowLoadingOrError) {
         return (
             <div className="job-detail-container text-center py-5">
@@ -119,15 +145,51 @@ const FamilyJobDetailsPage = () => {
                     </div>
 
                     <div className="job-detail-meta">
-                        <span><FaClock /> {t("created_at")}: {job.createdDate?.split("T")[0] || t("not_available")}</span>
-                        <span><FaMapMarkerAlt /> {job.address || t("not_available")}</span>
-                        <span>{t("salary")}: {job.salaryPerHour ? `${job.salaryPerHour.toLocaleString()} VND/giờ` : t("not_available")}</span>
+                        <span>
+                            <FaClock /> {t("created_at")}:{" "}
+                            {job.createdDate
+                                ? new Date(job.createdDate).toLocaleDateString("vi-VN")
+                                : t("not_available")}
+                        </span>
+                        <span><FaMapMarkerAlt /> {job.location || t("not_available")}</span>
+                        <span>
+                            {t("salary")}:{" "}
+                            {job.price != null
+                                ? `${job.price.toLocaleString("vi-VN")} VND/giờ`
+                                : t("not_available")}
+                        </span>
                     </div>
                 </div>
 
                 <div className="job-detail-card">
                     <h3 className="job-detail-section-title">Thông tin công việc</h3>
-                    <p><strong>Phạm vi công việc:</strong> {job.jobScope || "Không có thông tin"}</p>
+                    <p><strong>Phạm vi công việc:</strong></p>
+                    <div className="job-posting-service-group">
+                        {Object.entries(
+                            services.reduce((acc, service) => {
+                                const type = service?.serviceType?.serviceTypeName || "Unknown";
+                                if (!acc[type]) acc[type] = [];
+                                acc[type].push(service);
+                                return acc;
+                            }, {})
+                        ).map(([type, items]) => (
+                            <div key={type} className="job-posting-service-type">
+                                <details open>
+                                    <summary>{t(`serviceTypeName.${type}`, type)}</summary>
+                                    <ul className="job-detail-service-list">
+                                        {items.map((service) => {
+                                            const name = service?.serviceName;
+                                            return (
+                                                <li key={service.serviceID} className="job-detail-checked-service-item">
+                                                    {t(`serviceName.${type}.${name}`, service.description || name)}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </details>
+                            </div>
+                        ))}
+                    </div>
                     <p><strong>Lịch làm việc:</strong> {job.workingTime || "Không có lịch cụ thể"}</p>
                     <p><strong>Yêu cầu đặc biệt:</strong> {job.specialRequirement || "Không có yêu cầu"}</p>
                 </div>
@@ -141,7 +203,7 @@ const FamilyJobDetailsPage = () => {
                                 <div>
                                     <p><strong>{applicant.fullName}</strong></p>
                                     <p className="job-detail-rating">
-                                        {[...Array(applicant.rating || 0)].map((_, i) => (
+                                        {[...Array(Math.floor(applicant.rating || 0))].map((_, i) => (
                                             <FaStar key={i} className="star-icon filled" />
                                         ))}
                                         &nbsp;{applicant.rating?.toFixed(1) || "0.0"}

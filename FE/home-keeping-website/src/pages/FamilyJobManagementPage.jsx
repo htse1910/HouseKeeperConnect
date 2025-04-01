@@ -165,7 +165,7 @@ const FamilyJobManagementPage = () => {
                     <p className="title">{t("housekeepers_waiting")}</p>
                     <div className="value">
                         {housekeepers}{" "}
-                        <button className="btn-primary-small" onClick={() => navigate("/job-posting")}>
+                        <button className="btn-primary-small" onClick={() => navigate("/family/post-job")}>
                             {t("post_now")}
                         </button>
                     </div>
@@ -228,10 +228,10 @@ const FamilyJobManagementPage = () => {
                                             <h3 className="job-management-title">{job.jobName}</h3>
                                             <div className="job-management-info">
                                                 <span>
-                                                    <FaCalendarCheck />
+                                                    <FaCalendarCheck />{" "}
                                                     {t("job.posted_days_ago", { days: Math.floor((Date.now() - new Date(job.createdDate)) / 86400000) })}
                                                 </span>
-                                                <span><FaMapMarkerAlt /> {job.location}</span>
+                                                <span><FaMapMarkerAlt />{" "} {job.location}</span>
                                                 <span>
                                                     <FaMoneyBillWave />{" "}
                                                     {job.salary != null ? job.salary.toLocaleString("vi-VN") : t("job.not_sure")} VNĐ/giờ
