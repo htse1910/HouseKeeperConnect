@@ -58,7 +58,7 @@ function FamilyDashboardPage() {
 
                 setBalance(walletData.balance || 0);
 
-                {/*return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
+                return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
             })
             .then((jobsResponse) => {
                 const jobsData = jobsResponse.data;
@@ -68,7 +68,7 @@ function FamilyDashboardPage() {
                     activeJobs: jobsData.length || 0,
                     applicants: jobsData.totalApplicant || 0
                 });
-                setError(null);*/}
+                setError(null);
             })
             .catch((err) => {
                 console.error("Lỗi API:", err);
