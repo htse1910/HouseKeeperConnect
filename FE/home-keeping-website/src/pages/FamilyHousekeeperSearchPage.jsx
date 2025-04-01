@@ -88,8 +88,10 @@ const FamilyHousekeeperSearchPage = () => {
                 });
             })
             .then((res) => {
-                setHousekeepers(res.data || []);
-            })
+                const housekeeperList = transformHousekeeperData(res.data?.data || []);
+                console.log("Housekeepers sau khi transform:", housekeeperList);
+                setHousekeepers(housekeeperList);
+            })                    
             .catch((err) => {
                 console.error("API Error:", err);
                 setError("Không thể tải danh sách.");
@@ -97,8 +99,23 @@ const FamilyHousekeeperSearchPage = () => {
             .finally(() => setLoading(false));
     }, [isDemo]);
 
-    const filteredHousekeepers = housekeepers
-        .filter(h =>
+    const transformHousekeeperData = (rawList) => {
+        return rawList.map(hk => ({
+            name: hk.nickname,
+            address: hk.address,
+            phone: hk.phone,
+            email: hk.email,
+            gender: hk.gender === 1 ? "Nam" : "Nữ",
+            workType: hk.workType === 1 ? "Full-time" : "Part-time", // nếu có workType = 3 thì thêm "Contract"
+            salary: 150000, // nếu backend chưa có thì gán mặc định
+            skills: ["Dọn dẹp", "Nấu ăn"], // giả định kỹ năng tạm thời
+            rating: hk.rating,
+            avatar: hk.localProfilePicture
+        }));
+    };
+
+    const filteredHousekeepers = housekeepers;
+        {/*}.filter(h =>
             h.name?.toLowerCase().includes(searchTerm.toLowerCase()) &&
             h.address?.toLowerCase().includes(location.toLowerCase()) &&
             (selectedSkill === "" || h.skills?.includes(selectedSkill)) &&
@@ -110,7 +127,7 @@ const FamilyHousekeeperSearchPage = () => {
             return selectedSalaryOrder === "asc"
                 ? (a.salary || 0) - (b.salary || 0)
                 : (b.salary || 0) - (a.salary || 0);
-        });
+        });*/}
 
     return (
         <div className="search-page">
