@@ -20,16 +20,14 @@ const FamilyJobPostingPage = () => {
         StartDate: start,
         EndDate: end,
         Description: "",
-        StartSlot: "",
-        EndSlot: "",
         DayofWeek: [],
         ServiceIDs: [],
+        SlotIDs: [],
         IsOffered: false
     });
 
     const [services, setServices] = useState([]);
-    const [slots, setSlots] = useState([]);
-    const [family, setFamily] = useState([]);
+    const [family, setFamily] = useState(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
@@ -42,13 +40,33 @@ const FamilyJobPostingPage = () => {
         "Content-Type": "application/json",
     };
 
+    const slots = [
+        { slotID: 1, time: "8H - 9H" },
+        { slotID: 2, time: "10H - 11H" },
+        { slotID: 3, time: "12H - 13H" },
+        { slotID: 4, time: "14H - 15H" },
+        { slotID: 5, time: "16H - 17H" },
+        { slotID: 6, time: "18H - 19H" },
+        { slotID: 7, time: "20H - 21H" },
+    ];
+
+    const dayPresets = [
+        { label: "Chưa chọn ngày", value: [] },
+        { label: "Hằng ngày", value: [0, 1, 2, 3, 4, 5, 6] },
+        { label: "Thứ 2 - Thứ 4 - Thứ 6", value: [1, 3, 5] },
+        { label: "Thứ 3 - Thứ 5 - Thứ 7", value: [2, 4, 6] },
+        { label: "Cuối tuần", value: [6, 0] },
+    ];
+
+    const applyDayPreset = (days) => {
+        setFormData((prev) => ({
+            ...prev,
+            DayofWeek: days,
+        }));
+    };
+
     useEffect(() => {
         if (!authToken || !accountID) return;
-
-        const headers = {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-        };
 
         setLoading(true);
 
@@ -58,6 +76,7 @@ const FamilyJobPostingPage = () => {
                 const account = res.data;
                 if (!account?.accountID) throw new Error(t("error_auth"));
 
+                // Lấy danh sách dịch vụ
                 axios
                     .get(`http://localhost:5280/api/Service/ServiceList`, { headers })
                     .then((res) => setServices(res.data || []))
@@ -66,23 +85,24 @@ const FamilyJobPostingPage = () => {
                         setServices([]);
                     });
 
-                axios
-                    .get(`http://localhost:5280/api/Slot/SlotList`, { headers })
-                    .then((res) => setSlots(res.data || []))
-                    .catch((err) => {
-                        console.error("Không thể tải Slot:", err);
-                        setSlots([]);
-                    });
-
+                // Lấy thông tin Family
                 axios
                     .get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers })
-                    .then((res) => setFamily(res.data || null))
+                    .then((res) => {
+                        const fam = res.data || null;
+                        setFamily(fam);
+                        if (fam?.address) {
+                            setFormData((prev) => ({
+                                ...prev,
+                                Location: prev.Location || fam.address, // chỉ set nếu Location đang rỗng
+                            }));
+                        }
+                    })
                     .catch((err) => console.error("Không thể lấy Family:", err));
             })
             .catch((err) => {
                 console.error(t("error_loading"), err);
                 setServices([]);
-                setSlots([]);
                 setFamily([]);
             })
             .finally(() => {
@@ -109,33 +129,51 @@ const FamilyJobPostingPage = () => {
                     ? [...prev.DayofWeek, day]
                     : prev.DayofWeek.filter((d) => d !== day),
             }));
+        } else if (name === "SlotIDs") {
+            const slotID = parseInt(value);
+            setFormData((prev) => ({
+                ...prev,
+                SlotIDs: Array.isArray(prev.SlotIDs)
+                    ? checked
+                        ? [...prev.SlotIDs, slotID]
+                        : prev.SlotIDs.filter((id) => id !== slotID)
+                    : [slotID], // fallback nếu SlotIDs bị undefined
+            }));
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
         }
     };
 
     const validateForm = (data) => {
-        if (
-            !family.familyID ||
-            !data.JobName ||
-            !data.Location ||
-            !data.StartDate ||
-            !data.EndDate ||
-            !data.StartSlot ||
-            !data.EndSlot ||
-            !data.Price ||
-            data.ServiceIDs.length === 0 ||
-            data.DayofWeek.length === 0
-        ) {
-            return "Vui lòng điền đầy đủ thông tin hợp lệ.";
+        if (!family?.familyID) {
+            return "Tài khoản chưa liên kết với một hồ sơ Gia đình hợp lệ.";
         }
-
+        if (!data.JobName.trim()) {
+            return "Vui lòng nhập tiêu đề công việc.";
+        }
+        if (!data.Location.trim()) {
+            return "Vui lòng nhập địa điểm làm việc.";
+        }
+        if (!data.Price || isNaN(data.Price) || data.Price <= 0) {
+            return "Vui lòng nhập mức lương hợp lệ (lớn hơn 0).";
+        }
+        if (!data.StartDate) {
+            return "Vui lòng chọn ngày bắt đầu.";
+        }
+        if (!data.EndDate) {
+            return "Vui lòng chọn ngày kết thúc.";
+        }
         if (new Date(data.StartDate) > new Date(data.EndDate)) {
             return "Ngày bắt đầu không thể lớn hơn ngày kết thúc.";
         }
-
-        if (parseInt(data.StartSlot) >= parseInt(data.EndSlot)) {
-            return "Giờ bắt đầu phải nhỏ hơn giờ kết thúc.";
+        if (!Array.isArray(data.ServiceIDs) || data.ServiceIDs.length === 0) {
+            return "Vui lòng chọn ít nhất một dịch vụ cần tuyển.";
+        }
+        if (!Array.isArray(data.DayofWeek) || data.DayofWeek.length === 0) {
+            return "Vui lòng chọn ít nhất một ngày làm việc trong tuần.";
+        }
+        if (!Array.isArray(data.SlotIDs) || data.SlotIDs.length === 0) {
+            return "Vui lòng chọn ít nhất một khung giờ làm việc.";
         }
 
         return null;
@@ -148,45 +186,61 @@ const FamilyJobPostingPage = () => {
         setError(null);
 
         const dataToSubmit = {
-            ...formData,
-            FamilyID: family.familyID,
-            StartSlot: parseInt(formData.StartSlot),
-            EndSlot: parseInt(formData.EndSlot),
-            SlotIDs: [parseInt(formData.StartSlot), parseInt(formData.EndSlot)],
+            JobName: formData.JobName,
+            Location: formData.Location,
             Price: parseFloat(formData.Price),
             StartDate: new Date(formData.StartDate).toISOString(),
             EndDate: new Date(formData.EndDate).toISOString(),
+            Description: formData.Description,
             IsOffered: false,
+            FamilyID: family?.familyID,
+            ServiceIDs: formData.ServiceIDs.map((id) => parseInt(id)),
+            SlotIDs: formData.SlotIDs.map((id) => parseInt(id)),
+            DayofWeek: formData.DayofWeek.map((d) => parseInt(d)),
         };
 
         const validationError = validateForm(dataToSubmit);
         if (validationError) {
+            console.warn("Form validation error:", validationError);
             setError(validationError);
             setLoading(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
             return;
         }
 
         try {
-            await axios.post("http://localhost:5280/api/Job/AddJob", dataToSubmit, {
-                headers,
-            });
+            const response = await axios.post(
+                "http://localhost:5280/api/Job/AddJob",
+                null, // 🟠 Không có body, vì dùng query params
+                {
+                    headers,
+                    params: dataToSubmit, // ✅ gửi dạng query string
+                }
+            );
 
+            console.log("✅ Job created:", response.data);
             setMessage("🎉 Công việc đã được đăng thành công!");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
             setFormData({
                 JobName: "",
                 Location: "",
                 Price: "",
-                StartDate: "",
-                EndDate: "",
+                StartDate: start,
+                EndDate: end,
                 Description: "",
-                StartSlot: "",
-                EndSlot: "",
+                SlotIDs: [],
                 DayofWeek: [],
                 ServiceIDs: [],
                 IsOffered: false,
             });
+
+            // Đóng tất cả <details>
+            document.querySelectorAll("details").forEach((d) => {
+                d.open = false;
+            });
         } catch (err) {
-            console.error("Lỗi khi đăng công việc:", err);
+            console.error("❌ Lỗi khi gọi AddJob:", err);
             const serverMsg =
                 err?.response?.data?.message || "Đã xảy ra lỗi khi đăng công việc.";
             setError(`❌ ${serverMsg}`);
@@ -194,8 +248,6 @@ const FamilyJobPostingPage = () => {
             setLoading(false);
         }
     };
-
-    console.log(slots);
 
     return (
         <div className="job-posting-container">
@@ -226,7 +278,7 @@ const FamilyJobPostingPage = () => {
                             type="text"
                             name="Location"
                             className="job-posting-input"
-                            value={formData.Location || family?.address || ""}
+                            value={formData.Location}
                             onChange={handleChange}
                             placeholder={t("jobPost.locationPlaceholder")}
                             required
@@ -277,6 +329,19 @@ const FamilyJobPostingPage = () => {
                 {/* Ngày làm việc */}
                 <div className="job-posting-section job-posting-section-full">
                     <label>{t("jobPost.workingDaysLabel")}</label>
+                    <div className="job-posting-day-preset">
+                        {dayPresets.map((preset) => (
+                            <label key={preset.label} className="job-posting-checkbox-slot">
+                                <input
+                                    type="checkbox"
+                                    checked={JSON.stringify(formData.DayofWeek) === JSON.stringify(preset.value)}
+                                    onChange={() => applyDayPreset(preset.value)}
+                                />
+                                <span>{preset.label}</span>
+                            </label>
+                        ))}
+                    </div>
+
                     <div className="job-posting-day-checkboxes">
                         {[0, 1, 2, 3, 4, 5, 6].map((d) => (
                             <label key={d} className="job-posting-checkbox-day">
@@ -312,36 +377,21 @@ const FamilyJobPostingPage = () => {
                             <span className="job-posting-vnd-suffix">{t("jobPost.salaryUnit")}</span>
                         </div>
                     </div>
-                    <div className="job-posting-pair">
+                    <div className="job-posting-section job-posting-section-full">
                         <label>{t("jobPost.workingTimeLabel")}</label>
-                        <div className="job-posting-time-inputs">
-                            <select
-                                name="StartSlot"
-                                className="job-posting-input"
-                                value={formData.StartSlot}
-                                onChange={handleChange}
-                            >
-                                <option value="">{t("jobPost.startLabel")}</option>
-                                {slots.map((slot) => (
-                                    <option key={slot.slotID} value={slot.slotID}>
-                                        {slot.time}
-                                    </option>
-                                ))}
-                            </select>
-                            <span>-</span>
-                            <select
-                                name="EndSlot"
-                                className="job-posting-input"
-                                value={formData.EndSlot}
-                                onChange={handleChange}
-                            >
-                                <option value="">{t("jobPost.endLabel")}</option>
-                                {slots.map((slot) => (
-                                    <option key={slot.slotID} value={slot.slotID}>
-                                        {slot.time}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="job-posting-slot-checkboxes">
+                            {slots.map((slot) => (
+                                <label key={slot.slotID} className="job-posting-checkbox-slot">
+                                    <input
+                                        type="checkbox"
+                                        name="SlotIDs"
+                                        value={slot.slotID}
+                                        checked={formData.SlotIDs.includes(slot.slotID)}
+                                        onChange={handleChange}
+                                    />
+                                    <span>{slot.time}</span>
+                                </label>
+                            ))}
                         </div>
                     </div>
                 </div>
