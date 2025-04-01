@@ -44,7 +44,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(skillDTOs);
         }
 
-
         [HttpPost("AddSkill")]
         [Authorize]
         public async Task<IActionResult> AddSkillToHousekeeper([FromQuery] int accountId, [FromQuery] int skillId)
@@ -83,7 +82,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok("Skill added successfully!");
         }
 
-
         [HttpDelete("RemoveSkill")]
         [Authorize]
         public async Task<IActionResult> RemoveSkillFromHousekeeper([FromQuery] int accountId, [FromQuery] int skillId)
@@ -103,6 +101,5 @@ namespace HouseKeeperConnect_API.Controllers
             await _housekeeperSkillMappingService.RemoveSkillFromHousekeeperAsync(housekeeper.HousekeeperID, skillId);
             return Ok("Skill removed successfully!");
         }
-
     }
 }

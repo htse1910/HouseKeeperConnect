@@ -295,7 +295,7 @@ namespace BusinessObject.Mapping
         private void Map_Display_HouseKeeperSkillMapping()
         {
             CreateMap<HousekeeperSkillMappingDisplayDTO, HousekeeperSkillMapping>().ReverseMap()
-                .ForMember(dest => dest.AccountID, opt => opt.MapFrom(src => src.Housekeeper.AccountID)); 
+                .ForMember(dest => dest.AccountID, opt => opt.MapFrom(src => src.Housekeeper.AccountID));
         }
 
         private void Map_Create_HouseKeeperSkillMapping()

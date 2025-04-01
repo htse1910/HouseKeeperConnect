@@ -35,16 +35,15 @@ namespace Services
             List<ItemData> items = new List<ItemData>();
 
             // Get the current request's base URL
-            var request = _httpContextAccessor.HttpContext.Request;
-            var baseUrl = $"{request.Scheme}://{request.Host}";
+            var baseUrl = "http://localhost:5173";
 
             PaymentData paymentData = new PaymentData(
                 body.transID,
                 body.price,
                 body.description,
                 items,
-                $"{baseUrl}/api/Payment/cancel?id={body.transID}",
-                $"{baseUrl}/api/Payment/success?id={body.transID}",
+                $"{baseUrl}/family/deposit/return?status=cancelled&id={body.transID}",
+                $"{baseUrl}/family/deposit/return?status=success&id={body.transID}",
                 null,
                 body.buyerName,
                 body.buyerEmail,

@@ -17,16 +17,18 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IJob_ServiceService _jobServiceService;
         private readonly IJob_SlotsService _jobSlotsService;
         private readonly IBookingService _bookingService;
+        private readonly IBooking_SlotsService _bookingSlotsService;
         private string Message;
         private readonly IMapper _mapper;
 
-        public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService)
+        public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService, IBooking_SlotsService bookingSlotsService)
         {
             _jobService = jobService;
             _jobServiceService = job_ServiceService;
             _jobSlotsService = job_SlotsService;
             _mapper = mapper;
             _bookingService = bookingService;
+            _bookingSlotsService = bookingSlotsService;
         }
 
         [HttpGet("JobList")]
@@ -125,17 +127,19 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest("Invalid job data.");
             }
-            var job = _mapper.Map<Job>(jobCreateDTO);
 
+            var job = _mapper.Map<Job>(jobCreateDTO);
             job.Status = (int)JobStatus.Pending;
 
             await _jobService.AddJobAsync(job);
 
             var jobDetail = _mapper.Map<JobDetail>(jobCreateDTO);
             jobDetail.JobID = job.JobID;
+
             // Add job details
             await _jobService.AddJobDetailAsync(jobDetail);
-            //Add job service ids
+
+            // Add job services
             foreach (var serviceID in jobCreateDTO.ServiceIDs)
             {
                 var jobService = new Job_Service
@@ -143,10 +147,10 @@ namespace HouseKeeperConnect_API.Controllers
                     JobID = job.JobID,
                     ServiceID = serviceID
                 };
-
                 await _jobServiceService.AddJob_ServiceAsync(jobService);
             }
-            // Add job slot ids
+
+            // Add job slots
             foreach (var slotID in jobCreateDTO.SlotIDs)
             {
                 foreach (var day in jobCreateDTO.DayofWeek)
@@ -157,11 +161,11 @@ namespace HouseKeeperConnect_API.Controllers
                         SlotID = slotID,
                         DayOfWeek = day
                     };
-
                     await _jobSlotsService.AddJob_SlotsAsync(jobSlot);
                 }
             }
-            // Create Booking if isOffered = true**
+
+            // ✅ Create one Booking if IsOffered is true
             if (jobCreateDTO.IsOffered && jobCreateDTO.HousekeeperID.HasValue)
             {
                 var newBooking = new Booking
@@ -172,10 +176,44 @@ namespace HouseKeeperConnect_API.Controllers
                     Status = (int)BookingStatus.Pending
                 };
 
-                await _bookingService.AddBookingAsync(newBooking);
+                await _bookingService.AddBookingAsync(newBooking); // ✅ Save one booking only
+
+                // 🔹 Loop through weeks and save BookingSlots
+                DateTime currentDate = jobCreateDTO.StartDate;
+
+                while (currentDate <= jobCreateDTO.EndDate)
+                {
+                    foreach (var day in jobCreateDTO.DayofWeek)
+                    {
+                        DateTime bookingDate = GetNextDayOfWeek(currentDate, day);
+
+                        if (bookingDate > jobCreateDTO.EndDate)
+                            continue; // Stop if past EndDate
+
+                        foreach (var slotID in jobCreateDTO.SlotIDs)
+                        {
+                            var bookingSlot = new Booking_Slots
+                            {
+                                BookingID = newBooking.BookingID,
+                                SlotID = slotID,
+                                DayOfWeek = day,
+                            };
+
+                            await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
+                        }
+                    }
+
+                    currentDate = currentDate.AddDays(7); // Move to the next week
+                }
             }
 
             return Ok("Job and its details added successfully!");
+        }
+
+        private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
+        {
+            int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
+            return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
         }
 
         [HttpPut("UpdateJob")]
