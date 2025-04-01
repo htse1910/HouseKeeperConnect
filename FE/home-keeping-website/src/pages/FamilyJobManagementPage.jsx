@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
+import { FaMapMarkerAlt, FaMoneyBillWave, FaCalendarCheck } from "react-icons/fa";
 import axios from "axios";
-import useFamilyJobs from "../hooks/useFamilyJobs"; // ✅ Nhớ import hook mới
+import useFamilyJobs from "../hooks/useFamilyJobs";
 import "../assets/styles/Job.css";
 
 const FamilyJobManagementPage = () => {
@@ -34,9 +34,9 @@ const FamilyJobManagementPage = () => {
     const [filter, setFilter] = useState({
         status: "all",
         jobName: "all",
-        start_date: defaultDate
+        start_date: ""
     });
-    
+
     const [jobToDelete, setJobToDelete] = useState(null);
     const [showBackToTop, setShowBackToTop] = useState(false);
 
@@ -68,12 +68,21 @@ const FamilyJobManagementPage = () => {
     const shouldShowLoadingOrError = loading || error;
 
     const filteredJobs = jobs.filter(job => {
-        const { status, jobName, date } = filter;
+        const { status, jobName, start_date } = filter;
+
         if (status !== "all" && job.status !== parseInt(status)) return false;
+
         if (jobName !== "all" && !job.jobTypeList?.includes(jobName)) return false;
-        if (date && job.createdDate.slice(0, 10) !== date) return false;
+
+        if (start_date) {
+            const jobDate = new Date(job.createdDate).setHours(0, 0, 0, 0);
+            const filterDate = new Date(start_date).setHours(0, 0, 0, 0);
+            if (jobDate < filterDate) return false;
+        }
+
         return true;
     });
+
 
     const handleDeleteClick = (job) => setJobToDelete(job);
 
@@ -191,7 +200,7 @@ const FamilyJobManagementPage = () => {
                     <input
                         type="date"
                         value={filter.start_date}
-                        onChange={(e) => setFilter({ ...filter, date: e.target.value })}
+                        onChange={(e) => setFilter({ ...filter, start_date: e.target.value })}
                     />
                 </div>
 
@@ -218,11 +227,14 @@ const FamilyJobManagementPage = () => {
                                         <div className="job-management-left">
                                             <h3 className="job-management-title">{job.jobName}</h3>
                                             <div className="job-management-info">
-                                                <span>📅 {t("job.posted_days_ago", { days: Math.floor((Date.now() - new Date(job.createdDate)) / 86400000) })}</span>
+                                                <span>
+                                                    <FaCalendarCheck />
+                                                    {t("job.posted_days_ago", { days: Math.floor((Date.now() - new Date(job.createdDate)) / 86400000) })}
+                                                </span>
                                                 <span><FaMapMarkerAlt /> {job.location}</span>
                                                 <span>
                                                     <FaMoneyBillWave />{" "}
-                                                    {job.salary != null ? job.salary.toLocaleString("vi-VN") : t("job.not_sure")} VND/giờ
+                                                    {job.salary != null ? job.salary.toLocaleString("vi-VN") : t("job.not_sure")} VNĐ/giờ
                                                 </span>
                                             </div>
                                         </div>

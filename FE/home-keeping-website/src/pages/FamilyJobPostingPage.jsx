@@ -211,14 +211,14 @@ const FamilyJobPostingPage = () => {
         try {
             const response = await axios.post(
                 "http://localhost:5280/api/Job/AddJob",
-                null, // 🟠 Không có body, vì dùng query params
+                null,
                 {
                     headers,
-                    params: dataToSubmit, // ✅ gửi dạng query string
+                    params: dataToSubmit,
                 }
             );
 
-            console.log("✅ Job created:", response.data);
+            console.log("Job created:", response.data);
             setMessage("🎉 Công việc đã được đăng thành công!");
             window.scrollTo({ top: 0, behavior: "smooth" });
 
