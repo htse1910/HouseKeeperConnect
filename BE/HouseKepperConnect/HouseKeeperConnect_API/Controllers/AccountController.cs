@@ -342,8 +342,8 @@ namespace HouseKeeperConnect_API.Controllers
             DateTime expiry = DateTime.Now.AddHours(1);
             await _accountService.SavePasswordResetTokenAsync(account.AccountID, token, expiry);
 
-            // Gửi email
-            string resetLink = $"https://your-frontend.com/reset-password?token={token}";
+            // Gửi email - Cập nhật URL đúng với frontend
+            string resetLink = $"http://localhost:5173/reset-password?token={token}";
             string subject = "Password Reset Request";
             string body = $"Click <a href='{resetLink}'>here</a> to reset your password.";
 
