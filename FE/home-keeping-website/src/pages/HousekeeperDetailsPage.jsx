@@ -6,6 +6,7 @@ import ContactInfo from "../components/ContactInfo";
 import ProfileIntroduction from "../components/ProfileIntroduction";
 import CertificatesAndDocuments from "../components/CertificatesAndDocuments";
 import IDCardImages from "../components/IDCardImages";
+import HouseKeeperSkillsCard from "../components/HouseKeeperSkillsCard";
 
 const HousekeeperProfilePage = () => {
   return (
@@ -20,15 +21,7 @@ const HousekeeperProfilePage = () => {
       <div className="row mt-3">
         {/* Skills */}
         <div className="col-md-6 d-flex">
-          <div className="card p-4 shadow-sm w-100 h-100">
-            <h5 className="fw-bold">Kỹ năng</h5>
-            <ul className="list-unstyled d-flex flex-wrap gap-3">
-              <li className="text-warning">🧹 Dọn dẹp nhà cửa</li>
-              <li className="text-warning">👔 Giặt ủi</li>
-              <li className="text-warning">🍳 Nấu ăn</li>
-              <li className="text-warning">👶 Chăm sóc trẻ em</li>
-            </ul>
-          </div>
+          <HouseKeeperSkillsCard />
         </div>
 
         {/* Work Schedule */}
