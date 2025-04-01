@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaStar, FaEdit, FaCamera } from "react-icons/fa";
-import { Link } from "react-router-dom"; // ✅ Import this
+import { Link } from "react-router-dom";
 
 const ProfileCard = () => {
   const [name, setName] = useState("Chưa có");
@@ -16,6 +16,19 @@ const ProfileCard = () => {
   useEffect(() => {
     if (!accountID || !authToken) return;
 
+    // Get nickname from Account API
+    fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setNickname(data.nickname?.trim() || "Chưa có");
+      })
+      .catch((err) => console.error("Lỗi khi lấy nickname:", err));
+
+    // Get other info from Housekeeper API
     fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -24,7 +37,6 @@ const ProfileCard = () => {
       .then((res) => res.json())
       .then((data) => {
         setName(data.name?.trim() || "Chưa có");
-        setNickname(data.nickName?.trim() || "Chưa có");
 
         if (data.gender === 1) setGender("Nam");
         else if (data.gender === 2) setGender("Nữ");
@@ -34,7 +46,7 @@ const ProfileCard = () => {
         setRating(typeof data.rating === "number" ? data.rating : 0);
 
         if (data.localProfilePicture) {
-          setPhoto(data.localProfilePicture); // use direct URL
+          setPhoto(data.localProfilePicture);
         }
       })
       .catch((err) => console.error("Lỗi khi lấy dữ liệu người dùng:", err));
