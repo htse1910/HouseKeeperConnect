@@ -23,7 +23,7 @@ namespace HouseKeeperConnect_API.Controllers
         private string Message;
         private readonly IMapper _mapper;
 
-        public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService, IBooking_SlotsService bookingSlotsService)
+        public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService, IBooking_SlotsService bookingSlotsService, INotificationService notificationService)
         {
             _jobService = jobService;
             _jobServiceService = job_ServiceService;
@@ -31,6 +31,7 @@ namespace HouseKeeperConnect_API.Controllers
             _mapper = mapper;
             _bookingService = bookingService;
             _bookingSlotsService = bookingSlotsService;
+            _notificationService = notificationService;
         }
 
         [HttpGet("JobList")]

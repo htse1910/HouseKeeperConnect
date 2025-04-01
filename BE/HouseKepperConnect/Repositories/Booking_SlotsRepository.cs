@@ -31,25 +31,8 @@ namespace Repositories
             return bookedSlots.Contains(slotId); // If slotId exists in booked slots, return true
         }
         public async Task<List<int>> GetBookedSlotsByHousekeeper(int housekeeperId, DateTime startDate, DateTime endDate)
-        {
-            using var context = new PCHWFDBContext();
-            return await context.Booking_Slots
-                .Where(bs => bs.Booking.HousekeeperID == housekeeperId &&
-                             context.JobDetail.Any(jd => jd.JobID == bs.Booking.JobID &&
-                                                          jd.StartDate <= endDate &&
-                                                          jd.EndDate >= startDate))
-                .Select(bs => bs.SlotID)
-                .Distinct()
-                .ToListAsync();
-        }
-        public async Task<List<int>> GetAllSlotIDsAsync()
-        {
-            using var context = new PCHWFDBContext();
-            return await context.Booking_Slots
-                .Select(bs => bs.SlotID)
-                .Distinct()
-                .ToListAsync(); // Return unique SlotIDs
-        }
+        => await _bookingSlotsDAO.GetBookedSlotsByHousekeeper(housekeeperId, startDate, endDate);
+        public async Task<List<int>> GetAllSlotIDsAsync() => await _bookingSlotsDAO.GetAllSlotIDsAsync();
 
     }
 }
