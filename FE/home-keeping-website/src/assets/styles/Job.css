@@ -212,6 +212,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     gap: 8px 12px;
+    max-width: 100%;
 }
 
 .job-posting-checkbox-day {
@@ -300,6 +301,118 @@
     align-self: center;
 }
 
+.job-posting-service-type summary {
+    font-weight: bold;
+    font-size: 15px;
+    padding: 8px 12px;
+    cursor: pointer;
+    background-color: #f6f6f6;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: 0.2s;
+}
+
+.job-posting-service-type summary:hover {
+    background-color: #fff3e0;
+}
+
+.job-posting-service-type details[open] summary {
+    background-color: #fff8e6;
+    color: var(--main-color);
+}
+
+.job-posting-checkbox-day span,
+.job-posting-checkbox-card span {
+    white-space: nowrap;
+    /* Luôn hiển thị trên 1 dòng */
+    overflow: hidden;
+    /* Ẩn phần tràn */
+    text-overflow: ellipsis;
+    /* Hiển thị dấu "..." nếu quá dài */
+    max-width: 100%;
+    /* Không vượt quá box cha */
+    display: inline-block;
+}
+
+.job-posting-slot-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px 12px;
+    padding-top: 6px;
+}
+
+.job-posting-checkbox-slot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--main-color);
+    border-radius: 10px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: 0.2s ease;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--main-color);
+    padding: 0 16px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.job-posting-checkbox-slot input[type="checkbox"] {
+    display: none;
+}
+
+.job-posting-checkbox-slot span {
+    display: inline-block;
+    padding: 10px 18px;
+    width: 100%;
+    text-align: center;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: 0.2s ease;
+}
+
+.job-posting-checkbox-slot:hover span {
+    color: var(--main-color);
+}
+
+.job-posting-checkbox-slot input[type="checkbox"]:checked+span {
+    color: white;
+    font-weight: 600;
+}
+
+.job-posting-checkbox-slot:has(input[type="checkbox"]:checked) {
+    background-color: var(--main-color);
+    color: white;
+    font-weight: 600;
+    border-color: var(--main-color);
+}
+
+.job-posting-day-preset {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.job-posting-preset-btn {
+    padding: 6px 12px;
+    border: 1px solid var(--main-color);
+    border-radius: 6px;
+    background-color: white;
+    color: var(--main-color);
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.job-posting-preset-btn:hover {
+    background-color: var(--main-color);
+    color: white;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -681,43 +794,43 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
-  }
-  
-  .job-detail-candidate {
+}
+
+.job-detail-candidate {
     padding: 12px 0;
     border-bottom: 1px solid var(--border-color);
-  }
-  
-  .job-detail-candidate:last-child {
+}
+
+.job-detail-candidate:last-child {
     border-bottom: none;
-  }
-  
-  .job-detail-candidate > div {
+}
+
+.job-detail-candidate>div {
     flex: 1;
     display: flex;
     flex-direction: column;
-  }
+}
 
-  .job-detail-sidebar .job-detail-card {
+.job-detail-sidebar .job-detail-card {
     padding: 16px 20px;
     border: 1px solid var(--border-color);
     border-radius: 10px;
-  }
-  
-  .job-detail-sidebar .btn-primary,
-  .job-detail-sidebar .btn-secondary {
+}
+
+.job-detail-sidebar .btn-primary,
+.job-detail-sidebar .btn-secondary {
     font-size: 14px;
     padding: 8px 12px;
-  }
-  
-  .job-management-status-badge {
+}
+
+.job-management-status-badge {
     font-size: 14px;
     padding: 4px 10px;
     border-radius: 8px;
     font-weight: 500;
     display: inline-block;
-  }
-  
+}
+
 .job-management-status-badge.status-1 {
     background-color: #f0f0f0;
     color: #777;

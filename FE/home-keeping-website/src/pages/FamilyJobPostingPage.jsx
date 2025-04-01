@@ -20,16 +20,14 @@ const FamilyJobPostingPage = () => {
         StartDate: start,
         EndDate: end,
         Description: "",
-        StartSlot: "",
-        EndSlot: "",
         DayofWeek: [],
         ServiceIDs: [],
+        SlotIDs: [],
         IsOffered: false
     });
 
     const [services, setServices] = useState([]);
-    const [slots, setSlots] = useState([]);
-    const [family, setFamily] = useState([]);
+    const [family, setFamily] = useState(null);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
@@ -42,22 +40,43 @@ const FamilyJobPostingPage = () => {
         "Content-Type": "application/json",
     };
 
+    const slots = [
+        { slotID: 1, time: "8H - 9H" },
+        { slotID: 2, time: "10H - 11H" },
+        { slotID: 3, time: "12H - 13H" },
+        { slotID: 4, time: "14H - 15H" },
+        { slotID: 5, time: "16H - 17H" },
+        { slotID: 6, time: "18H - 19H" },
+        { slotID: 7, time: "20H - 21H" },
+    ];
+
+    const dayPresets = [
+        { label: "Chưa chọn ngày", value: [] },
+        { label: "Hằng ngày", value: [0, 1, 2, 3, 4, 5, 6] },
+        { label: "Thứ 2 - Thứ 4 - Thứ 6", value: [1, 3, 5] },
+        { label: "Thứ 3 - Thứ 5 - Thứ 7", value: [2, 4, 6] },
+        { label: "Cuối tuần", value: [6, 0] },
+    ];
+
+    const applyDayPreset = (days) => {
+        setFormData((prev) => ({
+            ...prev,
+            DayofWeek: days,
+        }));
+    };
+
     useEffect(() => {
         if (!authToken || !accountID) return;
-    
-        const headers = {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-        };
-    
+
         setLoading(true);
-    
+
         axios
             .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
             .then((res) => {
                 const account = res.data;
                 if (!account?.accountID) throw new Error(t("error_auth"));
-    
+
+                // Lấy danh sách dịch vụ
                 axios
                     .get(`http://localhost:5280/api/Service/ServiceList`, { headers })
                     .then((res) => setServices(res.data || []))
@@ -65,30 +84,31 @@ const FamilyJobPostingPage = () => {
                         console.error("Không thể tải dịch vụ:", err);
                         setServices([]);
                     });
-    
-                axios
-                    .get(`http://localhost:5280/api/Slot/SlotList`, { headers })
-                    .then((res) => setSlots(res.data || []))
-                    .catch((err) => {
-                        console.error("Không thể tải Slot:", err);
-                        setSlots([]);
-                    });
-    
+
+                // Lấy thông tin Family
                 axios
                     .get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers })
-                    .then((res) => setFamily(res.data || null))
+                    .then((res) => {
+                        const fam = res.data || null;
+                        setFamily(fam);
+                        if (fam?.address) {
+                            setFormData((prev) => ({
+                                ...prev,
+                                Location: prev.Location || fam.address, // chỉ set nếu Location đang rỗng
+                            }));
+                        }
+                    })
                     .catch((err) => console.error("Không thể lấy Family:", err));
             })
             .catch((err) => {
                 console.error(t("error_loading"), err);
                 setServices([]);
-                setSlots([]);
                 setFamily([]);
             })
             .finally(() => {
                 setLoading(false);
             });
-    }, []);     
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, checked } = e.target;
@@ -109,33 +129,51 @@ const FamilyJobPostingPage = () => {
                     ? [...prev.DayofWeek, day]
                     : prev.DayofWeek.filter((d) => d !== day),
             }));
+        } else if (name === "SlotIDs") {
+            const slotID = parseInt(value);
+            setFormData((prev) => ({
+                ...prev,
+                SlotIDs: Array.isArray(prev.SlotIDs)
+                    ? checked
+                        ? [...prev.SlotIDs, slotID]
+                        : prev.SlotIDs.filter((id) => id !== slotID)
+                    : [slotID], // fallback nếu SlotIDs bị undefined
+            }));
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
         }
     };
 
     const validateForm = (data) => {
-        if (
-            !family.familyID ||
-            !data.JobName ||
-            !data.Location ||
-            !data.StartDate ||
-            !data.EndDate ||
-            !data.StartSlot ||
-            !data.EndSlot ||
-            !data.Price ||
-            data.ServiceIDs.length === 0 ||
-            data.DayofWeek.length === 0
-        ) {
-            return "Vui lòng điền đầy đủ thông tin hợp lệ.";
+        if (!family?.familyID) {
+            return "Tài khoản chưa liên kết với một hồ sơ Gia đình hợp lệ.";
         }
-
+        if (!data.JobName.trim()) {
+            return "Vui lòng nhập tiêu đề công việc.";
+        }
+        if (!data.Location.trim()) {
+            return "Vui lòng nhập địa điểm làm việc.";
+        }
+        if (!data.Price || isNaN(data.Price) || data.Price <= 0) {
+            return "Vui lòng nhập mức lương hợp lệ (lớn hơn 0).";
+        }
+        if (!data.StartDate) {
+            return "Vui lòng chọn ngày bắt đầu.";
+        }
+        if (!data.EndDate) {
+            return "Vui lòng chọn ngày kết thúc.";
+        }
         if (new Date(data.StartDate) > new Date(data.EndDate)) {
             return "Ngày bắt đầu không thể lớn hơn ngày kết thúc.";
         }
-
-        if (parseInt(data.StartSlot) >= parseInt(data.EndSlot)) {
-            return "Giờ bắt đầu phải nhỏ hơn giờ kết thúc.";
+        if (!Array.isArray(data.ServiceIDs) || data.ServiceIDs.length === 0) {
+            return "Vui lòng chọn ít nhất một dịch vụ cần tuyển.";
+        }
+        if (!Array.isArray(data.DayofWeek) || data.DayofWeek.length === 0) {
+            return "Vui lòng chọn ít nhất một ngày làm việc trong tuần.";
+        }
+        if (!Array.isArray(data.SlotIDs) || data.SlotIDs.length === 0) {
+            return "Vui lòng chọn ít nhất một khung giờ làm việc.";
         }
 
         return null;
@@ -148,45 +186,61 @@ const FamilyJobPostingPage = () => {
         setError(null);
 
         const dataToSubmit = {
-            ...formData,
-            FamilyID: family.familyID,
-            StartSlot: parseInt(formData.StartSlot),
-            EndSlot: parseInt(formData.EndSlot),
-            SlotIDs: [parseInt(formData.StartSlot), parseInt(formData.EndSlot)],
+            JobName: formData.JobName,
+            Location: formData.Location,
             Price: parseFloat(formData.Price),
             StartDate: new Date(formData.StartDate).toISOString(),
             EndDate: new Date(formData.EndDate).toISOString(),
+            Description: formData.Description,
             IsOffered: false,
+            FamilyID: family?.familyID,
+            ServiceIDs: formData.ServiceIDs.map((id) => parseInt(id)),
+            SlotIDs: formData.SlotIDs.map((id) => parseInt(id)),
+            DayofWeek: formData.DayofWeek.map((d) => parseInt(d)),
         };
 
         const validationError = validateForm(dataToSubmit);
         if (validationError) {
+            console.warn("Form validation error:", validationError);
             setError(validationError);
             setLoading(false);
+            window.scrollTo({ top: 0, behavior: "smooth" });
             return;
         }
 
         try {
-            await axios.post("http://localhost:5280/api/Job/AddJob", dataToSubmit, {
-                headers,
-            });
+            const response = await axios.post(
+                "http://localhost:5280/api/Job/AddJob",
+                null, // 🟠 Không có body, vì dùng query params
+                {
+                    headers,
+                    params: dataToSubmit, // ✅ gửi dạng query string
+                }
+            );
 
+            console.log("✅ Job created:", response.data);
             setMessage("🎉 Công việc đã được đăng thành công!");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
             setFormData({
                 JobName: "",
                 Location: "",
                 Price: "",
-                StartDate: "",
-                EndDate: "",
+                StartDate: start,
+                EndDate: end,
                 Description: "",
-                StartSlot: "",
-                EndSlot: "",
+                SlotIDs: [],
                 DayofWeek: [],
                 ServiceIDs: [],
                 IsOffered: false,
             });
+
+            // Đóng tất cả <details>
+            document.querySelectorAll("details").forEach((d) => {
+                d.open = false;
+            });
         } catch (err) {
-            console.error("Lỗi khi đăng công việc:", err);
+            console.error("❌ Lỗi khi gọi AddJob:", err);
             const serverMsg =
                 err?.response?.data?.message || "Đã xảy ra lỗi khi đăng công việc.";
             setError(`❌ ${serverMsg}`);
@@ -195,59 +249,79 @@ const FamilyJobPostingPage = () => {
         }
     };
 
-    console.log(slots);
-
     return (
         <div className="job-posting-container">
-            <h1 className="job-posting-title">Đăng Tin Tuyển Dụng</h1>
+            <h1 className="job-posting-title">{t("post_job")}</h1>
 
-            {message && <p className="job-posting-alert job-posting-success">{message}</p>}
+            {message && <p className="job-posting-alert job-posting-success">{t("jobPost.success")}</p>}
             {error && <p className="job-posting-alert job-posting-error">{error}</p>}
 
             <form onSubmit={handleSubmit} className="job-posting-form-grid">
+
                 {/* Tiêu đề & Địa điểm */}
                 <div className="job-posting-group">
                     <div className="job-posting-row">
-                        <label>Tiêu đề công việc</label>
+                        <label>{t("job_title")}</label>
                         <input
                             type="text"
                             name="JobName"
                             className="job-posting-input"
                             value={formData.JobName}
                             onChange={handleChange}
-                            placeholder="Nhập tiêu đề công việc, ví dụ: Giúp việc buổi sáng"
+                            placeholder={t("jobPost.jobTitlePlaceholder")}
                             required
                         />
                     </div>
                     <div className="job-posting-row">
-                        <label>Địa điểm</label>
+                        <label>{t("location")}</label>
                         <input
                             type="text"
                             name="Location"
                             className="job-posting-input"
-                            value={formData.Location || family?.address || ""}
+                            value={formData.Location}
                             onChange={handleChange}
-                            placeholder="Nhập địa điểm làm việc, ví dụ: Quận 1, TP.HCM"
+                            placeholder={t("jobPost.locationPlaceholder")}
                             required
                         />
                     </div>
                 </div>
 
-                {/* Dịch vụ */}
+                {/* Dịch vụ phân loại theo serviceTypeName */}
                 <div className="job-posting-section job-posting-section-full">
                     <label>{t("jobPost.serviceTypeLabel")}</label>
-                    <div className="job-posting-service-checkboxes">
-                        {services.map((service) => (
-                            <label key={service.serviceID} className="job-posting-checkbox-card">
-                                <input
-                                    type="checkbox"
-                                    name="ServiceIDs"
-                                    value={service.serviceID}
-                                    checked={formData.ServiceIDs.includes(service.serviceID)}
-                                    onChange={handleChange}
-                                />
-                                <span>{t(`serviceName.${service.serviceName}`)}</span>
-                            </label>
+                    <div className="job-posting-service-group">
+                        {Object.entries(
+                            services.reduce((acc, service) => {
+                                const type = service?.serviceType?.serviceTypeName || "Unknown";
+                                if (!acc[type]) acc[type] = [];
+                                acc[type].push(service);
+                                return acc;
+                            }, {})
+                        ).map(([type, items]) => (
+                            <div key={type} className="job-posting-service-type">
+                                <details>
+                                    <summary>{t(`serviceTypeName.${type}`, type)}</summary>
+                                    <div className="job-posting-service-checkboxes">
+                                        {items.map((service) => {
+                                            const name = service?.serviceName;
+                                            return (
+                                                <label key={service.serviceID} className="job-posting-checkbox-card">
+                                                    <input
+                                                        type="checkbox"
+                                                        name="ServiceIDs"
+                                                        value={service.serviceID}
+                                                        checked={formData.ServiceIDs.includes(service.serviceID)}
+                                                        onChange={handleChange}
+                                                    />
+                                                    <span>
+                                                        {t(`serviceName.${type}.${name}`, service.description || name)}
+                                                    </span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                </details>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -255,25 +329,30 @@ const FamilyJobPostingPage = () => {
                 {/* Ngày làm việc */}
                 <div className="job-posting-section job-posting-section-full">
                     <label>{t("jobPost.workingDaysLabel")}</label>
+                    <div className="job-posting-day-preset">
+                        {dayPresets.map((preset) => (
+                            <label key={preset.label} className="job-posting-checkbox-slot">
+                                <input
+                                    type="checkbox"
+                                    checked={JSON.stringify(formData.DayofWeek) === JSON.stringify(preset.value)}
+                                    onChange={() => applyDayPreset(preset.value)}
+                                />
+                                <span>{preset.label}</span>
+                            </label>
+                        ))}
+                    </div>
+
                     <div className="job-posting-day-checkboxes">
-                        {[
-                            { value: 0, label: t("workingDays.sunday") },
-                            { value: 1, label: t("workingDays.monday") },
-                            { value: 2, label: t("workingDays.tuesday") },
-                            { value: 3, label: t("workingDays.wednesday") },
-                            { value: 4, label: t("workingDays.thursday") },
-                            { value: 5, label: t("workingDays.friday") },
-                            { value: 6, label: t("workingDays.saturday") },
-                        ].map((day) => (
-                            <label key={day.value} className="job-posting-checkbox-day">
+                        {[0, 1, 2, 3, 4, 5, 6].map((d) => (
+                            <label key={d} className="job-posting-checkbox-day">
                                 <input
                                     type="checkbox"
                                     name="DayofWeek"
-                                    value={day.value}
-                                    checked={formData.DayofWeek.includes(day.value)}
+                                    value={d}
+                                    checked={formData.DayofWeek.includes(d)}
                                     onChange={handleChange}
                                 />
-                                <span>{day.label}</span>
+                                <span>{t(`workingDays.${["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][d]}`)}</span>
                             </label>
                         ))}
                     </div>
@@ -282,7 +361,7 @@ const FamilyJobPostingPage = () => {
                 {/* Mức lương & thời gian */}
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                        <label>Mức lương</label>
+                        <label>{t("salary")}</label>
                         <div className="job-posting-price-wrapper">
                             <input
                                 type="number"
@@ -292,42 +371,27 @@ const FamilyJobPostingPage = () => {
                                 min="0"
                                 value={formData.Price}
                                 onChange={handleChange}
-                                placeholder="Nhập lương mỗi giờ"
+                                placeholder={t("jobPost.salaryPlaceholder")}
                                 required
                             />
-                            <span className="job-posting-vnd-suffix">VNĐ / giờ</span>
+                            <span className="job-posting-vnd-suffix">{t("jobPost.salaryUnit")}</span>
                         </div>
                     </div>
-                    <div className="job-posting-pair">
-                        <label>Thời gian làm việc</label>
-                        <div className="job-posting-time-inputs">
-                            <select
-                                name="StartSlot"
-                                className="job-posting-input"
-                                value={formData.StartSlot}
-                                onChange={handleChange}
-                            >
-                                <option value="">Bắt đầu</option>
-                                {slots.map((slot) => (
-                                    <option key={slot.slotID} value={slot.slotID}>
-                                        {slot.time}
-                                    </option>
-                                ))}
-                            </select>
-                            <span>-</span>
-                            <select
-                                name="EndSlot"
-                                className="job-posting-input"
-                                value={formData.EndSlot}
-                                onChange={handleChange}
-                            >
-                                <option value="">Kết thúc</option>
-                                {slots.map((slot) => (
-                                    <option key={slot.slotID} value={slot.slotID}>
-                                        {slot.time}
-                                    </option>
-                                ))}
-                            </select>
+                    <div className="job-posting-section job-posting-section-full">
+                        <label>{t("jobPost.workingTimeLabel")}</label>
+                        <div className="job-posting-slot-checkboxes">
+                            {slots.map((slot) => (
+                                <label key={slot.slotID} className="job-posting-checkbox-slot">
+                                    <input
+                                        type="checkbox"
+                                        name="SlotIDs"
+                                        value={slot.slotID}
+                                        checked={formData.SlotIDs.includes(slot.slotID)}
+                                        onChange={handleChange}
+                                    />
+                                    <span>{slot.time}</span>
+                                </label>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -335,26 +399,26 @@ const FamilyJobPostingPage = () => {
                 {/* Ngày bắt đầu / kết thúc */}
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                        <label>Ngày bắt đầu</label>
+                        <label>{t("filter.start_date")}</label>
                         <input
                             type="date"
                             name="StartDate"
                             className="job-posting-input"
                             value={formData.StartDate}
                             onChange={handleChange}
-                            placeholder="Chọn ngày bắt đầu"
+                            placeholder={t("jobPost.startDatePlaceholder")}
                             required
                         />
                     </div>
                     <div className="job-posting-pair">
-                        <label>Ngày kết thúc</label>
+                        <label>{t("jobPost.endDate")}</label>
                         <input
                             type="date"
                             name="EndDate"
                             className="job-posting-input"
                             value={formData.EndDate}
                             onChange={handleChange}
-                            placeholder="Chọn ngày kết thúc (mặc định sau 7 ngày)"
+                            placeholder={t("jobPost.endDatePlaceholder")}
                             required
                         />
                     </div>
@@ -362,14 +426,14 @@ const FamilyJobPostingPage = () => {
 
                 {/* Mô tả */}
                 <div className="job-posting-section job-posting-section-full">
-                    <label>Mô tả công việc</label>
+                    <label>{t("description")}</label>
                     <textarea
                         name="Description"
                         className="job-posting-textarea"
                         rows="3"
                         value={formData.Description}
                         onChange={handleChange}
-                        placeholder="Nhập mô tả công việc chi tiết..."
+                        placeholder={t("jobPost.descriptionPlaceholder")}
                     ></textarea>
                 </div>
 
@@ -380,7 +444,7 @@ const FamilyJobPostingPage = () => {
                         className="job-posting-submit-btn btn-primary"
                         disabled={loading}
                     >
-                        {loading ? "Đang đăng..." : "Đăng Tin"}
+                        {loading ? t("jobPost.posting") : t("post_now")}
                     </button>
                 </div>
             </form>
