@@ -27,6 +27,18 @@ const FamilyProfilePage = () => {
 
     const shouldShowLoadingOrError = loading || error;
 
+    const mapJobStatus = (status) => {
+        switch (status) {
+            case 1: return "Chờ duyệt";
+            case 2: return "Đã duyệt";
+            case 3: return "Đã nhận";
+            case 4: return "Hoàn thành";
+            case 5: return "Hết hạn";
+            case 6: return "Đã hủy";
+            default: return "Không xác định";
+        }
+    };
+    
     useEffect(() => {
         if (isDemo) {
             setAccountInfo({
@@ -93,18 +105,38 @@ const FamilyProfilePage = () => {
                 return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
             })
             .then((jobResponse) => {
-                if (!Array.isArray(jobResponse.data)) {
+                const jobList = jobResponse.data;
+                if (!Array.isArray(jobList)) {
                     console.warn("API Job không trả về danh sách hợp lệ.");
                     setJobs([]);
-                } else {
-                    const jobData = jobResponse.data || [];
-                    const formattedJobs = jobData.map((job) => ({
-                        title: job.jobName,
-                        date: new Date(job.createdAt).toLocaleDateString("vi-VN"),
-                        status: job.status === 0 ? "Chưa hoàn thành" : "Hoàn thành"
-                    }));
-                    setJobs(formattedJobs);
+                    return;
                 }
+
+                const jobDetailPromises = jobList.map(job =>
+                    axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
+                        .then(response => response.data)
+                        .catch(err => {
+                            console.warn(`Không thể lấy chi tiết job ID ${job.jobID}`, err);
+                            return null;
+                        })
+                );
+
+                return Promise.all(jobDetailPromises)
+                    .then((detailedJobs) => {
+                        const validJobs = detailedJobs.filter(job => job !== null);
+                        const formattedJobs = validJobs.map(job => ({
+                            jobID: job.jobID,
+                            title: job.jobName,
+                            startDate: new Date(job.startDate).toLocaleDateString("vi-VN"),
+                            endDate: new Date(job.endDate).toLocaleDateString("vi-VN"),
+                            status: mapJobStatus(job.status),
+                            salary: job.price,
+                            location: job.location,
+                            description: job.description,
+                            serviceIDs: job.serviceIDs,
+                        }));
+                        setJobs(formattedJobs);
+                    });
             })
             .catch((err) => {
                 if (err.response && err.response.status === 404) {
@@ -124,11 +156,11 @@ const FamilyProfilePage = () => {
 
     const mapGender = (genderID) => {
         switch (genderID) {
-          case 1: return t("male");
-          case 2: return t("female");
-          default: return "Không rõ";
+            case 1: return t("male");
+            case 2: return t("female");
+            default: return "Không rõ";
         }
-      };      
+    };
 
     if (shouldShowLoadingOrError) {
         return (
@@ -159,23 +191,25 @@ const FamilyProfilePage = () => {
             <div className="profile-header">
                 <div className="profile-avatar-section">
                     <div className="profile-avatar">
-                        <img src={family?.localProfilePicture || family?.googleProfilePicture || defaultAvatar} 
-                        crossOrigin="anonymous"
-                        alt="Avatar" />
+                        <img src={family?.localProfilePicture || family?.googleProfilePicture || defaultAvatar}
+                            crossOrigin="anonymous"
+                            alt="Avatar" />
                     </div>
                     <h2 className="profile-name">{family?.name || "Chưa có thông tin"}</h2>
                 </div>
                 {/* Thông tin cá nhân */}
                 <div className="profile-details">
                     <h1 className="profile-title">Thông tin cá nhân ✏️</h1>
-                    <div className="profile-rating">
-                        {Array.from({ length: 5 }, (_, index) => (
-                            <span key={index} className={`star-icon ${index < family.rating ? "filled" : ""}`}>
-                                ★
-                            </span>
-                        ))}
-                        <span className="rating-score">({family.rating?.toFixed(1) || "0.0"})</span>
-                    </div>
+                    {family?.rating ? (
+                        <div className="profile-rating">
+                            {Array.from({ length: 5 }, (_, index) => (
+                                <span key={index} className={`star-icon ${index < Math.round(family.rating) ? "filled" : ""}`}>
+                                    ★
+                                </span>
+                            ))}
+                            <span className="rating-score">({family.rating.toFixed(1)})</span>
+                        </div>
+                    ) : null}
                     <p className="profile-label"><strong>Tên thường gọi:</strong> {family?.nickname || "Không xác định"}</p>
                     <p className="profile-label"><strong>Giới tính:</strong> {mapGender(family?.gender)}</p>
                     <p className="profile-label"><strong>Địa chỉ thường trú:</strong> {family?.address || "Chưa có địa chỉ"}</p>
@@ -217,9 +251,12 @@ const FamilyProfilePage = () => {
                             <div key={index} className="schedule-item">
                                 <div className="schedule-info">
                                     <span className="schedule-title">{job.title}</span>
-                                    <span className="schedule-date">{job.date}</span>
+                                    <span className="schedule-date">{job.startDate} - {job.endDate}</span>
+                                    {job.salary && <span className="schedule-date">Lương: {job.salary.toLocaleString()} VNĐ</span>}
+                                    {/* {job.location && <span className="schedule-date">Địa điểm: {job.location}</span>} */}
+                                    {job.description && <p className="schedule-date">{job.description}</p>}
                                 </div>
-                                <span className={`schedule-status ${job.status.toLowerCase()}`}>{job.status}</span>
+                                <span className="schedule-status">{job.status}</span>
                             </div>
                         ))}
                     </div>
