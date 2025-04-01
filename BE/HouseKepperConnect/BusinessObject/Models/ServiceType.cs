@@ -6,7 +6,6 @@ namespace BusinessObject.Models
     public class ServiceType
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ServiceTypeID { get; set; }
 
         [Required]

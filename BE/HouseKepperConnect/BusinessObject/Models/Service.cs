@@ -6,7 +6,6 @@ namespace BusinessObject.Models
     public class Service
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ServiceID { get; set; }
 
         [Required]
@@ -16,7 +15,6 @@ namespace BusinessObject.Models
         [Required]
         public decimal Price { get; set; }
 
-        [ForeignKey("ServiceType")]
         public int ServiceTypeID { get; set; }
 
         [MaxLength(255)]

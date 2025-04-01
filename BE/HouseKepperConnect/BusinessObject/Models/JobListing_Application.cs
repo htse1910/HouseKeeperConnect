@@ -15,10 +15,8 @@ namespace BusinessObject.Models
         [Required]
         public int ApplicationID { get; set; }
 
-        [ForeignKey(nameof(JobID))]
         public virtual Job Job { get; set; }
 
-        [ForeignKey(nameof(ApplicationID))]
         public virtual Application Application { get; set; }
     }
 }
