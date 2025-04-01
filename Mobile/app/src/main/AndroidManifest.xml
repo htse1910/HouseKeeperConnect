@@ -12,13 +12,23 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HouseKeeperApplication"
         tools:targetApi="31">
-        <!--<activity
+        <activity
+            android:name=".profile.EditHousekeeperProfile"
+            android:exported="false" />
+        <activity
+            android:name=".profile.EditFamilyProfile"
+            android:exported="false" />
+        <!--
+        <activity
+            android:name=".profile.HousekeeperProfile"
+            android:exported="false" />
+        -->
+        <activity
             android:name=".profile.FamilyProfile"
-            android:exported="false" />-->
+            android:exported="false" />
         <activity
             android:name=".Register"
             android:exported="false" />
-
         <!--
 <activity
             android:name=".register"
@@ -30,7 +40,7 @@
             android:name=".login.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".profile.FamilyProfile"
+            android:name=".profile.HousekeeperProfile"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
