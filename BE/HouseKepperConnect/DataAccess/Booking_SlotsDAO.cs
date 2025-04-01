@@ -8,6 +8,7 @@ namespace DataAccess
         private static Booking_SlotsDAO instance;
         private static readonly object instanceLock = new object();
 
+        public Booking_SlotsDAO() { }
         public static Booking_SlotsDAO Instance
         {
             get
@@ -89,7 +90,17 @@ namespace DataAccess
                              bs.Booking.CreatedAt >= startDate &&
                              bs.Booking.CreatedAt <= endDate)
                 .Select(bs => bs.SlotID)
+                .Distinct()
                 .ToListAsync();
+        }
+
+        public async Task<List<int>> GetAllSlotIDsAsync()
+        {
+            using var context = new PCHWFDBContext();
+            return await context.Booking_Slots
+                .Select(bs => bs.SlotID)
+                .Distinct()
+                .ToListAsync(); // Return unique SlotIDs
         }
     }
 }

@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250401112705_Slot_ServiceType_Relation")]
+    partial class Slot_ServiceType_Relation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -839,184 +842,6 @@ namespace BusinessObject.Migrations
                     b.HasIndex("ServiceTypeID");
 
                     b.ToTable("Service");
-
-                    b.HasData(
-                        new
-                        {
-                            ServiceID = 1,
-                            Description = "",
-                            Price = 75000m,
-                            ServiceName = "Dọn dẹp theo giờ",
-                            ServiceTypeID = 1
-                        },
-                        new
-                        {
-                            ServiceID = 2,
-                            Description = "",
-                            Price = 550000m,
-                            ServiceName = "Dọn dẹp định kỳ ",
-                            ServiceTypeID = 1
-                        },
-                        new
-                        {
-                            ServiceID = 3,
-                            Description = "",
-                            Price = 2500000m,
-                            ServiceName = "Tổng vệ sinh nhà cửa",
-                            ServiceTypeID = 1
-                        },
-                        new
-                        {
-                            ServiceID = 4,
-                            Description = "",
-                            Price = 3500000m,
-                            ServiceName = "Dọn dẹp sau sự kiện/tết",
-                            ServiceTypeID = 1
-                        },
-                        new
-                        {
-                            ServiceID = 5,
-                            Description = "",
-                            Price = 95000m,
-                            ServiceName = "Giữ trẻ theo giờ",
-                            ServiceTypeID = 2
-                        },
-                        new
-                        {
-                            ServiceID = 6,
-                            Description = "",
-                            Price = 750000m,
-                            ServiceName = "Giữ trẻ tại nhà nguyên ngày",
-                            ServiceTypeID = 2
-                        },
-                        new
-                        {
-                            ServiceID = 7,
-                            Description = "",
-                            Price = 500000m,
-                            ServiceName = "Chăm sóc người cao tuổi tại nhà",
-                            ServiceTypeID = 2
-                        },
-                        new
-                        {
-                            ServiceID = 8,
-                            Description = "",
-                            Price = 200000m,
-                            ServiceName = "Nấu ăn theo bữa",
-                            ServiceTypeID = 3
-                        },
-                        new
-                        {
-                            ServiceID = 9,
-                            Description = "",
-                            Price = 3500000m,
-                            ServiceName = "Nấu ăn theo tuần/tháng",
-                            ServiceTypeID = 3
-                        },
-                        new
-                        {
-                            ServiceID = 10,
-                            Description = "",
-                            Price = 350000m,
-                            ServiceName = "Mua sắm thực phẩm & lên thực đơn",
-                            ServiceTypeID = 3
-                        },
-                        new
-                        {
-                            ServiceID = 11,
-                            Description = "",
-                            Price = 30000m,
-                            ServiceName = "Giặt ủi theo kg",
-                            ServiceTypeID = 4
-                        },
-                        new
-                        {
-                            ServiceID = 12,
-                            Description = "",
-                            Price = 10000m,
-                            ServiceName = "Ủi quần áo theo bộ",
-                            ServiceTypeID = 4
-                        },
-                        new
-                        {
-                            ServiceID = 13,
-                            Description = "",
-                            Price = 200000m,
-                            ServiceName = "Giặt hấp cao cấp",
-                            ServiceTypeID = 4
-                        },
-                        new
-                        {
-                            ServiceID = 14,
-                            Description = "",
-                            Price = 350000m,
-                            ServiceName = "Chăm sóc cây cảnh",
-                            ServiceTypeID = 5
-                        },
-                        new
-                        {
-                            ServiceID = 15,
-                            Description = "",
-                            Price = 100000m,
-                            ServiceName = "Tưới cây, cắt tỉa hàng tuần",
-                            ServiceTypeID = 5
-                        },
-                        new
-                        {
-                            ServiceID = 16,
-                            Description = "",
-                            Price = 325000m,
-                            ServiceName = "Tắm & cắt tỉa lông thú cưng",
-                            ServiceTypeID = 5
-                        },
-                        new
-                        {
-                            ServiceID = 17,
-                            Description = "",
-                            Price = 325000m,
-                            ServiceName = "Sửa chữa điện nước",
-                            ServiceTypeID = 6
-                        },
-                        new
-                        {
-                            ServiceID = 18,
-                            Description = "",
-                            Price = 1250000m,
-                            ServiceName = "Sơn sửa nội thất nhỏ",
-                            ServiceTypeID = 6
-                        },
-                        new
-                        {
-                            ServiceID = 19,
-                            Description = "",
-                            Price = 400000m,
-                            ServiceName = "Thợ sửa chữa theo giờ",
-                            ServiceTypeID = 6
-                        },
-                        new
-                        {
-                            ServiceID = 20,
-                            Description = "",
-                            Price = 1250000m,
-                            ServiceName = "Giúp việc theo yêu cầu (dịch vụ VIP)",
-                            ServiceTypeID = 7
-                        },
-                        new
-                        {
-                            ServiceID = 21,
-                            Description = "",
-                            Price = 10000000m,
-                            ServiceName = "Dịch vụ giúp việc theo tháng",
-                            ServiceTypeID = 7
-                        },
-                        new
-                        {
-                            ServiceID = 22,
-                            Description = "",
-                            Price = 550000m,
-                            ServiceName = "Hỗ trợ vận chuyển đồ đạc nhẹ",
-                            ServiceTypeID = 7
-                        });
                 });
 
             modelBuilder.Entity("BusinessObject.Models.ServiceType", b =>
@@ -1035,43 +860,6 @@ namespace BusinessObject.Migrations
                     b.HasKey("ServiceTypeID");
 
                     b.ToTable("ServiceType");
-
-                    b.HasData(
-                        new
-                        {
-                            ServiceTypeID = 1,
-                            ServiceTypeName = "Dọn dẹp nhà cửa"
-                        },
-                        new
-                        {
-                            ServiceTypeID = 2,
-                            ServiceTypeName = "Chăm sóc trẻ em/người cao tuổi"
-                        },
-                        new
-                        {
-                            ServiceTypeID = 3,
-                            ServiceTypeName = "Nấu ăn tại nhà"
-                        },
-                        new
-                        {
-                            ServiceTypeID = 4,
-                            ServiceTypeName = "Giặt ủi & chăm sóc quần áo"
-                        },
-                        new
-                        {
-                            ServiceTypeID = 5,
-                            ServiceTypeName = "Chăm sóc sân vườn & thú cưng"
-                        },
-                        new
-                        {
-                            ServiceTypeID = 6,
-                            ServiceTypeName = "Dịch vụ sửa chữa & bảo trì nhà cửa"
-                        },
-                        new
-                        {
-                            ServiceTypeID = 7,
-                            ServiceTypeName = "Hỗ trợ đặc biệt"
-                        });
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Slot", b =>

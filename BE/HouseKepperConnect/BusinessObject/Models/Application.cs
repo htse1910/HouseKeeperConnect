@@ -8,7 +8,6 @@ namespace BusinessObject.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ApplicationID { get; set; }
 
-        public string Name { get; set; }
         public int HouseKeeperID { get; set; }
         public int Status { get; set; }
 
