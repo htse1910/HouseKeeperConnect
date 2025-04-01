@@ -44,20 +44,20 @@ const FamilyJobPostingPage = () => {
 
     useEffect(() => {
         if (!authToken || !accountID) return;
-    
+
         const headers = {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
         };
-    
+
         setLoading(true);
-    
+
         axios
             .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
             .then((res) => {
                 const account = res.data;
                 if (!account?.accountID) throw new Error(t("error_auth"));
-    
+
                 axios
                     .get(`http://localhost:5280/api/Service/ServiceList`, { headers })
                     .then((res) => setServices(res.data || []))
@@ -65,7 +65,7 @@ const FamilyJobPostingPage = () => {
                         console.error("Không thể tải dịch vụ:", err);
                         setServices([]);
                     });
-    
+
                 axios
                     .get(`http://localhost:5280/api/Slot/SlotList`, { headers })
                     .then((res) => setSlots(res.data || []))
@@ -73,7 +73,7 @@ const FamilyJobPostingPage = () => {
                         console.error("Không thể tải Slot:", err);
                         setSlots([]);
                     });
-    
+
                 axios
                     .get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers })
                     .then((res) => setFamily(res.data || null))
@@ -88,7 +88,7 @@ const FamilyJobPostingPage = () => {
             .finally(() => {
                 setLoading(false);
             });
-    }, []);     
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, checked } = e.target;
@@ -199,55 +199,77 @@ const FamilyJobPostingPage = () => {
 
     return (
         <div className="job-posting-container">
-            <h1 className="job-posting-title">Đăng Tin Tuyển Dụng</h1>
+            <h1 className="job-posting-title">{t("post_job")}</h1>
 
-            {message && <p className="job-posting-alert job-posting-success">{message}</p>}
+            {message && <p className="job-posting-alert job-posting-success">{t("jobPost.success")}</p>}
             {error && <p className="job-posting-alert job-posting-error">{error}</p>}
 
             <form onSubmit={handleSubmit} className="job-posting-form-grid">
+
                 {/* Tiêu đề & Địa điểm */}
                 <div className="job-posting-group">
                     <div className="job-posting-row">
-                        <label>Tiêu đề công việc</label>
+                        <label>{t("job_title")}</label>
                         <input
                             type="text"
                             name="JobName"
                             className="job-posting-input"
                             value={formData.JobName}
                             onChange={handleChange}
-                            placeholder="Nhập tiêu đề công việc, ví dụ: Giúp việc buổi sáng"
+                            placeholder={t("jobPost.jobTitlePlaceholder")}
                             required
                         />
                     </div>
                     <div className="job-posting-row">
-                        <label>Địa điểm</label>
+                        <label>{t("location")}</label>
                         <input
                             type="text"
                             name="Location"
                             className="job-posting-input"
                             value={formData.Location || family?.address || ""}
                             onChange={handleChange}
-                            placeholder="Nhập địa điểm làm việc, ví dụ: Quận 1, TP.HCM"
+                            placeholder={t("jobPost.locationPlaceholder")}
                             required
                         />
                     </div>
                 </div>
 
-                {/* Dịch vụ */}
+                {/* Dịch vụ phân loại theo serviceTypeName */}
                 <div className="job-posting-section job-posting-section-full">
                     <label>{t("jobPost.serviceTypeLabel")}</label>
-                    <div className="job-posting-service-checkboxes">
-                        {services.map((service) => (
-                            <label key={service.serviceID} className="job-posting-checkbox-card">
-                                <input
-                                    type="checkbox"
-                                    name="ServiceIDs"
-                                    value={service.serviceID}
-                                    checked={formData.ServiceIDs.includes(service.serviceID)}
-                                    onChange={handleChange}
-                                />
-                                <span>{t(`serviceName.${service.serviceName}`)}</span>
-                            </label>
+                    <div className="job-posting-service-group">
+                        {Object.entries(
+                            services.reduce((acc, service) => {
+                                const type = service?.serviceType?.serviceTypeName || "Unknown";
+                                if (!acc[type]) acc[type] = [];
+                                acc[type].push(service);
+                                return acc;
+                            }, {})
+                        ).map(([type, items]) => (
+                            <div key={type} className="job-posting-service-type">
+                                <details>
+                                    <summary>{t(`serviceTypeName.${type}`, type)}</summary>
+                                    <div className="job-posting-service-checkboxes">
+                                        {items.map((service) => {
+                                            const name = service?.serviceName;
+                                            return (
+                                                <label key={service.serviceID} className="job-posting-checkbox-card">
+                                                    <input
+                                                        type="checkbox"
+                                                        name="ServiceIDs"
+                                                        value={service.serviceID}
+                                                        checked={formData.ServiceIDs.includes(service.serviceID)}
+                                                        onChange={handleChange}
+                                                    />
+                                                    <span>
+                                                        {t(`serviceName.${type}.${name}`, service.description || name)}
+                                                    </span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                </details>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -256,24 +278,16 @@ const FamilyJobPostingPage = () => {
                 <div className="job-posting-section job-posting-section-full">
                     <label>{t("jobPost.workingDaysLabel")}</label>
                     <div className="job-posting-day-checkboxes">
-                        {[
-                            { value: 0, label: t("workingDays.sunday") },
-                            { value: 1, label: t("workingDays.monday") },
-                            { value: 2, label: t("workingDays.tuesday") },
-                            { value: 3, label: t("workingDays.wednesday") },
-                            { value: 4, label: t("workingDays.thursday") },
-                            { value: 5, label: t("workingDays.friday") },
-                            { value: 6, label: t("workingDays.saturday") },
-                        ].map((day) => (
-                            <label key={day.value} className="job-posting-checkbox-day">
+                        {[0, 1, 2, 3, 4, 5, 6].map((d) => (
+                            <label key={d} className="job-posting-checkbox-day">
                                 <input
                                     type="checkbox"
                                     name="DayofWeek"
-                                    value={day.value}
-                                    checked={formData.DayofWeek.includes(day.value)}
+                                    value={d}
+                                    checked={formData.DayofWeek.includes(d)}
                                     onChange={handleChange}
                                 />
-                                <span>{day.label}</span>
+                                <span>{t(`workingDays.${["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][d]}`)}</span>
                             </label>
                         ))}
                     </div>
@@ -282,7 +296,7 @@ const FamilyJobPostingPage = () => {
                 {/* Mức lương & thời gian */}
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                        <label>Mức lương</label>
+                        <label>{t("salary")}</label>
                         <div className="job-posting-price-wrapper">
                             <input
                                 type="number"
@@ -292,14 +306,14 @@ const FamilyJobPostingPage = () => {
                                 min="0"
                                 value={formData.Price}
                                 onChange={handleChange}
-                                placeholder="Nhập lương mỗi giờ"
+                                placeholder={t("jobPost.salaryPlaceholder")}
                                 required
                             />
-                            <span className="job-posting-vnd-suffix">VNĐ / giờ</span>
+                            <span className="job-posting-vnd-suffix">{t("jobPost.salaryUnit")}</span>
                         </div>
                     </div>
                     <div className="job-posting-pair">
-                        <label>Thời gian làm việc</label>
+                        <label>{t("jobPost.workingTimeLabel")}</label>
                         <div className="job-posting-time-inputs">
                             <select
                                 name="StartSlot"
@@ -307,7 +321,7 @@ const FamilyJobPostingPage = () => {
                                 value={formData.StartSlot}
                                 onChange={handleChange}
                             >
-                                <option value="">Bắt đầu</option>
+                                <option value="">{t("jobPost.startLabel")}</option>
                                 {slots.map((slot) => (
                                     <option key={slot.slotID} value={slot.slotID}>
                                         {slot.time}
@@ -321,7 +335,7 @@ const FamilyJobPostingPage = () => {
                                 value={formData.EndSlot}
                                 onChange={handleChange}
                             >
-                                <option value="">Kết thúc</option>
+                                <option value="">{t("jobPost.endLabel")}</option>
                                 {slots.map((slot) => (
                                     <option key={slot.slotID} value={slot.slotID}>
                                         {slot.time}
@@ -335,26 +349,26 @@ const FamilyJobPostingPage = () => {
                 {/* Ngày bắt đầu / kết thúc */}
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                        <label>Ngày bắt đầu</label>
+                        <label>{t("filter.start_date")}</label>
                         <input
                             type="date"
                             name="StartDate"
                             className="job-posting-input"
                             value={formData.StartDate}
                             onChange={handleChange}
-                            placeholder="Chọn ngày bắt đầu"
+                            placeholder={t("jobPost.startDatePlaceholder")}
                             required
                         />
                     </div>
                     <div className="job-posting-pair">
-                        <label>Ngày kết thúc</label>
+                        <label>{t("jobPost.endDate")}</label>
                         <input
                             type="date"
                             name="EndDate"
                             className="job-posting-input"
                             value={formData.EndDate}
                             onChange={handleChange}
-                            placeholder="Chọn ngày kết thúc (mặc định sau 7 ngày)"
+                            placeholder={t("jobPost.endDatePlaceholder")}
                             required
                         />
                     </div>
@@ -362,14 +376,14 @@ const FamilyJobPostingPage = () => {
 
                 {/* Mô tả */}
                 <div className="job-posting-section job-posting-section-full">
-                    <label>Mô tả công việc</label>
+                    <label>{t("description")}</label>
                     <textarea
                         name="Description"
                         className="job-posting-textarea"
                         rows="3"
                         value={formData.Description}
                         onChange={handleChange}
-                        placeholder="Nhập mô tả công việc chi tiết..."
+                        placeholder={t("jobPost.descriptionPlaceholder")}
                     ></textarea>
                 </div>
 
@@ -380,7 +394,7 @@ const FamilyJobPostingPage = () => {
                         className="job-posting-submit-btn btn-primary"
                         disabled={loading}
                     >
-                        {loading ? "Đang đăng..." : "Đăng Tin"}
+                        {loading ? t("jobPost.posting") : t("post_now")}
                     </button>
                 </div>
             </form>

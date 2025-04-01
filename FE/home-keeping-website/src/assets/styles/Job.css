@@ -300,7 +300,26 @@
     align-self: center;
 }
 
-
+.job-posting-service-type summary {
+    font-weight: bold;
+    font-size: 15px;
+    padding: 8px 12px;
+    cursor: pointer;
+    background-color: #f6f6f6;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: 0.2s;
+  }
+  
+  .job-posting-service-type summary:hover {
+    background-color: #fff3e0;
+  }
+  
+  .job-posting-service-type details[open] summary {
+    background-color: #fff8e6;
+    color: var(--main-color);
+  }
+  
 /* Responsive */
 @media (max-width: 768px) {
     .job-posting-row {
