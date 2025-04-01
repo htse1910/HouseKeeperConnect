@@ -95,4 +95,11 @@
         Fulltime = 1,
         PartTime = 2,
     }
+
+    public enum ApplicationStatus
+    {
+        Pending = 1,
+        Accepted = 2,
+        Denied = 3
+    }
 }

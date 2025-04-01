@@ -88,6 +88,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(nTr);
         }
+
         [HttpGet("HousekeeperList")] //Admin
         [Authorize]
         public async Task<ActionResult<IEnumerable<HousekeeperListDTO>>> GetListHousekeepersAsync(int pageNumber, int pageSize)
@@ -103,7 +104,6 @@ namespace HouseKeeperConnect_API.Controllers
 
             foreach (var item in trans)
             {
-
                 var nHk = new HousekeeperListDTO
                 {
                     Nickname = item.Account.Nickname,
@@ -114,16 +114,11 @@ namespace HouseKeeperConnect_API.Controllers
                     WorkType = item.WorkType,
                     Rating = item.Rating,
                     LocalProfilePicture = item.Account.LocalProfilePicture,
-
-
-
                 };
                 nTr.Add(nHk);
             }
             return Ok(nTr);
         }
-
-  
 
         [HttpGet("GetHousekeeperByID")]
         [Authorize]

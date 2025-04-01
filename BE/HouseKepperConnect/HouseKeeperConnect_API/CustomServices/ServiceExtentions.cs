@@ -58,6 +58,10 @@ public static class ServiceExtentions
         services.AddScoped<IHousekeeper_ViolationService, Housekeeper_ViolationService>();
         services.AddScoped<IRatingRepository, RatingRepository>();
         services.AddScoped<IRatingService, RatingService>();
+        services.AddScoped<IApplicationRepository, ApplicationRepository>();
+        services.AddScoped<IApplicationService, ApplicationService>();
+        services.AddScoped<IJobListing_ApplicationRepository, JobListing_ApplicationRepository>();
+        services.AddScoped<IJobListing_ApplicationService, JobListing_ApplicationService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

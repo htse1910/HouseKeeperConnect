@@ -5,7 +5,6 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -239,13 +238,11 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok("Job and its details added successfully!");
         }
 
-
         private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
         {
             int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
             return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
         }
-
 
         [HttpPut("UpdateJob")]
         [Authorize]

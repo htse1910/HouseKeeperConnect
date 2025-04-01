@@ -8,7 +8,9 @@ namespace DataAccess
         private static Booking_SlotsDAO instance;
         private static readonly object instanceLock = new object();
 
-        public Booking_SlotsDAO() { }
+        public Booking_SlotsDAO()
+        { }
+
         public static Booking_SlotsDAO Instance
         {
             get
@@ -68,6 +70,7 @@ namespace DataAccess
                 await context.SaveChangesAsync();
             }
         }
+
         public async Task<bool> IsSlotBooked(int housekeeperId, int slotId, int dayOfWeek, DateTime startDate, DateTime endDate)
         {
             using var context = new PCHWFDBContext();
@@ -81,6 +84,7 @@ namespace DataAccess
                                               jd.StartDate <= endDate &&
                                               jd.EndDate >= startDate));
         }
+
         public async Task<List<int>> GetBookedSlotsByHousekeeper(int housekeeperId, DateTime startDate, DateTime endDate)
         {
             using var context = new PCHWFDBContext();
