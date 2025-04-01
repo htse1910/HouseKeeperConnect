@@ -1,0 +1,232 @@
+﻿using AutoMapper;
+using BusinessObject.DTO;
+using BusinessObject.Models;
+using BusinessObject.Models.Enum;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Services.Interface;
+
+namespace HouseKeeperConnect_API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ApplicationController : ControllerBase
+    {
+        private readonly IApplicationService _applicationService;
+        private readonly IAccountService _accountService;
+        private readonly IHouseKeeperService _houseKeeperService;
+        private readonly IJobListing_ApplicationService _jobListingService;
+        private readonly IJobService _jobService;
+        private readonly INotificationService _notificationService;
+        private readonly IMapper _mapper;
+        private string Message;
+
+        public ApplicationController(IApplicationService applicationService, IAccountService accountService,
+            IHouseKeeperService houseKeeperService, IMapper mapper, IJobListing_ApplicationService jobListingService, IJobService jobService, INotificationService notificationService)
+        {
+            _applicationService = applicationService;
+            _accountService = accountService;
+            _houseKeeperService = houseKeeperService;
+            _mapper = mapper;
+            _jobListingService = jobListingService;
+            _jobService = jobService;
+            _notificationService = notificationService;
+        }
+
+        [HttpGet("ApplicationList")]
+        [Authorize]
+        public async Task<ActionResult<Application>> ApplicationList(int pageNumber, int pageSize)
+        {
+            var list = await _applicationService.GetAllApplicationsAsync(pageNumber, pageSize);
+            if (list == null)
+            {
+                Message = "No Records!";
+                return NotFound(Message);
+            }
+
+            var lA = new List<ApplicationDisplayDTO>();
+
+            foreach (var item in list)
+            {
+                var display = new ApplicationDisplayDTO();
+                display.ApplicationID = item.ApplicationID;
+                display.LocalProfilePicture = item.HouseKepper.Account.LocalProfilePicture;
+                display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
+                display.AccountID = item.HouseKepper.AccountID;
+                display.Nickname = item.HouseKepper.Account.Nickname;
+                display.Status = item.Status;
+                display.Rating = item.HouseKepper.Rating.GetValueOrDefault();
+                lA.Add(display);
+            }
+
+            return Ok(lA);
+        }
+
+        [HttpGet("ApplicationListByJob")]
+        [Authorize]
+        public async Task<ActionResult<Application>> ApplicationListByJob(int jobID, int pageNumber, int pageSize)
+        {
+            var list = await _jobListingService.GetAllJob_ApplicationsByJobAsync(jobID, pageNumber, pageSize);
+            if (list == null)
+            {
+                Message = "No Records!";
+                return NotFound(Message);
+            }
+
+            var lA = new List<ApplicationDisplayDTO>();
+
+            foreach (var item in list)
+            {
+                var display = new ApplicationDisplayDTO();
+                display.ApplicationID = item.ApplicationID;
+                display.LocalProfilePicture = item.Application.HouseKepper.Account.LocalProfilePicture;
+                display.GoogleProfilePicture = item.Application.HouseKepper.Account.GoogleProfilePicture;
+                display.AccountID = item.Application.HouseKepper.AccountID;
+                display.Nickname = item.Application.HouseKepper.Account.Nickname;
+                display.Status = item.Application.Status;
+                display.Rating = item.Application.HouseKepper.Rating.GetValueOrDefault();
+                lA.Add(display);
+            }
+
+            return Ok(lA);
+        }
+
+        [HttpGet("GetApplicationByID")]
+        [Authorize]
+        public async Task<ActionResult<Application>> GetAppByID(int id)
+        {
+            var app = await _applicationService.GetApplicationByIDAsync(id);
+            if (app == null)
+            {
+                Message = "No Records!";
+                return NotFound(Message);
+            }
+
+            var display = new ApplicationDisplayDTO();
+
+            display.ApplicationID = app.ApplicationID;
+            display.LocalProfilePicture = app.HouseKepper.Account.LocalProfilePicture;
+            display.GoogleProfilePicture = app.HouseKepper.Account.GoogleProfilePicture;
+            display.AccountID = app.HouseKepper.AccountID;
+            display.Nickname = app.HouseKepper.Account.Nickname;
+            display.Status = app.Status;
+            display.Rating = app.HouseKepper.Rating.GetValueOrDefault();
+
+            return Ok(display);
+        }
+
+        [HttpGet("GetApplicationsByAccountID")]
+        [Authorize]
+        public async Task<ActionResult<List<Application>>> GetAppByAccID(int uid, int pageNumber, int pageSize)
+        {
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(uid);
+            if (hk == null)
+            {
+                Message = "No housekeeper found!";
+                return NotFound(Message);
+            }
+
+            var apps = await _applicationService.GetAllApplicationsByUserAsync(hk.HousekeeperID, pageNumber, pageSize);
+            if (apps == null)
+            {
+                Message = "No Records!";
+                return NotFound(Message);
+            }
+
+            var lA = new List<ApplicationDisplayDTO>();
+
+            foreach (var item in apps)
+            {
+                var display = new ApplicationDisplayDTO();
+                display.ApplicationID = item.ApplicationID;
+                display.LocalProfilePicture = item.HouseKepper.Account.LocalProfilePicture;
+                display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
+                display.AccountID = item.HouseKepper.AccountID;
+                display.Nickname = item.HouseKepper.Account.Nickname;
+                display.Status = item.Status;
+                display.Rating = item.HouseKepper.Rating.GetValueOrDefault();
+                lA.Add(display);
+            }
+
+            return Ok(lA);
+        }
+
+        [HttpPost("AddApplication")]
+        [Authorize]
+        public async Task<ActionResult> AddApplication([FromQuery] int accountID, int jobID)
+        {
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if (hk == null)
+            {
+                Message = "Account not found!";
+                return NotFound(Message);
+            }
+
+            var job = await _jobService.GetJobByIDAsync(jobID);
+            if (job == null)
+            {
+                Message = "Job not found!";
+                return NotFound(Message);
+            }
+
+            var app = new Application();
+            app.HouseKeeperID = hk.HousekeeperID;
+            app.Status = (int)ApplicationStatus.Pending;
+
+            await _applicationService.AddApplicationAsync(app);
+
+            var jA = new JobListing_Application();
+            jA.ApplicationID = app.ApplicationID;
+            jA.JobID = jobID;
+
+            await _jobListingService.AddJob_ApplicationAsync(jA);
+
+            var noti = new Notification();
+            noti.AccountID = accountID;
+            noti.Message = "Bạn đã nộp đơn ứng tuyển cho công việc " + jobID;
+
+            await _notificationService.AddNotificationAsync(noti);
+
+            Message = ("Application Added!");
+            return Ok(Message);
+        }
+
+        [HttpPost("UpdateApplication")]
+        [Authorize]
+        public async Task<ActionResult> UpdateApplication([FromQuery] int AppID, int status)
+        {
+            var app = await _applicationService.GetApplicationByIDAsync(AppID);
+            if (app == null)
+            {
+                Message = "No application found!";
+                return NotFound(Message);
+            }
+
+            var job = await _jobListingService.GetJob_ApplicationByAppAsync(app.ApplicationID);
+            if (job == null)
+            {
+                Message = "No job found!";
+                return NotFound(Message);
+            }
+            var noti = new Notification();
+            noti.AccountID = app.HouseKepper.AccountID;
+            if (status == (int)ApplicationStatus.Accepted)
+            {
+                Message = "Application Accepted!";
+                noti.Message = "Đơn ứng tuyển của bạn cho công việc" + job.JobID + " đã được chấp thuận!";
+            }
+            if (status == (int)ApplicationStatus.Denied)
+            {
+                Message = "Đơn của bạn đã bị từ chối!";
+                noti.Message = "Đơn ứng tuyển của bạn cho công việc " + job.JobID + " đã bị từ chối!";
+            }
+
+            await _notificationService.AddNotificationAsync(noti);
+            app.Status = status;
+
+            await _applicationService.UpdateApplicationAsync(app);
+            Message = "Application status updated!";
+            return Ok(Message);
+        }
+    }
+}

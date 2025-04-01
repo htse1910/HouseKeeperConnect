@@ -1,5 +1,4 @@
 ﻿using BusinessObject.Models;
-using Google;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interface;
 using Services.Interface;
@@ -10,7 +9,6 @@ namespace Services
     {
         private readonly IBooking_SlotsRepository _bookingSlotsRepository;
         private readonly PCHWFDBContext _context;
-
 
         public Booking_SlotsService(IBooking_SlotsRepository bookingSlotsRepository)
         {
@@ -41,6 +39,7 @@ namespace Services
         {
             await _bookingSlotsRepository.DeleteBooking_SlotsAsync(id);
         }
+
         public async Task<bool> IsSlotBooked(int housekeeperId, int slotId, int dayOfWeek, DateTime startDate, DateTime endDate)
         {
             return await _context.Booking_Slots
@@ -53,6 +52,7 @@ namespace Services
                     bs.Booking.CreatedAt <= endDate
                 );
         }
+
         public async Task<List<int>> GetAvailableSlotsByHousekeeper(int housekeeperId, DateTime startDate, DateTime endDate)
         {
             var allSlots = await _bookingSlotsRepository.GetAllSlotIDsAsync(); // Use repository directly

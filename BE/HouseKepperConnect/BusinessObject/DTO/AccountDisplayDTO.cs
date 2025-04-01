@@ -1,5 +1,5 @@
-﻿using BusinessObject.Models.Enum;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using BusinessObject.Models.Enum;
 
 namespace BusinessObject.DTO
 {
@@ -25,7 +25,8 @@ namespace BusinessObject.DTO
         public DateTime UpdatedAt { get; set; }
         public string? GoogleId { get; set; }  // Lưu Google ID
         public string? Provider { get; set; } // "Google" hoặc "Local"
-        public string? ProfilePicture { get; set; } // Ảnh đại diện Google
+        public string? GoogleProfilePicture { get; set; }
+        public string LocalProfilePicture { get; set; }
         public int Status { get; set; }
         public Gender Gender { get; set; }
         public string? Nickname { get; set; }
