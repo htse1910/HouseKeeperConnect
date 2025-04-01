@@ -35,6 +35,8 @@ import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
 import UpdateVerificationPage from './pages/UpdateVerificationPage';
 import HousekeeperWalletPage from './pages/HousekeeperWalletPage'; // ✅ Add this line
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function AppRoutes() {
   return (
@@ -45,7 +47,8 @@ function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/confirm-account" element={<ConfirmAccountPage />} />
-
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         {/* Role-Based Dashboard Routes */}
         <Route path="/housekeeper/dashboard" element={<HousekeeperDashboardPage />} />
         <Route path="/family-dashboard" element={<FamilyDashboardPage />} />
