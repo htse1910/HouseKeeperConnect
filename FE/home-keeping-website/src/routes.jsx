@@ -30,6 +30,7 @@ import HousekeeperScheduleManagement from './pages/HousekeeperScheduleManagement
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
 import FamilyJobDetailsPage from './pages/FamilyJobDetailsPage';
 import FamilyDepositPage from "./pages/FamilyDepositPage";
+import FamilyDepositReturnPage from "./pages/FamilyDepositReturnPage";
 import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
 import UpdateVerificationPage from './pages/UpdateVerificationPage';
@@ -80,6 +81,7 @@ function AppRoutes() {
         <Route path="/family/job/update/:id" element={<JobDetailsPage />} />
         <Route path="/family/job/detail/:id" element={<FamilyJobDetailsPage />} />
         <Route path="/family/deposit" element={<FamilyDepositPage />} />
+        <Route path="/family/deposit/return" element={<FamilyDepositReturnPage />} />
         <Route path="family/transactions" element={<FamilyTransactionPage />} />
       </Routes>
     </Layout>

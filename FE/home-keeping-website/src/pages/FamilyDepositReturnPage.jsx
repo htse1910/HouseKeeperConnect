@@ -24,9 +24,9 @@ function FamilyDepositReturnPage() {
   useEffect(() => {
     const result = searchParams.get("status")?.toLowerCase();
     setStatus(result);
-    setTransactionId(searchParams.get("transactionId"));
+    setTransactionId(searchParams.get("orderCode"));
     setAmount(searchParams.get("amount"));
-
+  
     if (result === "success" && accountID) {
       axios
         .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
@@ -37,13 +37,13 @@ function FamilyDepositReturnPage() {
           setBalance(null);
         });
     }
-
+  
     const timeout = setTimeout(() => {
       window.location.href = "/family/dashboard";
     }, 5000);
-
+  
     return () => clearTimeout(timeout);
-  }, [searchParams]);
+  }, [searchParams]);  
 
   const getStatusTitle = () => {
     switch (status) {
