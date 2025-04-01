@@ -5,6 +5,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -18,6 +19,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IJob_SlotsService _jobSlotsService;
         private readonly IBookingService _bookingService;
         private readonly IBooking_SlotsService _bookingSlotsService;
+        private readonly INotificationService _notificationService;
         private string Message;
         private readonly IMapper _mapper;
 
@@ -220,6 +222,17 @@ namespace HouseKeeperConnect_API.Controllers
 
                     currentDate = currentDate.AddDays(7); // Move to the next week
                 }
+            }
+            if (jobCreateDTO.FamilyID > 0)
+            {
+                var notification = new Notification
+                {
+                    AccountID = jobCreateDTO.FamilyID, // Assuming FamilyID represents the UserID
+                    Message = $"A new job (ID: {job.JobID}) has been created.",
+                    CreatedDate = DateTime.Now
+                };
+
+                await _notificationService.AddNotificationAsync(notification);
             }
 
             return Ok("Job and its details added successfully!");
