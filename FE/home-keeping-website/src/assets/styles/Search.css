@@ -119,17 +119,18 @@
 
 .search-page-title {
     font-weight: bold;
-    font-size: 18px;
-    margin-bottom: 10px;
+    font-size: var(--font-size-label);
+    margin-bottom: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 .search-page-info {
-    color: #555;
-    font-size: 14px;
+    color: var(--text-body);
+    font-size: var(--font-size-small);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -139,9 +140,9 @@
 
 /* Badge loại hợp đồng */
 .search-page-badge-type {
-    font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 12px;
+    font-size: var(--font-size-tiny);
+    padding: 2px 8px;
+    border-radius: var(--border-radius);
     color: white;
 }
 
@@ -179,7 +180,8 @@
 .search-page-card-actions {
     display: flex;
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 20px;
+    justify-content: center;
 }
 
 .search-page-card-actions button {
@@ -194,6 +196,23 @@
     background-color: #ff9500;
     color: white;
     border: none;
+}
+
+.search-page-card-actions .btn-primary {
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    background-color: var(--main-color);
+}
+
+.search-page-card-actions .btn-primary:hover {
+    background-color: var(--secondary-color);
+}
+
+.search-page-card-actions .search-page-detail-btn {
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .search-page-detail-btn {
@@ -213,7 +232,7 @@
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
 }
 
 /* Loading + lỗi + không có kết quả */
