@@ -36,6 +36,8 @@ function LoginPage() {
         localStorage.setItem('userRole', loginData.roleName);
         localStorage.setItem('accountID', loginData.accountID);
 
+        console.log(loginData.roleName);
+
         setUserRole(loginData.roleName); // 🔥 Cập nhật Context ngay lập tức
 
         toast.success(`Welcome ${loginData.name}!`, { position: 'top-center', autoClose: 3000 });

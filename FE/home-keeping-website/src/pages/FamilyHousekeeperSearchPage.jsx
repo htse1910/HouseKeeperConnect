@@ -80,18 +80,19 @@ const FamilyHousekeeperSearchPage = () => {
 
         setLoading(true);
         axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-            .then((res) => {
-                if (!res.data?.accountID) throw new Error("Không hợp lệ");
+            .then((accountRespone) => {
+                if (!accountRespone.data?.accountID) throw new Error("Không hợp lệ");
+                
                 return axios.get("http://localhost:5280/api/HouseKeeper/HousekeeperList", {
                     headers,
                     params: { pageNumber: 1, pageSize: 20 }
                 });
             })
-            .then((res) => {
-                const housekeeperList = transformHousekeeperData(res.data?.data || []);
+            .then((hkListrespone) => {
+                const housekeeperList = transformHousekeeperData(hkListrespone.data || []);
                 console.log("Housekeepers sau khi transform:", housekeeperList);
                 setHousekeepers(housekeeperList);
-            })                    
+            })
             .catch((err) => {
                 console.error("API Error:", err);
                 setError("Không thể tải danh sách.");
@@ -114,20 +115,28 @@ const FamilyHousekeeperSearchPage = () => {
         }));
     };
 
-    const filteredHousekeepers = housekeepers;
-        {/*}.filter(h =>
-            h.name?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            h.address?.toLowerCase().includes(location.toLowerCase()) &&
-            (selectedSkill === "" || h.skills?.includes(selectedSkill)) &&
-            (selectedGender === "" || h.gender === selectedGender) &&
-            (selectedWorkType === "" || h.workType === selectedWorkType)
+    console.log("💡 Filter debug:", {
+        searchTerm,
+        location,
+        selectedSkill,
+        selectedGender,
+        selectedWorkType
+    });
+
+    const filteredHousekeepers = housekeepers
+        .filter(h =>
+            h.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) &&
+            h.address?.toLowerCase().includes(location.trim().toLowerCase()) &&
+            (selectedSkill === "" || h.skills?.some(skill => skill === selectedSkill)) &&
+            (selectedGender === "" || h.gender?.toLowerCase() === selectedGender.toLowerCase()) &&
+            (selectedWorkType === "" || h.workType?.toLowerCase() === selectedWorkType.toLowerCase())
         )
         .sort((a, b) => {
             if (!selectedSalaryOrder) return 0;
             return selectedSalaryOrder === "asc"
                 ? (a.salary || 0) - (b.salary || 0)
                 : (b.salary || 0) - (a.salary || 0);
-        });*/}
+        });
 
     return (
         <div className="search-page">
