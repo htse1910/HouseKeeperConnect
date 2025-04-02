@@ -159,18 +159,6 @@
             android:textColor="#000000"
             android:textSize="16sp"
             android:layout_marginBottom="12dp"/>
-        <EditText
-            android:id="@+id/nickName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nickname"
-            android:inputType="textPostalAddress"
-            android:padding="12dp"
-            android:background="@drawable/bg_input"
-            android:textColorHint="#999999"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:layout_marginBottom="12dp"/>
 
         <EditText
             android:id="@+id/description"
@@ -185,6 +173,27 @@
             android:textColor="#000000"
             android:textSize="16sp"
             android:layout_marginBottom="12dp"/>
+        <RadioGroup
+            android:id="@+id/gender_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_male"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nam"/>
+
+            <RadioButton
+                android:id="@+id/rb_female"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nữ"/>
+        </RadioGroup>
+
 
         <!-- Upload ảnh -->
         <LinearLayout
