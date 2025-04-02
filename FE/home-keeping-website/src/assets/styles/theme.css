@@ -1,67 +1,47 @@
+/* ==============================
+   Biến toàn cục cho giao diện
+   ============================== */
 :root {
+  /* Màu sắc chính */
   --main-color: #FF9500;
-  --main-light: #FFD699;
-  --main-dark: #CC7700;
-
+  /* Màu chủ đạo */
   --secondary-color: #FBAE17;
-  --secondary-light: #FFE088;
-  --secondary-dark: #E89B0D;
-
-  --accent-color: #FFE4C2;
-  --accent-light: #FFF1E0;
-  --accent-dark: #FFC994;
-
-  --background-color: #FFF8E7;
-  --bg-color: #FFFFFF;
-  --box-background-color: #FFECD1;
-  --light-gray: #F5F5F5;
-  --medium-gray: #D9D9D9;
-  --dark-gray: #7F7F7F;
-  --overlay-color: rgba(0, 0, 0, 0.3);
-
-  --success-color: #2ECC40;
-  --success-light: #C8FACC;
-  --success-dark: #239B35;
-
-  --error-color: #FF4136;
-  --error-light: #FFD6D3;
-  --error-dark: #CC322B;
-
-  --warning-color: #FFC107;
-  --warning-light: #FFF3CD;
-  --warning-dark: #FFA000;
-
-  --info-color: #17A2B8;
-  --info-light: #D1F0F7;
-  --info-dark: #0E798A;
-
-  --pending-color: #FFA500;
-  --processing-color: #00BFFF;
-  --completed-color: #00C851;
-  --disabled-color: #E0E0E0;
-
-  --text-heading: #1A1A1A;
-  --text-body: #2F2F2F;
+  /* Màu phụ */
+  --cancel-color: #FF4136;
+  /* Màu cho nút hủy */
+  --text-color: #2F2F2F;
+  /* Màu chữ chính */
   --text-alt-color: #554433;
-  --text-muted: #7F7F7F;
-  --text-disabled: #BDBDBD;
-  --text-subtle: #999999;
-  --text-placeholder: #A0A0A0;
-  --text-inverse: #FFFFFF;
-  --text-highlight: #FF9500;
-  --text-link: #0074D9;
-  --text-success: var(--success-dark);
-  --text-error: var(--error-dark);
-  --text-warning: var(--warning-dark);
-  --text-info: var(--info-dark);
+  /* Màu chữ thay thế */
+  --background-color: #FFF8E7;
+  /* Màu nền chung */
+  --bg-color: #FFFFFF;
+  /* Màu nền chính */
 
+  /* Màu sắc trạng thái */
+  --error-color: var(--cancel-color);
+  /* Màu báo lỗi */
+  --success-color: #2ECC40;
+  /* Màu thành công */
+  --warning-color: #FFC107;
+  /* Màu cảnh báo */
+  --disabled-color: #E0E0E0;
+  /* Màu khi bị vô hiệu hóa */
+
+  /* Màu bổ trợ */
+  --accent-color: #FFE4C2;
+  /* Màu nhấn */
+  --light-gray: #F5F5F5;
+  /* Màu xám nhạt */
   --border-color: #E5E7EB;
-  --focus-border-color: #80BDFF;
-  --error-border-color: var(--error-color);
-  --success-border-color: var(--success-color);
+  /* Màu viền */
+  --box-background-color: #FFECD1;
 
+  /* Font chữ */
   --font-main: 'Inter', sans-serif;
+  /* Font chính */
   --font-code: 'Consolas', monospace;
+  /* Font cho mã code */
 
   --font-size-title: 24px;
   --font-size-heading: 20px;
@@ -69,15 +49,16 @@
   --font-size-small: 14px;
   --font-size-tiny: 12px;
 
+  /* Bo góc & hiệu ứng bóng */
   --border-radius: 8px;
+  /* Độ bo tròn góc */
   --box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
-
-  --main-gradient: linear-gradient(45deg, #FF9500, #FBAE17);
-  --success-gradient: linear-gradient(45deg, #2ECC40, #00C851);
-  --cancel-gradient: linear-gradient(45deg, #FF4136, #CC322B);
-  --info-gradient: linear-gradient(45deg, #17A2B8, #00BFFF);
+  /* Hiệu ứng bóng */
 }
 
+/* ==============================
+     Reset CSS & Cấu hình chung
+     ============================== */
 * {
   margin: 0;
   padding: 0;
@@ -87,9 +68,12 @@
 body {
   font-family: var(--font-main);
   background-color: var(--bg-color);
-  color: var(--text-body);
+  color: var(--text-color);
 }
 
+/* ==============================
+     Thiết kế các loại nút bấm
+     ============================== */
 button {
   border: none;
   padding: 12px 16px;
@@ -100,38 +84,47 @@ button {
   transition: background-color 0.3s ease;
 }
 
-
+/* Nút chính (Primary) */
 .btn-primary {
   background-color: var(--main-color);
   color: white;
 }
+
 .btn-primary:hover {
   background-color: var(--secondary-color);
 }
 
+/* Nút phụ (Secondary) */
 .btn-secondary {
   background: white;
   border: 2px solid var(--main-color);
   color: var(--main-color);
 }
+
 .btn-secondary:hover {
   background: var(--accent-color);
 }
 
+/* Nút hủy (Cancel) */
 .btn-cancel {
-  background-color: var(--error-color);
+  background-color: var(--cancel-color);
   color: white;
 }
+
 .btn-cancel:hover {
-  background-color: var(--error-dark);
+  background-color: #CC2D27;
 }
 
+/* Nút bị vô hiệu hóa */
 .btn-disabled {
   background-color: var(--disabled-color);
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+/* ==============================
+     Trường nhập liệu (Input Fields)
+     ============================== */
 input[type="text"],
 input[type="email"] {
   border: 1px solid var(--border-color);
@@ -139,28 +132,36 @@ input[type="email"] {
   border-radius: var(--border-radius);
   outline: none;
   transition: border-color 0.3s ease;
-  color: var(--text-body);
 }
-input::placeholder {
-  color: var(--text-placeholder);
-}
+
 input:focus {
   border-color: var(--main-color);
 }
 
+/* ==============================
+     Liên kết (Links)
+     ============================== */
 a {
   text-decoration: none;
-  color: var(--text-link);
+  color: var(--text-color);
   transition: color 0.3s;
 }
+
 a:hover {
   color: var(--main-color);
 }
 
+/* ==============================
+     Các lớp tiện ích chung
+     ============================== */
 .shadow {
   box-shadow: var(--box-shadow);
+  /* Thêm bóng đổ */
 }
 
+/* ==============================
+     Biểu tượng (Icons)
+     ============================== */
 .icon {
   font-size: 20px;
   display: inline-flex;
@@ -170,13 +171,18 @@ a:hover {
   transition: all 0.3s ease;
 }
 
+/* Các biểu tượng cụ thể */
 .icon-nav {
   color: var(--text-color);
 }
+
 .icon-nav:hover {
   color: var(--main-color);
 }
 
+/* ==============================
+     Điều chỉnh hiển thị trên thiết bị nhỏ (Responsive)
+     ============================== */
 @media (max-width: 768px) {
   button {
     padding: 10px 14px;
