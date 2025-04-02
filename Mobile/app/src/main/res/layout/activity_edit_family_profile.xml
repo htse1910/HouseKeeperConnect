@@ -1,10 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:padding="24dp"
     tools:context=".profile.EditFamilyProfile">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Avatar -->
+    <ImageView
+        android:id="@+id/edfProfilePicture"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_user"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/circle_background"/>
+
+    <!-- Họ và tên -->
+    <EditText
+        android:id="@+id/edfFullName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Họ và tên"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:background="@drawable/bg_input"
+        android:textColorHint="#999999"
+        android:textColor="#000000"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Số điện thoại -->
+    <EditText
+        android:id="@+id/edfPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Số điện thoại"
+        android:inputType="phone"
+        android:padding="12dp"
+        android:background="@drawable/bg_input"
+        android:textColorHint="#999999"
+        android:textColor="#000000"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Địa chỉ -->
+    <EditText
+        android:id="@+id/edfAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Địa chỉ"
+        android:inputType="textPostalAddress"
+        android:padding="12dp"
+        android:background="@drawable/bg_input"
+        android:textColorHint="#999999"
+        android:textColor="#000000"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/edfBank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_input"
+        android:hint="Số tài khoản"
+        android:inputType="textPostalAddress"
+        android:padding="12dp"
+        android:textColor="#000000"
+        android:textColorHint="#999999" />
+
+    <EditText
+        android:id="@+id/edfDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Giới thiêu"
+        android:inputType="textPostalAddress"
+        android:padding="12dp"
+        android:background="@drawable/bg_input"
+        android:textColorHint="#999999"
+        android:textColor="#000000"
+        android:layout_marginBottom="12dp"/>
+    <EditText
+        android:id="@+id/edfNickname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nickname"
+        android:inputType="textPostalAddress"
+        android:padding="12dp"
+        android:background="@drawable/bg_input"
+        android:textColorHint="#999999"
+        android:textColor="#000000"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Nút Lưu -->
+    <Button
+        android:id="@+id/btnSaveProfileFamily"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lưu Thay Đổi"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/bg_button"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>
+</ScrollView>
