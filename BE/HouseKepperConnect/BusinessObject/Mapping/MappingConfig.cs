@@ -133,12 +133,13 @@ namespace BusinessObject.Mapping
             CreateMap<HouseKeeperDisplayDTO, Account>().ReverseMap();
             CreateMap<HouseKeeperDisplayDTO, IDVerification>().ReverseMap();
         }
+
         private void Map_List_HouseKeeper()
         {
             CreateMap<HouseKeeperDisplayDTO, Housekeeper>().ReverseMap();
             CreateMap<HouseKeeperDisplayDTO, Account>().ReverseMap();
-           
         }
+
         private void Map_Create_HouseKeeper()
         {
             CreateMap<HouseKeeperCreateDTO, Housekeeper>();

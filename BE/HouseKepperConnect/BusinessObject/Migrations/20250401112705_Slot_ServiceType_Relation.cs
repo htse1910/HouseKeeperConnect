@@ -31,7 +31,7 @@ namespace BusinessObject.Migrations
             principalTable: "Slot",
             principalColumn: "SlotID",
             onDelete: ReferentialAction.Cascade);
-            
+
             migrationBuilder.AddForeignKey(
             name: "FK_Slot_Job_Slots_Job_SlotsId",
             table: "Job_Slots",
@@ -44,7 +44,6 @@ namespace BusinessObject.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
         }
     }
 }

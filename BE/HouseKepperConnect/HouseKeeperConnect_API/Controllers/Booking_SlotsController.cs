@@ -68,6 +68,7 @@ namespace HouseKeeperConnect_API.Controllers
             Message = "Booking slots deleted successfully!";
             return Ok(Message);
         }
+
         [HttpGet("AvailableSlots/{housekeeperId}")]
         public async Task<ActionResult<List<int>>> GetAvailableSlots(int housekeeperId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
