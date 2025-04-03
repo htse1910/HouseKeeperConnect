@@ -56,7 +56,7 @@ namespace BusinessObject.Migrations
                 columns: new[] { "RoleID", "RoleName" },
                 values: new object[,]
                 {
-                    { 1, "Housekeeper" },
+                    { 1, "HouseKeeper" },
                     { 2, "Family" },
                     { 3, "Staff" },
                     { 4, "Admin" }
