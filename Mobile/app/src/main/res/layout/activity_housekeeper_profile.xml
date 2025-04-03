@@ -63,14 +63,28 @@ tools:context=".profile.HousekeeperProfile">
     app:layout_constraintBottom_toTopOf="@id/btnLogout"
     android:padding="16dp"/>
 
-<Button
-    android:id="@+id/btnLogout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Đăng xuất"
-    android:textColor="@android:color/white"
-    android:background="@color/colorPrimary"
-    android:layout_margin="16dp"
-    app:layout_constraintBottom_toBottomOf="parent" />
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Đăng xuất"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="16dp"
+        app:cornerRadius="50dp"
+        android:elevation="6dp"
+        android:stateListAnimator="@android:anim/slide_in_left"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"/>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:itemIconTint="@color/black"
+        app:itemTextColor="@color/black"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
