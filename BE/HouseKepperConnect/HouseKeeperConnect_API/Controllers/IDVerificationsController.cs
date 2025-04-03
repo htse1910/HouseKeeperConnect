@@ -5,6 +5,7 @@ using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.AppWrite;
+using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -19,6 +20,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IVerificationTaskService _verificationTaskService;
         private readonly IConfiguration _configuration;
         private readonly Client _appWriteClient;
+        private string Message;
         private readonly IMapper _mapper;
 
         public IDVerificationsController(IIDVerificationService idVerificationService, IHouseKeeperService houseKeeperService, IVerificationTaskService verificationTaskService, IMapper mapper, IConfiguration configuration)
@@ -190,60 +192,95 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(new { Message = "ID Verification created successfully!", VerifyID = verifyId });
         }
 
-        private async Task<byte[]> ConvertToByteArrayAsync(IFormFile file)
-        {
-            if (file == null) return null;
-            using (var memoryStream = new MemoryStream())
-            {
-                await file.CopyToAsync(memoryStream);
-                return memoryStream.ToArray();
-            }
-        }
 
         [HttpPut("UpdateIDVerification")]
         public async Task<ActionResult> UpdateIDVerification([FromForm] IDVerificationUpdateDTO idVerificationDTO)
         {
             try
             {
-                /*var existingVerification = await _idVerificationService.GetIDVerifyByIDAsync(idVerificationDTO.VerifyID);
-                if (existingVerification == null)
+                if (idVerificationDTO.FrontPhoto == null || idVerificationDTO.FrontPhoto.Length == 0)
+                    throw new ArgumentException("No file uploaded.");
+                if (idVerificationDTO.FacePhoto == null || idVerificationDTO.FacePhoto.Length == 0)
+                    throw new ArgumentException("No file uploaded.");
+                if (idVerificationDTO.BackPhoto == null || idVerificationDTO.BackPhoto.Length == 0)
+                    throw new ArgumentException("No file uploaded.");
+
+                var storage = new Storage(_appWriteClient);
+                var buckID = "67e3d029000d5b9dd68e";
+                var projectID = _configuration.GetValue<string>("Appwrite:ProjectId");
+
+                List<string> perms = new List<string>() { Permission.Write(Appwrite.Role.Any()), Permission.Read(Appwrite.Role.Any()) };
+
+                //Front Picture
+
+                var idFr = Guid.NewGuid().ToString();
+                var front = InputFile.FromStream(
+                    idVerificationDTO.FrontPhoto.OpenReadStream(),
+                    idVerificationDTO.FrontPhoto.FileName,
+                    idVerificationDTO.FrontPhoto.ContentType
+                    );
+                var response = await storage.CreateFile(
+                            buckID,
+                            idFr,
+                            front,
+                            perms,
+                            null
+                            );
+
+                var frontID = response.Id;
+                var frontUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response.BucketId}/files/{frontID}/view?project={projectID}";
+
+                //Back picture
+                var idBk = Guid.NewGuid().ToString();
+                var back = InputFile.FromStream(
+                idVerificationDTO.BackPhoto.OpenReadStream(),
+                idVerificationDTO.BackPhoto.FileName,
+                idVerificationDTO.BackPhoto.ContentType
+                );
+                var response2 = await storage.CreateFile(
+                    buckID,
+                    idBk,
+                    back,
+                    perms,
+                    null
+                    );
+                var backID = response2.Id;
+                var backUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response2.BucketId}/files/{backID}/view?project={projectID}";
+
+                //Face picture
+                var idFc = Guid.NewGuid().ToString();
+                var face = InputFile.FromStream(
+            idVerificationDTO.FacePhoto.OpenReadStream(),
+            idVerificationDTO.FacePhoto.FileName,
+            idVerificationDTO.FacePhoto.ContentType
+            );
+                var response3 = await storage.CreateFile(
+                    buckID,
+                    idFc,
+                    face,
+                    perms,
+                    null
+                    );
+                var faceID = response3.Id;
+                var faceUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response3.BucketId}/files/{faceID}/view?project={projectID}";
+
+                var id = await _idVerificationService.GetIDVerifyByIDAsync(idVerificationDTO.VerifyID);
+                if(id == null)
                 {
-                    return NotFound("ID Verification not found!");
+                    Message = "No verifyID";
+                    return NotFound(Message);
                 }
 
-                if (idVerificationDTO.FrontPhoto != null)
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await idVerificationDTO.FrontPhoto.CopyToAsync(memoryStream);
-                        existingVerification.FrontPhoto = memoryStream.ToArray();
-                    }
-                }
+                id.IDNumber = idVerificationDTO.IDNumber;
+                id.RealName = idVerificationDTO.RealName;
+                id.DateOfBirth = idVerificationDTO.DateOfBirth;
+                id.FrontPhoto = frontUrl;
+                id.BackPhoto = backUrl;
+                id.FacePhoto = faceUrl;
+                id.Status = (int)VerificationStatus.Pending;
 
-                if (idVerificationDTO.BackPhoto != null)
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await idVerificationDTO.BackPhoto.CopyToAsync(memoryStream);
-                        existingVerification.BackPhoto = memoryStream.ToArray();
-                    }
-                }
-
-                if (idVerificationDTO.FacePhoto != null)
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await idVerificationDTO.FacePhoto.CopyToAsync(memoryStream);
-                        existingVerification.FacePhoto = memoryStream.ToArray();
-                    }
-                }
-
-                existingVerification.IDNumber = idVerificationDTO.IDNumber;
-                existingVerification.RealName = idVerificationDTO.RealName;
-                existingVerification.DateOfBirth = idVerificationDTO.DateOfBirth;
-                existingVerification.UpdatedAt = DateTime.UtcNow;
-
-                await _idVerificationService.UpdateIDVerifyAsync(existingVerification);*/
+                await _idVerificationService.UpdateIDVerifyAsync(id);
+                
                 return Ok("ID Verification updated successfully!");
             }
             catch (Exception ex)

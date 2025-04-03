@@ -24,11 +24,5 @@ namespace BusinessObject.DTO
 
         public string? Introduction { get; set; }
         public string Address { get; set; }
-
-        public IFormFile FrontPhoto { get; set; }
-
-        public IFormFile BackPhoto { get; set; }
-
-        public IFormFile FacePhoto { get; set; }
     }
 }

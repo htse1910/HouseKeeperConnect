@@ -1,6 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Configuration;
+using Appwrite;
+using Appwrite.Models;
+using Appwrite.Services;
+using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
+using BusinessObject.Models.AppWrite;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,16 +21,26 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IAccountService _accountService;
         private readonly IIDVerificationService _verificationService;
         private readonly INotificationService _notificationService;
+        private readonly IConfiguration _configuration;
+        private readonly Client _appWriteClient;
         private readonly IMapper _mapper;
         private string Message;
 
-        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService)
+        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService, Client appWriteClient, IConfiguration configuration)
         {
             _housekeeperService = housekeeperService;
             _accountService = accountService;
             _mapper = mapper;
             _verificationService = verificationService;
             _notificationService = notificationService;
+            _configuration = configuration;
+            AppwriteSettings appW = new AppwriteSettings()
+            {
+                ProjectId = configuration.GetValue<string>("Appwrite:ProjectId"),
+                Endpoint = configuration.GetValue<string>("Appwrite:Endpoint"),
+                ApiKey = configuration.GetValue<string>("Appwrite:ApiKey")
+            };
+            _appWriteClient = new Client().SetProject(appW.ProjectId).SetEndpoint(appW.Endpoint).SetKey(appW.ApiKey);
         }
 
         [HttpGet("HousekeeperDisplay")] //Admin
@@ -227,7 +242,7 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
-                var newAcc = _mapper.Map<Account>(hk);
+                var newAcc = _mapper.Map<BusinessObject.Models.Account>(hk);
 
                 var Acc = await _accountService.GetAccountByIDAsync(hk.AccountID);
                 if (Acc == null)
@@ -236,6 +251,28 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound(Message);
                 }
 
+                var storage = new Storage(_appWriteClient);
+                var buckID = "67e3d029000d5b9dd68e";
+                var projectID = _configuration.GetValue<string>("Appwrite:ProjectId");
+
+                List<string> perms = new List<string>() { Permission.Write(Appwrite.Role.Any()), Permission.Read(Appwrite.Role.Any()) };
+                var idFr = Guid.NewGuid().ToString();
+                var avatar = InputFile.FromStream(
+                    hk.LocalProfilePicture.OpenReadStream(),
+                    hk.LocalProfilePicture.FileName,
+                    hk.LocalProfilePicture.ContentType
+                    );
+                var response = await storage.CreateFile(
+                            buckID,
+                            idFr,
+                            avatar,
+                            perms,
+                            null
+                            );
+
+                var avatarID = response.Id;
+                var avatarUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response.BucketId}/files/{avatarID}/view?project={projectID}";
+
                 Acc.Phone = newAcc.Phone;
                 Acc.Introduction = newAcc.Introduction;
                 Acc.Name = newAcc.Name;
@@ -243,6 +280,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Acc.BankAccountNumber = newAcc.BankAccountNumber;
                 Acc.Address = newAcc.Address;
                 Acc.UpdatedAt = DateTime.Now;
+                Acc.LocalProfilePicture = avatarUrl;
 
                 await _accountService.UpdateAccountAsync(Acc);
 
@@ -257,7 +295,10 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound(Message);
                 }
 
-                var id = await _verificationService.GetIDVerifyByIDAsync(oHk.VerifyID.Value);
+
+                
+
+                /*var id = await _verificationService.GetIDVerifyByIDAsync(oHk.VerifyID.Value);
 
                 if (id != null)
                 {
@@ -272,13 +313,13 @@ namespace HouseKeeperConnect_API.Controllers
                     nId.Status = (int)VerificationStatus.Pending;
                     nId.CreatedAt = DateTime.Now;
                     nId.UpdatedAt = DateTime.Now;
-                    /*nId.FrontPhoto = nFront;
+                    *//*nId.FrontPhoto = nFront;
                     nId.FacePhoto = nFace;
-                    nId.BackPhoto = nBack;*/
+                    nId.BackPhoto = nBack;*//*
 
                     await _verificationService.AddIDVerifyAsync(nId);
                     oHk.VerifyID = nId.VerifyID;
-                }
+                }*/
 
                 await _housekeeperService.UpdateHousekeeperAsync(oHk);
                 Message = "Housekeeper Updated!";
