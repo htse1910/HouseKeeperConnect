@@ -80,15 +80,18 @@ const FamilyHousekeeperSearchPage = () => {
 
         setLoading(true);
         axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-            .then((res) => {
-                if (!res.data?.accountID) throw new Error("Không hợp lệ");
+            .then((accountRespone) => {
+                if (!accountRespone.data?.accountID) throw new Error("Không hợp lệ");
+                
                 return axios.get("http://localhost:5280/api/HouseKeeper/HousekeeperList", {
                     headers,
                     params: { pageNumber: 1, pageSize: 20 }
                 });
             })
-            .then((res) => {
-                setHousekeepers(res.data || []);
+            .then((hkListrespone) => {
+                const housekeeperList = transformHousekeeperData(hkListrespone.data || []);
+                console.log("Housekeepers sau khi transform:", housekeeperList);
+                setHousekeepers(housekeeperList);
             })
             .catch((err) => {
                 console.error("API Error:", err);
@@ -97,13 +100,36 @@ const FamilyHousekeeperSearchPage = () => {
             .finally(() => setLoading(false));
     }, [isDemo]);
 
+    const transformHousekeeperData = (rawList) => {
+        return rawList.map(hk => ({
+            name: hk.nickname,
+            address: hk.address,
+            phone: hk.phone,
+            email: hk.email,
+            gender: hk.gender === 1 ? "Nam" : "Nữ",
+            workType: hk.workType === 1 ? "Full-time" : "Part-time", // nếu có workType = 3 thì thêm "Contract"
+            salary: 150000, // nếu backend chưa có thì gán mặc định
+            skills: ["Dọn dẹp", "Nấu ăn"], // giả định kỹ năng tạm thời
+            rating: hk.rating,
+            avatar: hk.localProfilePicture
+        }));
+    };
+
+    console.log("💡 Filter debug:", {
+        searchTerm,
+        location,
+        selectedSkill,
+        selectedGender,
+        selectedWorkType
+    });
+
     const filteredHousekeepers = housekeepers
         .filter(h =>
-            h.name?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            h.address?.toLowerCase().includes(location.toLowerCase()) &&
-            (selectedSkill === "" || h.skills?.includes(selectedSkill)) &&
-            (selectedGender === "" || h.gender === selectedGender) &&
-            (selectedWorkType === "" || h.workType === selectedWorkType)
+            h.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) &&
+            h.address?.toLowerCase().includes(location.trim().toLowerCase()) &&
+            (selectedSkill === "" || h.skills?.some(skill => skill === selectedSkill)) &&
+            (selectedGender === "" || h.gender?.toLowerCase() === selectedGender.toLowerCase()) &&
+            (selectedWorkType === "" || h.workType?.toLowerCase() === selectedWorkType.toLowerCase())
         )
         .sort((a, b) => {
             if (!selectedSalaryOrder) return 0;
