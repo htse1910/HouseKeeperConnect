@@ -41,13 +41,13 @@ const FamilyJobPostingPage = () => {
     };
 
     const slots = [
-        { slotID: 1, time: "8H - 9H" },
-        { slotID: 2, time: "10H - 11H" },
-        { slotID: 3, time: "12H - 13H" },
-        { slotID: 4, time: "14H - 15H" },
-        { slotID: 5, time: "16H - 17H" },
-        { slotID: 6, time: "18H - 19H" },
-        { slotID: 7, time: "20H - 21H" },
+        { slotID: 1, time: "8:00 - 9:00" },
+        { slotID: 2, time: "10:00 - 11:00" },
+        { slotID: 3, time: "12:00 - 13:00" },
+        { slotID: 4, time: "14:00 - 15:00" },
+        { slotID: 5, time: "16:00 - 17:00" },
+        { slotID: 6, time: "18:00 - 19:00" },
+        { slotID: 7, time: "20:00 - 21:00" },
     ];
 
     const dayPresets = [
