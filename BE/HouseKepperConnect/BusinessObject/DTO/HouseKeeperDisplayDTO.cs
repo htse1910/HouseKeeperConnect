@@ -24,6 +24,8 @@ namespace BusinessObject.DTO
         public string? BankAccountNumber { get; set; }
 
         public string? Introduction { get; set; }
+
+        public int? VerifyID { get; set; }
         public string Address { get; set; }
 
         public string FrontPhoto { get; set; }

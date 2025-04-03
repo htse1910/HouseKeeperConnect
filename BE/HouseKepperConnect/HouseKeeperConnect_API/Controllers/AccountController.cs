@@ -234,10 +234,10 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("No Account Found!");
             }
 
-            if (!string.IsNullOrEmpty(accountUpdateDTO.Password))
+/*            if (!string.IsNullOrEmpty(accountUpdateDTO.Password))
             {
                 account.Password = _passwordHasher.HashPassword(account, accountUpdateDTO.Password);
-            }
+            }*/
             else
             {
                 account.Password = u.Password;

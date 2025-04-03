@@ -18,11 +18,12 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IJobListing_ApplicationService _jobListingService;
         private readonly IJobService _jobService;
         private readonly INotificationService _notificationService;
+        private readonly IJob_ServiceService _jobServiceService;
         private readonly IMapper _mapper;
         private string Message;
 
         public ApplicationController(IApplicationService applicationService, IAccountService accountService,
-            IHouseKeeperService houseKeeperService, IMapper mapper, IJobListing_ApplicationService jobListingService, IJobService jobService, INotificationService notificationService)
+            IHouseKeeperService houseKeeperService, IMapper mapper, IJobListing_ApplicationService jobListingService, IJobService jobService, INotificationService notificationService, IJob_ServiceService job_ServiceService)
         {
             _applicationService = applicationService;
             _accountService = accountService;
@@ -31,6 +32,7 @@ namespace HouseKeeperConnect_API.Controllers
             _jobListingService = jobListingService;
             _jobService = jobService;
             _notificationService = notificationService;
+            _jobServiceService = job_ServiceService;
         }
 
         [HttpGet("ApplicationList")]
@@ -137,11 +139,26 @@ namespace HouseKeeperConnect_API.Controllers
 
             foreach (var item in apps)
             {
+                
                 var display = new ApplicationDisplayDTO();
+                var services = new List<int>();
+                var job = await _jobListingService.GetJob_ApplicationByAppAsync(item.ApplicationID);
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+                var serviceList = await _jobServiceService.GetJob_ServicesByJobIDAsync(job.JobID);
+
+                foreach (var service in serviceList)
+                {
+                    services.Add(service.ServiceID);
+                }
                 display.ApplicationID = item.ApplicationID;
                 display.LocalProfilePicture = item.HouseKepper.Account.LocalProfilePicture;
                 display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
                 display.AccountID = item.HouseKepper.AccountID;
+                display.FamilyID = job.Job.FamilyID;
+                display.JobID = job.JobID;
+                display.StartDate = jobDetail.StartDate;
+                display.EndDate = jobDetail.EndDate;
+                display.Services = services;
                 display.Nickname = item.HouseKepper.Account.Nickname;
                 display.Status = item.Status;
                 display.Rating = item.HouseKepper.Rating.GetValueOrDefault();
@@ -191,7 +208,7 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
-        [HttpPost("UpdateApplication")]
+        [HttpPut("UpdateApplication")]
         [Authorize]
         public async Task<ActionResult> UpdateApplication([FromQuery] int AppID, int status)
         {

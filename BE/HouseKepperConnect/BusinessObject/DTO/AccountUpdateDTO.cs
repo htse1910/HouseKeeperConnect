@@ -10,9 +10,6 @@ namespace BusinessObject.DTO
         [Required(ErrorMessage = "Full Name is required.")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Password is required.")]
-        public string Password { get; set; }
-
         [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]
         public long BankAccountNumber { get; set; }
 

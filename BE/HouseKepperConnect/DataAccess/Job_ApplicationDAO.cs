@@ -84,7 +84,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    j = await context.JobListing_Application.SingleOrDefaultAsync(x => x.ApplicationID == id);
+                    j = await context.JobListing_Application.Include(x => x.Job.Family.Account).SingleOrDefaultAsync(x => x.ApplicationID == id);
                 }
             }
             catch (Exception ex)
