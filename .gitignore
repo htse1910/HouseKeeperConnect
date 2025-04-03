@@ -398,3 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 Mobile/.idea/misc.xml
 Mobile/.idea/.name
+FE/.vscode/launch.json
+FE/package-lock.json

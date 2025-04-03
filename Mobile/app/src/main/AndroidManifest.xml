@@ -23,9 +23,9 @@
             android:name=".profile.HousekeeperProfile"
             android:exported="false" />
         -->
-        <activity
+        <!--<activity
             android:name=".profile.FamilyProfile"
-            android:exported="false" />
+            android:exported="false" />-->
         <activity
             android:name=".Register"
             android:exported="false" />
@@ -40,7 +40,7 @@
             android:name=".login.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".profile.HousekeeperProfile"
+            android:name=".profile.FamilyProfile"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
