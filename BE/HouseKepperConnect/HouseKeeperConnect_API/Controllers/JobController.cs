@@ -5,6 +5,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -164,7 +165,6 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(display);
         }
-
         [HttpPost("AddJob")]
         [Authorize]
         public async Task<ActionResult> AddJob([FromQuery] JobCreateDTO jobCreateDTO)
@@ -174,15 +174,16 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Invalid job data.");
             }
 
+            // Create a new job with a 'Pending' status
             var job = _mapper.Map<Job>(jobCreateDTO);
             job.Status = (int)JobStatus.Pending;
 
+            // Save the job
             await _jobService.AddJobAsync(job);
 
+            // Add job details
             var jobDetail = _mapper.Map<JobDetail>(jobCreateDTO);
             jobDetail.JobID = job.JobID;
-
-            // Add job details
             await _jobService.AddJobDetailAsync(jobDetail);
 
             // Add job services
@@ -211,82 +212,165 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            // ✅ Create one Booking if IsOffered is true
-            if (jobCreateDTO.IsOffered && jobCreateDTO.HousekeeperID.HasValue)
+            return Ok("Job created successfully!");
+        }
+        [HttpPost("AddJobForHousekeeper")]
+        [Authorize]
+        public async Task<ActionResult> AddJobForHousekeeper([FromQuery] JobCreateDTO jobCreateDTO)
+        {
+            if (jobCreateDTO == null || !jobCreateDTO.HousekeeperID.HasValue)
             {
-                var newBooking = new Booking
+                return BadRequest("Invalid data. HousekeeperID is required when IsOffered is true.");
+            }
+
+            // Check if the slots are available for the housekeeper
+            foreach (var slotID in jobCreateDTO.SlotIDs)
+            {
+                foreach (var day in jobCreateDTO.DayofWeek)
                 {
-                    JobID = job.JobID,
-                    HousekeeperID = jobCreateDTO.HousekeeperID.Value,
-                    CreatedAt = DateTime.UtcNow,
-                    Status = (int)BookingStatus.Pending
-                };
+                    // Check if any of the slots are already booked for the housekeeper in the given date range
+                    bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(
+                        jobCreateDTO.HousekeeperID.Value, slotID, day, jobCreateDTO.StartDate, jobCreateDTO.EndDate
+                    );
 
-                await _bookingService.AddBookingAsync(newBooking); // ✅ Save one booking only
-
-                // 🔹 Loop through weeks and save BookingSlots
-                DateTime currentDate = jobCreateDTO.StartDate;
-
-                while (currentDate <= jobCreateDTO.EndDate)
-                {
-                    foreach (var day in jobCreateDTO.DayofWeek)
+                    if (isSlotBooked)
                     {
-                        DateTime bookingDate = GetNextDayOfWeek(currentDate, day);
-
-                        if (bookingDate > jobCreateDTO.EndDate)
-                            continue; // Stop if past EndDate
-
-                        foreach (var slotID in jobCreateDTO.SlotIDs)
-                        {
-                            // ✅ Check if slot is already booked (only for IsOffered = 1)
-                            if (jobCreateDTO.IsOffered == true)
-                            {
-                                bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(
-                                    jobCreateDTO.HousekeeperID.Value, slotID, day, jobCreateDTO.StartDate, jobCreateDTO.EndDate
-                                );
-
-                                if (isSlotBooked)
-                                {
-                                    // Slot is already booked, return an error message
-                                    return Conflict($"Slot {slotID} for day {day} is already booked in the selected date range.");
-                                }
-                            }
-
-                            // ✅ Add new BookingSlot if not booked
-                            var bookingSlot = new Booking_Slots
-                            {
-                                BookingID = newBooking.BookingID,
-                                SlotID = slotID,
-                                DayOfWeek = day,
-                            };
-
-                            await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
-                        }
+                        // If the slot is already booked, return a conflict error and prevent the job creation
+                        return Conflict($"Slot {slotID} for day {day} is already booked for this housekeeper in the selected date range.");
                     }
-
-                    currentDate = currentDate.AddDays(7); // Move to the next week
                 }
             }
-            if (jobCreateDTO.FamilyID > 0)
-            {
-                var notification = new Notification
-                {
-                    AccountID = jobCreateDTO.FamilyID, // Assuming FamilyID represents the UserID
-                    Message = $"A new job (ID: {job.JobID}) has been created.",
-                    CreatedDate = DateTime.Now
-                };
 
-                await _notificationService.AddNotificationAsync(notification);
+            // Create a new job with a 'Pending' status
+            var job = _mapper.Map<Job>(jobCreateDTO);
+            job.Status = (int)JobStatus.Pending;  // Job is still Pending until the housekeeper accepts
+
+            // Save the job
+            await _jobService.AddJobAsync(job);
+
+            // Add job details
+            var jobDetail = _mapper.Map<JobDetail>(jobCreateDTO);
+            jobDetail.JobID = job.JobID;
+            await _jobService.AddJobDetailAsync(jobDetail);
+
+            // Add job services
+            foreach (var serviceID in jobCreateDTO.ServiceIDs)
+            {
+                var jobService = new Job_Service
+                {
+                    JobID = job.JobID,
+                    ServiceID = serviceID
+                };
+                await _jobServiceService.AddJob_ServiceAsync(jobService);
             }
 
-            return Ok("Job and its details added successfully!");
+            // Add job slots
+            foreach (var slotID in jobCreateDTO.SlotIDs)
+            {
+                foreach (var day in jobCreateDTO.DayofWeek)
+                {
+                    var jobSlot = new Job_Slots
+                    {
+                        JobID = job.JobID,
+                        SlotID = slotID,
+                        DayOfWeek = day
+                    };
+                    await _jobSlotsService.AddJob_SlotsAsync(jobSlot);
+                }
+            }
+
+            return Ok("Job created successfully for the housekeeper!");
         }
+
 
         private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
         {
             int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
             return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
         }
+
+       
+
+            // Accept the job and create the booking and booking slots if conditions are met
+            [HttpPost("AcceptJob")]
+            [Authorize]
+            public async Task<ActionResult> AcceptJob([FromQuery] int jobId)
+            {
+                if (jobId <= 0)
+                {
+                    return BadRequest("Invalid Job ID.");
+                }
+
+                try
+                {
+                    // Retrieve the job details
+                    var job = await _jobService.GetJobByIDAsync(jobId);
+                    if (job == null)
+                    {
+                        return NotFound("Job not found.");
+                    }
+
+                    // If the job has already been accepted, return an error
+                    if (job.Status == 3)
+                    {
+                        return BadRequest("Job has already been accepted.");
+                    }
+
+                    // Set job status to Accepted
+                    job.Status = 3;
+                    await _jobService.UpdateJobAsync(job);
+
+                    // Retrieve job details for booking slots (JobDetail)
+                    var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+                    if (jobDetail == null)
+                    {
+                        return NotFound("Job detail not found.");
+                    }
+
+                    // Ensure there are no conflicting bookings for the given slots
+                    foreach (var slot in job.Job_Slots)
+                    {
+                        bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(jobDetail.HousekeeperID.Value, slot.SlotID, slot.DayOfWeek, jobDetail.StartDate, jobDetail.EndDate);
+                        if (isSlotBooked)
+                        {
+                            return Conflict($"Slot {slot.SlotID} on day {slot.DayOfWeek} is already booked.");
+                        }
+                    }
+
+                    // Create the booking
+                    var newBooking = new Booking
+                    {
+                        JobID = jobId,
+                        HousekeeperID = jobDetail.HousekeeperID.Value,
+                        CreatedAt = DateTime.UtcNow,
+                        Status = (int)BookingStatus.Pending
+                    };
+
+                    await _bookingService.AddBookingAsync(newBooking);
+
+                    // Create the booking slots
+                    foreach (var slot in job.Job_Slots)
+                    {
+                        var bookingSlot = new Booking_Slots
+                        {
+                            BookingID = newBooking.BookingID,
+                            SlotID = slot.SlotID,
+                            DayOfWeek = slot.DayOfWeek
+                        };
+
+                        await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
+                    }
+
+                    return Ok("Job accepted, booking and booking slots created successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in AcceptJob: {ex.Message}");
+                    return StatusCode(500, "An internal server error occurred.");
+                }
+            }
+        
+
 
         [HttpPut("UpdateJob")]
         [Authorize]
