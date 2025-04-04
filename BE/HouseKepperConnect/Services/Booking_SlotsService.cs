@@ -40,18 +40,7 @@ namespace Services
             await _bookingSlotsRepository.DeleteBooking_SlotsAsync(id);
         }
 
-        public async Task<bool> IsSlotBooked(int housekeeperId, int slotId, int dayOfWeek, DateTime startDate, DateTime endDate)
-        {
-            return await _context.Booking_Slots
-                .Include(bs => bs.Booking)
-                .AnyAsync(bs =>
-                    bs.SlotID == slotId &&
-                    bs.DayOfWeek == dayOfWeek &&
-                    bs.Booking.HousekeeperID == housekeeperId &&
-                    bs.Booking.CreatedAt >= startDate &&
-                    bs.Booking.CreatedAt <= endDate
-                );
-        }
+        public async Task<bool> IsSlotBooked(int housekeeperId, int slotId, int dayOfWeek, DateTime startDate, DateTime endDate) => await _bookingSlotsRepository.IsSlotBooked(housekeeperId, slotId, dayOfWeek, startDate, endDate);
 
         public async Task<List<int>> GetAvailableSlotsByHousekeeper(int housekeeperId, DateTime startDate, DateTime endDate)
         {
