@@ -1,10 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { serviceMap } from "../utils/serviceMap";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const slotMap = {
+  1: "8H - 9H",
+  2: "10H - 11H",
+  3: "12H - 13H",
+  4: "14H - 15H",
+  5: "16H - 17H",
+  6: "18H - 19H",
+  7: "20H - 21H",
+};
+
+const jobTypeMap = {
+  1: "Full-time",
+  2: "Part-time",
+};
 
 const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isBooking, setIsBooking] = useState(false);
   const authToken = localStorage.getItem("authToken");
   const housekeeperID = localStorage.getItem("housekeeperID");
 
@@ -15,11 +31,10 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
-          }
+          },
         });
         const data = await res.json();
         setJob(data);
-        console.log("✅ Job loaded:", data);
       } catch (err) {
         console.error("❌ Lỗi khi lấy chi tiết công việc:", err);
       } finally {
@@ -28,21 +43,14 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
     };
 
     if (jobID) {
-      console.log("🔍 Fetching jobID:", jobID);
       fetchJobDetail();
     }
   }, [jobID]);
 
-  const handleBooking = async () => {
-    if (!housekeeperID || !jobID) {
-      alert("Thiếu thông tin người giúp việc hoặc công việc.");
-      return;
-    }
-
-    setIsBooking(true);
+  const handleAcceptJob = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5280/api/Booking/AddBooking?JobID=${jobID}&HousekeeperID=${housekeeperID}`,
+        `http://localhost:5280/api/Job/AcceptJob?jobId=${jobID}&accountID=${housekeeperID}`,
         {
           method: "POST",
           headers: {
@@ -53,22 +61,19 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
       );
 
       const message = await res.text();
-      alert(message);
-      onClose();
+
+      if (res.status === 200) {
+        toast.success(message); // Show success message
+      } else {
+        toast.error(message); // Show error message if any
+      }
+
+      onClose(); // Close modal after accepting job
     } catch (err) {
-      alert("Có lỗi xảy ra khi đặt công việc.");
-      console.error("❌ Booking error:", err);
-    } finally {
-      setIsBooking(false);
+      console.error("❌ Error accepting job:", err);
+      toast.error("Có lỗi khi chấp nhận công việc.");
     }
   };
-
-  if (!jobID) return null;
-
-  const isEligibleToBook = applicationStatus === 2 && job?.status === 3;
-  console.log("📦 applicationStatus:", applicationStatus);
-  console.log("📦 job.status:", job?.status);
-  console.log("📦 isEligibleToBook:", isEligibleToBook);
 
   return (
     <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ background: "rgba(0,0,0,0.4)" }}>
@@ -88,18 +93,37 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
                 <p><strong>Địa điểm:</strong> {job.location}</p>
                 <p><strong>Mô tả:</strong> {job.description || "Không có"}</p>
                 <p><strong>Thời gian:</strong> {new Date(job.startDate).toLocaleDateString()} → {new Date(job.endDate).toLocaleDateString()}</p>
-                <p><strong>Giá:</strong> {job.price.toLocaleString()} VND</p>
-                <p><strong>Dịch vụ:</strong> {job.serviceIDs.map(id => serviceMap[id] || `#${id}`).join(", ")}</p>
-                <p><strong>Lịch làm việc:</strong> {job.dayofWeek?.map(d => ["CN", "T2", "T3", "T4", "T5", "T6", "T7"][d]).join(", ")}</p>
+                <p><strong>Mức lương:</strong> {job.price?.toLocaleString()} VND</p>
+                <p><strong>Loại công việc:</strong> {jobTypeMap[job.jobType] || "Không rõ"}</p>
 
-                {isEligibleToBook && (
+                <p><strong>Dịch vụ:</strong></p>
+                <ul className="ps-4">
+                  {job.serviceIDs?.map(id => (
+                    <li key={id}>{serviceMap[id] || `#${id}`}</li>
+                  ))}
+                </ul>
+
+                <p><strong>Lịch làm việc:</strong></p>
+                <ul className="ps-4">
+                  {job.dayofWeek?.map(d => (
+                    <li key={d}>{["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"][d]}</li>
+                  ))}
+                </ul>
+
+                <p><strong>Slot làm việc:</strong></p>
+                <ul className="ps-4">
+                  {job.slotIDs?.map(s => (
+                    <li key={s}>{slotMap[s] || `Slot ${s}`}</li>
+                  ))}
+                </ul>
+
+                {applicationStatus === 2 && (
                   <div className="mt-4">
                     <button
                       className="btn btn-warning"
-                      onClick={handleBooking}
-                      disabled={isBooking}
+                      onClick={handleAcceptJob}
                     >
-                      {isBooking ? "Đang đặt..." : "Đặt công việc này"}
+                      Chấp nhận công việc
                     </button>
                   </div>
                 )}
@@ -114,6 +138,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

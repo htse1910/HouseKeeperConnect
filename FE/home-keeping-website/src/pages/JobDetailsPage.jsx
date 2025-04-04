@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { FaMapMarkerAlt, FaUser, FaClock } from "react-icons/fa";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Slot and day maps
 const slotMap = {
@@ -37,6 +39,13 @@ function JobDetailsPage() {
   const { id } = useParams();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [applying, setApplying] = useState(false);
+  const [familyName, setFamilyName] = useState("Không rõ");
+  const [familyAccountID, setFamilyAccountID] = useState(null);
+  const jobTypeMap = {
+    1: "Full-time",
+    2: "Part-time",
+  };
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -52,12 +61,68 @@ function JobDetailsPage() {
       .then((data) => {
         setJob(data);
         setLoading(false);
+
+        // Fetch family name using familyID -> accountID -> name
+        if (data.familyID) {
+          fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${data.familyID}`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${authToken}` },
+          })
+            .then((res) => res.json())
+            .then((family) => {
+              if (family?.accountID) {
+                setFamilyAccountID(family.accountID);
+                fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${family.accountID}`, {
+                  method: "GET",
+                  headers: { Authorization: `Bearer ${authToken}` },
+                })
+                  .then((res) => res.json())
+                  .then((account) => {
+                    setFamilyName(account?.name || "Không rõ");
+                  });
+              }
+            })
+            .catch((err) => console.warn("Lỗi khi lấy tên gia đình:", err));
+        }
       })
-      .catch((err) => {
-        console.error("Error:", err);
-        setLoading(false);
-      });
+
   }, [id]);
+
+  const handleApply = async () => {
+    const accountID = localStorage.getItem("accountID");
+    const authToken = localStorage.getItem("authToken");
+
+    if (!accountID || !authToken || !job?.jobID) {
+      toast.warn("⚠️ Thiếu thông tin để ứng tuyển.");
+      return;
+    }
+
+    setApplying(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:5280/api/Application/AddApplication?accountID=${accountID}&jobID=${job.jobID}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success("🎉 Ứng tuyển thành công!");
+      } else {
+        toast.error("❌ Ứng tuyển thất bại. Vui lòng thử lại.");
+      }
+    } catch (error) {
+      console.error("Error applying for job:", error);
+      toast.error("🚫 Có lỗi xảy ra khi ứng tuyển.");
+    } finally {
+      setApplying(false);
+    }
+  };
 
   const formatDays = (days) => days?.map((d) => dayOfWeekMap[d]).join(", ") || "Không rõ";
   const formatSlots = (slots) => slots?.map((s) => slotMap[s]).join(", ") || "Không rõ";
@@ -74,6 +139,7 @@ function JobDetailsPage() {
 
   return (
     <div className="container py-4">
+      <ToastContainer position="top-center" autoClose={3000} />
       <div className="row">
         {/* Left Column */}
         <div className="col-lg-8">
@@ -82,7 +148,7 @@ function JobDetailsPage() {
             <h2 className="fw-bold mb-3">{job.jobName}</h2>
             <div className="mb-2 text-muted">
               <FaUser className="me-2" />
-              Gia đình ID: <strong>{job.familyID}</strong>
+              Gia đình: <strong>{familyName}</strong>
               <FaMapMarkerAlt className="ms-4 me-2" />
               {job.location}
             </div>
@@ -99,16 +165,63 @@ function JobDetailsPage() {
           <div className="card shadow-sm border-0 mb-4 p-4">
             <h5 className="fw-bold mb-3">📝 Chi tiết công việc</h5>
             <ul className="list-unstyled mb-2">
-              <li><strong>Dịch vụ:</strong> {formatServices(job.serviceIDs)}</li>
-              <li><strong>Lịch làm việc:</strong> {formatDays(job.dayofWeek)} — {formatSlots(job.slotIDs)}</li>
-              <li><strong>Yêu cầu đặc biệt:</strong> {job.description || "Không có"}</li>
+              <li className="mb-2">
+                <strong>Dịch vụ:</strong>
+                <ul className="mb-0 ps-4">
+                  {job.serviceIDs?.map((id) => (
+                    <li key={id}>{serviceDetailsMap[id] ?? `Dịch vụ không rõ (ID: ${id})`}</li>
+                  ))}
+                </ul>
+              </li>
+
+              <li className="mb-2">
+                <strong>Lịch làm việc:</strong>
+                <ul className="mb-0 ps-4">
+                  {job.dayofWeek?.map((day) => (
+                    <li key={day}>{dayOfWeekMap[day]}</li>
+                  ))}
+                </ul>
+              </li>
+
+              <li className="mb-2">
+                <strong>Slot làm việc:</strong>
+                <ul className="mb-0 ps-4">
+                  {job.slotIDs?.map((slot) => (
+                    <li key={slot}>{slotMap[slot]}</li>
+                  ))}
+                </ul>
+              </li>
+
+              <li className="mb-2">
+                <strong>Hình thức làm việc:</strong> {jobTypeMap[job.jobType] || "Không rõ"}
+              </li>
+
+              <li>
+                <strong>Mô Tả:</strong> {job.description || "Không có"}
+              </li>
             </ul>
           </div>
 
           {/* Action Buttons */}
           <div className="d-flex gap-3">
-            <button className="btn btn-warning text-white w-50 fw-semibold">Ứng tuyển ngay</button>
-            <button className="btn btn-outline-secondary w-50" disabled>Nhắn tin cho Gia đình</button>
+            <button
+              className="btn btn-warning text-white w-50 fw-semibold"
+              onClick={handleApply}
+              disabled={applying}
+            >
+              {applying ? "Đang ứng tuyển..." : "Ứng tuyển ngay"}
+            </button>
+            <button
+              className="btn btn-outline-secondary w-50"
+              onClick={() => {
+                if (familyAccountID) {
+                  window.location.href = `/messages?search=${encodeURIComponent(familyName)}`;
+                }
+              }}
+              disabled={!familyAccountID}
+            >
+              Nhắn tin cho Gia đình
+            </button>
           </div>
         </div>
 

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const UpdateVerificationPage = () => {
   const [realName, setRealName] = useState("");
@@ -8,8 +10,7 @@ const UpdateVerificationPage = () => {
   const [frontPhoto, setFrontPhoto] = useState(null);
   const [backPhoto, setBackPhoto] = useState(null);
   const [facePhoto, setFacePhoto] = useState(null);
-  const [verifyID, setVerifyID] = useState(localStorage.getItem("verifyID"));
-  const [message, setMessage] = useState("");
+  const [verifyID] = useState(localStorage.getItem("verifyID"));
 
   const authToken = localStorage.getItem("authToken");
   const navigate = useNavigate();
@@ -28,7 +29,10 @@ const UpdateVerificationPage = () => {
         setIdNumber(data.idNumber || "");
         setDateOfBirth(data.dateOfBirth?.split("T")[0] || "");
       })
-      .catch((err) => console.error("Lỗi khi tải dữ liệu xác minh:", err));
+      .catch((err) => {
+        console.error("Lỗi khi tải dữ liệu xác minh:", err);
+        toast.error("Không thể tải dữ liệu xác minh.");
+      });
   }, [verifyID, authToken]);
 
   const handleSubmit = async (e) => {
@@ -53,23 +57,24 @@ const UpdateVerificationPage = () => {
       });
 
       const result = await res.text();
+
       if (res.ok) {
-        setMessage("✅ Cập nhật giấy tờ xác minh thành công!");
-        setTimeout(() => navigate("/housekeeper/id-verification"), 1500);
+        toast.success("✅ Cập nhật giấy tờ xác minh thành công!");
+        setTimeout(() => navigate(-1), 2000);
       } else {
-        setMessage("❌ Lỗi: " + result);
+        toast.error("❌ Lỗi: " + result);
       }
     } catch (err) {
       console.error("Update failed:", err);
-      setMessage("❌ Có lỗi xảy ra khi gửi dữ liệu.");
+      toast.error("❌ Có lỗi xảy ra khi gửi dữ liệu.");
     }
   };
 
   return (
     <div className="container my-5">
+      <ToastContainer />
       <div className="card p-4 shadow-sm">
         <h3 className="mb-4">Cập nhật giấy tờ xác minh</h3>
-        {message && <div className="alert alert-info">{message}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">

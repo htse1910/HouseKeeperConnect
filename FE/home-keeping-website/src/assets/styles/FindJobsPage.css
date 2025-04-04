@@ -1,11 +1,18 @@
 .job-card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  border-radius: 10px;
+  height: 100%;
+  min-height: 350px; /* You can adjust this */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
 }
 
 .job-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+}
+
+.row.justify-content-center > .col-md-4 {
+  margin-bottom: 24px;
 }
 
 .fade-in {

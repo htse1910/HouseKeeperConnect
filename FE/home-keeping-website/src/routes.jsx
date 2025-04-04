@@ -37,6 +37,7 @@ import UpdateVerificationPage from './pages/UpdateVerificationPage';
 import HousekeeperWalletPage from './pages/HousekeeperWalletPage'; // ✅ Add this line
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import HousekeeperBookingManagementPage from "./pages/HousekeeperBookingManagementPage";
 
 function AppRoutes() {
   return (
@@ -69,7 +70,7 @@ function AppRoutes() {
         <Route path="/housekeeper/upload-id" element={<IDVerificationCreatePage />} />
         <Route path="/housekeeper/update-verification" element={<UpdateVerificationPage />} />
         <Route path="/housekeeper/wallet" element={<HousekeeperWalletPage />} /> {/* ✅ New route */}
-        
+        <Route path="/housekeeper/bookings" element={<HousekeeperBookingManagementPage />} />
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
         <Route path="/dashboard/user" element={<UserVerificationPage />} />

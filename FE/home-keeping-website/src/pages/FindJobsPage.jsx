@@ -47,7 +47,37 @@ function FindJobsPage() {
                 Authorization: `Bearer ${authToken}`,
               },
             });
-            return await detailRes.json();
+
+            const jobDetail = await detailRes.json();
+
+            // Step 1: Get accountID via familyID
+            let familyName = "Không rõ";
+            try {
+              const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
+                method: "GET",
+                headers: {
+                  "Authorization": `Bearer ${authToken}`,
+                },
+              });
+              const family = await familyRes.json();
+
+              // Step 2: Get name via accountID
+              if (family?.accountID) {
+                const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${family.accountID}`, {
+                  method: "GET",
+                  headers: {
+                    "Authorization": `Bearer ${authToken}`,
+                  },
+                });
+
+                const account = await accRes.json();
+                familyName = account?.name ?? "Không rõ";
+              }
+            } catch (err) {
+              console.warn(`Could not fetch family info for jobID ${job.jobID}`);
+            }
+
+            return { ...jobDetail, familyName };
           })
         );
 
@@ -94,10 +124,10 @@ function FindJobsPage() {
 
     if (filters.location) {
       filtered = filtered.filter((job) =>
-        job.location?.toLowerCase().includes(filters.location.toLowerCase())
+        job.location?.trim().toLowerCase() === filters.location.trim().toLowerCase()
       );
     }
-
+    
     if (filters.jobType) {
       const type = filters.jobType === "fulltime" ? 1 : 2;
       filtered = filtered.filter((job) => job.jobType === type);
@@ -203,19 +233,21 @@ function FindJobsPage() {
           <>
             <div className="row justify-content-center">
               {jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage).map((job) => (
-                <div key={job.jobID} className="col-md-4 fade-in">
-                  <div className="card shadow-sm p-3 mb-4 border-0 job-card">
-                    <div className="card-body">
-                      <h5 className="fw-bold">{job.jobName}</h5>
-                      <p><FaUser className="me-1 text-muted" /> Gia đình ID: {job.familyID}</p>
-                      <p><FaMapMarkerAlt className="me-1 text-muted" /> Địa điểm: {job.location ?? "Chưa cập nhật"}</p>
-                      <p><FaMoneyBillWave className="me-1 text-muted" /> Mức lương: {job.price?.toLocaleString()} VND</p>
-                      <p><FaClock className="me-1 text-muted" /> Trạng thái: {getJobStatusLabel(job.status)}</p>
-                      <p>Loại: {getJobTypeLabel(job.jobType)}</p>
+                <div key={job.jobID} className="col-md-4 d-flex">
+                <div className="card shadow-sm p-3 mb-4 border-0 job-card flex-fill">
+                  <div className="card-body d-flex flex-column">
+                    <h5 className="fw-bold">{job.jobName}</h5>
+                    <p><FaUser className="me-1 text-muted" /> Gia đình: {job.familyName}</p>
+                    <p><FaMapMarkerAlt className="me-1 text-muted" /> Địa điểm: {job.location ?? "Chưa cập nhật"}</p>
+                    <p><FaMoneyBillWave className="me-1 text-muted" /> Mức lương: {job.price?.toLocaleString()} VND</p>
+                    <p><FaClock className="me-1 text-muted" /> Trạng thái: {getJobStatusLabel(job.status)}</p>
+                    <p>Loại: {getJobTypeLabel(job.jobType)}</p>
+                    <div className="mt-auto">
                       <Link to={`/job/${job.jobID}`} className="btn btn-outline-warning w-100 mt-3">Xem chi tiết</Link>
                     </div>
                   </div>
                 </div>
+              </div>              
               ))}
             </div>
 
