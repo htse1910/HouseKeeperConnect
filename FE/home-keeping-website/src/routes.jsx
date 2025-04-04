@@ -25,6 +25,7 @@ import StaffJobModerationPage from './pages/StaffJobModerationPage';
 import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage'; // ✅ Import new page
 import FamilyDashboardPage from './pages/FamilyDashboardPage';
 import FamilyHousekeeperSearchPage from './pages/FamilyHousekeeperSearchPage';
+import FamilyInvitationPage from './pages/FamilyInvitationPage';
 import FamilyTransactionPage from './pages/FamilyTransactionPage';
 import HousekeeperScheduleManagement from './pages/HousekeeperScheduleManagement';
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
@@ -79,13 +80,14 @@ function AppRoutes() {
         <Route path="/family/dashboard" element={<FamilyDashboardPage />} />
         <Route path="/family/profile" element={<FamilyProfilePage />} />
         <Route path="/family/find-housekeepers" element={<FamilyHousekeeperSearchPage />} />
+        <Route path="/family/invite" element={<FamilyInvitationPage />} />
         <Route path="/family/post-job" element={<FamilyJobPostingPage />} />
         <Route path="/family/my-posts" element={<FamilyJobManagementPage />} />
         <Route path="/family/job/update/:id" element={<JobDetailsPage />} />
         <Route path="/family/job/detail/:id" element={<FamilyJobDetailsPage />} />
         <Route path="/family/deposit" element={<FamilyDepositPage />} />
         <Route path="/family/deposit/return" element={<FamilyDepositReturnPage />} />
-        <Route path="family/transactions" element={<FamilyTransactionPage />} />
+        <Route path="/family/transactions" element={<FamilyTransactionPage />} />
       </Routes>
     </Layout>
   );

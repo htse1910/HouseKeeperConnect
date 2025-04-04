@@ -145,6 +145,16 @@
     "delete_failed": "Không thể xoá công việc. Vui lòng thử lại.",
     "posted_days_ago": "{{days}} ngày trước"
   },
+  "jobDetail": {
+    "workingSchedule": "Lịch làm việc",
+    "noSchedule": "Không có lịch cụ thể",
+    "weekendSchedule": "Làm việc vào cuối tuần",
+    "rangeSchedule": "Làm việc từ {{first}} đến {{last}}",
+    "listSchedule": "Làm việc vào {{days}}",
+    "fullTime": "Thời gian từ {{start}} đến {{end}}",
+    "splitTime": "Thời gian {{blocks}}",
+    "lunchBreak": "Được nghỉ trưa 1 tiếng, từ {{start}} đến {{end}}"
+  },
   "popup": {
     "confirm_delete_title": "Bạn có chắc muốn xoá mục này không?",
     "confirm_delete_text": "Bạn có chắc chắn muốn xoá \"{{title}}\" không?"

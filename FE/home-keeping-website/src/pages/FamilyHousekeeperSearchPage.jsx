@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import "../assets/styles/Search.css";
 import axios from "axios";
@@ -45,6 +45,7 @@ const generateFakeHousekeepers = () => [
 
 const FamilyHousekeeperSearchPage = () => {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const isDemo = searchParams.get("demo") === "true";
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -82,8 +83,8 @@ const FamilyHousekeeperSearchPage = () => {
         axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
             .then((accountRespone) => {
                 if (!accountRespone.data?.accountID) throw new Error("Không hợp lệ");
-                
-                return axios.get("http://localhost:5280/api/HouseKeeper/HousekeeperList", {
+
+                return axios.get("http://localhost:5280/api/HouseKeeper/HousekeeperDisplay", {
                     headers,
                     params: { pageNumber: 1, pageSize: 20 }
                 });
@@ -102,18 +103,19 @@ const FamilyHousekeeperSearchPage = () => {
 
     const transformHousekeeperData = (rawList) => {
         return rawList.map(hk => ({
-            name: hk.nickname,
+            accountID: hk.accountID, // ✔️ Giữ nguyên
+            name: hk.name, // ❗ Đã đổi từ nickname → name
             address: hk.address,
             phone: hk.phone,
             email: hk.email,
             gender: hk.gender === 1 ? "Nam" : "Nữ",
-            workType: hk.workType === 1 ? "Full-time" : "Part-time", // nếu có workType = 3 thì thêm "Contract"
-            salary: 150000, // nếu backend chưa có thì gán mặc định
-            skills: ["Dọn dẹp", "Nấu ăn"], // giả định kỹ năng tạm thời
-            rating: hk.rating,
+            workType: hk.workType === 1 ? "Full-time" : "Part-time",
+            salary: 150000,
+            skills: ["Dọn dẹp", "Nấu ăn"], // nếu backend chưa trả kỹ năng, tạm thời dùng giả
+            rating: hk.rating || 5,
             avatar: hk.localProfilePicture
         }));
-    };
+    };    
 
     console.log("💡 Filter debug:", {
         searchTerm,
@@ -244,7 +246,24 @@ const FamilyHousekeeperSearchPage = () => {
                             </div>
 
                             <div className="search-page-card-actions">
-                                <button className="btn-primary">Mời làm việc</button>
+                                <button
+                                    className="btn-primary"
+                                    onClick={() => navigate("/family/invite", {
+                                        state: {
+                                          housekeepers: [{
+                                            ...h,
+                                            accountID: h.accountID,
+                                            name: h.name,
+                                            email: h.email,
+                                            gender: h.gender,
+                                            avatar: h.avatar,
+                                            skills: h.skills || []
+                                          }]
+                                        }
+                                      })}                                      
+                                >
+                                    Mời làm việc
+                                </button>
                                 <button className="search-page-detail-btn">Xem chi tiết</button>
                             </div>
                         </div>

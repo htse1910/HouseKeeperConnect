@@ -35,47 +35,59 @@ function FamilyDashboardPage() {
             setLoading(false);
             return;
         }
-
+    
         if (!authToken || !accountID) {
             setError(t("error_auth"));
             setLoading(false);
             return;
         }
-
-        setLoading(true);
-        axios
-            .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-            .then((res) => {
-                const acccountData = res.data;
-                if (!acccountData?.accountID) throw new Error(t("error_auth"));
-                setUserName(acccountData.name || "...");
-
-                return axios.get(`http://localhost:5280/api/wallet/getWallet?id=${accountID}`, { headers });
-            })
-            .then((walletResponse) => {
-                const walletData = walletResponse.data;
-                if (!walletData) throw new Error(t("error_loading"));
-
-                setBalance(walletData.balance || 0);
-
-                return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
-            })
-            .then((jobsResponse) => {
-                const jobsData = jobsResponse.data;
-                if (!jobsData) throw new Error(t("error_loading"));
-
-                setJobStats({
-                    activeJobs: jobsData.length || 0,
-                    applicants: jobsData.totalApplicant || 0
-                });
+    
+        const headers = {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+        };
+    
+        const fetchDashboardData = async () => {
+            setLoading(true);
+            try {
+                // Bước 1: Xác thực account
+                const accRes = await axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers });
+                const accData = accRes.data;
+                if (!accData?.accountID) throw new Error(t("error_auth"));
+                setUserName(accData.name || "...");
+    
+                // Bước 2: Lấy ví
+                try {
+                    const walletRes = await axios.get(`http://localhost:5280/api/wallet/getWallet?id=${accountID}`, { headers });
+                    const walletData = walletRes.data;
+                    setBalance(walletData?.balance || 0);
+                } catch (walletErr) {
+                    console.warn("Lỗi khi gọi API ví:", walletErr);
+                }
+    
+                // Bước 3: Lấy danh sách job
+                try {
+                    const jobsRes = await axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
+                    const jobsData = jobsRes.data;
+                    setJobStats({
+                        activeJobs: jobsData.length || 0,
+                        applicants: jobsData.totalApplicant || 0,
+                    });
+                } catch (jobErr) {
+                    console.warn("Lỗi khi gọi API job:", jobErr);
+                }
+    
                 setError(null);
-            })
-            .catch((err) => {
-                console.error("Lỗi API:", err);
-                setError(t("error_loading"));
-            })
-            .finally(() => setLoading(false));
-    }, [isDemo]);
+            } catch (err) {
+                console.error("Lỗi xác thực:", err);
+                setError(t("error_auth"));
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchDashboardData();
+    }, [isDemo]);    
 
     if (loading || error) {
         return (
