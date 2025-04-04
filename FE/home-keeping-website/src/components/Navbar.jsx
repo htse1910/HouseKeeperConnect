@@ -21,10 +21,21 @@ function Navbar() {
   const searchRef = useRef(null);
   const navigate = useNavigate();
 
+  const formatRole = (role) => {
+    if (!role) return "Guest";
+    const normalized = role.toLowerCase();
+    if (normalized === "housekeeper" || normalized === "house_keeper") return "Housekeeper";
+    if (normalized === "family") return "Family";
+    if (normalized === "admin") return "Admin";
+    if (normalized === "staff") return "Staff";
+    return "Guest";
+  };
+  
   useEffect(() => {
-    const storedRole = localStorage.getItem("userRole") || "Guest";
-    setUserRole(storedRole);
-  }, []);
+    const rawRole = localStorage.getItem("userRole");
+    const formatted = formatRole(rawRole);
+    setUserRole(formatted);
+  }, []);  
 
   useEffect(() => {
     function handleClickOutside(event) {

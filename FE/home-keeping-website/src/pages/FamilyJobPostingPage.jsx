@@ -40,14 +40,19 @@ const FamilyJobPostingPage = () => {
         "Content-Type": "application/json",
     };
 
-    const slots = [
-        { slotID: 1, time: "8H - 9H" },
-        { slotID: 2, time: "10H - 11H" },
-        { slotID: 3, time: "12H - 13H" },
-        { slotID: 4, time: "14H - 15H" },
-        { slotID: 5, time: "16H - 17H" },
-        { slotID: 6, time: "18H - 19H" },
-        { slotID: 7, time: "20H - 21H" },
+    const slotList = [
+        { slotID: 1, time: "8:00 - 9:00" },
+        { slotID: 2, time: "10:00 - 11:00" },
+        { slotID: 3, time: "11:00 - 12:00" },
+        { slotID: 4, time: "12:00 - 13:00" },
+        { slotID: 5, time: "13:00 - 14:00" },
+        { slotID: 6, time: "14:00 - 15:00" },
+        { slotID: 7, time: "15:00 - 16:00" },
+        { slotID: 8, time: "16:00 - 17:00" },
+        { slotID: 9, time: "17:00 - 18:00" },
+        { slotID: 10, time: "18:00 - 19:00" },
+        { slotID: 11, time: "19:00 - 20:00" },
+        { slotID: 12, time: "20:00 - 21:00" },
     ];
 
     const dayPresets = [
@@ -211,12 +216,15 @@ const FamilyJobPostingPage = () => {
         try {
             const response = await axios.post(
                 "http://localhost:5280/api/Job/AddJob",
-                null,
+                null, // body = null vì mọi thứ truyền qua query
                 {
                     headers,
                     params: dataToSubmit,
+                    paramsSerializer: {
+                        indexes: null
+                    }
                 }
-            );
+            );                    
 
             console.log("Job created:", response.data);
             setMessage("🎉 Công việc đã được đăng thành công!");
@@ -380,7 +388,7 @@ const FamilyJobPostingPage = () => {
                     <div className="job-posting-section job-posting-section-full">
                         <label>{t("jobPost.workingTimeLabel")}</label>
                         <div className="job-posting-slot-checkboxes">
-                            {slots.map((slot) => (
+                            {slotList.map((slot) => (
                                 <label key={slot.slotID} className="job-posting-checkbox-slot">
                                     <input
                                         type="checkbox"

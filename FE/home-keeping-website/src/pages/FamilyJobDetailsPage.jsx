@@ -44,6 +44,21 @@ const FamilyJobDetailsPage = () => {
     const [error, setError] = useState(null);
     const shouldShowLoadingOrError = loading || error;
 
+    const slotList = [
+        { slotID: 1, time: "8:00 - 9:00" },
+        { slotID: 2, time: "10:00 - 11:00" },
+        { slotID: 3, time: "11:00 - 12:00" },
+        { slotID: 4, time: "12:00 - 13:00" },
+        { slotID: 5, time: "13:00 - 14:00" },
+        { slotID: 6, time: "14:00 - 15:00" },
+        { slotID: 7, time: "15:00 - 16:00" },
+        { slotID: 8, time: "16:00 - 17:00" },
+        { slotID: 9, time: "17:00 - 18:00" },
+        { slotID: 10, time: "18:00 - 19:00" },
+        { slotID: 11, time: "19:00 - 20:00" },
+        { slotID: 12, time: "20:00 - 21:00" },
+    ];
+
     useEffect(() => {
         if (isDemo) {
             setJob({
@@ -107,6 +122,83 @@ const FamilyJobDetailsPage = () => {
 
         fetchServiceDetails();
     }, [job]);
+
+    const renderWorkingTime = () => {
+        if (
+            !Array.isArray(job.dayofWeek) ||
+            !Array.isArray(job.slotIDs) ||
+            job.dayofWeek.length === 0 ||
+            job.slotIDs.length === 0
+        ) {
+            return t("jobDetail.noSchedule");
+        }
+
+        const dayKeys = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+        const sortedDays = [...job.dayofWeek].sort((a, b) => a - b);
+
+        // 👉 Hiển thị phần ngày
+        let dayText = "";
+        if (sortedDays.length === 2 && sortedDays.includes(0) && sortedDays.includes(6)) {
+            dayText = t("jobDetail.weekendSchedule"); // → "Làm việc vào cuối tuần"
+        } else if (isContinuousDays(sortedDays)) {
+            const first = t(`workingDays.${dayKeys[sortedDays[0]]}`);
+            const last = t(`workingDays.${dayKeys[sortedDays[sortedDays.length - 1]]}`);
+            dayText = t("jobDetail.rangeSchedule", { first, last }); // → "Làm việc từ {first} đến {last}"
+        } else {
+            const days = sortedDays.map(d => t(`workingDays.${dayKeys[d]}`));
+            dayText = t("jobDetail.listSchedule", { days: days.join(", ") }); // → "Làm việc vào {days}"
+        }
+
+        // 👉 Phân tích thời gian
+        const sortedSlots = slotList
+            .filter(s => job.slotIDs.includes(s.slotID))
+            .sort((a, b) => a.slotID - b.slotID);
+
+        const ranges = [];
+        let start = sortedSlots[0];
+        for (let i = 1; i <= sortedSlots.length; i++) {
+            const curr = sortedSlots[i];
+            const prev = sortedSlots[i - 1];
+            if (!curr || curr.slotID !== prev.slotID + 1) {
+                ranges.push({
+                    start: start.time.split(" - ")[0],
+                    end: prev.time.split(" - ")[1],
+                });
+                start = curr;
+            }
+        }
+
+        let timeText = "";
+        if (ranges.length === 1) {
+            timeText = t("jobDetail.fullTime", { start: ranges[0].start, end: ranges[0].end });
+        } else {
+            timeText = t("jobDetail.splitTime", {
+                blocks: ranges.map(r => `từ ${r.start} đến ${r.end}`).join(" và ")
+            });
+        }
+
+        // 👉 Kiểm tra nghỉ trưa
+        if (ranges.length === 2) {
+            const gapStart = sortedSlots.find((s, idx, arr) => {
+                if (idx === 0) return false;
+                return s.slotID !== arr[idx - 1].slotID + 1;
+            });
+            if (gapStart) {
+                const prev = slotList.find(s => s.slotID === gapStart.slotID - 1);
+                if (prev && (prev.slotID === 2 || prev.slotID === 3)) {
+                    return `${dayText}. ${t("jobDetail.fullTime", {
+                        start: ranges[0].start,
+                        end: ranges[1].end
+                    })}. ${t("jobDetail.lunchBreak", {
+                        start: prev.time.split(" - ")[1],
+                        end: gapStart.time.split(" - ")[0]
+                    })}`;
+                }
+            }
+        }
+
+        return `${dayText}. ${timeText}.`;
+    };
 
     if (shouldShowLoadingOrError) {
         return (
@@ -190,7 +282,7 @@ const FamilyJobDetailsPage = () => {
                             </div>
                         ))}
                     </div>
-                    <p><strong>Lịch làm việc:</strong> {job.workingTime || "Không có lịch cụ thể"}</p>
+                    <p><strong>Lịch làm việc:</strong> {renderWorkingTime()}</p>
                     <p><strong>Yêu cầu đặc biệt:</strong> {job.specialRequirement || "Không có yêu cầu"}</p>
                 </div>
 

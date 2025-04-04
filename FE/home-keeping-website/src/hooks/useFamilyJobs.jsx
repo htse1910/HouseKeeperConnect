@@ -51,110 +51,127 @@ const useFamilyJobs = ({ isDemo, accountID, authToken, t }) => {
       "Content-Type": "application/json"
     };
 
-    setLoading(true);
-    setError(null);
-    setIsNoProfile(false);
-    setIsNoJob(false);
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      setIsNoProfile(false);
+      setIsNoJob(false);
 
-    let tempServices = [];
-    let tempJobServices = [];
+      let tempServices = [];
+      let tempJobServices = [];
 
-    axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-      .then((res) => {
-        const account = res.data;
+      try {
+        // B1: Check Account
+        const accRes = await axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers });
+        const account = accRes.data;
         if (!account?.accountID) throw new Error(t("error_auth"));
-        return axios.get(`http://localhost:5280/api/Families/SearchFamilyByAccountId?accountId=${accountID}`, { headers });
-      })
-      .then((res) => {
-        const family = res.data?.[0];
+
+        // B2: Check Family Profile
+        const famRes = await axios.get(`http://localhost:5280/api/Families/SearchFamilyByAccountId?accountId=${accountID}`, { headers });
+        const family = famRes.data?.[0];
         if (!family) {
           setIsNoProfile(true);
           throw new Error("NO_PROFILE");
         }
 
-        const getJobServicesSafe = () =>
-          axios.get(`http://localhost:5280/api/Job_Service/Job_ServiceList`, { headers })
-            .then(res => Array.isArray(res.data) ? res.data : [])
-            .catch(() => []);
+        // B3: Fetch Services (with fallback nếu lỗi)
+        try {
+          const [servicesRes, totalAccRes] = await Promise.all([
+            axios.get(`http://localhost:5280/api/Service/ServiceList`, { headers }).catch(() => ({ data: [] })),
+            axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers }).catch(() => ({ data: {} })),
+          ]);
 
-        return Promise.all([
-          axios.get(`http://localhost:5280/api/Service/ServiceList`, { headers }),
-          getJobServicesSafe(),
-          axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers }),
-        ]);
-      })
-      .then(([servicesRes, jobServicesRes, totalAccRes]) => {
-        tempServices = servicesRes.data || [];
-        tempJobServices = jobServicesRes || [];
-        setServices(tempServices);
-        setJobServices(tempJobServices);
-        setHousekeepers(totalAccRes.data?.totalHousekeepers || 0);
-
-        return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
-      })
-      .then((jobResponse) => {
-        const jobList = jobResponse.data;
-        if (!Array.isArray(jobList)) {
-          console.warn("API Job không trả về danh sách hợp lệ.");
-          setJobs([]);
-          return;
+          tempServices = servicesRes.data || [];
+          setServices(tempServices);
+          setHousekeepers(totalAccRes.data?.totalHousekeepers || 0);
+        } catch (fetchErr) {
+          console.warn("Không thể lấy service/housekeeper:", fetchErr);
         }
 
-        const jobDetailPromises = jobList.map(job =>
-          axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
-            .then(response => response.data)
-            .catch(err => {
-              console.warn(`Không thể lấy chi tiết job ID ${job.jobID}`, err);
-              return null;
-            })
-        );
+        // B4: Lấy Job & JobDetail (với try-catch riêng)
+        try {
+          const jobRes = await axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
+          const jobList = jobRes.data;
 
-        return Promise.all(jobDetailPromises)
-          .then((detailedJobs) => {
-            const validJobs = detailedJobs.filter(job => job !== null);
+          if (!Array.isArray(jobList)) {
+            console.warn("API Job không trả về danh sách hợp lệ.");
+            setJobs([]);
+            return;
+          }
 
-            const formattedJobs = validJobs.map(jobDetail => {
-              const originalJob = jobList.find(j => j.jobID === jobDetail.jobID);
-              const createDate = originalJob?.createdDate || jobDetail.createdDate;
+          const detailPromises = jobList.map((job) =>
+            axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
+              .then((res) => res.data)
+              .catch((err) => {
+                console.warn(`Không lấy được chi tiết job ${job.jobID}`, err);
+                return null;
+              })
+          );
 
-              return {
-                jobID: jobDetail.jobID,
-                jobName: jobDetail.jobName,
-                createdDate: createDate,
-                startDate: new Date(jobDetail.startDate).toLocaleDateString("vi-VN"),
-                endDate: new Date(jobDetail.endDate).toLocaleDateString("vi-VN"),
-                status: jobDetail.status,
-                salary: jobDetail.price,
-                location: jobDetail.location,
-                description: jobDetail.description,
-                serviceIDs: jobDetail.serviceIDs || [],
-                jobTypeList: (jobDetail.serviceIDs || []).map(id => {
-                  const service = tempServices.find(s => s.serviceID === id);
-                  return service?.serviceName;
-                }).filter(Boolean),
-              };
-            });
+          const detailedJobs = await Promise.all(detailPromises);
+          const validJobs = detailedJobs.filter((j) => j !== null);
 
-            setJobs(formattedJobs);
-            if (formattedJobs.length === 0) setIsNoJob(true);
+          const formattedJobs = validJobs.map((jobDetail) => {
+            const originalJob = jobList.find((j) => j.jobID === jobDetail.jobID);
+            const createDate = originalJob?.createdAt || jobDetail.createdAt;
+
+            // Lấy serviceIDs từ response API GetJobDetailByID
+            const serviceIDs = jobDetail.serviceIDs || [];
+
+            const serviceNames = serviceIDs.map((id) => {
+              const service = tempServices.find((s) => s.serviceID === id);
+              return service?.serviceName;
+            }).filter(Boolean);
+
+            const serviceTypes = Array.from(
+              new Set(
+                serviceIDs
+                  .map((id) => {
+                    const s = tempServices.find((s) => s.serviceID === id);
+                    return s?.serviceType;
+                  })
+              )
+            ).filter(Boolean);
+
+            return {
+              jobID: jobDetail.jobID,
+              jobName: jobDetail.jobName,
+              createdDate: createDate,
+              startDate: new Date(jobDetail.startDate).toLocaleDateString("vi-VN"),
+              endDate: new Date(jobDetail.endDate).toLocaleDateString("vi-VN"),
+              status: jobDetail.status,
+              salary: jobDetail.price,
+              location: jobDetail.location,
+              description: jobDetail.description,
+              serviceIDs: serviceIDs,
+              serviceTypes: serviceTypes,
+            };
           });
-      })
-      .catch((err) => {
+          console.log("🎯 FORMATTED JOBS:", formattedJobs);
+
+          setJobs(formattedJobs);
+          if (formattedJobs.length === 0) setIsNoJob(true);
+        } catch (jobErr) {
+          console.warn("Không lấy được danh sách job:", jobErr);
+          setJobs([]);
+        }
+
+      } catch (err) {
         if (err.message !== "NO_PROFILE") {
           console.error("API Error:", err);
           setError(t("error_loading"));
         }
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
 
+    fetchData();
   }, [isDemo, accountID, authToken, t]);
 
   return {
     jobs,
     services,
-    jobServices,
     housekeepers,
     loading,
     error,
