@@ -1,188 +1,215 @@
 import React, { useEffect, useState } from "react";
-import { FaBriefcase, FaCheckCircle, FaUser, FaMapMarkerAlt, FaMoneyBillWave } from "react-icons/fa";
-import FamilyNickname from "../components/FamilyNickname";
+import {
+  FaBriefcase,
+  FaCheckCircle,
+  FaMoneyBillWave,
+  FaClock,
+  FaTimesCircle
+} from "react-icons/fa";
+import { Link } from "react-router-dom";
 import JobName from "../components/JobName";
+import JobDetailModal from "../components/JobDetailModal";
 
 function HouseKeeperManagePage() {
-  const [filter, setFilter] = useState({ jobType: "Tất cả", status: "Tất cả", date: "" });
-  const [activeTab, setActiveTab] = useState("applied");
-  const [housekeeperID, setHousekeeperID] = useState(null);
-  const [jobs, setJobs] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
+  const [housekeeperID, setHousekeeperID] = useState(localStorage.getItem("housekeeperID"));
+  const [applications, setApplications] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedApplication, setSelectedApplication] = useState(null);
   const [error, setError] = useState(null);
 
-  // Fetch housekeeper ID using Account ID from localStorage
   useEffect(() => {
-    const fetchHousekeeperID = async () => {
-      const accountID = localStorage.getItem("accountID");
-      const authToken = localStorage.getItem("authToken");
-
-      console.log("Account ID:", accountID);
-      console.log("Auth Token:", authToken); // ✅ Debugging
-
-      if (!accountID || !authToken) {
-        setError("Không tìm thấy Account ID hoặc Auth Token.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Lỗi khi lấy dữ liệu người giúp việc: ${errorText}`);
-        }
-
-        const data = await response.json();
-        setHousekeeperID(data.housekeeperID);
-      } catch (err) {
-        console.error(err);
-        setError("Lỗi khi tải dữ liệu người giúp việc.");
-      }
-    };
-
-    fetchHousekeeperID();
-  }, []);
-
-  // Fetch job bookings using housekeeper ID
-  useEffect(() => {
-    if (!housekeeperID) return;
-
-    const fetchBookings = async () => {
+    const fetchData = async () => {
       const authToken = localStorage.getItem("authToken");
 
       try {
-        const response = await fetch(`http://localhost:5280/api/Booking/GetBookingsByHousekeeperID?housekeeperId=${housekeeperID}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`, // ✅ Include auth token
-          },
+        // Fetch applications
+        const resApp = await fetch(`http://localhost:5280/api/Application/GetApplicationsByAccountID?uid=${housekeeperID}&pageNumber=1&pageSize=50`, {
+          headers: { "Authorization": `Bearer ${authToken}` }
         });
+        const appData = await resApp.json();
 
-        if (!response.ok) throw new Error("Lỗi khi lấy danh sách công việc.");
+        const appsWithFamilies = await Promise.all(appData.map(async (app) => {
+          try {
+            const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${app.familyID}`, {
+              headers: { Authorization: `Bearer ${authToken}` },
+            });
+            const familyData = await familyRes.json();
 
-        const data = await response.json();
-        setJobs(data);
+            const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${familyData.accountID}`, {
+              headers: { Authorization: `Bearer ${authToken}` },
+            });
+            const accData = await accRes.json();
+
+            return { ...app, familyName: accData.name };
+          } catch {
+            return { ...app, familyName: "Không xác định" };
+          }
+        }));
+
+        setApplications(appsWithFamilies);
+
+        // Fetch bookings
+        const resBooking = await fetch(`http://localhost:5280/api/Booking/GetBookingByHousekeeperID?housekeeperId=${housekeeperID}`, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        const bookingData = await resBooking.json();
+        setBookings(bookingData);
+
       } catch (err) {
-        console.error(err);
-        setError("Lỗi khi tải danh sách công việc.");
+        console.error("Lỗi khi tải dữ liệu:", err);
+        setError("Lỗi khi tải dữ liệu.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBookings();
+    if (housekeeperID) fetchData();
   }, [housekeeperID]);
 
-  if (loading) return <p>Đang tải dữ liệu...</p>;
-  if (error) return <p className="text-danger">{error}</p>;
+  const tabStatusMap = {
+    all: null,
+    pending: 1,
+    accepted: 2,
+    denied: 3
+  };
+
+  const visibleApplications = applications.filter(app =>
+    tabStatusMap[activeTab] === null || app.status === tabStatusMap[activeTab]
+  );
 
   return (
-    <div className="container mt-4">
-      {/* Job Statistics */}
-      <div className="card p-4 shadow-sm mb-3">
-        <h4 className="fw-bold">Công việc của tôi</h4>
-        <p className="text-muted">Quản lý công việc của bạn, nắm bắt thông tin công việc đã chọn nhanh chóng.</p>
+    <div className="container my-4">
+      <style>{`
+        .scroll-shadow {
+          overflow-y: auto;
+          max-height: 500px;
+        }
+        .scroll-shadow::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scroll-shadow::-webkit-scrollbar-thumb {
+          background-color: rgba(0,0,0,0.1);
+          border-radius: 3px;
+        }
+        .app-card:hover {
+          background-color: #fffbea;
+          transition: background-color 0.3s ease;
+        }
+      `}</style>
 
-        <div className="d-flex gap-3">
-          <div className="p-3 rounded d-flex justify-content-between align-items-center flex-grow-1" style={{ backgroundColor: "#FFF7ED" }}>
-            <div>
-              <h6>Công việc đã ứng tuyển</h6>
-              <h3 className="fw-bold">{jobs.length}</h3>
-            </div>
-            <FaBriefcase className="text-warning" size={24} />
-          </div>
+      <h3 className="fw-bold mb-3">Công việc của tôi</h3>
 
-          <div className="p-3 rounded d-flex justify-content-between align-items-center flex-grow-1" style={{ backgroundColor: "#FFF7ED" }}>
-            <div>
-              <h6>Công việc đã nhận</h6>
-              <h3 className="fw-bold">{jobs.filter((job) => job.bookingStatus === 1).length}</h3>
+      <div className="row g-3 mb-4">
+        {[{
+          label: "Tổng đơn",
+          count: applications.length,
+          icon: <FaBriefcase className="text-warning" size={26} />
+        }, {
+          label: "Đang chờ",
+          count: applications.filter(a => a.status === 1).length,
+          icon: <FaClock className="text-info" size={26} />
+        }, {
+          label: "Đã chấp nhận",
+          count: applications.filter(a => a.status === 2).length,
+          icon: <FaCheckCircle className="text-success" size={26} />
+        }, {
+          label: "Đã từ chối",
+          count: applications.filter(a => a.status === 3).length,
+          icon: <FaTimesCircle className="text-danger" size={26} />
+        }].map((item, i) => (
+          <div className="col-md-3" key={i}>
+            <div className="card shadow-sm p-3 d-flex justify-content-between align-items-center flex-row bg-light">
+              <div>
+                <div className="text-muted">{item.label}</div>
+                <h4 className="fw-bold">{item.count}</h4>
+              </div>
+              {item.icon}
             </div>
-            <FaCheckCircle className="text-success" size={24} />
           </div>
-
-          <div className="p-3 rounded d-flex align-items-center justify-content-between" style={{ backgroundColor: "#FFF7ED", minWidth: "250px" }}>
-            <div>
-              <h6>Nhiều công việc chờ bạn khám phá</h6>
-              <h3 className="fw-bold">2M+</h3>
-            </div>
-            <button className="btn btn-warning">Tìm việc ngay</button>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Jobs and Filters */}
-      <div className="card p-4 shadow-sm mb-3">
-        <div className="row">
-          {/* Filters */}
-          <div className="col-md-3">
-            <div className="card p-3 shadow-sm">
-              <h5 className="fw-bold">Bộ lọc</h5>
-              <div className="mb-3">
-                <label className="form-label">Trạng thái</label>
-                <select className="form-select" name="status" value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
-                  <option value="Tất cả">Tất cả</option>
-                  <option value="1">Đã nhận</option>
-                  <option value="0">Đang chờ</option>
-                </select>
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Ngày</label>
-                <input type="date" className="form-control" name="date" value={filter.date} onChange={(e) => setFilter({ ...filter, date: e.target.value })} />
-              </div>
+      <div className="card shadow-sm p-4">
+        <div className="d-flex gap-4 border-bottom pb-2 mb-3">
+          {[
+            { key: "all", label: "Tất cả" },
+            { key: "pending", label: "Đang chờ" },
+            { key: "accepted", label: "Đã chấp nhận" },
+            { key: "denied", label: "Đã từ chối" },
+            { key: "booked", label: "Các công việc đã đặt" }
+          ].map(tab => (
+            <div
+              key={tab.key}
+              className={`pb-2 ${activeTab === tab.key ? "text-warning fw-bold border-bottom border-2 border-warning" : "text-secondary"}`}
+              style={{ cursor: "pointer" }}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              {tab.label}
             </div>
-          </div>
+          ))}
+        </div>
 
-          {/* Job Listings */}
-          <div className="col-md-9">
-            <div className="d-flex gap-4 border-bottom">
-              {["Đã ứng tuyển", "Đã nhận", "Hoàn thành"].map((tab, index) => {
-                const tabKey = ["applied", "accepted", "completed"][index];
-                return (
-                  <div
-                    key={tabKey}
-                    className={`pb-2 cursor-pointer ${activeTab === tabKey ? "text-warning fw-bold border-bottom border-2 border-warning" : "text-secondary"}`}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setActiveTab(tabKey)}
-                  >
-                    {tab}
+        <div className="scroll-shadow">
+          {error && <div className="alert alert-danger">{error}</div>}
+
+          {activeTab === "booked" ? (
+            bookings.length === 0 ? (
+              <div className="alert alert-info">Chưa có công việc nào đã đặt.</div>
+            ) : (
+              bookings.map((booking) => (
+                <div key={booking.bookingID} className="card app-card mb-3 p-3 shadow-sm">
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <h5 className="fw-bold mb-0">
+                      <JobName jobID={booking.jobID} />
+                    </h5>
+                    <span className="badge bg-secondary text-white">Đã đặt</span>
                   </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-3">
-              {jobs
-                .filter((job) => (filter.status === "Tất cả" ? true : job.bookingStatus.toString() === filter.status))
-                .map((job) => (
-                  <div key={job.bookingID} className="card p-3 shadow-sm mb-3">
-                    <h5 className="fw-bold"><JobName jobID={job.jobID} /></h5>
-                    <p className="text-muted">
-                      <FamilyNickname familyID={job.familyID} /> &nbsp; | &nbsp;
-                      <FaMoneyBillWave className="text-success me-1" /> {job.serviceID} &nbsp; | &nbsp;
-                      Ngày làm việc: {new Date(job.scheduledDate).toLocaleDateString()}
-                    </p>
-                    <span className={`badge bg-${job.bookingStatus === 1 ? "success" : "primary"} text-white`}>
-                      {job.bookingStatus === 1 ? "Đã nhận" : "Đang chờ"}
+                  <p className="text-muted small mb-1">
+                    Dịch vụ: {booking.serviceIDs?.join(", ") || "Không có"} <br />
+                    Thời gian: {new Date(booking.jobDetail.startDate).toLocaleDateString()} → {new Date(booking.jobDetail.endDate).toLocaleDateString()}
+                  </p>
+                </div>
+              ))
+            )
+          ) : (
+            visibleApplications.length === 0 ? (
+              <div className="alert alert-info">Không có công việc phù hợp.</div>
+            ) : (
+              visibleApplications.map(app => (
+                <div key={app.applicationID} className="card app-card mb-3 p-3 shadow-sm">
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <h5 className="fw-bold mb-0"><JobName jobID={app.jobID} /></h5>
+                    <span className={`badge text-white bg-${app.status === 1 ? "info" : app.status === 2 ? "success" : "danger"}`}>
+                      {app.status === 1 ? "Đang chờ" : app.status === 2 ? "Đã chấp nhận" : "Đã từ chối"}
                     </span>
-
-                    <div className="d-flex gap-2 mt-3">
-                      <button className="btn btn-warning">Xem chi tiết</button>
-                    </div>
                   </div>
-                ))}
-            </div>
-          </div>
+                  <p className="text-muted small mb-2">
+                    <strong>Gia đình:</strong> {app.familyName || "Không xác định"} | <FaMoneyBillWave className="text-success mx-1" />
+                    Dịch vụ: {app.services?.join(", ") || "Không có"} | 
+                    Từ: {new Date(app.startDate).toLocaleDateString()} đến {new Date(app.endDate).toLocaleDateString()}
+                  </p>
+                  <button
+                    className="btn btn-sm btn-outline-warning"
+                    onClick={() => setSelectedApplication({ jobID: app.jobID, status: app.status })}
+                  >
+                    Xem chi tiết
+                  </button>
+                </div>
+              ))
+            )
+          )}
         </div>
       </div>
+
+      {selectedApplication && (
+        <JobDetailModal
+          jobID={selectedApplication.jobID}
+          applicationStatus={selectedApplication.status}
+          onClose={() => setSelectedApplication(null)}
+        />
+      )}
     </div>
   );
 }

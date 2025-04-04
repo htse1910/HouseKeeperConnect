@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaSearch, FaMapMarkerAlt, FaMoneyBillWave, FaClock, FaUser } from "react-icons/fa";
 import { Pagination } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import "../assets/styles/FindJobsPage.css";
 
 function FindJobsPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -9,11 +10,11 @@ function FindJobsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [allJobs, setAllJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const jobsPerPage = 9;
 
   const authToken = localStorage.getItem("authToken");
 
-  // All districts of HCMC
   const hcmDistricts = [
     "Quận 1", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8",
     "Quận 10", "Quận 11", "Quận 12", "Quận Bình Tân", "Quận Bình Thạnh",
@@ -23,19 +24,43 @@ function FindJobsPage() {
   ];
 
   useEffect(() => {
-    fetch("http://localhost:5280/api/Job/JobList", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setAllJobs(data);
-        setJobs(data);
-      })
-      .catch((error) => console.error("Error fetching jobs:", error));
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        const listRes = await fetch("http://localhost:5280/api/Job/JobList", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        const jobList = await listRes.json();
+        const verifiedJobs = jobList.filter((job) => job.status === 2);
+
+        const detailedJobs = await Promise.all(
+          verifiedJobs.map(async (job) => {
+            const detailRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+              },
+            });
+            return await detailRes.json();
+          })
+        );
+
+        setAllJobs(detailedJobs);
+        setJobs(detailedJobs);
+      } catch (err) {
+        console.error("Error fetching job details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
   }, []);
 
   const handleSearch = () => {
@@ -114,7 +139,6 @@ function FindJobsPage() {
     <div className="container-fluid p-0">
       {/* Search & Filters */}
       <div className="d-flex flex-column align-items-center justify-content-center" style={{ backgroundColor: "#ffedd5", minHeight: "240px" }}>
-        {/* Search row */}
         <div className="input-group w-75 shadow-sm mb-3">
           <span className="input-group-text bg-white border-end-0 px-3">
             <FaSearch className="text-muted" />
@@ -129,7 +153,6 @@ function FindJobsPage() {
           <button className="btn btn-warning px-4" onClick={handleSearch}>Tìm kiếm</button>
         </div>
 
-        {/* Filter row */}
         <div className="w-75">
           <div className="row g-2">
             <div className="col-3">
@@ -167,36 +190,49 @@ function FindJobsPage() {
 
       {/* Job Listings */}
       <div className="container py-4">
-        <div className="row justify-content-center">
-          {jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage).map((job) => (
-            <div key={job.jobID} className="col-md-4">
-              <div className="card shadow-sm p-3 mb-4 border-0">
-                <div className="card-body">
-                  <h5 className="fw-bold">{job.jobName}</h5>
-                  <p className="text-muted"><FaUser className="me-1" /> Gia đình ID: {job.familyID ?? "Không rõ"}</p>
-                  <p className="mb-1"><FaMapMarkerAlt className="text-muted" /> {job.location ?? "Chưa cập nhật"}</p>
-                  <p className="mb-1"><FaMoneyBillWave className="text-muted" /> {job.price?.toLocaleString()} VND</p>
-                  <p className="mb-1"><FaClock className="text-muted" /> {getJobStatusLabel(job.status)}</p>
-                  <p className="mb-1">Loại: {getJobTypeLabel(job.jobType)}</p>
-                  <Link to={`/job/${job.jobID}`} className="btn btn-outline-warning w-100 mt-3">Xem chi tiết</Link>
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-warning" role="status" />
+            <p className="mt-3">Đang tải công việc...</p>
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="text-center text-muted py-5">
+            Không tìm thấy công việc phù hợp.
+          </div>
+        ) : (
+          <>
+            <div className="row justify-content-center">
+              {jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage).map((job) => (
+                <div key={job.jobID} className="col-md-4 fade-in">
+                  <div className="card shadow-sm p-3 mb-4 border-0 job-card">
+                    <div className="card-body">
+                      <h5 className="fw-bold">{job.jobName}</h5>
+                      <p><FaUser className="me-1 text-muted" /> Gia đình ID: {job.familyID}</p>
+                      <p><FaMapMarkerAlt className="me-1 text-muted" /> Địa điểm: {job.location ?? "Chưa cập nhật"}</p>
+                      <p><FaMoneyBillWave className="me-1 text-muted" /> Mức lương: {job.price?.toLocaleString()} VND</p>
+                      <p><FaClock className="me-1 text-muted" /> Trạng thái: {getJobStatusLabel(job.status)}</p>
+                      <p>Loại: {getJobTypeLabel(job.jobType)}</p>
+                      <Link to={`/job/${job.jobID}`} className="btn btn-outline-warning w-100 mt-3">Xem chi tiết</Link>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Pagination */}
-        <div className="d-flex justify-content-center">
-          <Pagination>
-            <Pagination.Prev onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-            {[...Array(totalPages)].map((_, i) => (
-              <Pagination.Item key={i + 1} active={i + 1 === currentPage} onClick={() => setCurrentPage(i + 1)}>
-                {i + 1}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-          </Pagination>
-        </div>
+            {/* Pagination */}
+            <div className="d-flex justify-content-center">
+              <Pagination>
+                <Pagination.Prev onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                {[...Array(totalPages)].map((_, i) => (
+                  <Pagination.Item key={i + 1} active={i + 1 === currentPage} onClick={() => setCurrentPage(i + 1)}>
+                    {i + 1}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+              </Pagination>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

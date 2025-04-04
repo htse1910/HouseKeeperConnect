@@ -125,7 +125,8 @@ namespace HouseKeeperConnect_API.Controllers
                     return BadRequest("No slots found for the job.");
                 }
 
-                // ✅ Check for slot conflicts before creating the booking
+                // ✅ First, check if ANY slot is already booked before creating the Booking
+                List<string> bookedSlotMessages = new List<string>(); // Collect errors
                 DateTime currentDate = jobDetail.StartDate;
                 while (currentDate <= jobDetail.EndDate)
                 {
@@ -141,14 +142,19 @@ namespace HouseKeeperConnect_API.Controllers
 
                         if (isSlotBooked)
                         {
-                            return Conflict($"Slot {slot.SlotID} on day {slot.DayOfWeek} is already booked within the selected range.");
+                            bookedSlotMessages.Add($"Slot {slot.SlotID} on day {slot.DayOfWeek} is already booked.");
                         }
                     }
-
                     currentDate = currentDate.AddDays(7);
                 }
 
-                // 🔹 Create the Booking
+                // ✅ If any slot is already booked, do NOT create the booking
+                if (bookedSlotMessages.Any())
+                {
+                    return Conflict($"Booking cannot be created because the following slots are already booked:\n{string.Join("\n", bookedSlotMessages)}");
+                }
+
+                // 🔹 Create the Booking (ONLY IF ALL SLOTS ARE AVAILABLE)
                 var newBooking = new Booking
                 {
                     JobID = job.JobID,
@@ -196,7 +202,7 @@ namespace HouseKeeperConnect_API.Controllers
             int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
             return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
         }
-
+        
 
         [HttpPut("UpdateBooking")]
         [Authorize]
