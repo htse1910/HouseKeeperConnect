@@ -118,6 +118,9 @@
   "posted_date": "Ngày đăng",
   "salary": "Mức lương",
   "search": "Tìm kiếm",
+  "created_at": "Đăng vào",
+  "view_profile": "Xem hồ sơ",
+  "send_message": "Nhắn tin",
   "statusType": {
     "status_failed": "Thất bại",
     "status_processing": "Đang xử lý",
@@ -148,7 +151,9 @@
   "jobDetail": {
     "workingSchedule": "Lịch làm việc",
     "noSchedule": "Không có lịch cụ thể",
+    "everyDay": "Hằng ngày",
     "weekendSchedule": "Làm việc vào cuối tuần",
+    "workingOnPreset": "Làm việc theo lịch: {{preset}}",
     "rangeSchedule": "Làm việc từ {{first}} đến {{last}}",
     "listSchedule": "Làm việc vào {{days}}",
     "fullTime": "Thời gian từ {{start}} đến {{end}}",

@@ -115,7 +115,7 @@ const StaffDashboardPage = () => {
                 });
             })
             .catch((err) => {
-                console.error("API Error:", err);
+                console.error("API Error:", err.message || err);
                 setError(t("error_loading"));
             })
             .finally(() => {

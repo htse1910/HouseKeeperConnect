@@ -42,17 +42,17 @@ const FamilyJobPostingPage = () => {
 
     const slotList = [
         { slotID: 1, time: "8:00 - 9:00" },
-        { slotID: 2, time: "10:00 - 11:00" },
-        { slotID: 3, time: "11:00 - 12:00" },
-        { slotID: 4, time: "12:00 - 13:00" },
-        { slotID: 5, time: "13:00 - 14:00" },
-        { slotID: 6, time: "14:00 - 15:00" },
-        { slotID: 7, time: "15:00 - 16:00" },
-        { slotID: 8, time: "16:00 - 17:00" },
-        { slotID: 9, time: "17:00 - 18:00" },
-        { slotID: 10, time: "18:00 - 19:00" },
-        { slotID: 11, time: "19:00 - 20:00" },
-        { slotID: 12, time: "20:00 - 21:00" },
+        { slotID: 2, time: "9:00 - 10:00" },
+        { slotID: 3, time: "10:00 - 11:00" },
+        { slotID: 4, time: "11:00 - 12:00" },
+        { slotID: 5, time: "12:00 - 13:00" },
+        { slotID: 6, time: "13:00 - 14:00" },
+        { slotID: 7, time: "14:00 - 15:00" },
+        { slotID: 8, time: "15:00 - 16:00" },
+        { slotID: 9, time: "16:00 - 17:00" },
+        { slotID: 10, time: "17:00 - 18:00" },
+        { slotID: 11, time: "18:00 - 19:00" },
+        { slotID: 12, time: "19:00 - 20:00" },
     ];
 
     const dayPresets = [

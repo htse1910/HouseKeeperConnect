@@ -115,7 +115,7 @@ const FamilyHousekeeperSearchPage = () => {
             rating: hk.rating || 5,
             avatar: hk.localProfilePicture
         }));
-    };    
+    };
 
     console.log("💡 Filter debug:", {
         searchTerm,
@@ -250,21 +250,26 @@ const FamilyHousekeeperSearchPage = () => {
                                     className="btn-primary"
                                     onClick={() => navigate("/family/invite", {
                                         state: {
-                                          housekeepers: [{
-                                            ...h,
-                                            accountID: h.accountID,
-                                            name: h.name,
-                                            email: h.email,
-                                            gender: h.gender,
-                                            avatar: h.avatar,
-                                            skills: h.skills || []
-                                          }]
+                                            housekeepers: [{
+                                                ...h,
+                                                accountID: h.accountID,
+                                                name: h.name,
+                                                email: h.email,
+                                                gender: h.gender,
+                                                avatar: h.avatar,
+                                                skills: h.skills || []
+                                            }]
                                         }
-                                      })}                                      
+                                    })}
                                 >
                                     Mời làm việc
                                 </button>
-                                <button className="search-page-detail-btn">Xem chi tiết</button>
+                                <button
+                                    className="search-page-detail-btn"
+                                    onClick={() => navigate(`/family/housekeeper/profile/${h.accountID}`)}
+                                >
+                                    Xem chi tiết
+                                </button>
                             </div>
                         </div>
                     )) : (
