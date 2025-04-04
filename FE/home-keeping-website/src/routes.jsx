@@ -82,7 +82,6 @@ function AppRoutes() {
         <Route path="/family/profile" element={<FamilyProfilePage />} />
         <Route path="/family/find-housekeepers" element={<FamilyHousekeeperSearchPage />} />
         <Route path="/family/invite" element={<FamilyInvitationPage />} />
-        <Route path="/family/housekeeper/profile/:id" element={<HousekeeperProfilePage />} />
         <Route path="/family/post-job" element={<FamilyJobPostingPage />} />
         <Route path="/family/my-posts" element={<FamilyJobManagementPage />} />
         <Route path="/family/job/update/:id" element={<JobDetailsPage />} />
@@ -90,7 +89,6 @@ function AppRoutes() {
         <Route path="/family/deposit" element={<FamilyDepositPage />} />
         <Route path="/family/deposit/return" element={<FamilyDepositReturnPage />} />
         <Route path="/family/transactions" element={<FamilyTransactionPage />} />
-        <Route path="/family/messages" element={<MessagesPage />} />
       </Routes>
     </Layout>
   );
