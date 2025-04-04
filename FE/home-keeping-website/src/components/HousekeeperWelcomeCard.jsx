@@ -48,8 +48,15 @@ const HousekeeperWelcomeCard = () => {
   return (
     <div className="card p-4 shadow-sm">
       {/* Welcome Message */}
-      <h2 className="fw-bold">Chào mừng bạn trở lại, {fullName}!</h2>
-      <p className="text-muted">Khám phá những công việc phù hợp với bạn.</p>
+      <div className="d-flex justify-content-between align-items-start">
+        <div>
+          <h2 className="fw-bold">Chào mừng bạn trở lại, {fullName}!</h2>
+          <p className="text-muted">Khám phá những công việc phù hợp với bạn.</p>
+        </div>
+        <Link to="/my-jobs" className="btn btn-outline-secondary mt-1">
+          Quản lý công việc của tôi
+        </Link>
+      </div>
 
       {/* Statistics Row */}
       <div className="row mt-3">

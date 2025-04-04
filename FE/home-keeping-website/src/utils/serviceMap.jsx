@@ -1,0 +1,25 @@
+// utils/serviceMap.js
+export const serviceMap = {
+    1: "Dọn dẹp theo giờ",
+    2: "Dọn dẹp định kỳ",
+    3: "Tổng vệ sinh nhà cửa",
+    4: "Dọn dẹp sau sự kiện/tết",
+    5: "Giữ trẻ theo giờ",
+    6: "Giữ trẻ tại nhà nguyên ngày",
+    7: "Chăm sóc người cao tuổi tại nhà",
+    8: "Nấu ăn theo bữa",
+    9: "Nấu ăn theo tuần/tháng",
+    10: "Mua sắm thực phẩm & lên thực đơn",
+    11: "Giặt ủi theo kg",
+    12: "Ủi quần áo theo bộ",
+    13: "Giặt hấp cao cấp",
+    14: "Chăm sóc cây cảnh",
+    15: "Tưới cây, cắt tỉa hàng tuần",
+    16: "Tắm & cắt tỉa lông thú cưng",
+    17: "Sửa chữa điện nước",
+    18: "Sơn sửa nội thất nhỏ",
+    19: "Thợ sửa chữa theo giờ",
+    20: "Giúp việc theo yêu cầu (dịch vụ VIP)",
+    21: "Dịch vụ giúp việc theo tháng",
+    22: "Hỗ trợ vận chuyển đồ đạc nhẹ"
+};
