@@ -43,14 +43,29 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return NotFound("No records!");
             }
-            var jobDTOs = _mapper.Map<List<JobDisplayDTO>>(jobs);
+            var display = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                var d = new JobDisplayDTO();
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(j.JobID);
+                d.JobName = j.JobName;
+                d.FamilyID = j.FamilyID;
+                d.Location = jobDetail.Location;
+                d.Price = jobDetail.Price;
+                d.Status = j.Status;
+                d.JobType = j.JobType;
+                d.JobID = j.JobID;
+                display.Add(d);
+            }
 
-            return Ok(jobDTOs);
+
+
+            return Ok(display);
         }
 
         [HttpGet("GetJobByID")]
         [Authorize]
-        public async Task<ActionResult<Job>> GetJobByID([FromQuery] int id)
+        public async Task<ActionResult<JobDisplayDTO>> GetJobByID([FromQuery] int id)
         {
             var job = await _jobService.GetJobByIDAsync(id);
             if (job == null)
@@ -58,7 +73,18 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No records!";
                 return NotFound(Message);
             }
-            return Ok(job);
+
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+            if (jobDetail == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+
+            var nJ = new JobDisplayDTO();
+            _mapper.Map(job, nJ);
+            _mapper.Map(jobDetail, nJ);
+            return Ok(nJ);
         }
 
         [HttpGet("GetJobDetailByID")]
@@ -110,7 +136,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetJobsByAccountID")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<Job>>> GetJobsByAccountID([FromQuery] int accountId)
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsByAccountID([FromQuery] int accountId)
         {
             var jobs = await _jobService.GetJobsByAccountIDAsync(accountId);
             if (jobs == null || !jobs.Any())
@@ -118,7 +144,25 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No records!";
                 return NotFound(Message);
             }
-            return Ok(jobs);
+
+            var display = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                var d = new JobDisplayDTO();
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(j.JobID);
+                d.JobName = j.JobName;
+                d.FamilyID = j.FamilyID;
+                d.Location = jobDetail.Location;
+                d.Price = jobDetail.Price;
+                d.Status = j.Status;
+                d.JobID = j.JobID;
+                d.JobType = j.JobType;
+                display.Add(d);
+            }
+
+
+
+            return Ok(display);
         }
 
         [HttpPost("AddJob")]
