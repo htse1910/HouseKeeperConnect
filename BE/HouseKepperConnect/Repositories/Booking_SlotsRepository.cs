@@ -23,12 +23,14 @@ namespace Repositories
 
         public Task<List<Booking_Slots>> GetBooking_SlotsByBookingIDAsync(int bookingId) => _bookingSlotsDAO.GetBooking_SlotsByBookingIdAsync(bookingId);
 
-        public async Task<bool> IsSlotBooked(int housekeeperId, int slotId, int dayOfWeek, DateTime startDate, DateTime endDate)
+        /*public async Task<bool> IsSlotBooked(int housekeeperId, int slotId, int dayOfWeek, DateTime startDate, DateTime endDate)
         {
             var bookedSlots = await _bookingSlotsDAO.GetBookedSlotsByHousekeeper(housekeeperId, startDate, endDate);
 
             return bookedSlots.Contains(slotId); // If slotId exists in booked slots, return true
-        }
+        }*/
+        public async Task<bool> IsSlotBooked(int housekeeperId, int slotId, int dayOfWeek, DateTime startDate, DateTime endDate)
+            => await _bookingSlotsDAO.IsSlotBooked(housekeeperId, slotId, dayOfWeek, startDate, endDate);
 
         public async Task<List<int>> GetBookedSlotsByHousekeeper(int housekeeperId, DateTime startDate, DateTime endDate)
         => await _bookingSlotsDAO.GetBookedSlotsByHousekeeper(housekeeperId, startDate, endDate);
