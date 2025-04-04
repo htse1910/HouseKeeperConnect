@@ -14,13 +14,15 @@ const ProfileCard = () => {
   const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
-    if (!accountID || !authToken) return;
+    const accountID = localStorage.getItem("accountID");
+    const authToken = localStorage.getItem("authToken");
+    const housekeeperID = localStorage.getItem("housekeeperID");
 
-    // Get nickname from Account API
+    if (!accountID || !authToken || !housekeeperID) return;
+
+    // Get nickname
     fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
+      headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -28,11 +30,9 @@ const ProfileCard = () => {
       })
       .catch((err) => console.error("Lỗi khi lấy nickname:", err));
 
-    // Get other info from Housekeeper API
+    // Get Housekeeper info
     fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
+      headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -43,14 +43,30 @@ const ProfileCard = () => {
         else setGender("Chưa có");
 
         setWorkArea(data.address?.trim() || "Chưa có");
-        setRating(typeof data.rating === "number" ? data.rating : 0);
-
         if (data.localProfilePicture) {
           setPhoto(data.localProfilePicture);
         }
       })
-      .catch((err) => console.error("Lỗi khi lấy dữ liệu người dùng:", err));
-  }, [accountID, authToken]);
+      .catch((err) => console.error("Lỗi khi lấy thông tin housekeeper:", err));
+
+    // ✅ Fetch all ratings for this housekeeperID
+    fetch(`http://localhost:5280/api/Rating/GetRatingListByHK?id=${housekeeperID}&pageNumber=1&pageSize=100`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const total = data.reduce((sum, r) => sum + r.score, 0);
+          const avg = total / data.length;
+          console.log("⭐ Total reviews:", data.length, "Avg score:", avg);
+          setRating(avg);
+        } else {
+          setRating(0);
+        }
+      })
+      .catch((err) => console.error("Lỗi khi lấy đánh giá:", err));
+  }, []);
+
 
   return (
     <div className="d-flex align-items-center p-4 border rounded shadow-sm bg-white">
@@ -93,10 +109,10 @@ const ProfileCard = () => {
         </h5>
 
         <div className="d-flex align-items-center mb-1">
-          {[...Array(5)].map((_, i) => (
+          {[1, 2, 3, 4, 5].map((star) => (
             <FaStar
-              key={i}
-              className={i < rating ? "text-warning" : "text-muted"}
+              key={star}
+              className={rating >= star ? "text-warning" : "text-muted"}
             />
           ))}
           <span className="ms-2">({rating.toFixed(1)})</span>

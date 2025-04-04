@@ -40,6 +40,7 @@ const HousekeeperWelcomeCard = () => {
         setJobsApplied(data.jobsApplied || 0);
         setJobsAccepted(data.jobCompleted || 0);
         localStorage.setItem("housekeeperID", data.housekeeperID); // Save ID to localStorage
+        localStorage.setItem("verifyID", data.verifyID); // ✅ new line to store verifyID
       })
       .catch((error) => console.error("Lỗi khi lấy dữ liệu công việc:", error));
 
@@ -94,6 +95,13 @@ const HousekeeperWelcomeCard = () => {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* Booking Management Button */}
+      <div className="mt-3">
+        <Link to="/housekeeper/bookings" className="btn btn-primary">
+          Quản lý đặt công việc
+        </Link>
       </div>
     </div>
   );

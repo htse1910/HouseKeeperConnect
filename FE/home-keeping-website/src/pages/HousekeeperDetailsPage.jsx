@@ -7,7 +7,7 @@ import ProfileIntroduction from "../components/ProfileIntroduction";
 import CertificatesAndDocuments from "../components/CertificatesAndDocuments";
 import IDCardImages from "../components/IDCardImages";
 import HouseKeeperSkillsCard from "../components/HouseKeeperSkillsCard";
-
+import HousekeeperReviewList from "../components/HousekeeperReviewList";
 const HousekeeperProfilePage = () => {
   return (
     <div className="container py-4">
@@ -17,7 +17,11 @@ const HousekeeperProfilePage = () => {
       {/* Introduction */}
       <ProfileIntroduction />
       <IDCardImages />
-
+      <div className="row mt-3">
+        <div className="col-md-12">
+          <HousekeeperReviewList />
+        </div>
+      </div>
       <div className="row mt-3">
         {/* Skills */}
         <div className="col-md-6 d-flex">
