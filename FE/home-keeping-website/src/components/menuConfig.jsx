@@ -24,6 +24,13 @@ export function useMenuItems() {
       { label: t("messages"), link: "/family/messages" },
       { label: t("support"), link: "/family/support", dropdown: true },
     ],
+    Staff: [
+      { label: t("dashboard"), link: "/dashboard" },
+      { label: t("users"), link: "/users" },
+      { label: t("approval"), link: "/approval", dropdown: true },
+      { label: t("analytics"), link: "/analytics" },
+      { label: t("management"), link: "/management" },
+    ],
     Admin: [
       { label: t("dashboard"), link: "/dashboard" },
       { label: t("users"), link: "/users" },

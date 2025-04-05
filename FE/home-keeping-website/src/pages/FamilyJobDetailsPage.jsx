@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useSearchParams, useNavigate, useParams } from "react-router-dom";
+import { useSearchParams, useNavigate, useParams, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../assets/styles/Job.css";
 import { FaClock, FaMapMarkerAlt, FaStar } from "react-icons/fa";
@@ -27,8 +27,10 @@ const renderJobStatus = (status) => {
 const FamilyJobDetailsPage = () => {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
-    const { id: jobId } = useParams();
+    const { id: jobID } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const { createdDate } = location.state || {};
 
     const isDemo = searchParams.get("demo") === "true";
     const accountID = localStorage.getItem("accountID");
@@ -46,18 +48,59 @@ const FamilyJobDetailsPage = () => {
 
     const slotList = [
         { slotID: 1, time: "8:00 - 9:00" },
-        { slotID: 2, time: "10:00 - 11:00" },
-        { slotID: 3, time: "11:00 - 12:00" },
-        { slotID: 4, time: "12:00 - 13:00" },
-        { slotID: 5, time: "13:00 - 14:00" },
-        { slotID: 6, time: "14:00 - 15:00" },
-        { slotID: 7, time: "15:00 - 16:00" },
-        { slotID: 8, time: "16:00 - 17:00" },
-        { slotID: 9, time: "17:00 - 18:00" },
-        { slotID: 10, time: "18:00 - 19:00" },
-        { slotID: 11, time: "19:00 - 20:00" },
-        { slotID: 12, time: "20:00 - 21:00" },
+        { slotID: 2, time: "9:00 - 10:00" },
+        { slotID: 3, time: "10:00 - 11:00" },
+        { slotID: 4, time: "11:00 - 12:00" },
+        { slotID: 5, time: "12:00 - 13:00" },
+        { slotID: 6, time: "13:00 - 14:00" },
+        { slotID: 7, time: "14:00 - 15:00" },
+        { slotID: 8, time: "15:00 - 16:00" },
+        { slotID: 9, time: "16:00 - 17:00" },
+        { slotID: 10, time: "17:00 - 18:00" },
+        { slotID: 11, time: "18:00 - 19:00" },
+        { slotID: 12, time: "19:00 - 20:00" },
     ];
+
+    const getDayPresetLabel = (days) => {
+        const sorted = [...days].sort((a, b) => a - b);
+        const dayPresets = [
+            { label: t("jobDetail.everyDay"), value: [0, 1, 2, 3, 4, 5, 6] },
+            { label: "Thứ 2 - Thứ 4 - Thứ 6", value: [1, 3, 5] },
+            { label: "Thứ 3 - Thứ 5 - Thứ 7", value: [2, 4, 6] },
+            { label: t("jobDetail.weekendSchedule"), value: [6, 0] },
+        ];
+
+        for (const preset of dayPresets) {
+            const presetSorted = [...preset.value].sort((a, b) => a - b);
+            if (JSON.stringify(sorted) === JSON.stringify(presetSorted)) {
+                return preset.label;
+            }
+        }
+
+        return null;
+    };
+
+    const applicationStatusMap = {
+        1: { text: "Đang chờ", className: "status-pending" },
+        2: { text: "Đã chấp nhận", className: "status-accepted" },
+        3: { text: "Đã từ chối", className: "status-rejected" },
+    };
+
+    const [applicants, setApplicants] = useState([]);
+
+    useEffect(() => {
+        if (!authToken || !accountID || !jobID) return;
+
+        axios.get(`http://localhost:5280/api/Application/ApplicationListByJob?jobID=${jobID}&pageNumber=1&pageSize=5`, { headers })
+            .then((res) => {
+                console.log("jobID gọi API:", jobID);
+                console.log("Dữ liệu trả về từ ApplicationListByJob:", res.data);
+                setApplicants(res.data || []);
+            })
+            .catch((err) => {
+                console.error("Lỗi khi lấy danh sách ứng tuyển:", err);
+            });
+    }, [jobID]);
 
     useEffect(() => {
         if (isDemo) {
@@ -83,7 +126,7 @@ const FamilyJobDetailsPage = () => {
             return;
         }
 
-        axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${jobId}`, { headers })
+        axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${jobID}`, { headers })
             .then((res) => {
                 setJob(res.data);
                 setError(null);
@@ -95,7 +138,7 @@ const FamilyJobDetailsPage = () => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [jobId, isDemo]);
+    }, [jobID, isDemo]);
 
     const [services, setServices] = useState([]);
 
@@ -125,46 +168,48 @@ const FamilyJobDetailsPage = () => {
 
     const renderWorkingTime = () => {
         if (
-            !Array.isArray(job.dayofWeek) ||
-            !Array.isArray(job.slotIDs) ||
-            job.dayofWeek.length === 0 ||
-            job.slotIDs.length === 0
+            !Array.isArray(job.dayofWeek) || job.dayofWeek.length === 0 ||
+            !Array.isArray(job.slotIDs) || job.slotIDs.length === 0
         ) {
             return t("jobDetail.noSchedule");
         }
 
         const dayKeys = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
         const sortedDays = [...job.dayofWeek].sort((a, b) => a - b);
-
-        // 👉 Hiển thị phần ngày
-        let dayText = "";
-        if (sortedDays.length === 2 && sortedDays.includes(0) && sortedDays.includes(6)) {
-            dayText = t("jobDetail.weekendSchedule"); // → "Làm việc vào cuối tuần"
-        } else if (isContinuousDays(sortedDays)) {
-            const first = t(`workingDays.${dayKeys[sortedDays[0]]}`);
-            const last = t(`workingDays.${dayKeys[sortedDays[sortedDays.length - 1]]}`);
-            dayText = t("jobDetail.rangeSchedule", { first, last }); // → "Làm việc từ {first} đến {last}"
-        } else {
-            const days = sortedDays.map(d => t(`workingDays.${dayKeys[d]}`));
-            dayText = t("jobDetail.listSchedule", { days: days.join(", ") }); // → "Làm việc vào {days}"
-        }
-
-        // 👉 Phân tích thời gian
         const sortedSlots = slotList
             .filter(s => job.slotIDs.includes(s.slotID))
             .sort((a, b) => a.slotID - b.slotID);
 
+        // 👉 Phần ngày
+        let dayText = "";
+        const presetLabel = getDayPresetLabel(sortedDays);
+        const isContinuous = sortedDays.every((d, i, arr) => i === 0 || d === arr[i - 1] + 1);
+
+        if (presetLabel) {
+            dayText = t("jobDetail.workingOnPreset", { preset: presetLabel });
+        } else if (isContinuous) {
+            const first = t(`workingDays.${dayKeys[sortedDays[0]]}`);
+            const last = t(`workingDays.${dayKeys[sortedDays.at(-1)]}`);
+            dayText = t("jobDetail.rangeSchedule", { first, last });
+        } else {
+            const days = sortedDays.map(d => t(`workingDays.${dayKeys[d]}`));
+            dayText = t("jobDetail.listSchedule", { days: days.join(", ") });
+        }
+
+        // 👉 Phần slot
         const ranges = [];
-        let start = sortedSlots[0];
+        let startSlot = sortedSlots[0];
+
         for (let i = 1; i <= sortedSlots.length; i++) {
-            const curr = sortedSlots[i];
-            const prev = sortedSlots[i - 1];
-            if (!curr || curr.slotID !== prev.slotID + 1) {
+            const current = sortedSlots[i];
+            const previous = sortedSlots[i - 1];
+
+            if (!current || current.slotID !== previous.slotID + 1) {
                 ranges.push({
-                    start: start.time.split(" - ")[0],
-                    end: prev.time.split(" - ")[1],
+                    start: startSlot.time.split(" - ")[0],
+                    end: previous.time.split(" - ")[1],
                 });
-                start = curr;
+                startSlot = current;
             }
         }
 
@@ -172,27 +217,20 @@ const FamilyJobDetailsPage = () => {
         if (ranges.length === 1) {
             timeText = t("jobDetail.fullTime", { start: ranges[0].start, end: ranges[0].end });
         } else {
-            timeText = t("jobDetail.splitTime", {
-                blocks: ranges.map(r => `từ ${r.start} đến ${r.end}`).join(" và ")
-            });
-        }
+            const blocks = ranges.map(r => `từ ${r.start} đến ${r.end}`);
+            timeText = t("jobDetail.splitTime", { blocks: blocks.join(" và ") });
 
-        // 👉 Kiểm tra nghỉ trưa
-        if (ranges.length === 2) {
-            const gapStart = sortedSlots.find((s, idx, arr) => {
-                if (idx === 0) return false;
-                return s.slotID !== arr[idx - 1].slotID + 1;
-            });
-            if (gapStart) {
-                const prev = slotList.find(s => s.slotID === gapStart.slotID - 1);
-                if (prev && (prev.slotID === 2 || prev.slotID === 3)) {
-                    return `${dayText}. ${t("jobDetail.fullTime", {
-                        start: ranges[0].start,
-                        end: ranges[1].end
-                    })}. ${t("jobDetail.lunchBreak", {
-                        start: prev.time.split(" - ")[1],
-                        end: gapStart.time.split(" - ")[0]
-                    })}`;
+            // 👉 Nhận diện nghỉ trưa
+            const gapIndex = sortedSlots.findIndex((s, i, arr) =>
+                i > 0 && s.slotID !== arr[i - 1].slotID + 1
+            );
+            if (gapIndex > 0) {
+                const beforeGap = sortedSlots[gapIndex - 1];
+                const afterGap = sortedSlots[gapIndex];
+                if (beforeGap && afterGap && [3, 4].includes(beforeGap.slotID)) {
+                    const lunchStart = beforeGap.time.split(" - ")[1];
+                    const lunchEnd = afterGap.time.split(" - ")[0];
+                    timeText += `. ${t("jobDetail.lunchBreak", { start: lunchStart, end: lunchEnd })}`;
                 }
             }
         }
@@ -239,8 +277,8 @@ const FamilyJobDetailsPage = () => {
                     <div className="job-detail-meta">
                         <span>
                             <FaClock /> {t("created_at")}:{" "}
-                            {job.createdDate
-                                ? new Date(job.createdDate).toLocaleDateString("vi-VN")
+                            {createdDate
+                                ? new Date(createdDate).toLocaleDateString("vi-VN")
                                 : t("not_available")}
                         </span>
                         <span><FaMapMarkerAlt /> {job.location || t("not_available")}</span>
@@ -288,33 +326,59 @@ const FamilyJobDetailsPage = () => {
 
                 <div className="job-detail-card">
                     <h3 className="job-detail-section-title">Danh sách người ứng tuyển</h3>
-                    {job.applicants && job.applicants.length > 0 ? (
-                        job.applicants.map((applicant, index) => (
-                            <div key={index} className="job-detail-candidate">
-                                <img src={applicant.avatar || "/avatar0.png"} alt="avatar" />
-                                <div>
-                                    <p><strong>{applicant.fullName}</strong></p>
-                                    <p className="job-detail-rating">
-                                        {[...Array(Math.floor(applicant.rating || 0))].map((_, i) => (
-                                            <FaStar key={i} className="star-icon filled" />
-                                        ))}
-                                        &nbsp;{applicant.rating?.toFixed(1) || "0.0"}
-                                    </p>
-                                    <div className="job-detail-tags">
-                                        {applicant.skills?.map((skill, i) => (
-                                            <span key={i} className="tag">{skill}</span>
-                                        ))}
+                    <div className="job-detail-applicant-list">
+                        {applicants.length > 0 ? applicants.map((applicant, index) => {
+                            const statusInfo = applicationStatusMap[applicant.status] || {
+                                text: "Không rõ", className: "status-unknown"
+                            };
+
+                            return (
+                                <div key={index} className="job-detail-applicant-card">
+                                    <div className="job-detail-applicant-avatar">
+                                        <img
+                                            src={applicant.googleProfilePicture || applicant.localProfilePicture || "/avatar0.png"}
+                                            alt="avatar"
+                                        />
                                     </div>
-                                    <div className="job-detail-actions">
-                                        <button className="btn-primary">Xem hồ sơ</button>
-                                        <button className="btn-secondary" onClick={() => navigate(`/messages?search=${applicant.fullName}`)}>Nhắn tin</button>
+
+                                    <div className="job-detail-applicant-info">
+                                        <div className="job-detail-applicant-top-row">
+                                            <h4 className="job-detail-applicant-name">{applicant.nickname}</h4>
+                                            <span className={`job-detail-application-status ${statusInfo.className}`}>
+                                                {statusInfo.text}
+                                            </span>
+                                        </div>
+                                        <div className="job-detail-applicant-rating">
+                                            <div className="job-detail-rating">
+                                                {[...Array(Math.floor(applicant.rating || 0))].map((_, i) => (
+                                                    <FaStar key={i} className="star-icon filled" />
+                                                ))}
+                                                <span>{applicant.rating?.toFixed(1) || "0.0"}</span>
+                                            </div>
+                                        </div>
+
+                                        {Array.isArray(applicant.services) && applicant.services.length > 0 && (
+                                            <div className="job-detail-tags">
+                                                {applicant.services.map((service, i) => (
+                                                    <span key={i} className="tag">{service}</span>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        <div className="job-detail-actions">
+                                            <button className="job-detail-btn-primary">{t("view_profile")}</button>
+                                            <button
+                                                className="job-detail-btn-secondary"
+                                                onClick={() => navigate(`/messages?search=${applicant.nickname}`)}
+                                            >
+                                                {t("send_message")}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p>Chưa có người ứng tuyển.</p>
-                    )}
+                            );
+                        }) : <p>Chưa có người ứng tuyển.</p>}
+                    </div>
                 </div>
             </div>
 

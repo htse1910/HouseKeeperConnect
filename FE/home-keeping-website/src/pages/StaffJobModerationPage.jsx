@@ -46,9 +46,26 @@ const StaffJobModerationPage = () => {
         setLoading(true);
         setError(null);
 
-        axios.get("http://localhost:5280/api/Jobs/moderation-list")
+        const token = localStorage.getItem("authToken");
+
+        axios.get("http://localhost:5280/api/Job/JobList", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        })
             .then((response) => {
-                setJobs(response.data);
+                const mapped = response.data
+                    .filter(job => job.status === 3)
+                    .map((job) => ({
+                        id: job.jobID,
+                        title: job.jobName,
+                        familyName: `Gia đình #${job.familyID}`,
+                        location: job.location,
+                        salary: job.price,
+                        postedDate: job.createdAt
+                    }));
+                setJobs(mapped);
             })
             .catch((err) => {
                 console.error("Error fetching jobs:", err);

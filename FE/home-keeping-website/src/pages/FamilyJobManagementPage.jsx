@@ -15,6 +15,8 @@ const FamilyJobManagementPage = () => {
     const accountID = localStorage.getItem("accountID");
     const authToken = localStorage.getItem("authToken");
 
+
+
     const {
         jobs,
         housekeepers,
@@ -146,6 +148,14 @@ const FamilyJobManagementPage = () => {
 
         return true;
     });
+
+    const handleViewDetail = (job) => {
+        navigate(`/family/job/detail/${job.jobID}`, {
+            state: {
+                createdDate: job.createdDate
+            }
+        });
+    };
 
     const handleDeleteClick = (job) => setJobToDelete(job);
 
@@ -311,7 +321,7 @@ const FamilyJobManagementPage = () => {
                                     <div className="job-management-actions">
                                         <button className="btn-secondary" onClick={() => navigate(`/family/job/update/${job.jobID}`)}>{t("job.edit")}</button>
                                         <button className="btn-cancel" onClick={() => handleDeleteClick(job)}>{t("job.delete")}</button>
-                                        <button className="btn-primary" onClick={() => navigate(`/family/job/detail/${job.jobID}`)}>
+                                        <button className="btn-primary" onClick={() => handleViewDetail(job)}>
                                             {job.status === 2 ? text.viewApplicants : text.viewDetail}
                                         </button>
                                     </div>

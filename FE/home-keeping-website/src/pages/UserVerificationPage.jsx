@@ -64,9 +64,29 @@ const UserVerificationPage = () => {
         setLoading(true);
         setError(null);
 
-        axios.get("http://localhost:5280/api/Housekeepers")
+        const token = localStorage.getItem("authToken");
+
+        axios.get("http://localhost:5280/api/HouseKeeper/ListHousekeeperPending", {
+            params: {
+                pageNumber: 1,
+                pageSize: 1000
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        })
             .then((response) => {
-                setHousekeepers(response.data);
+                setHousekeepers(
+                    response.data.map((hk) => ({
+                        ...hk,
+                        id: hk.housekeeperID,
+                        status: "Pending",
+                        cccdFront: hk.frontPhoto,
+                        cccdBack: hk.backPhoto,
+                        cccdWithUser: hk.facePhoto
+                    }))
+                );
             })
             .catch((err) => {
                 console.error("Error fetching housekeepers:", err);
@@ -245,10 +265,7 @@ const UserVerificationPage = () => {
                                 </span>
                             </td>
                             <td>
-                                <button
-                                    className="view-cccd-btn"
-                                    onClick={() => handleViewCCCD(hk)}
-                                >
+                                <button className="view-cccd-btn" onClick={() => handleViewCCCD(hk)}>
                                     View CCCD
                                 </button>
                             </td>
