@@ -3,10 +3,11 @@
     public class HousekeeperPendingDTO
     {
         public int HousekeeperID { get; set; }
-        public string Name { get; set; }
+      
         public int VerifyID { get; set; }
-        public byte[] FrontPhoto { get; set; }
-        public byte[] BackPhoto { get; set; }
-        public byte[] FacePhoto { get; set; }
+        public string FrontPhoto { get; set; }
+        public string BackPhoto { get; set; }
+        public string FacePhoto { get; set; }
+        public int Status { get; set; }
     }
 }

@@ -124,15 +124,26 @@ namespace DataAccess
 
         public async Task<List<Housekeeper>> GetPendingHousekeepersAsync(int pageNumber, int pageSize)
         {
-            using (var context = new PCHWFDBContext())
+            var list = new List<Housekeeper>();
+            try
             {
-                return await context.Housekeeper
-                    .Where(h => h.IsVerified == false)
-                    .Include(h => h.Account)
-                    .Include(h => h.IDVerification)
-                    .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
-                    .ToListAsync();
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Housekeeper.
+                        Include(i => i.IDVerification).
+                        Include(a => a.Account).
+                        Where(h => h.IDVerification != null && h.IDVerification.Status == 1).
+                        AsNoTracking().
+                        Skip((pageNumber - 1) * pageSize).
+                        Take(pageSize).
+                        ToListAsync();
+                }
             }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
         }
 
         public async Task UpdateIsVerifiedAsync(int verifyId, bool isVerified)

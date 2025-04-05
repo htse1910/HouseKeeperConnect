@@ -121,6 +121,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 var nHk = new HousekeeperListDTO
                 {
+                    HousekeeperID = item.HousekeeperID,
                     Nickname = item.Account.Nickname,
                     Address = item.Account.Address,
                     Phone = item.Account.Phone,
@@ -336,14 +337,30 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<IActionResult> GetPendingHousekeepers(int pageNumber, int pageSize)
         {
             var pendingHousekeepers = await _housekeeperService.GetPendingHousekeepersAsync(pageNumber, pageSize);
-            var trans = _mapper.Map<List<HousekeeperPendingDTO>>(pendingHousekeepers);
-            if (trans == null)
+            if (pendingHousekeepers.Count == 0)
             {
-                Message = "No records!";
-                return NotFound(Message);
+                return NotFound("Housekeeper Pending list is empty!");
             }
-            return Ok(trans);
+
+            var pendingList = new List<HousekeeperPendingDTO>();
+            foreach (var hk in pendingHousekeepers)
+            {
+                var pendingListDTO = new HousekeeperPendingDTO()
+                {
+                    HousekeeperID = hk.HousekeeperID,
+                    VerifyID = hk.IDVerification.VerifyID,
+                    FrontPhoto = hk.IDVerification.FrontPhoto,
+                    FacePhoto = hk.IDVerification.FacePhoto,
+                    BackPhoto = hk.IDVerification.BackPhoto,
+                    Status = hk.IDVerification.Status,
+                };
+
+                pendingList.Add(pendingListDTO);
+            }
+
+            return Ok(pendingList);
         }
+
 
         [HttpPost("UpdateVerificationStatus")]
         [Authorize]

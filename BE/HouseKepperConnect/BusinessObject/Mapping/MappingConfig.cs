@@ -189,13 +189,8 @@ namespace BusinessObject.Mapping
 
         private void Map_List_Pending_Housekeeper()
         {
-            CreateMap<Housekeeper, HousekeeperPendingDTO>()
-                .ForMember(dest => dest.HousekeeperID, opt => opt.MapFrom(src => src.HousekeeperID)) // Ánh xạ HousekeeperID
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Account != null ? src.Account.Name : "Unknown"))
-                .ForMember(dest => dest.VerifyID, opt => opt.MapFrom(src => src.VerifyID ?? 0));
-            /*ForMember(dest => dest.FrontPhoto, opt => opt.MapFrom(src => src.IDVerification != null ? src.IDVerification.FrontPhoto : new byte[0]))
-            .ForMember(dest => dest.BackPhoto, opt => opt.MapFrom(src => src.IDVerification != null ? src.IDVerification.BackPhoto : new byte[0]))
-            .ForMember(dest => dest.FacePhoto, opt => opt.MapFrom(src => src.IDVerification != null ? src.IDVerification.FacePhoto : new byte[0]));*/
+            CreateMap<HousekeeperPendingDTO, Housekeeper>();
+            CreateMap<HousekeeperPendingDTO, IDVerification>();
         }
 
         private void Map_Update_Withdraw()
