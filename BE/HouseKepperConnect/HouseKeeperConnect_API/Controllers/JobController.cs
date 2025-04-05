@@ -113,8 +113,8 @@ namespace HouseKeeperConnect_API.Controllers
             var slots = new List<int>();
             var days = new List<int>();
 
-            var JobSlotDay = await _jobSlotsService.GetAllJob_SlotsAsync();
-            var JobService = await _jobServiceService.GetAllJob_ServicesAsync();
+            var JobSlotDay = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
+            var JobService = await _jobServiceService.GetJob_ServicesByJobIDAsync(job.JobID);
 
             /*            foreach ( var SlotDay in JobSlotDay)
                         {
