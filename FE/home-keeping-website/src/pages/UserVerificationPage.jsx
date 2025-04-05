@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { FaFilter } from "react-icons/fa";
 import "../assets/styles/Dashboard.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Dữ liệu giả lập (150 bản ghi)
 const generateFakeHousekeepers = () => {
@@ -33,11 +35,20 @@ const UserVerificationPage = () => {
     const [searchParams] = useSearchParams();
     const isDemo = searchParams.get("demo") === "true";
 
+    const [accountInfo, setAccountInfo] = useState(null);
     const [housekeepers, setHousekeepers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [userName, setUserName] = useState("");
+
+    console.log("Housekeepers:", housekeepers);
 
     const shouldShowLoadingOrError = loading || error;
+
+    useEffect(() => {
+        const storedName = localStorage.getItem("userName") || t("staff");
+        setUserName(storedName);
+    }, []);
 
     // View CCCD
     const [selectedHousekeeper, setSelectedHousekeeper] = useState(null);
@@ -65,51 +76,227 @@ const UserVerificationPage = () => {
         setError(null);
 
         const token = localStorage.getItem("authToken");
+        const accountID = localStorage.getItem("accountID");
 
-        axios.get("http://localhost:5280/api/HouseKeeper/ListHousekeeperPending", {
-            params: {
-                pageNumber: 1,
-                pageSize: 1000
-            },
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json"
-            }
-        })
-            .then((response) => {
-                setHousekeepers(
-                    response.data.map((hk) => ({
-                        ...hk,
-                        id: hk.housekeeperID,
-                        status: "Pending",
-                        cccdFront: hk.frontPhoto,
-                        cccdBack: hk.backPhoto,
-                        cccdWithUser: hk.facePhoto
-                    }))
+        if (!token) {
+            setError(t("error_auth"));
+            setLoading(false);
+            return;
+        }
+
+        if (!accountID) {
+            setError(t("error_account"));
+            setLoading(false);
+            return;
+        }
+
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+        };
+
+        // Bước 1: Xác minh tài khoản staff
+        axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+            .then((accountResponse) => {
+                const account = accountResponse.data;
+                if (!account || !account.accountID) throw new Error(t("error_auth"));
+                if (account.roleID != "3") throw new Error(t("error_auth") + " Role authen");
+                setAccountInfo(account);
+
+                // Bước 2: Lấy danh sách housekeeper đang chờ
+                return axios.get(`http://localhost:5280/api/HouseKeeper/ListHousekeeperPending`, {
+                    params: { pageNumber: 1, pageSize: 1000 },
+                    headers
+                });
+            })
+            .then(async (res) => {
+                const baseList = res.data;
+
+                // Bước 3: enrich dữ liệu từng housekeeper
+                const enrichedList = await Promise.all(
+                    baseList.map(async (hk) => {
+                        try {
+                            const detailRes = await axios.get(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByID`, {
+                                params: { id: hk.housekeeperID },
+                                headers
+                            });
+                            const detail = detailRes.data;
+
+                            let accountData = {};
+                            if (detail.accountID) {
+                                try {
+                                    const accountRes = await axios.get(`http://localhost:5280/api/Account/GetAccount`, {
+                                        params: { id: detail.accountID },
+                                        headers
+                                    });
+                                    accountData = accountRes.data;
+                                } catch (err) {
+                                    console.warn(`Không lấy được account của housekeeperID ${hk.housekeeperID}`);
+                                }
+                            }
+
+                            return {
+                                ...hk,
+                                id: hk.housekeeperID,
+                                accountID: hk.accountID,
+                                verifyID: detail.verifyID,
+                                status: "Pending",
+                                cccdFront: hk.frontPhoto,
+                                cccdBack: hk.backPhoto,
+                                cccdWithUser: hk.facePhoto,
+                                workType: detail.workType ?? null,
+
+                                // Thêm từ account:
+                                name: accountData.name || "",
+                                nickname: accountData.nickname || "",
+                                phone: accountData.phone || "",
+                                gender: accountData.gender || null,
+                                avatar: accountData.localProfilePicture || accountData.googleProfilePicture || ""
+                            };
+                        } catch (e) {
+                            console.warn(`Không lấy được detail của housekeeper ID ${hk.housekeeperID}`);
+                            return {
+                                ...hk,
+                                id: hk.housekeeperID,
+                                status: String(hk.status ?? "Pending"),
+                                cccdFront: hk.frontPhoto,
+                                cccdBack: hk.backPhoto,
+                                cccdWithUser: hk.facePhoto
+                            };
+                        }
+                    })
                 );
+
+                setHousekeepers(enrichedList);
             })
             .catch((err) => {
-                console.error("Error fetching housekeepers:", err);
-                setError("Failed to load housekeepers.");
+                console.error("Lỗi khi tải dữ liệu:", err);
+                setError(t("error_loading"));
             })
             .finally(() => {
                 setLoading(false);
             });
     }, [isDemo]);
 
-    const handleApprove = (id) => {
-        setHousekeepers((prev) =>
-            prev.map((hk) => (hk.id === id ? { ...hk, status: "Approved" } : hk))
-        );
-        setSelectedHousekeeper(null);
+    const processVerification = async (verifyID, action = "Approve") => {
+        const token = localStorage.getItem("authToken");
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+        };
+
+        try {
+            // B1: Tạo task
+            const createRes = await axios.post(
+                `http://localhost:5280/api/VerificationTasks/Create`,
+                null,
+                {
+                    params: { verifyID },
+                    headers,
+                }
+            );
+
+            // B2: Gửi hành động
+            const endpoint =
+                action === "Approve"
+                    ? "Approve"
+                    : action === "Reject"
+                        ? "Reject"
+                        : null;
+
+            if (!endpoint) throw new Error("Invalid action type");
+
+            await axios.post(
+                `http://localhost:5280/api/VerificationTasks/${endpoint}`,
+                null,
+                {
+                    params: { verifyID },
+                    headers,
+                }
+            );
+
+            return true;
+        } catch (err) {
+            console.error(`❌ Lỗi xử lý xác minh (${action}):`, err);
+            throw err;
+        }
     };
 
-    const handleReject = (id) => {
-        setHousekeepers((prev) =>
-            prev.map((hk) => (hk.id === id ? { ...hk, status: "Rejected" } : hk))
-        );
-        setSelectedHousekeeper(null);
-    };
+    const handleApprove = async (housekeeper) => {
+        const token = localStorage.getItem("authToken");
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        };
+    
+        try {
+            // B1: Gọi CreateIDVerification
+            await axios.post(`http://localhost:5280/api/IDVerifications/CreateIDVerification`, null, {
+                params: {
+                    housekeeperID: housekeeper.id
+                },
+                headers
+            });
+    
+            // B2: Gọi VerificationTasks/Approve
+            await axios.put(`/api/VerificationTasks/Approve`, null, {
+                params: {
+                    taskId: housekeeper.verifyID,
+                    accountID: housekeeper.accountID,
+                    notes: 'Approved by admin',
+                },
+                headers,
+            });
+    
+            toast.success('✅ Duyệt hồ sơ thành công!');
+            setHousekeepers((prev) =>
+                prev.map((item) =>
+                    item.id === housekeeper.id ? { ...item, status: "Approved" } : item
+                )
+            );
+        } catch (err) {
+            console.error(err);
+            toast.error('❌ Lỗi khi duyệt hồ sơ.');
+        }
+    };    
+
+    const handleReject = async (housekeeper) => {
+        const token = localStorage.getItem("authToken");
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        };
+    
+        try {
+            // B1: Gọi CreateIDVerification
+            await axios.post(`http://localhost:5280/api/IDVerifications/CreateIDVerification`, null, {
+                params: {
+                    housekeeperID: housekeeper.id
+                },
+                headers
+            });
+    
+            // B2: Gọi VerificationTasks/Reject
+            await axios.put(`/api/VerificationTasks/Reject`, null, {
+                params: {
+                    taskId: housekeeper.verifyID,
+                    accountID: housekeeper.accountID,
+                    notes: 'Rejected by admin',
+                },
+                headers,
+            });
+    
+            toast.success('✅ Đã từ chối hồ sơ!');
+            setHousekeepers((prev) =>
+                prev.map((item) =>
+                    item.id === housekeeper.id ? { ...item, status: "Rejected" } : item
+                )
+            );
+        } catch (err) {
+            console.error(err);
+            toast.error('❌ Lỗi khi từ chối hồ sơ.');
+        }
+    };    
 
     const handleViewCCCD = (housekeeper) => {
         if (!housekeeper.cccdFront || !housekeeper.cccdBack || !housekeeper.cccdWithUser) {
@@ -135,10 +322,12 @@ const UserVerificationPage = () => {
     };
 
     // Lọc danh sách theo tên và trạng thái
-    const filteredHousekeepers = housekeepers.filter(hk => {
+    const filteredHousekeepers = housekeepers.filter((hk) => {
+        const name = hk.name || "";
+        const status = hk.status || "";
         return (
-            hk.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            (filterStatus === "All" || hk.status === filterStatus)
+            name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            (filterStatus === "All" || status === filterStatus)
         );
     });
 
@@ -236,6 +425,10 @@ const UserVerificationPage = () => {
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>Nickname</th>
+                        <th>Work Type</th>
+                        <th>Phone</th>
+                        <th>Gender</th>
                         <th>
                             Status ({filterStatus} )
                             <span className="filter-icon" onClick={() => setShowFilter(!showFilter)}>
@@ -259,8 +452,12 @@ const UserVerificationPage = () => {
                         <tr key={hk.id}>
                             <td>{hk.id}</td>
                             <td>{hk.name}</td>
+                            <td>{hk.nickname}</td>
+                            <td>{hk.workType === 1 ? "Full-time" : hk.workType === 2 ? "Part-time" : "Unknown"}</td>
+                            <td>{hk.phone}</td>
+                            <td>{hk.gender === 1 ? "Nam" : hk.gender === 2 ? "Nữ" : "Khác"}</td>
                             <td>
-                                <span className={`status-${hk.status.toLowerCase()}`}>
+                                <span className={`status-${String(hk.status || "").toLowerCase()}`}>
                                     {hk.status}
                                 </span>
                             </td>
@@ -272,7 +469,7 @@ const UserVerificationPage = () => {
                             <td>
                                 {hk.status === "Pending" && (
                                     <>
-                                        <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(hk.id)}>
+                                        <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(hk)}>
                                             Approve
                                         </button>
                                         <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(hk.id)}>
@@ -286,7 +483,7 @@ const UserVerificationPage = () => {
                                     </button>
                                 )}
                                 {hk.status === "Rejected" && (
-                                    <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(hk.id)}>
+                                    <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(hk)}>
                                         Approve
                                     </button>
                                 )}
@@ -352,18 +549,18 @@ const UserVerificationPage = () => {
                         <span className="close" onClick={handleCloseModal}>&times;</span>
                         <h2>CCCD Verification</h2>
                         <p>Housekeeper: {selectedHousekeeper.name}</p>
-                        <div className="cccd-images">
-                            <div>
-                                <p>Front</p>
-                                <img src={selectedHousekeeper.cccdFront || ""} alt="CCCD Front" className="cccd-image" />
+                        <div className="cccd-gallery">
+                            <div className="cccd-item">
+                                <p>Mặt trước</p>
+                                <img src={selectedHousekeeper.cccdFront || ""} alt="CCCD Front" />
                             </div>
-                            <div>
-                                <p>Back</p>
-                                <img src={selectedHousekeeper.cccdBack || ""} alt="CCCD Back" className="cccd-image" />
+                            <div className="cccd-item">
+                                <p>Mặt sau</p>
+                                <img src={selectedHousekeeper.cccdBack || ""} alt="CCCD Back" />
                             </div>
-                            <div>
-                                <p>With User</p>
-                                <img src={selectedHousekeeper.cccdWithUser || ""} alt="CCCD With User" className="cccd-image" />
+                            <div className="cccd-item">
+                                <p>Cầm trên tay</p>
+                                <img src={selectedHousekeeper.cccdWithUser || ""} alt="CCCD With User" />
                             </div>
                         </div>
                         <div className="modal-actions">
@@ -377,6 +574,10 @@ const UserVerificationPage = () => {
                     </div>
                 </div>
             )}
+
+            <ToastContainer position="top-right" autoClose={3000}
+                hideProgressBar={false} newestOnTop={false}
+                closeOnClick pauseOnFocusLoss draggable pauseOnHover />
         </div>
     );
 };

@@ -28,7 +28,7 @@ const StaffDashboardPage = () => {
     }, []);
 
     const menuItems = [
-        { name: t("account_verification"), icon: <FaUserTie />, path: "/dashboard/user" },
+        { name: t("account_verification"), icon: <FaUserTie />, path: "/dashboard/users" },
         { name: t("jobs"), icon: <FaBriefcase />, path: "/dashboard/jobs" },
         { name: t("transactions"), icon: <FaMoneyBillWave />, path: "/dashboard/transactions" },
         { name: t("staff_support"), icon: <FaLifeRing />, path: "/dashboard/support" },

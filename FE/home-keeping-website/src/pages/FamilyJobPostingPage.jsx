@@ -216,7 +216,7 @@ const FamilyJobPostingPage = () => {
         try {
             const response = await axios.post(
                 "http://localhost:5280/api/Job/AddJob",
-                null, // body = null vì mọi thứ truyền qua query
+                null,
                 {
                     headers,
                     params: dataToSubmit,

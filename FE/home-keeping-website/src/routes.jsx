@@ -32,6 +32,7 @@ import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
 import FamilyJobDetailsPage from './pages/FamilyJobDetailsPage';
 import FamilyDepositPage from "./pages/FamilyDepositPage";
 import FamilyDepositReturnPage from "./pages/FamilyDepositReturnPage";
+import FamilyMessagesPage from "./pages/FamilyMessagesPage";
 import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
 import UpdateVerificationPage from './pages/UpdateVerificationPage';
@@ -72,9 +73,10 @@ function AppRoutes() {
         <Route path="/housekeeper/update-verification" element={<UpdateVerificationPage />} />
         <Route path="/housekeeper/wallet" element={<HousekeeperWalletPage />} /> {/* ✅ New route */}
         <Route path="/housekeeper/bookings" element={<HousekeeperBookingManagementPage />} />
+        
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
-        <Route path="/dashboard/user" element={<UserVerificationPage />} />
+        <Route path="/dashboard/users" element={<UserVerificationPage />} />
         <Route path="/dashboard/jobs" element={<StaffJobModerationPage />} />
 
         {/* Family Pages */}
@@ -89,6 +91,7 @@ function AppRoutes() {
         <Route path="/family/deposit" element={<FamilyDepositPage />} />
         <Route path="/family/deposit/return" element={<FamilyDepositReturnPage />} />
         <Route path="/family/transactions" element={<FamilyTransactionPage />} />
+        <Route path="/family/messages" element={<FamilyMessagesPage />} />
       </Routes>
     </Layout>
   );
