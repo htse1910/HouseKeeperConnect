@@ -15,8 +15,6 @@ const FamilyJobManagementPage = () => {
     const accountID = localStorage.getItem("accountID");
     const authToken = localStorage.getItem("authToken");
 
-
-
     const {
         jobs,
         housekeepers,
@@ -168,7 +166,7 @@ const FamilyJobManagementPage = () => {
                     Authorization: `Bearer ${authToken}`,
                     "Content-Type": "application/json"
                 },
-                params: { jobID: jobToDelete.jobID }
+                params: { id: jobToDelete.jobID }
             });
 
             setJobs((prev) => prev.filter((j) => j.jobID !== jobToDelete.jobID));

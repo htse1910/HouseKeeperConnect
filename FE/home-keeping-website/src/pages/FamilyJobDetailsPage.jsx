@@ -181,58 +181,58 @@ const FamilyJobDetailsPage = () => {
             .sort((a, b) => a.slotID - b.slotID);
 
         // 👉 Phần ngày
-        let dayText = "";
         const presetLabel = getDayPresetLabel(sortedDays);
-        const isContinuous = sortedDays.every((d, i, arr) => i === 0 || d === arr[i - 1] + 1);
+        let dayText = "";
 
         if (presetLabel) {
-            dayText = t("jobDetail.workingOnPreset", { preset: presetLabel });
-        } else if (isContinuous) {
-            const first = t(`workingDays.${dayKeys[sortedDays[0]]}`);
-            const last = t(`workingDays.${dayKeys[sortedDays.at(-1)]}`);
-            dayText = t("jobDetail.rangeSchedule", { first, last });
+            dayText = `Làm việc theo lịch: ${presetLabel}`;
         } else {
             const days = sortedDays.map(d => t(`workingDays.${dayKeys[d]}`));
-            dayText = t("jobDetail.listSchedule", { days: days.join(", ") });
+            if (days.length === 7) {
+                dayText = "Làm việc vào thứ 2, thứ 3, thứ 4, thứ 5, thứ 6, thứ 7, và Chủ Nhật";
+            } else {
+                dayText = `Làm việc vào ${days.join(", ").replace(/, ([^,]*)$/, " và $1")}`;
+            }
         }
 
-        // 👉 Phần slot
+        // 👉 Gom slot liên tục
         const ranges = [];
         let startSlot = sortedSlots[0];
 
         for (let i = 1; i <= sortedSlots.length; i++) {
-            const current = sortedSlots[i];
-            const previous = sortedSlots[i - 1];
-
-            if (!current || current.slotID !== previous.slotID + 1) {
+            const curr = sortedSlots[i];
+            const prev = sortedSlots[i - 1];
+            if (!curr || curr.slotID !== prev.slotID + 1) {
                 ranges.push({
                     start: startSlot.time.split(" - ")[0],
-                    end: previous.time.split(" - ")[1],
+                    end: prev.time.split(" - ")[1],
+                    ids: sortedSlots.slice(i - (prev.slotID - startSlot.slotID + 1), i).map(s => s.slotID),
                 });
-                startSlot = current;
+                startSlot = curr;
             }
         }
 
+        // 👉 Phân tích ca và nghỉ trưa
         let timeText = "";
-        if (ranges.length === 1) {
-            timeText = t("jobDetail.fullTime", { start: ranges[0].start, end: ranges[0].end });
+        const fullDay = ranges.length === 1 && ranges[0].start === "8:00" && ranges[0].end === "20:00";
+        const hasMorning = job.slotIDs.includes(3);
+        const hasAfternoon = job.slotIDs.includes(6);
+        const hasLunchGap1 = job.slotIDs.includes(3) && job.slotIDs.includes(5); // nghỉ 11:00–12:00
+        const hasLunchGap2 = job.slotIDs.includes(4) && job.slotIDs.includes(6); // nghỉ 12:00–13:00
+
+        if (fullDay) {
+            timeText = "Thời gian làm việc mỗi ngày từ 8:00 đến 20:00";
+        } else if (hasMorning && hasAfternoon) {
+            timeText = "Thời gian làm việc theo ca, ca sáng: từ 8:00 đến 11:00, ca chiều: từ 13:00 đến 16:00";
         } else {
             const blocks = ranges.map(r => `từ ${r.start} đến ${r.end}`);
-            timeText = t("jobDetail.splitTime", { blocks: blocks.join(" và ") });
+            timeText = `Thời gian làm việc ${blocks.join(" và ")}`;
+        }
 
-            // 👉 Nhận diện nghỉ trưa
-            const gapIndex = sortedSlots.findIndex((s, i, arr) =>
-                i > 0 && s.slotID !== arr[i - 1].slotID + 1
-            );
-            if (gapIndex > 0) {
-                const beforeGap = sortedSlots[gapIndex - 1];
-                const afterGap = sortedSlots[gapIndex];
-                if (beforeGap && afterGap && [3, 4].includes(beforeGap.slotID)) {
-                    const lunchStart = beforeGap.time.split(" - ")[1];
-                    const lunchEnd = afterGap.time.split(" - ")[0];
-                    timeText += `. ${t("jobDetail.lunchBreak", { start: lunchStart, end: lunchEnd })}`;
-                }
-            }
+        if (hasLunchGap1) {
+            timeText += ". Được nghỉ trưa 1 tiếng, từ 11:00 đến 12:00";
+        } else if (hasLunchGap2) {
+            timeText += ". Được nghỉ trưa 1 tiếng, từ 12:00 đến 13:00";
         }
 
         return `${dayText}. ${timeText}.`;
@@ -369,7 +369,7 @@ const FamilyJobDetailsPage = () => {
                                             <button className="job-detail-btn-primary">{t("view_profile")}</button>
                                             <button
                                                 className="job-detail-btn-secondary"
-                                                onClick={() => navigate(`/messages?search=${applicant.nickname}`)}
+                                                onClick={() => navigate(`/family/messages?search=${applicant.nickname}`)}
                                             >
                                                 {t("send_message")}
                                             </button>

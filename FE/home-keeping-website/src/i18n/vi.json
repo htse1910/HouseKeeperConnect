@@ -150,7 +150,7 @@
   },
   "jobDetail": {
     "workingSchedule": "Lịch làm việc",
-    "noSchedule": "Không có lịch cụ thể",
+    "noSchedule": "Chưa có lịch làm việc",
     "everyDay": "Hằng ngày",
     "weekendSchedule": "Làm việc vào cuối tuần",
     "workingOnPreset": "Làm việc theo lịch: {{preset}}",

@@ -302,7 +302,8 @@
     margin-top: 10px;
 }
 
-.pricing-table th, .pricing-table td {
+.pricing-table th,
+.pricing-table td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
@@ -416,4 +417,212 @@
     font-size: 14px;
     color: var(--text-alt-color);
     text-align: center;
+}
+
+
+.family-message-page-container {
+    display: flex;
+    height: 85vh;
+}
+
+.family-message-page-sidebar {
+    width: 25%;
+    background-color: var(--light-gray);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-right: 1px solid var(--border-color);
+}
+
+.family-message-page-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.family-message-page-search input {
+    flex: 1;
+}
+
+.family-message-page-user-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: var(--box-shadow);
+    cursor: pointer;
+}
+
+.family-message-page-user-item.active {
+    background-color: var(--accent-light);
+}
+
+.family-message-page-avatar {
+    font-size: 40px;
+    color: var(--main-color);
+}
+
+.family-message-page-avatar-small {
+    font-size: 28px;
+    margin-right: 8px;
+    color: var(--text-muted);
+}
+
+.family-message-page-name {
+    font-weight: bold;
+    font-size: 15px;
+    color: var(--text-heading);
+}
+
+.family-message-page-email,
+.family-message-page-role {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.family-message-page-chatbox {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.family-message-page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.family-message-page-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: var(--background-color);
+}
+
+.family-message-page-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.family-message-page-message.from-me {
+    justify-content: flex-start;
+}
+
+.family-message-page-message.from-them {
+    justify-content: flex-end;
+}
+
+.bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    background-color: var(--light-gray);
+    max-width: 60%;
+    word-break: break-word;
+}
+
+.bubble.other {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.family-message-page-empty {
+    text-align: center;
+    color: var(--text-alt-color);
+    font-size: 14px;
+}
+
+.family-message-page-input-area {
+    display: flex;
+    padding: 16px;
+    border-top: 1px solid var(--border-color);
+    gap: 8px;
+    background-color: white;
+    position: relative;
+    z-index: 1;
+}
+
+.family-message-page-input-area input {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .family-message-page-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .family-message-page-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .family-message-page-chatbox {
+        width: 100%;
+    }
+
+    .family-message-page-avatar {
+        font-size: 32px;
+    }
+
+    .family-message-page-header {
+        padding: 12px;
+    }
+
+    .family-message-page-messages {
+        padding: 12px;
+    }
+
+    .family-message-page-input-area {
+        padding: 12px;
+        flex-direction: column;
+    }
+
+    .family-message-page-input-area button {
+        width: 100%;
+    }
+
+    .family-message-page-badge {
+        background-color: var(--error-color);
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        line-height: 20px;
+        position: absolute;
+        top: 6px;
+        right: 6px;
+    }
+
+    .family-message-page-user-item {
+        position: relative;
+    }
+
+    .family-message-page-chatbox {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .family-message-page-messages {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 100px;
+    }
+
 }

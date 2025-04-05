@@ -25,18 +25,18 @@ export function useMenuItems() {
       { label: t("support"), link: "/family/support", dropdown: true },
     ],
     Staff: [
-      { label: t("dashboard"), link: "/dashboard" },
-      { label: t("users"), link: "/users" },
-      { label: t("approval"), link: "/approval", dropdown: true },
-      { label: t("analytics"), link: "/analytics" },
-      { label: t("management"), link: "/management" },
+      { label: t("dashboard"), link: "/staff/dashboard" },
+      { label: t("users"), link: "/staff/users" },
+      { label: t("approval"), link: "/staff/approval", dropdown: true },
+      { label: t("analytics"), link: "/staff/analytics" },
+      { label: t("management"), link: "/staff/management" },
     ],
     Admin: [
-      { label: t("dashboard"), link: "/dashboard" },
-      { label: t("users"), link: "/users" },
-      { label: t("approval"), link: "/approval", dropdown: true },
-      { label: t("analytics"), link: "/analytics" },
-      { label: t("management"), link: "/management" },
+      { label: t("dashboard"), link: "/admin/dashboard" },
+      { label: t("users"), link: "/admin/users" },
+      { label: t("approval"), link: "/admin/approval", dropdown: true },
+      { label: t("analytics"), link: "/admin/analytics" },
+      { label: t("management"), link: "/admin/management" },
     ],
   };
 }
