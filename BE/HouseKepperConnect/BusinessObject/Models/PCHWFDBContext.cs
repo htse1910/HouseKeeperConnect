@@ -64,12 +64,17 @@ namespace BusinessObject.Models
 
             modelBuilder.Entity<Slot>().HasData(
                 new Slot { SlotID = 1, Time = "8H - 9H" },
-                new Slot { SlotID = 2, Time = "10H - 11H" },
-                new Slot { SlotID = 3, Time = "12H - 13H" },
-                new Slot { SlotID = 4, Time = "14H - 15H" },
-                new Slot { SlotID = 5, Time = "16H - 17H" },
-                new Slot { SlotID = 6, Time = "18H - 19H" },
-                new Slot { SlotID = 7, Time = "20H - 21H" }
+                new Slot { SlotID = 2, Time = "9H - 10H" },
+                new Slot { SlotID = 3, Time = "10H - 11H" },
+                new Slot { SlotID = 4, Time = "11H - 12H" },
+                new Slot { SlotID = 5, Time = "12H - 13H" },
+                new Slot { SlotID = 6, Time = "13H - 14H" },
+                new Slot { SlotID = 7, Time = "14H - 15H" },
+                new Slot { SlotID = 8, Time = "15H - 16H" },
+                new Slot { SlotID = 9, Time = "16H - 17H" },
+                new Slot { SlotID = 10, Time = "17H - 18H" },
+                new Slot { SlotID = 11, Time = "18H - 19H" },
+                new Slot { SlotID = 12, Time = "19H - 20H" }
                 );
             modelBuilder.Entity<ServiceType>().HasData(
                 new ServiceType { ServiceTypeID = 1, ServiceTypeName = "Dọn dẹp nhà cửa" },
