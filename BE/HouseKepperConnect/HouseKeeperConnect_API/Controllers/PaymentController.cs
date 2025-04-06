@@ -61,7 +61,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             var noti = new Notification();
             noti.AccountID = trans.AccountID;
-            noti.Message = "Bạn đã nạp " + trans.Amount + " vào ví!";
+            noti.Message = "Bạn đã nạp " + trans.Amount+" VNĐ vào ví!";
 
             await _notificationService.AddNotificationAsync(noti);
             Message = "PAID";
@@ -102,7 +102,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 var noti = new Notification();
                 noti.AccountID = trans.AccountID;
-                noti.Message = "Bạn đã hủy nạp " + trans.Amount + " vào ví!";
+                noti.Message = "Bạn đã hủy nạp " + trans.Amount + " VNĐ vào ví!";
 
                 await _notificationService.AddNotificationAsync(noti);
                 return Ok("CANCELLED");

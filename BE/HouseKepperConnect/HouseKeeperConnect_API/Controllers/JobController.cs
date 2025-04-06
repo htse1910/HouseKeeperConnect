@@ -180,7 +180,7 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult> AddJob([FromQuery] JobCreateDTO jobCreateDTO)
         {
-            if (jobCreateDTO == null)
+            if(!ModelState.IsValid)
             {
                 return BadRequest("Invalid job data.");
             }

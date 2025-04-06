@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -19,11 +20,15 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IJobService _jobService;
         private readonly INotificationService _notificationService;
         private readonly IJob_ServiceService _jobServiceService;
+        private readonly IJob_SlotsService _jobSlotsService;
+        private readonly IBooking_SlotsService _bookingSlotsService;
         private readonly IMapper _mapper;
         private string Message;
 
         public ApplicationController(IApplicationService applicationService, IAccountService accountService,
-            IHouseKeeperService houseKeeperService, IMapper mapper, IJobListing_ApplicationService jobListingService, IJobService jobService, INotificationService notificationService, IJob_ServiceService job_ServiceService)
+            IHouseKeeperService houseKeeperService, IMapper mapper, IJobListing_ApplicationService jobListingService, 
+            IJobService jobService, INotificationService notificationService, IJob_ServiceService job_ServiceService,
+            IJob_SlotsService job_SlotsService, IBooking_SlotsService bookingSlotsService)
         {
             _applicationService = applicationService;
             _accountService = accountService;
@@ -33,6 +38,8 @@ namespace HouseKeeperConnect_API.Controllers
             _jobService = jobService;
             _notificationService = notificationService;
             _jobServiceService = job_ServiceService;
+            _jobSlotsService = job_SlotsService;
+            _bookingSlotsService = bookingSlotsService;
         }
 
         [HttpGet("ApplicationList")]
@@ -186,6 +193,47 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+            if (jobDetail == null)
+            {
+                Message = "Job not found!";
+                return NotFound(Message);
+            }
+
+            var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
+            if (jobSlots == null || !jobSlots.Any())
+            {
+                return BadRequest("No slots found for the job.");
+            }
+
+            List<string> bookedSlotMessages = new List<string>(); // Collect errors
+            DateTime currentDate = jobDetail.StartDate;
+            while (currentDate <= jobDetail.EndDate)
+            {
+                foreach (var slot in jobSlots)
+                {
+                    DateTime bookingDate = GetNextDayOfWeek(currentDate, slot.DayOfWeek);
+                    if (bookingDate > jobDetail.EndDate)
+                        continue;
+
+                    bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(
+                        hk.HousekeeperID, slot.SlotID, slot.DayOfWeek, jobDetail.StartDate, jobDetail.EndDate
+                    );
+
+                    if (isSlotBooked)
+                    {
+                        bookedSlotMessages.Add($"Slot {slot.SlotID} on day {slot.DayOfWeek} is already booked.");
+                    }
+                }
+                currentDate = currentDate.AddDays(7);
+            }
+
+            // ✅ If any slot is already booked, do NOT create the booking
+            if (bookedSlotMessages.Any())
+            {
+                return Conflict($"Booking cannot be created because the following slots are already booked:\n{string.Join("\n", bookedSlotMessages)}");
+            }
+
             var app = new Application();
             app.HouseKeeperID = hk.HousekeeperID;
             app.Status = (int)ApplicationStatus.Pending;
@@ -206,6 +254,12 @@ namespace HouseKeeperConnect_API.Controllers
 
             Message = ("Application Added!");
             return Ok(Message);
+        }
+
+        private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
+        {
+            int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
+            return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
         }
 
         [HttpPut("UpdateApplication")]
