@@ -2,9 +2,31 @@
 @import './icon.css';
 
 .App {
-    text-align: center;
-    font-family: var(--font-main);
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    padding: 20px;
+  text-align: center;
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding: 20px;
+}
+
+.modal-backdrop {
+  z-index: 1040 !important;
+}
+
+.modal {
+  z-index: 1050 !important;
+}
+
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+.table th {
+  white-space: nowrap;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
 }

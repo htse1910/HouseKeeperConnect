@@ -1,4 +1,10 @@
 import React, { useState } from "react";
+import {
+  FaIdCard,
+  FaIdBadge,
+  FaUserCheck,
+  FaUpload
+} from "react-icons/fa";
 
 const IDVerificationForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -21,9 +27,12 @@ const IDVerificationForm = ({ onSubmit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
-      <div className="mb-3">
-        <label htmlFor="frontPhoto" className="form-label">Ảnh mặt trước CMND/CCCD</label>
+    <form onSubmit={handleSubmit} className="card p-4 border-0 shadow-sm">
+      <div className="mb-4">
+        <label htmlFor="frontPhoto" className="form-label fw-semibold">
+          <FaIdCard className="me-2 text-primary" />
+          Ảnh mặt trước CMND/CCCD
+        </label>
         <input
           type="file"
           className="form-control"
@@ -34,8 +43,11 @@ const IDVerificationForm = ({ onSubmit }) => {
         />
       </div>
 
-      <div className="mb-3">
-        <label htmlFor="backPhoto" className="form-label">Ảnh mặt sau CMND/CCCD</label>
+      <div className="mb-4">
+        <label htmlFor="backPhoto" className="form-label fw-semibold">
+          <FaIdBadge className="me-2 text-primary" />
+          Ảnh mặt sau CMND/CCCD
+        </label>
         <input
           type="file"
           className="form-control"
@@ -46,8 +58,11 @@ const IDVerificationForm = ({ onSubmit }) => {
         />
       </div>
 
-      <div className="mb-3">
-        <label htmlFor="facePhoto" className="form-label">Ảnh chân dung kèm CMND</label>
+      <div className="mb-4">
+        <label htmlFor="facePhoto" className="form-label fw-semibold">
+          <FaUserCheck className="me-2 text-primary" />
+          Ảnh chân dung kèm CMND
+        </label>
         <input
           type="file"
           className="form-control"
@@ -58,9 +73,15 @@ const IDVerificationForm = ({ onSubmit }) => {
         />
       </div>
 
-      <button type="submit" className="btn btn-warning text-white fw-bold">
-        Gửi xác minh
-      </button>
+      <div className="text-end">
+        <button
+          type="submit"
+          className="btn btn-warning text-white fw-semibold rounded-pill px-4"
+        >
+          <FaUpload className="me-2" />
+          Gửi xác minh
+        </button>
+      </div>
     </form>
   );
 };

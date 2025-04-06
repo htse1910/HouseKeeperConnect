@@ -31,11 +31,33 @@ const ContactInfo = () => {
 
   return (
     <div className="col-md-6 d-flex">
-      <div className="card p-4 shadow-sm w-100 h-100">
-        <h5 className="fw-bold">Thông tin liên hệ</h5>
-        <p><FaPhone className="text-danger me-2" /> {phone}</p>
-        <p><FaEnvelope className="text-danger me-2" /> {email}</p>
-        <p><FaCreditCard className="text-danger me-2" /> {bankAccount}</p>
+      <div className="card shadow-sm border-0 p-4 w-100 h-100">
+        <h5 className="fw-bold mb-3">📞 Thông tin liên hệ</h5>
+        <div className="row g-3">
+          <div className="col-12 d-flex align-items-start">
+            <FaPhone className="text-danger me-3 mt-1" />
+            <div>
+              <div className="text-muted small">Số điện thoại</div>
+              <div className="fw-semibold hover-gold">{phone}</div>
+            </div>
+          </div>
+
+          <div className="col-12 d-flex align-items-start">
+            <FaEnvelope className="text-danger me-3 mt-1" />
+            <div>
+              <div className="text-muted small">Email</div>
+              <div className="fw-semibold hover-gold">{email}</div>
+            </div>
+          </div>
+
+          <div className="col-12 d-flex align-items-start">
+            <FaCreditCard className="text-danger me-3 mt-1" />
+            <div>
+              <div className="text-muted small">Số tài khoản ngân hàng</div>
+              <div className="fw-semibold hover-gold">{bankAccount}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

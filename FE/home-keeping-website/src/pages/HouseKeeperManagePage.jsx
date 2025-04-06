@@ -8,72 +8,69 @@ import {
 } from "react-icons/fa";
 import JobName from "../components/JobName";
 import JobDetailModal from "../components/JobDetailModal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function HouseKeeperManagePage() {
   const [activeTab, setActiveTab] = useState("all");
-  const [housekeeperID, setHousekeeperID] = useState(localStorage.getItem("housekeeperID"));
+  const [housekeeperID] = useState(localStorage.getItem("housekeeperID"));
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [error, setError] = useState(null);
 
+  const fetchApplications = async () => {
+    const authToken = localStorage.getItem("authToken");
+    try {
+      const resApp = await fetch(`http://localhost:5280/api/Application/GetApplicationsByAccountID?uid=${housekeeperID}&pageNumber=1&pageSize=50`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      const appData = await resApp.json();
+
+      const appsWithFamilies = await Promise.all(appData.map(async (app) => {
+        try {
+          const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${app.familyID}`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+          const familyData = await familyRes.json();
+
+          const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${familyData.accountID}`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+          const accData = await accRes.json();
+
+          const jobRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${app.jobID}`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+          const jobData = await jobRes.json();
+
+          return {
+            ...app,
+            familyName: accData.name,
+            price: jobData.price,
+            startDate: jobData.startDate,
+            endDate: jobData.endDate,
+          };
+        } catch (err) {
+          return {
+            ...app,
+            familyName: "Không xác định",
+            price: null,
+          };
+        }
+      }));
+
+      setApplications(appsWithFamilies);
+    } catch (err) {
+      console.error("Lỗi khi tải dữ liệu:", err);
+      setError("Lỗi khi tải dữ liệu.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const authToken = localStorage.getItem("authToken");
-
-      try {
-        // Fetch applications
-        const resApp = await fetch(`http://localhost:5280/api/Application/GetApplicationsByAccountID?uid=${housekeeperID}&pageNumber=1&pageSize=50`, {
-          headers: { "Authorization": `Bearer ${authToken}` }
-        });
-        const appData = await resApp.json();
-
-        const appsWithFamilies = await Promise.all(appData.map(async (app) => {
-          try {
-            const authToken = localStorage.getItem("authToken");
-
-            // 1. Get family name
-            const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${app.familyID}`, {
-              headers: { Authorization: `Bearer ${authToken}` },
-            });
-            const familyData = await familyRes.json();
-
-            const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${familyData.accountID}`, {
-              headers: { Authorization: `Bearer ${authToken}` },
-            });
-            const accData = await accRes.json();
-
-            // 2. Get job price
-            const jobRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${app.jobID}`, {
-              headers: { Authorization: `Bearer ${authToken}` },
-            });
-            const jobData = await jobRes.json();
-
-            return {
-              ...app,
-              familyName: accData.name,
-              price: jobData.price,
-            };
-          } catch (err) {
-            return {
-              ...app,
-              familyName: "Không xác định",
-              price: null,
-            };
-          }
-        }));
-
-        setApplications(appsWithFamilies);
-
-      } catch (err) {
-        console.error("Lỗi khi tải dữ liệu:", err);
-        setError("Lỗi khi tải dữ liệu.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (housekeeperID) fetchData();
+    if (housekeeperID) fetchApplications();
   }, [housekeeperID]);
 
   const tabStatusMap = {
@@ -89,6 +86,7 @@ function HouseKeeperManagePage() {
 
   return (
     <div className="container my-4">
+      <ToastContainer />
       <style>{`
         .scroll-shadow {
           overflow-y: auto;
@@ -176,7 +174,7 @@ function HouseKeeperManagePage() {
                   <strong>Gia đình:</strong> {app.familyName || "Không xác định"} |{" "}
                   <FaMoneyBillWave className="text-success mx-1" />
                   Mức lương: {app.price?.toLocaleString() ?? "N/A"} VND |{" "}
-                  Từ: {new Date(app.startDate).toLocaleDateString()} đến {new Date(app.endDate).toLocaleDateString()}
+                  Từ: {app.startDate ? new Date(app.startDate).toLocaleDateString() : "-"} đến {app.endDate ? new Date(app.endDate).toLocaleDateString() : "-"}
                 </p>
                 <button
                   className="btn btn-sm btn-outline-warning"
@@ -194,7 +192,10 @@ function HouseKeeperManagePage() {
         <JobDetailModal
           jobID={selectedApplication.jobID}
           applicationStatus={selectedApplication.status}
-          onClose={() => setSelectedApplication(null)}
+          onClose={() => {
+            setSelectedApplication(null);
+            fetchApplications(); // Refresh list on close
+          }}
         />
       )}
     </div>

@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  FaIdCard,
+  FaUser,
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaClock,
+} from "react-icons/fa";
 
 const CertificatesAndDocuments = () => {
   const [realName, setRealName] = useState(null);
@@ -38,13 +45,11 @@ const CertificatesAndDocuments = () => {
           if (verification.realName && verification.realName !== "Chưa có") {
             setRealName(verification.realName);
           }
-
           if (verification.idNumber && verification.idNumber !== "Chưa có") {
             setIdNumber(verification.idNumber);
           }
-
           if (verification.dateOfBirth) {
-            setDateOfBirth(new Date(verification.dateOfBirth).toLocaleDateString());
+            setDateOfBirth(new Date(verification.dateOfBirth).toLocaleDateString("vi-VN"));
           }
 
           switch (verification.status) {
@@ -64,17 +69,69 @@ const CertificatesAndDocuments = () => {
 
   return (
     <div className="col-md-6 d-flex">
-      <div className="card p-4 shadow-sm w-100 h-100">
-        <h5 className="fw-bold mb-3">Giấy tờ</h5>
-        <ul className="list-unstyled">
-          {realName && <li><strong>Họ tên:</strong> {realName}</li>}
-          {idNumber && <li><strong>Số CMND/CCCD:</strong> {idNumber}</li>}
-          {dateOfBirth && <li><strong>Ngày sinh:</strong> {dateOfBirth}</li>}
-          <li><strong>Trạng thái:</strong> {verifyStatus}</li>
-        </ul>
-        <Link to="/housekeeper/upload-id" className="btn btn-outline-primary mt-2">
-          Xem / Cập nhật giấy tờ
-        </Link>
+      <div className="card shadow-sm border-0 p-4 w-100 h-100">
+        {/* Header */}
+        <div className="d-flex align-items-center mb-4">
+          <div
+            className="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+            style={{ width: 40, height: 40 }}
+          >
+            <FaIdCard className="text-primary" />
+          </div>
+          <h5 className="fw-bold mb-0">Giấy tờ tùy thân</h5>
+        </div>
+
+        {/* 2-Column Info */}
+        <div className="row g-3">
+          <div className="col-sm-6">
+            <div className="text-muted small">Họ tên</div>
+            <div className="fw-bold hover-gold">
+              {realName || "Chưa cập nhật"}
+            </div>
+          </div>
+          <div className="col-sm-6">
+            <div className="text-muted small">Ngày sinh</div>
+            <div className="fw-bold hover-gold">
+              {dateOfBirth || "Chưa cập nhật"}
+            </div>
+          </div>
+          <div className="col-sm-6">
+            <div className="text-muted small">Số CMND/CCCD</div>
+            <div className="fw-bold hover-gold">
+              {idNumber || "Chưa cập nhật"}
+            </div>
+          </div>
+          <div className="col-sm-6">
+            <div className="text-muted small">Trạng thái</div>
+            <div className="fw-bold">
+              {verifyStatus === "Đã xác minh" ? (
+                <span className="text-success">
+                  <FaCheckCircle className="me-1" />
+                  {verifyStatus}
+                </span>
+              ) : (
+                <span className="text-warning">
+                  <FaClock className="me-1" />
+                  {verifyStatus}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Action */}
+        <div className="mt-4 text-end">
+          <Link
+            to="/housekeeper/upload-id"
+            className="btn btn-sm px-3 py-2 rounded-pill border-0 fw-semibold"
+            style={{
+              backgroundColor: "#e3f2fd",
+              color: "#0d6efd",
+            }}
+          >
+            📎 Xem / Cập nhật giấy tờ
+          </Link>
+        </div>
       </div>
     </div>
   );

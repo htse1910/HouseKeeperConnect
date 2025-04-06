@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { FaMoneyBillWave } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import {
+  FaMoneyBillWave,
+  FaMapMarkerAlt,
+  FaBriefcase,
+  FaUser,
+  FaCalendarAlt,
+  FaFileAlt,
+  FaClock
+} from "react-icons/fa";
 import { serviceMap } from "../utils/serviceMap";
 
-const dayNames = [
-  "Chủ Nhật",
-  "Thứ Hai",
-  "Thứ Ba",
-  "Thứ Tư",
-  "Thứ Năm",
-  "Thứ Sáu",
-  "Thứ Bảy"
-];
-
+const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 const slotMap = {
   1: "8H - 9H",
   2: "10H - 11H",
@@ -38,7 +37,7 @@ const HousekeeperBookingManagementPage = () => {
 
         const fullRows = await Promise.all(bookingData.map(async (booking) => {
           let jobDetail = null;
-          let familyName = "Coming Soon";
+          let familyName = "Đang cập nhật";
 
           try {
             const jobRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${booking.jobID}`, {
@@ -63,16 +62,16 @@ const HousekeeperBookingManagementPage = () => {
 
           return {
             bookingID: booking.bookingID,
-            jobName: jobDetail?.jobName || "Coming Soon",
+            jobName: jobDetail?.jobName || "Đang cập nhật",
             familyName,
-            location: jobDetail?.location || "Coming Soon",
-            price: jobDetail?.price ? `${jobDetail.price.toLocaleString()} VND` : "Coming Soon",
-            startDate: jobDetail?.startDate ? new Date(jobDetail.startDate).toLocaleDateString() : "Coming Soon",
-            endDate: jobDetail?.endDate ? new Date(jobDetail.endDate).toLocaleDateString() : "Coming Soon",
-            description: jobDetail?.description || "Coming Soon",
-            slot: jobDetail?.slotIDs?.map(s => `- ${slotMap[s] || `Slot ${s}`}`).join("\n") || "Coming Soon",
-            days: jobDetail?.dayofWeek?.map(d => `- ${dayNames[d]}`).join("\n") || "Coming Soon",
-            services: jobDetail?.serviceIDs?.map(id => `- ${serviceMap[id]}`).join("\n") || "Coming Soon"
+            location: jobDetail?.location || "Đang cập nhật",
+            price: jobDetail?.price ? `${jobDetail.price.toLocaleString()} VND` : "Đang cập nhật",
+            startDate: jobDetail?.startDate ? new Date(jobDetail.startDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
+            endDate: jobDetail?.endDate ? new Date(jobDetail.endDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
+            description: jobDetail?.description || "Đang cập nhật",
+            slot: Array.isArray(jobDetail?.slotIDs) ? jobDetail.slotIDs.map(s => slotMap[s] || `Slot ${s}`) : [],
+            days: Array.isArray(jobDetail?.dayofWeek) ? jobDetail.dayofWeek.map(d => dayNames[d]) : [],
+            services: Array.isArray(jobDetail?.serviceIDs) ? jobDetail.serviceIDs.map(id => serviceMap[id]) : []
           };
         }));
 
@@ -88,45 +87,61 @@ const HousekeeperBookingManagementPage = () => {
   }, [housekeeperID, authToken]);
 
   return (
-    <div className="container my-4">
-      <h3 className="fw-bold mb-4">Danh sách Đặt công việc</h3>
+    <div className="container py-5">
+      <h3 className="fw-bold mb-4 text-primary">📋 Danh sách đặt công việc</h3>
       {loading ? (
-        <p>Loading...</p>
+        <p className="text-muted">⏳ Đang tải dữ liệu...</p>
+      ) : rows.length === 0 ? (
+        <p className="text-muted">Không có công việc nào được đặt.</p>
       ) : (
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>Booking ID</th>
-              <th>Tên công việc</th>
-              <th>Gia đình</th>
-              <th>Địa điểm</th>
-              <th>Mức lương</th>
-              <th>Ngày bắt đầu</th>
-              <th>Ngày kết thúc</th>
-              <th>Mô tả</th>
-              <th>Slot</th>
-              <th>Ngày trong tuần</th>
-              <th>Dịch vụ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, idx) => (
-              <tr key={idx}>
-                <td>{row.bookingID}</td>
-                <td>{row.jobName}</td>
-                <td>{row.familyName}</td>
-                <td>{row.location}</td>
-                <td><FaMoneyBillWave className="text-success me-1" /> {row.price}</td>
-                <td>{row.startDate}</td>
-                <td>{row.endDate}</td>
-                <td>{row.description}</td>
-                <td style={{ whiteSpace: "pre-line" }}>{row.slot}</td>
-                <td style={{ whiteSpace: "pre-line" }}>{row.days}</td>
-                <td style={{ whiteSpace: "pre-line" }}>{row.services}</td>
+        <div className="table-responsive shadow-sm rounded border">
+          <table className="table table-bordered table-striped table-hover align-middle">
+            <thead className="table-light text-center">
+              <tr>
+                <th>#</th>
+                <th><FaBriefcase className="me-1 text-secondary" />Công việc</th>
+                <th><FaUser className="me-1 text-secondary" />Gia đình</th>
+                <th><FaMapMarkerAlt className="me-1 text-danger" />Địa điểm</th>
+                <th><FaMoneyBillWave className="me-1 text-success" />Lương</th>
+                <th><FaCalendarAlt className="me-1 text-primary" />Bắt đầu</th>
+                <th><FaCalendarAlt className="me-1 text-danger" />Kết thúc</th>
+                <th><FaFileAlt className="me-1 text-secondary" />Mô tả</th>
+                <th><FaClock className="me-1 text-info" />Slot</th>
+                <th>📅 Thứ</th>
+                <th>🛎️ Dịch vụ</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((row, idx) => (
+                <tr key={idx}>
+                  <td className="text-center fw-bold">{row.bookingID}</td>
+                  <td>{row.jobName}</td>
+                  <td>{row.familyName}</td>
+                  <td><span className="badge bg-light text-dark">{row.location}</span></td>
+                  <td><span className="badge bg-success-subtle text-success">{row.price}</span></td>
+                  <td><span className="badge bg-primary-subtle text-primary">{row.startDate}</span></td>
+                  <td><span className="badge bg-danger-subtle text-danger">{row.endDate}</span></td>
+                  <td className="small">{row.description}</td>
+                  <td className="small">
+                    <ul className="ps-3 mb-0">
+                      {row.slot.map((s, i) => <li key={i} className="text-info">{s}</li>)}
+                    </ul>
+                  </td>
+                  <td className="small">
+                    <ul className="ps-3 mb-0">
+                      {row.days.map((d, i) => <li key={i} className="text-warning">{d}</li>)}
+                    </ul>
+                  </td>
+                  <td className="small">
+                    <ul className="ps-3 mb-0">
+                      {row.services.map((s, i) => <li key={i} className="text-success">{s}</li>)}
+                    </ul>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

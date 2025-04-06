@@ -1,0 +1,11 @@
+.hover-gold {
+  transition: color 0.3s ease;
+  cursor: default;
+  font-weight: 700 !important;
+  font-family: "Segoe UI", sans-serif; /* Clean and modern font */
+  letter-spacing: 0.2px;    /* Slight tracking for elegance */
+}
+
+.hover-gold:hover {
+  color: #ffe600;           /* Bright yellow */
+}
