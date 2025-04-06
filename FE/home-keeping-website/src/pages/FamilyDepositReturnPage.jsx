@@ -29,7 +29,7 @@ function FamilyDepositReturnPage() {
     setTransactionId(transID);
     setAmount(amountValue);
 
-    if (transID && result === "success") {
+    if (transID && result === "paid") {
       axios
         .get(`http://localhost:5280/api/Payment/success?orderCode=${transID}`, { headers })
         .then((res) => {

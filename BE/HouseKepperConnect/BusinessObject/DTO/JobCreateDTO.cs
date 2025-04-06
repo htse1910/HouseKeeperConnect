@@ -13,6 +13,7 @@ namespace BusinessObject.DTO
         public string JobName { get; set; }
 
         [Required]
+        [Range(1,2, ErrorMessage ="Job type must be 1 or 2!")]
         public int JobType { get; set; }
 
         // JobDetail fields
