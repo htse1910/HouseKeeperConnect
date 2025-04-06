@@ -75,7 +75,7 @@ function UpdateHousekeeperPage() {
       const text = await response.text();
       if (response.ok) {
         toast.success("✅ Cập nhật thành công!");
-        setTimeout(() => navigate(-1), 1500); // 👈 Go back after 1.5s
+        setTimeout(() => navigate(-1), 1500);
       } else {
         toast.error(text || "❌ Có lỗi xảy ra.");
       }
@@ -88,61 +88,65 @@ function UpdateHousekeeperPage() {
   return (
     <div className="container my-5">
       <ToastContainer />
-      <div className="card shadow-sm p-4">
-        <h2 className="mb-4">Cập nhật thông tin người giúp việc</h2>
+      <div className="card shadow-sm p-4 border-0">
+        <h4 className="fw-bold mb-4 text-primary">Cập nhật thông tin người giúp việc</h4>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Họ tên:</label>
+        <form onSubmit={handleSubmit} className="row g-3">
+          <div className="col-md-6">
+            <label className="form-label">Họ tên</label>
             <input type="text" className="form-control" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Số điện thoại:</label>
+          <div className="col-md-6">
+            <label className="form-label">Số điện thoại</label>
             <input type="text" className="form-control" value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Email:</label>
+          <div className="col-md-6">
+            <label className="form-label">Email</label>
             <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Giới thiệu:</label>
-            <textarea className="form-control" rows={3} value={introduction} onChange={(e) => setIntroduction(e.target.value)} />
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label">Số tài khoản ngân hàng:</label>
+          <div className="col-md-6">
+            <label className="form-label">Số tài khoản ngân hàng</label>
             <input type="text" className="form-control" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Địa chỉ:</label>
+          <div className="col-12">
+            <label className="form-label">Giới thiệu</label>
+            <textarea className="form-control" rows={3} value={introduction} onChange={(e) => setIntroduction(e.target.value)} />
+          </div>
+
+          <div className="col-12">
+            <label className="form-label">Địa chỉ</label>
             <input type="text" className="form-control" value={location} onChange={(e) => setLocation(e.target.value)} />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Ảnh đại diện:</label>
+          <div className="col-md-4">
+            <label className="form-label">Ảnh đại diện</label>
             <input type="file" className="form-control" onChange={(e) => setLocalProfilePicture(e.target.files[0])} />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Ảnh mặt trước CMND:</label>
+          <div className="col-md-4">
+            <label className="form-label">Ảnh mặt trước CMND</label>
             <input type="file" className="form-control" onChange={(e) => setFrontPhoto(e.target.files[0])} />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Ảnh mặt sau CMND:</label>
+          <div className="col-md-4">
+            <label className="form-label">Ảnh mặt sau CMND</label>
             <input type="file" className="form-control" onChange={(e) => setBackPhoto(e.target.files[0])} />
           </div>
 
-          <div className="mb-4">
-            <label className="form-label">Ảnh khuôn mặt:</label>
+          <div className="col-md-4">
+            <label className="form-label">Ảnh khuôn mặt</label>
             <input type="file" className="form-control" onChange={(e) => setFacePhoto(e.target.files[0])} />
           </div>
 
-          <button type="submit" className="btn btn-primary">Lưu thay đổi</button>
+          <div className="col-12 text-end mt-4">
+            <button type="submit" className="btn btn-primary px-4 py-2 fw-semibold">
+              Lưu thay đổi
+            </button>
+          </div>
         </form>
       </div>
     </div>

@@ -1,0 +1,15 @@
+.review-scroll-area {
+    max-height: 160px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: goldenrod transparent;
+  }
+  
+  .review-scroll-area::-webkit-scrollbar {
+    width: 5px;
+  }
+  .review-scroll-area::-webkit-scrollbar-thumb {
+    background-color: goldenrod;
+    border-radius: 4px;
+  }
+  

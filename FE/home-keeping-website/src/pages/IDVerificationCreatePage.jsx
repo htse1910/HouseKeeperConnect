@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import IDVerificationForm from "../components/IDVerificationForm";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const IDVerificationCreatePage = () => {
   const housekeeperID = localStorage.getItem("housekeeperID");
@@ -33,7 +33,7 @@ const IDVerificationCreatePage = () => {
 
       if (response.ok) {
         toast.success("✅ " + (result.message || "Xác minh thành công!"));
-        setTimeout(() => navigate(-1), 500); // Go back after short delay
+        setTimeout(() => navigate(-1), 800);
       } else {
         toast.warn("⚠️ " + (result.message || "Không thể gửi xác minh."));
       }
@@ -46,25 +46,34 @@ const IDVerificationCreatePage = () => {
   };
 
   return (
-    <div className="container py-4">
+    <div className="container py-5">
       <ToastContainer />
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="fw-bold">Xác minh giấy tờ tùy thân</h3>
-        <Link to="/housekeeper/update-verification" className="btn btn-warning">
-          Cập nhật giấy tờ xác minh
-        </Link>
-      </div>
-
-      {verifyID && verifyID !== "0" ? (
-        <div className="alert alert-info">
-          Bạn đã gửi thông tin xác minh. Vui lòng cập nhật thay vì tạo mới.
+      <div className="card shadow-sm border-0 p-4">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h4 className="fw-bold mb-0">
+            📄 Xác minh giấy tờ tùy thân
+          </h4>
+          <Link
+            to="/housekeeper/update-verification"
+            className="btn btn-outline-warning fw-semibold rounded-pill"
+          >
+            🔁 Cập nhật xác minh
+          </Link>
         </div>
-      ) : (
-        <>
-          <p className="text-muted mb-3">Vui lòng gửi ảnh chụp giấy tờ theo yêu cầu bên dưới.</p>
-          <IDVerificationForm onSubmit={handleFormSubmit} disabled={isSubmitting} />
-        </>
-      )}
+
+        {verifyID && verifyID !== "0" ? (
+          <div className="alert alert-info mb-0">
+            Bạn đã gửi thông tin xác minh. Nếu cần, vui lòng cập nhật thay vì gửi mới.
+          </div>
+        ) : (
+          <>
+            <p className="text-muted mb-4">
+              Vui lòng tải lên hình ảnh giấy tờ theo định dạng yêu cầu bên dưới.
+            </p>
+            <IDVerificationForm onSubmit={handleFormSubmit} disabled={isSubmitting} />
+          </>
+        )}
+      </div>
     </div>
   );
 };

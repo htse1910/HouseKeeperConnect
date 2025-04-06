@@ -32,21 +32,15 @@ const RecentTransactionsCard = () => {
   useEffect(() => {
     if (!accountID || !authToken) return;
 
-    // Fetch wallet
     fetch(`http://localhost:5280/api/Wallet/getWallet?id=${accountID}`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
+      headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
       .then((data) => setWallet(data))
       .catch((err) => console.error("Lỗi khi lấy ví:", err));
 
-    // Fetch transactions (max 5)
     fetch(`http://localhost:5280/api/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=5`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
+      headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -60,61 +54,61 @@ const RecentTransactionsCard = () => {
   }, [accountID, authToken]);
 
   return (
-    <div className="card p-4 shadow-sm h-100">
-      <h5 className="fw-semibold mb-3">Giao dịch gần đây</h5>
+    <div className="card shadow-sm border-0 p-4 h-100">
+      <h5 className="fw-bold mb-3 d-flex align-items-center">
+        <FaMoneyBillWave className="text-success me-2" />
+        Giao dịch gần đây
+      </h5>
 
+      {/* Wallet Summary */}
       {wallet && (
-        <div className="card mb-3 bg-light border shadow-sm p-3">
+        <div className="card bg-light border-0 shadow-sm p-3 mb-4">
           <div className="d-flex justify-content-between align-items-center">
             <div>
-              <h6 className="mb-1">
+              <div className="fw-semibold mb-1">
                 <FaWallet className="me-2 text-primary" />
                 Ví hiện tại
-              </h6>
-              <small className="text-muted">Cập nhật: {new Date(wallet.updatedAt).toLocaleString()}</small>
+              </div>
+              <small className="text-muted">Cập nhật: {new Date(wallet.updatedAt).toLocaleString("vi-VN")}</small>
             </div>
             <div className="text-end">
-              <span className="fw-bold text-success" style={{ fontSize: "1.2rem" }}>
+              <div className="fw-bold text-success fs-5">
                 {wallet.balance.toLocaleString("vi-VN")}₫
-              </span>
-              <br />
+              </div>
               <small className="text-muted">Đang giữ: {wallet.onHold.toLocaleString("vi-VN")}₫</small>
             </div>
           </div>
         </div>
       )}
 
+      {/* Transaction List */}
       {loading ? (
         <p className="text-muted text-center">Đang tải...</p>
       ) : transactions.length === 0 ? (
         <p className="text-muted text-center">Không có giao dịch nào gần đây.</p>
       ) : (
-        <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+        <div style={{ maxHeight: "240px", overflowY: "auto" }}>
           <ul className="list-group list-group-flush small">
             {transactions.map((tx, index) => (
-              <li
-                key={index}
-                className="list-group-item px-2 py-2"
-              >
+              <li key={index} className="list-group-item rounded shadow-sm mb-2 border-0 px-3 py-3 bg-light">
                 <div className="d-flex justify-content-between align-items-start">
-                  <div className="me-2">
-                    <FaMoneyBillWave className="text-success me-2" />
+                  <div className="me-2 mt-1">
+                    <FaMoneyBillWave className="text-success" />
                   </div>
+
                   <div className="flex-grow-1">
-                    <div className="d-flex justify-content-between">
-                      <span className="text-break fw-semibold">{tx.description || "Giao dịch"}</span>
-                      <span className={`ms-2 ${getStatusClass(tx.status)}`}>
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <span className="fw-semibold text-break">{tx.description || "Giao dịch"}</span>
+                      <span className={`ms-2 ${getStatusClass(tx.status)} d-flex align-items-center`}>
                         <FaInfoCircle className="me-1" />
                         {getStatusLabel(tx.status)}
                       </span>
                     </div>
-                    <small className="text-muted d-flex align-items-center mt-1">
+                    <small className="text-muted d-flex align-items-center mb-1">
                       <FaClock className="me-1" />
-                      {new Date(tx.createdDate).toLocaleString()}
+                      {new Date(tx.createdDate).toLocaleString("vi-VN")}
                     </small>
-                    <div className="fw-bold text-success mt-1">
-                      {tx.amount.toLocaleString("vi-VN")}₫
-                    </div>
+                    <div className="fw-bold text-success">{tx.amount.toLocaleString("vi-VN")}₫</div>
                   </div>
                 </div>
               </li>

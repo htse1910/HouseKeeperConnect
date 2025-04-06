@@ -1,106 +1,117 @@
 import React, { useEffect, useState } from "react";
-import { FaBriefcase, FaCheckCircle } from "react-icons/fa";
+import { FaBriefcase, FaCheckCircle, FaClock, FaRocket } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import "../assets/styles/HousekeeperWelcomeCard.css"; // Ensure styling for equal height
+import "../assets/styles/HousekeeperWelcomeCard.css";
 
 const HousekeeperWelcomeCard = () => {
   const [fullName, setFullName] = useState("...");
-  const [jobsApplied, setJobsApplied] = useState(0);
+  const [jobsPending, setJobsPending] = useState(0);
   const [jobsAccepted, setJobsAccepted] = useState(0);
+
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
     if (!accountID || !authToken) return;
 
-    // Fetch Housekeeper Name
+    // Fetch account name
     fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
-      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
     })
-      .then((res) => res.json())
-      .then((data) => {
+      .then(res => res.json())
+      .then(data => {
         setFullName(data.name || "Người dùng");
       })
-      .catch((error) => console.error("Lỗi khi lấy dữ liệu tài khoản:", error));
+      .catch(error => console.error("Lỗi khi lấy dữ liệu tài khoản:", error));
 
-    // Fetch Housekeeper Stats (Jobs Applied & Accepted)
+    // Fetch housekeeper info + application stats
     fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
-      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
       },
     })
-      .then((res) => res.json())
-      .then((data) => {
-        setJobsApplied(data.jobsApplied || 0);
-        setJobsAccepted(data.jobCompleted || 0);
-        localStorage.setItem("housekeeperID", data.housekeeperID); // Save ID to localStorage
-        localStorage.setItem("verifyID", data.verifyID); // ✅ new line to store verifyID
-      })
-      .catch((error) => console.error("Lỗi khi lấy dữ liệu công việc:", error));
+      .then(res => res.json())
+      .then(async (data) => {
+        localStorage.setItem("housekeeperID", data.housekeeperID);
+        localStorage.setItem("verifyID", data.verifyID);
 
+        // Get applications
+        const resApp = await fetch(
+          `http://localhost:5280/api/Application/GetApplicationsByAccountID?uid=${data.housekeeperID}&pageNumber=1&pageSize=1000`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+
+        const apps = await resApp.json();
+        setJobsPending(apps.filter(app => app.status === 1).length);
+        setJobsAccepted(apps.filter(app => app.status === 2).length);
+      })
+      .catch(error => console.error("Lỗi khi lấy dữ liệu ứng tuyển:", error));
   }, [accountID, authToken]);
 
   return (
-    <div className="card p-4 shadow-sm">
-      {/* Welcome Message */}
-      <div className="d-flex justify-content-between align-items-start">
+    <div className="card shadow-sm border-0 p-4">
+      {/* Welcome Header */}
+      <div className="d-flex justify-content-between align-items-start mb-3">
         <div>
-          <h2 className="fw-bold">Chào mừng bạn trở lại, {fullName}!</h2>
-          <p className="text-muted">Khám phá những công việc phù hợp với bạn.</p>
+          <h4 className="fw-bold mb-1">👋 Chào mừng trở lại, {fullName}!</h4>
+          <p className="text-muted mb-0">Hãy khám phá các cơ hội công việc dành cho bạn.</p>
         </div>
-        <Link to="/my-jobs" className="btn btn-outline-secondary mt-1">
+        <Link to="/my-jobs" className="btn btn-outline-secondary rounded-pill">
           Quản lý công việc của tôi
         </Link>
       </div>
 
-      {/* Statistics Row */}
-      <div className="row mt-3">
-        {/* Applied Jobs */}
+      {/* Stats */}
+      <div className="row g-3 mt-2">
+        {/* Pending Applications */}
         <div className="col-md-4">
-          <div className="stats-card">
-            <p className="text-muted small">Công việc đã ứng tuyển</p>
+          <div className="p-3 border rounded shadow-sm h-100">
+            <div className="text-muted small mb-1">Đang chờ duyệt</div>
             <div className="d-flex align-items-center">
-              <strong className="fs-4">{jobsApplied}</strong>
-              <FaBriefcase className="text-warning fs-5 ms-auto" />
+              <span className="fs-4 fw-bold">{jobsPending}</span>
+              <FaClock className="ms-auto text-info fs-5" />
             </div>
           </div>
         </div>
 
-        {/* Accepted Jobs */}
+        {/* Accepted Applications */}
         <div className="col-md-4">
-          <div className="stats-card">
-            <p className="text-muted small">Công việc đã nhận</p>
+          <div className="p-3 border rounded shadow-sm h-100">
+            <div className="text-muted small mb-1">Đã nhận việc</div>
             <div className="d-flex align-items-center">
-              <strong className="fs-4">{jobsAccepted}</strong>
-              <FaCheckCircle className="text-warning fs-5 ms-auto" />
+              <span className="fs-4 fw-bold">{jobsAccepted}</span>
+              <FaCheckCircle className="ms-auto text-success fs-5" />
             </div>
           </div>
         </div>
 
-        {/* Available Jobs */}
+        {/* Explore Jobs */}
         <div className="col-md-4">
-          <div className="stats-card d-flex justify-content-between align-items-center">
+          <div className="p-3 border rounded shadow-sm h-100 d-flex justify-content-between align-items-center">
             <div>
-              <p className="text-muted small">Nhiều công việc chờ bạn khám phá</p>
-              <strong className="fs-4">2M+</strong>
+              <div className="text-muted small mb-1">Công việc chờ bạn</div>
+              <span className="fs-5 fw-bold">2M+</span>
             </div>
-            <Link to="/housekeeper/jobs" className="btn btn-warning text-white">
-              Tìm việc ngay
+            <Link to="/housekeeper/jobs" className="btn btn-warning text-white fw-semibold rounded-pill px-3">
+              <FaRocket className="me-1" />
+              Tìm việc
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Booking Management Button */}
-      <div className="mt-3">
-        <Link to="/housekeeper/bookings" className="btn btn-primary">
-          Quản lý đặt công việc
+      {/* Booking Management */}
+      <div className="mt-4 text-end">
+        <Link to="/housekeeper/bookings" className="btn btn-primary rounded-pill px-4 fw-semibold">
+          Quản lý đặt lịch
         </Link>
       </div>
     </div>

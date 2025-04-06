@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import {
+  FaIdCard,
+  FaIdBadge,
+  FaUser,
+  FaCalendarAlt,
+  FaCheck,
+  FaUpload,
+} from "react-icons/fa";
+import "react-toastify/dist/ReactToastify.css";
 
 const UpdateVerificationPage = () => {
   const [realName, setRealName] = useState("");
@@ -71,43 +79,90 @@ const UpdateVerificationPage = () => {
   };
 
   return (
-    <div className="container my-5">
+    <div className="container py-5">
       <ToastContainer />
-      <div className="card p-4 shadow-sm">
-        <h3 className="mb-4">Cập nhật giấy tờ xác minh</h3>
+      <div className="card shadow-sm border-0 p-4">
+        <h4 className="fw-bold mb-4">
+          <FaIdCard className="me-2 text-primary" />
+          Cập nhật giấy tờ xác minh
+        </h4>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label className="form-label">Họ tên:</label>
-            <input type="text" className="form-control" value={realName} onChange={(e) => setRealName(e.target.value)} required />
+        <form onSubmit={handleSubmit} className="row g-4">
+          <div className="col-md-6">
+            <label className="form-label text-muted small">
+              <FaUser className="me-2 text-danger" />
+              Họ tên
+            </label>
+            <input
+              type="text"
+              className="form-control fw-semibold"
+              value={realName}
+              onChange={(e) => setRealName(e.target.value)}
+              required
+            />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Số CMND/CCCD:</label>
-            <input type="text" className="form-control" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} required />
+          <div className="col-md-6">
+            <label className="form-label text-muted small">
+              <FaIdBadge className="me-2 text-danger" />
+              Số CMND/CCCD
+            </label>
+            <input
+              type="text"
+              className="form-control fw-semibold"
+              value={idNumber}
+              onChange={(e) => setIdNumber(e.target.value)}
+              required
+            />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Ngày sinh:</label>
-            <input type="date" className="form-control" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required />
+          <div className="col-md-6">
+            <label className="form-label text-muted small">
+              <FaCalendarAlt className="me-2 text-danger" />
+              Ngày sinh
+            </label>
+            <input
+              type="date"
+              className="form-control fw-semibold"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+              required
+            />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Ảnh mặt trước CMND:</label>
-            <input type="file" className="form-control" onChange={(e) => setFrontPhoto(e.target.files[0])} />
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">Ảnh mặt trước CMND</label>
+            <input
+              type="file"
+              className="form-control"
+              onChange={(e) => setFrontPhoto(e.target.files[0])}
+            />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Ảnh mặt sau CMND:</label>
-            <input type="file" className="form-control" onChange={(e) => setBackPhoto(e.target.files[0])} />
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">Ảnh mặt sau CMND</label>
+            <input
+              type="file"
+              className="form-control"
+              onChange={(e) => setBackPhoto(e.target.files[0])}
+            />
           </div>
 
-          <div className="mb-4">
-            <label className="form-label">Ảnh khuôn mặt:</label>
-            <input type="file" className="form-control" onChange={(e) => setFacePhoto(e.target.files[0])} />
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">Ảnh khuôn mặt</label>
+            <input
+              type="file"
+              className="form-control"
+              onChange={(e) => setFacePhoto(e.target.files[0])}
+            />
           </div>
 
-          <button type="submit" className="btn btn-primary">Lưu cập nhật</button>
+          <div className="col-12 text-end">
+            <button type="submit" className="btn btn-primary px-4 rounded-pill fw-semibold">
+              <FaUpload className="me-2" />
+              Lưu cập nhật
+            </button>
+          </div>
         </form>
       </div>
     </div>
