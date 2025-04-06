@@ -109,6 +109,7 @@
   "job_moderation_title": "Danh sách kiểm duyệt công việc",
   "job_pending": "Đang chờ",
   "job_title": "Tiêu đề công việc",
+  "job_type": "Loại công việc",
   "job_verified": "Công việc đã xác minh",
   "location": "Địa điểm",
   "no_description": "Không có mô tả",
@@ -135,6 +136,7 @@
   "transaction_type": "Loại giao dịch",
   "transaction_unknown": "Không rõ loại giao dịch",
   "transaction_withdraw": "Giao dịch rút tiền",
+  "return_now": "Trở về ngay",
   "job": {
     "posted": "Công việc đã đăng",
     "completed": "Công việc đã hoàn thành",
@@ -186,7 +188,10 @@
     "descriptionPlaceholder": "Nhập mô tả công việc chi tiết...",
     "posting": "Đang đăng...",
     "serviceTypeLabel": "Loại công việc (có thể chọn nhiều)",
-    "workingDaysLabel": "Ngày làm việc trong tuần"
+    "workingDaysLabel": "Ngày làm việc trong tuần",
+    "jobTypePlaceholder": "Chọn loại công việc",
+    "fullTime": "Toàn thời gian",
+    "partTime": "Bán thời gian"
   },
   "workingDays": {
     "sunday": "Chủ Nhật",

@@ -56,7 +56,7 @@ const StaffJobModerationPage = () => {
         })
             .then((response) => {
                 const mapped = response.data
-                    .filter(job => job.status === 3)
+                    .filter(job => job.status === 1)
                     .map((job) => ({
                         id: job.jobID,
                         title: job.jobName,

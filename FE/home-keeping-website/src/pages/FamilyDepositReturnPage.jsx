@@ -22,28 +22,42 @@ function FamilyDepositReturnPage() {
   };
 
   useEffect(() => {
-    const result = searchParams.get("status")?.toLowerCase();
+    const result = searchParams.get("status")?.toLowerCase(); // success / cancelled
+    const orderCode = searchParams.get("orderCode");
+    const amountValue = searchParams.get("amount");
+
     setStatus(result);
-    setTransactionId(searchParams.get("orderCode"));
-    setAmount(searchParams.get("amount"));
-  
-    if (result === "success" && accountID) {
+    setTransactionId(orderCode);
+    setAmount(amountValue);
+
+    if (orderCode && result === "success") {
       axios
-        .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-        .then((res) => {
-          setBalance(res.data.balance || null);
+        .get(`http://localhost:5280/api/Payment/success?orderCode=${orderCode}`, { headers })
+        .then(() => {
+          axios
+            .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+            .then((res) => setBalance(res.data.balance || null))
+            .catch(() => setBalance(null));
         })
-        .catch(() => {
-          setBalance(null);
+        .catch((err) => {
+          console.error("❌ Failed to confirm success:", err);
         });
     }
-  
+
+    if (orderCode && result === "cancelled") {
+      axios
+        .get(`http://localhost:5280/api/Payment/cancel?orderCode=${orderCode}`, { headers })
+        .catch((err) => {
+          console.error("❌ Failed to confirm cancel:", err);
+        });
+    }
+
     const timeout = setTimeout(() => {
       window.location.href = "/family/dashboard";
     }, 5000);
-  
+
     return () => clearTimeout(timeout);
-  }, [searchParams]);  
+  }, [searchParams]);
 
   const getStatusTitle = () => {
     switch (status) {
