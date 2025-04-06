@@ -9,7 +9,6 @@ function FamilyDepositReturnPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState(null);
-  const [balance, setBalance] = useState(null);
   const [transactionId, setTransactionId] = useState(null);
   const [amount, setAmount] = useState(null);
 
@@ -22,28 +21,42 @@ function FamilyDepositReturnPage() {
   };
 
   useEffect(() => {
-    const result = searchParams.get("status")?.toLowerCase();
+    const result = searchParams.get("status")?.toLowerCase(); // success / cancelled
+    const transID = searchParams.get("orderCode");
+    const amountValue = searchParams.get("amount");
+
     setStatus(result);
-    setTransactionId(searchParams.get("orderCode"));
-    setAmount(searchParams.get("amount"));
-  
-    if (result === "success" && accountID) {
+    setTransactionId(transID);
+    setAmount(amountValue);
+
+    if (transID && result === "success") {
       axios
-        .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+        .get(`http://localhost:5280/api/Payment/success?orderCode=${transID}`, { headers })
         .then((res) => {
-          setBalance(res.data.balance || null);
+          if (res.data === "PAID") {
+            setStatus("success");
+          } else {
+            setStatus("failed");
+          }
         })
         .catch(() => {
-          setBalance(null);
+          setStatus("failed");
         });
     }
-  
+
+    if (transID && result === "cancelled") {
+      axios
+        .get(`http://localhost:5280/api/Payment/cancel?orderCode=${transID}`, { headers })
+        .then(() => setStatus("cancelled"))
+        .catch(() => setStatus("failed"));
+    }
+
     const timeout = setTimeout(() => {
       window.location.href = "/family/dashboard";
     }, 5000);
-  
+
     return () => clearTimeout(timeout);
-  }, [searchParams]);  
+  }, [searchParams]);
 
   const getStatusTitle = () => {
     switch (status) {
@@ -89,13 +102,6 @@ function FamilyDepositReturnPage() {
             </p>
           )}
         </div>
-      )}
-
-      {balance !== null && (
-        <p className="payment-balance">
-          🪙 <strong>{t("current_balance")}:</strong>{" "}
-          {Number(balance).toLocaleString()} VNĐ
-        </p>
       )}
 
       <p className="payment-note mt-3">{t("redirecting_dashboard")}</p>

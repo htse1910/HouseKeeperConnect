@@ -15,6 +15,7 @@ const FamilyJobPostingPage = () => {
 
     const [formData, setFormData] = useState({
         JobName: "",
+        JobType: "",
         Location: "",
         Price: "",
         StartDate: start,
@@ -181,6 +182,10 @@ const FamilyJobPostingPage = () => {
             return "Vui lòng chọn ít nhất một khung giờ làm việc.";
         }
 
+        if (!data.JobType || isNaN(data.JobType)) {
+            return "Vui lòng chọn loại công việc.";
+        }
+
         return null;
     };
 
@@ -192,6 +197,7 @@ const FamilyJobPostingPage = () => {
 
         const dataToSubmit = {
             JobName: formData.JobName,
+            JobType: parseInt(formData.JobType),
             Location: formData.Location,
             Price: parseFloat(formData.Price),
             StartDate: new Date(formData.StartDate).toISOString(),
@@ -224,14 +230,16 @@ const FamilyJobPostingPage = () => {
                         indexes: null
                     }
                 }
-            );                    
+            );
 
+            console.log("Data Submited", dataToSubmit);
             console.log("Job created:", response.data);
             setMessage("🎉 Công việc đã được đăng thành công!");
             window.scrollTo({ top: 0, behavior: "smooth" });
 
             setFormData({
                 JobName: "",
+                JobType: "",
                 Location: "",
                 Price: "",
                 StartDate: start,
@@ -279,6 +287,20 @@ const FamilyJobPostingPage = () => {
                             placeholder={t("jobPost.jobTitlePlaceholder")}
                             required
                         />
+                    </div>
+                    <div className="job-posting-row">
+                        <label>{t("job_type")}</label>
+                        <select
+                            name="JobType"
+                            className="job-posting-input"
+                            value={formData.JobType}
+                            onChange={handleChange}
+                            required
+                        >
+                            <option value="">{t("jobPost.jobTypePlaceholder")}</option>
+                            <option value="1">{t("jobPost.fullTime")}</option>
+                            <option value="2">{t("jobPost.partTime")}</option>
+                        </select>
                     </div>
                     <div className="job-posting-row">
                         <label>{t("location")}</label>
