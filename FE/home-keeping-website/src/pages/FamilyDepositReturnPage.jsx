@@ -9,7 +9,6 @@ function FamilyDepositReturnPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState(null);
-  const [balance, setBalance] = useState(null);
   const [transactionId, setTransactionId] = useState(null);
   const [amount, setAmount] = useState(null);
 
@@ -23,33 +22,33 @@ function FamilyDepositReturnPage() {
 
   useEffect(() => {
     const result = searchParams.get("status")?.toLowerCase(); // success / cancelled
-    const orderCode = searchParams.get("orderCode");
+    const transID = searchParams.get("orderCode");
     const amountValue = searchParams.get("amount");
 
     setStatus(result);
-    setTransactionId(orderCode);
+    setTransactionId(transID);
     setAmount(amountValue);
 
-    if (orderCode && result === "success") {
+    if (transID && result === "success") {
       axios
-        .get(`http://localhost:5280/api/Payment/success?orderCode=${orderCode}`, { headers })
-        .then(() => {
-          axios
-            .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-            .then((res) => setBalance(res.data.balance || null))
-            .catch(() => setBalance(null));
+        .get(`http://localhost:5280/api/Payment/success?orderCode=${transID}`, { headers })
+        .then((res) => {
+          if (res.data === "PAID") {
+            setStatus("success");
+          } else {
+            setStatus("failed");
+          }
         })
-        .catch((err) => {
-          console.error("❌ Failed to confirm success:", err);
+        .catch(() => {
+          setStatus("failed");
         });
     }
 
-    if (orderCode && result === "cancelled") {
+    if (transID && result === "cancelled") {
       axios
-        .get(`http://localhost:5280/api/Payment/cancel?orderCode=${orderCode}`, { headers })
-        .catch((err) => {
-          console.error("❌ Failed to confirm cancel:", err);
-        });
+        .get(`http://localhost:5280/api/Payment/cancel?orderCode=${transID}`, { headers })
+        .then(() => setStatus("cancelled"))
+        .catch(() => setStatus("failed"));
     }
 
     const timeout = setTimeout(() => {
@@ -103,13 +102,6 @@ function FamilyDepositReturnPage() {
             </p>
           )}
         </div>
-      )}
-
-      {balance !== null && (
-        <p className="payment-balance">
-          🪙 <strong>{t("current_balance")}:</strong>{" "}
-          {Number(balance).toLocaleString()} VNĐ
-        </p>
       )}
 
       <p className="payment-note mt-3">{t("redirecting_dashboard")}</p>
