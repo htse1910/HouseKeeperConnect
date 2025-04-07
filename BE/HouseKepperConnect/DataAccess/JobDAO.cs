@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -29,14 +30,14 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Job>> GetAllJobsAsync()
+        public async Task<List<Job>> GetAllJobsAsync(int pageNumber, int pageSize)
         {
             var list = new List<Job>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -46,7 +47,7 @@ namespace DataAccess
             return list;
         }
 
-        public async Task<List<JobDetail>> SearchJobsAsync(string name)
+        public async Task<List<JobDetail>> SearchJobsAsync(string name, int pageNumber, int pageSize)
         {
             var list = new List<JobDetail>();
             try
@@ -54,7 +55,7 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     list = await context.JobDetail.Include(j => j.Job).Include(j => j.Job.Family)
-                        .Where(j => j.Job.JobName.Contains(name) && j.Job.Status == (int)JobStatus.Verified && j.HousekeeperID == null).ToListAsync();
+                        .Where(j => j.Job.JobName.Contains(name) && j.Job.Status == (int)JobStatus.Verified && j.HousekeeperID == null).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -64,14 +65,14 @@ namespace DataAccess
             return list;
         }
 
-        public async Task<List<JobDetail>> GetAllDetailJobsAsync()
+        public async Task<List<JobDetail>> GetAllDetailJobsAsync(int pageNumber, int pageSize)
         {
             var list = new List<JobDetail>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.JobDetail.Include(j => j.Job).Include(j => j.Job.Family).Include(j => j.Job.Family.Account).ToListAsync();
+                    list = await context.JobDetail.Include(j => j.Job).Include(j => j.Job.Family).Include(j => j.Job.Family.Account).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -158,13 +159,13 @@ namespace DataAccess
             return jobdetail;
         }
 
-        public async Task<List<Job>> GetJobsByAccountIDAsync(int accountId)
+        public async Task<List<Job>> GetJobsByAccountIDAsync(int accountId, int pageNumber, int pageSize)
         {
             using var context = new PCHWFDBContext();
-            return await context.Job.Where(j => j.FamilyID == accountId).ToListAsync();
+            return await context.Job.Where(j => j.FamilyID == accountId).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
-        public async Task<List<Job>> GetJobsPastWeekAsync()
+        public async Task<List<Job>> GetJobsPastWeekAsync(int pageNumber, int pageSize)
         {
             try
             {
@@ -172,8 +173,7 @@ namespace DataAccess
                 {
                     var oneWeekAgo = DateTime.Now.AddDays(-7);
                     var jobs = await context.Job
-                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Completed)
-                .ToListAsync();
+                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Completed).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
 
                     return jobs;
                 }
@@ -184,7 +184,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Job>> GetJobsVerifiedPastWeekAsync()
+        public async Task<List<Job>> GetJobsVerifiedPastWeekAsync(int pageNumber, int pageSize)
         {
             try
             {
@@ -192,8 +192,7 @@ namespace DataAccess
                 {
                     var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
                     var jobs = await context.Job
-                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Verified)
-                .ToListAsync();
+                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Verified).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
 
                     return jobs;
                 }

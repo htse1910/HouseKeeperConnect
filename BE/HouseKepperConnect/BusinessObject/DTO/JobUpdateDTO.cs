@@ -4,31 +4,22 @@ namespace BusinessObject.DTOs
 {
     public class JobUpdateDTO
     {
+        [Required]
         public int JobID { get; set; }
-
+        [Required]
         public string JobName { get; set; }
-
-        public int FamilyID { get; set; }
+        [Required]
         public int Status { get; set; }
 
-        [Required]
-        public int JobType { get; set; }
-
         // JobDetail fields
-        public string Location { get; set; }
+        [Required]
+        public decimal Price { get; set; }
+        [Required]
+        public DateTime StartDate { get; set; }
+        [Required]
+        public DateTime EndDate { get; set; }
 
-        public decimal? Price { get; set; }
-
-        public int? ServiceID { get; set; }
-
-        public DateTime? StartDate { get; set; }
-
-        public DateTime? EndDate { get; set; }
-
-        public string Description { get; set; }
-        public int? StartSlot { get; set; }
-
-        public int? EndSlot { get; set; }
+        public string? Description { get; set; }
         public int? HousekeeperID { get; set; }
     }
 }
