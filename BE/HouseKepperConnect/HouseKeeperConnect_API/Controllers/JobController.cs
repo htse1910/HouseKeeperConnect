@@ -423,7 +423,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("VerifyJob")]
-        [Authorize(Roles = "STAFF")]
+        [Authorize]
         public async Task<IActionResult> VerifyJob([FromQuery] int jobId, [FromQuery] int status)
         {
             // Validate allowed statuses
@@ -464,8 +464,18 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult> DeleteJob([FromQuery] int id)
         {
-            await _jobService.DeleteJobAsync(id);
-            Message = "Job deleted successfully!";
+            var job = await _jobService.GetJobByIDAsync(id);
+            if (job == null)
+            {
+                Message = "Job not found!";
+                return NotFound(Message);
+            }
+
+            // Set status to Canceled
+            job.Status = (int)JobStatus.Canceled;
+            await _jobService.UpdateJobAsync(job);
+
+            Message = "Job has been canceled successfully!";
             return Ok(Message);
         }
     }
