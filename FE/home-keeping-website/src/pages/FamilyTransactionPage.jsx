@@ -5,14 +5,17 @@ import axios from "axios";
 import "../assets/styles/Transaction.css";
 
 const generateFakeTransactions = () => {
+    const transactionTypes = [1, 2, 3, 4]; // enum hợp lệ
+    const statuses = [1, 2, 3, 4]; // enum hợp lệ
+
     return Array.from({ length: 37 }, (_, i) => ({
         transactionID: 1000 + i,
-        transactionType: i % 3,
+        transactionType: transactionTypes[i % transactionTypes.length],
         amount: 100000 + i * 50000,
         fee: 5000,
         description: "Giao dịch thử nghiệm",
         createdDate: new Date(Date.now() - i * 86400000).toISOString(),
-        status: i % 3,
+        status: statuses[i % statuses.length],
     }));
 };
 
@@ -42,10 +45,11 @@ const FamilyTransactionPage = () => {
     const MAX_VISIBLE_PAGES = 15;
     const [inputPage, setInputPage] = useState("");
 
+    const filteredTransactions = transactions.filter(txn => [1, 2, 4].includes(txn.status));
     const indexOfLastRecord = currentPage * recordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = transactions.slice(indexOfFirstRecord, indexOfLastRecord);
-    const totalPages = Math.ceil(transactions.length / recordsPerPage);
+    const currentRecords = filteredTransactions.slice(indexOfFirstRecord, indexOfLastRecord);
+    const totalPages = Math.ceil(filteredTransactions.length / recordsPerPage);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -113,10 +117,15 @@ const FamilyTransactionPage = () => {
                 const acc = res.data;
                 if (!acc || !acc.accountID) throw new Error(t("error_auth"));
 
-                return axios.get(`http://localhost:5280/api/Transaction/GetTransactionByUserID?accountID=${accountID}`, { headers });
+                return axios.get(`http://localhost:5280/api/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=100`, { headers });
             })
             .then((txnRes) => {
-                setTransactions(txnRes.data || []);
+                const txnData = txnRes.data || [];
+                setTransactions(txnData);
+
+                console.log("Transactions:", txnData);
+                console.log("Filtered:", txnData.filter(txn => [1, 2, 4].includes(txn.status)));
+
             })
             .catch((err) => {
                 console.error("API Error:", err);
@@ -129,19 +138,21 @@ const FamilyTransactionPage = () => {
 
     const getTransactionTypeLabel = (type) => {
         switch (type) {
-            case 0: return t("transaction_deposit");
-            case 1: return t("transaction_payment");
-            case 2: return t("transaction_withdraw");
+            case 1: return t("transactionStatus.deposit");
+            case 2: return t("transactionStatus.withdrawal");
+            case 3: return t("transactionStatus.payment");
+            case 4: return t("transactionStatus.payout");
             default: return t("transaction_unknown");
         }
     };
 
     const getStatusLabel = (status) => {
         switch (status) {
-            case 0: return t("status_processing");
-            case 1: return t("status_success");
-            case 2: return t("status_failed");
-            default: return t("status_unknown");
+            case 1: return t("transactionStatus.pending");
+            case 2: return t("transactionStatus.completed");
+            case 3: return t("transactionStatus.expired");
+            case 4: return t("transactionStatus.cancelled");
+            default: return t("transactionStatus.unknown");
         }
     };
 
@@ -176,7 +187,7 @@ const FamilyTransactionPage = () => {
                 {t("transaction_history")} {isDemo && "(Demo Mode)"}
             </h1>
 
-            {transactions.length === 0 ? (
+            {filteredTransactions.length === 0 ? (
                 <p>{t("no_transactions")}</p>
             ) : (
                 <>
@@ -205,7 +216,7 @@ const FamilyTransactionPage = () => {
                                     <td>{new Date(txn.createdDate).toLocaleDateString("vi-VN")}</td>
                                     <td>
                                         <button className="btn-secondary" onClick={() => setSelectedTransaction(txn)}>
-                                            {t("view_detail")}
+                                            {t("job.view_detail")}
                                         </button>
                                     </td>
                                 </tr>

@@ -35,6 +35,7 @@ import FamilyDepositReturnPage from "./pages/FamilyDepositReturnPage";
 import FamilyMessagesPage from "./pages/FamilyMessagesPage";
 import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
+import FamilyJobDetailUpdatePage from './pages/FamilyJobDetailUpdatePage';
 import UpdateVerificationPage from './pages/UpdateVerificationPage';
 import HousekeeperWalletPage from './pages/HousekeeperWalletPage'; // ✅ Add this line
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -86,7 +87,7 @@ function AppRoutes() {
         <Route path="/family/invite" element={<FamilyInvitationPage />} />
         <Route path="/family/post-job" element={<FamilyJobPostingPage />} />
         <Route path="/family/my-posts" element={<FamilyJobManagementPage />} />
-        <Route path="/family/job/update/:id" element={<JobDetailsPage />} />
+        <Route path="/family/job/update/:id" element={<FamilyJobDetailUpdatePage />} />
         <Route path="/family/job/detail/:id" element={<FamilyJobDetailsPage />} />
         <Route path="/family/deposit" element={<FamilyDepositPage />} />
         <Route path="/family/deposit/return" element={<FamilyDepositReturnPage />} />
