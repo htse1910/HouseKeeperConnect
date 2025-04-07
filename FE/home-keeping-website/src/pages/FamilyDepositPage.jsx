@@ -65,7 +65,7 @@ const FamilyDepositPage = () => {
       .then((res) => {
         const paymentUrl = res.data;
         if (paymentUrl?.startsWith("http")) {
-          window.open(paymentUrl, "_blank");
+          window.location.href = paymentUrl;
         } else {
           setSuccess(true);
           setTimeout(() => setSuccess(false), 3000);
