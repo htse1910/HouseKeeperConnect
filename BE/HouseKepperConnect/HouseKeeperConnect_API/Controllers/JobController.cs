@@ -394,6 +394,68 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
+        [HttpPut("DenyJob")]
+        [Authorize]
+        public async Task<ActionResult> DenyJob([FromQuery] int jobId, int accountID)
+        {
+            if (jobId <= 0)
+            {
+                return BadRequest("Invalid Job ID.");
+            }
+
+            try
+            {
+                var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+                if (hk == null)
+                {
+                    return NotFound("Housekeeper not found.");
+                }
+
+                var job = await _jobService.GetJobByIDAsync(jobId);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+                if (jobDetail == null)
+                {
+                    return NotFound("Job detail not found.");
+                }
+
+                if (jobDetail.HousekeeperID != hk.HousekeeperID)
+                {
+                    return Forbid("You are not permitted to deny this job.");
+                }
+
+                // Update status and remove HousekeeperID
+                job.Status = (int)JobStatus.Verified;
+                await _jobService.UpdateJobAsync(job);
+
+                jobDetail.HousekeeperID = null;
+                await _jobService.UpdateJobDetailAsync(jobDetail);
+
+                // Send notification to the Family/Account who posted the job
+                var notification = new Notification
+                {
+                    AccountID = job.FamilyID, // Or use job.AccountID depending on your model
+                    Message = $"Your job '{job.JobName}' was denied by the housekeeper.",
+                    CreatedDate = DateTime.Now,
+                    IsRead = false
+                };
+
+                await _notificationService.AddNotificationAsync(notification);
+
+                return Ok("Job has been denied and the family has been notified.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in DenyJob: {ex.Message}");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+
         [HttpPut("UpdateJob")]
         [Authorize]
         public async Task<ActionResult> UpdateJob([FromQuery] JobUpdateDTO jobUpdateDTO)
