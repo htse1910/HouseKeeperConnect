@@ -422,6 +422,44 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
+        [HttpPut("VerifyJob")]
+        [Authorize(Roles = "STAFF")]
+        public async Task<IActionResult> VerifyJob([FromQuery] int jobId, [FromQuery] int status)
+        {
+            // Validate allowed statuses
+            if (status != (int)JobStatus.Verified && status != (int)JobStatus.NotPermitted)
+            {
+                Message = "Invalid status. Only Verified (2) or NotPermitted (7) are allowed.";
+                return BadRequest(Message);
+            }
+
+            // Fetch job
+            var job = await _jobService.GetJobByIDAsync(jobId);
+            if (job == null)
+            {
+                Message = "Job not found!";
+                return NotFound(Message);
+            }
+
+            // Only allow verify if job is still Pending
+            if (job.Status != (int)JobStatus.Pending)
+            {
+                Message = "Only jobs with Pending status can be verified.";
+                return StatusCode(StatusCodes.Status403Forbidden, Message);
+            }
+
+            // Update and save
+            job.Status = status;
+            await _jobService.UpdateJobAsync(job);
+
+            Message = status == (int)JobStatus.Verified
+                ? "Job verified successfully!"
+                : "Job marked as not permitted.";
+
+            return Ok(Message);
+        }
+
+
         [HttpDelete("DeleteJob")]
         [Authorize]
         public async Task<ActionResult> DeleteJob([FromQuery] int id)
