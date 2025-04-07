@@ -180,84 +180,38 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult> AddJob([FromQuery] JobCreateDTO jobCreateDTO)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest("Invalid job data.");
             }
 
-            // Create a new job with a 'Pending' status
-            var job = _mapper.Map<Job>(jobCreateDTO);
-            job.Status = (int)JobStatus.Pending;
-
-            // Save the job
-            await _jobService.AddJobAsync(job);
-
-            // Add job details
-            var jobDetail = _mapper.Map<JobDetail>(jobCreateDTO);
-            jobDetail.JobID = job.JobID;
-            await _jobService.AddJobDetailAsync(jobDetail);
-
-            // Add job services
-            foreach (var serviceID in jobCreateDTO.ServiceIDs)
+            // If job is offered to a specific housekeeper, validate required info
+            if (jobCreateDTO.HousekeeperID.HasValue)
             {
-                var jobService = new Job_Service
+                // Check if the slots are available for the housekeeper
+                foreach (var slotID in jobCreateDTO.SlotIDs)
                 {
-                    JobID = job.JobID,
-                    ServiceID = serviceID
-                };
-                await _jobServiceService.AddJob_ServiceAsync(jobService);
-            }
-
-            // Add job slots
-            foreach (var slotID in jobCreateDTO.SlotIDs)
-            {
-                foreach (var day in jobCreateDTO.DayofWeek)
-                {
-                    var jobSlot = new Job_Slots
+                    foreach (var day in jobCreateDTO.DayofWeek)
                     {
-                        JobID = job.JobID,
-                        SlotID = slotID,
-                        DayOfWeek = day
-                    };
-                    await _jobSlotsService.AddJob_SlotsAsync(jobSlot);
-                }
-            }
+                        bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(
+                            jobCreateDTO.HousekeeperID.Value,
+                            slotID,
+                            day,
+                            jobCreateDTO.StartDate,
+                            jobCreateDTO.EndDate
+                        );
 
-            return Ok("Job created successfully!");
-        }
-
-        [HttpPost("AddJobForHousekeeper")]
-        [Authorize]
-        public async Task<ActionResult> AddJobForHousekeeper([FromQuery] JobCreateDTO jobCreateDTO)
-        {
-            if (jobCreateDTO == null || !jobCreateDTO.HousekeeperID.HasValue)
-            {
-                return BadRequest("Invalid data. HousekeeperID is required when IsOffered is true.");
-            }
-
-            // Check if the slots are available for the housekeeper
-            foreach (var slotID in jobCreateDTO.SlotIDs)
-            {
-                foreach (var day in jobCreateDTO.DayofWeek)
-                {
-                    // Check if any of the slots are already booked for the housekeeper in the given date range
-                    bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(
-                        jobCreateDTO.HousekeeperID.Value, slotID, day, jobCreateDTO.StartDate, jobCreateDTO.EndDate
-                    );
-
-                    if (isSlotBooked)
-                    {
-                        // If the slot is already booked, return a conflict error and prevent the job creation
-                        return Conflict($"Slot {slotID} for day {day} is already booked for this housekeeper in the selected date range.");
+                        if (isSlotBooked)
+                        {
+                            return Conflict($"Slot {slotID} for day {day} is already booked for this housekeeper in the selected date range.");
+                        }
                     }
                 }
             }
 
-            // Create a new job with a 'Pending' status
+            // Create and save job
             var job = _mapper.Map<Job>(jobCreateDTO);
-            job.Status = (int)JobStatus.Pending;  // Job is still Pending until the housekeeper accepts
-
-            // Save the job
+            job.Status = (int)JobStatus.Pending;
             await _jobService.AddJobAsync(job);
 
             // Add job details
@@ -291,8 +245,14 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            return Ok("Job created successfully for the housekeeper!");
+            // Final response
+            string message = jobCreateDTO.HousekeeperID.HasValue
+                ? "Job created successfully for the housekeeper!"
+                : "Job created successfully!";
+
+            return Ok(message);
         }
+
 
         /*
                 private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
@@ -394,6 +354,68 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
+        [HttpPut("DenyJob")]
+        [Authorize]
+        public async Task<ActionResult> DenyJob([FromQuery] int jobId, int accountID)
+        {
+            if (jobId <= 0)
+            {
+                return BadRequest("Invalid Job ID.");
+            }
+
+            try
+            {
+                var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+                if (hk == null)
+                {
+                    return NotFound("Housekeeper not found.");
+                }
+
+                var job = await _jobService.GetJobByIDAsync(jobId);
+                if (job == null)
+                {
+                    return NotFound("Job not found.");
+                }
+
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+                if (jobDetail == null)
+                {
+                    return NotFound("Job detail not found.");
+                }
+
+                if (jobDetail.HousekeeperID != hk.HousekeeperID)
+                {
+                    return Forbid("You are not permitted to deny this job.");
+                }
+
+                // Update status and remove HousekeeperID
+                job.Status = (int)JobStatus.Verified;
+                await _jobService.UpdateJobAsync(job);
+
+                jobDetail.HousekeeperID = null;
+                await _jobService.UpdateJobDetailAsync(jobDetail);
+
+                // Send notification to the Family/Account who posted the job
+                var notification = new Notification
+                {
+                    AccountID = job.FamilyID, // Or use job.AccountID depending on your model
+                    Message = $"Your job '{job.JobName}' was denied by the housekeeper.",
+                    CreatedDate = DateTime.Now,
+                    IsRead = false
+                };
+
+                await _notificationService.AddNotificationAsync(notification);
+
+                return Ok("Job has been denied and the family has been notified.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in DenyJob: {ex.Message}");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+
         [HttpPut("UpdateJob")]
         [Authorize]
         public async Task<ActionResult> UpdateJob([FromQuery] JobUpdateDTO jobUpdateDTO)
@@ -422,12 +444,60 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
+        [HttpPut("VerifyJob")]
+        [Authorize]
+        public async Task<IActionResult> VerifyJob([FromQuery] int jobId, [FromQuery] int status)
+        {
+            // Validate allowed statuses
+            if (status != (int)JobStatus.Verified && status != (int)JobStatus.NotPermitted)
+            {
+                Message = "Invalid status. Only Verified (2) or NotPermitted (7) are allowed.";
+                return BadRequest(Message);
+            }
+
+            // Fetch job
+            var job = await _jobService.GetJobByIDAsync(jobId);
+            if (job == null)
+            {
+                Message = "Job not found!";
+                return NotFound(Message);
+            }
+
+            // Only allow verify if job is still Pending
+            if (job.Status != (int)JobStatus.Pending)
+            {
+                Message = "Only jobs with Pending status can be verified.";
+                return StatusCode(StatusCodes.Status403Forbidden, Message);
+            }
+
+            // Update and save
+            job.Status = status;
+            await _jobService.UpdateJobAsync(job);
+
+            Message = status == (int)JobStatus.Verified
+                ? "Job verified successfully!"
+                : "Job marked as not permitted.";
+
+            return Ok(Message);
+        }
+
+
         [HttpDelete("DeleteJob")]
         [Authorize]
         public async Task<ActionResult> DeleteJob([FromQuery] int id)
         {
-            await _jobService.DeleteJobAsync(id);
-            Message = "Job deleted successfully!";
+            var job = await _jobService.GetJobByIDAsync(id);
+            if (job == null)
+            {
+                Message = "Job not found!";
+                return NotFound(Message);
+            }
+
+            // Set status to Canceled
+            job.Status = (int)JobStatus.Canceled;
+            await _jobService.UpdateJobAsync(job);
+
+            Message = "Job has been canceled successfully!";
             return Ok(Message);
         }
     }
