@@ -181,14 +181,15 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult> AddJob([FromQuery] JobCreateDTO jobCreateDTO)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest("Invalid job data.");
-            }
 
-            // If job is offered to a specific housekeeper, validate required info
-            if (jobCreateDTO.HousekeeperID.HasValue)
+            // If the job is offered to a housekeeper, validate HousekeeperID and slot availability
+            if (jobCreateDTO.IsOffered)
             {
-                // Check if the slots are available for the housekeeper
+                if (!jobCreateDTO.HousekeeperID.HasValue)
+                    return BadRequest("HousekeeperID is required when IsOffered is true.");
+
+                // Check slot conflicts
                 foreach (var slotID in jobCreateDTO.SlotIDs)
                 {
                     foreach (var day in jobCreateDTO.DayofWeek)
@@ -209,9 +210,10 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            // Create and save job
+            // Create job
             var job = _mapper.Map<Job>(jobCreateDTO);
             job.Status = (int)JobStatus.Pending;
+
             await _jobService.AddJobAsync(job);
 
             // Add job details
@@ -245,14 +247,8 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            // Final response
-            string message = jobCreateDTO.HousekeeperID.HasValue
-                ? "Job created successfully for the housekeeper!"
-                : "Job created successfully!";
-
-            return Ok(message);
+            return Ok("Job created successfully!");
         }
-
 
         /*
                 private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
@@ -443,6 +439,62 @@ namespace HouseKeeperConnect_API.Controllers
             Message = "Job updated successfully!";
             return Ok(Message);
         }
+
+        [HttpPut("OfferJob")]
+        [Authorize]
+        public async Task<ActionResult> OfferJob([FromQuery] int jobId, [FromQuery] int housekeeperId)
+        {
+            if (jobId <= 0 || housekeeperId <= 0)
+            {
+                return BadRequest("Invalid job ID or housekeeper ID.");
+            }
+
+            // Get the job and job detail
+            var job = await _jobService.GetJobByIDAsync(jobId);
+            if (job == null)
+            {
+                return NotFound("Job not found.");
+            }
+
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+            if (jobDetail == null)
+            {
+                return NotFound("Job detail not found.");
+            }
+
+            // Get job slots
+            var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
+            if (jobSlots == null || !jobSlots.Any())
+            {
+                return BadRequest("Job does not contain any slot data.");
+            }
+
+            // Check if any of the slots conflict with the housekeeper's existing bookings
+            foreach (var slot in jobSlots)
+            {
+                bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(
+                    housekeeperId,
+                    slot.SlotID,
+                    slot.DayOfWeek,
+                    jobDetail.StartDate,
+                    jobDetail.EndDate
+                );
+
+                if (isSlotBooked)
+                {
+                    return Conflict($"Slot {slot.SlotID} on day {slot.DayOfWeek} is already booked for this housekeeper during the selected date range.");
+                }
+            }
+
+            // No conflicts — offer the job
+            jobDetail.HousekeeperID = housekeeperId;
+            jobDetail.IsOffered = true;
+
+            await _jobService.UpdateJobDetailAsync(jobDetail);
+
+            return Ok("Job has been offered to the housekeeper successfully.");
+        }
+
 
         [HttpPut("VerifyJob")]
         [Authorize]
