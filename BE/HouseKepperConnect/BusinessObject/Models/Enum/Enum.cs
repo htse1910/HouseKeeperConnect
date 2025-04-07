@@ -43,6 +43,7 @@
         Completed = 4,
         Expired = 5,
         Canceled = 6,
+        NotPermitted = 7,
     }
 
     public enum ReportStatus
