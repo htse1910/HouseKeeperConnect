@@ -41,9 +41,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("JobList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync()
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var jobs = await _jobService.GetAllJobsAsync();
+            var jobs = await _jobService.GetAllJobsAsync(pageNumber, pageSize);
 
             if (jobs == null || !jobs.Any())
             {
@@ -141,7 +141,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetJobsByAccountID")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsByAccountID([FromQuery] int accountId)
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsByAccountID([FromQuery] int accountId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
 
             var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountId);
@@ -150,7 +150,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No account found";
                 return NotFound(Message);
             }
-            var jobs = await _jobService.GetJobsByAccountIDAsync(fa.FamilyID);
+            var jobs = await _jobService.GetJobsByAccountIDAsync(fa.FamilyID, pageNumber, pageSize);
             if (jobs == null || !jobs.Any())
             {
                 Message = "No records!";
