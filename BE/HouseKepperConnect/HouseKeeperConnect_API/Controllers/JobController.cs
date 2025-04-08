@@ -656,5 +656,92 @@ namespace HouseKeeperConnect_API.Controllers
             Message = "Job has been canceled successfully!";
             return Ok(Message);
         }
+        [HttpPost("CancelJob")]
+        [Authorize]
+        public async Task<ActionResult> CancelJob([FromQuery] int jobId, [FromQuery] int accountId)
+        {
+            try
+            {
+                var job = await _jobService.GetJobByIDAsync(jobId);
+                if (job == null)
+                    return NotFound("Job not found.");
+
+                // ⛔️ Prevent canceling completed jobs
+                if (job.Status == (int)JobStatus.Completed)
+                    return BadRequest("Cannot cancel a job that is already completed.");
+
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+                if (jobDetail == null)
+                    return NotFound("Job detail not found.");
+
+                var family = await _familyProfileService.GetFamilyByIDAsync(job.FamilyID);
+                if (family == null)
+                    return NotFound("Family not found.");
+
+                bool isFamily = family.AccountID == accountId;
+                bool isHousekeeper = jobDetail.HousekeeperID == accountId;
+
+                if (!isFamily && !isHousekeeper)
+                    return Forbid("You are not authorized to cancel this job.");
+
+                bool isAccepted = job.Status == (int)JobStatus.Accepted;
+
+                // Cancel job
+                job.Status = (int)JobStatus.Canceled;
+                job.UpdatedDate = DateTime.Now;
+                await _jobService.UpdateJobAsync(job);
+
+                // Cancel related bookings if job was accepted
+                if (isAccepted)
+                {
+                    var bookings = await _bookingService.GetBookingsByJobIDAsync(jobId);
+                    foreach (var booking in bookings)
+                    {
+                        booking.Status = (int)BookingStatus.Canceled;
+                        await _bookingService.UpdateBookingAsync(booking);
+                    }
+                }
+
+                // Send notifications
+                if (jobDetail.HousekeeperID.HasValue)
+                {
+                    var housekeeper = await _houseKeeperService.GetHousekeeperByIDAsync(jobDetail.HousekeeperID.Value);
+                    if (housekeeper == null)
+                        return NotFound("Housekeeper not found.");
+
+                    int housekeeperAccountId = housekeeper.AccountID;
+
+                    if (isFamily)
+                    {
+                        await _notificationService.AddNotificationAsync(new Notification
+                        {
+                            AccountID = housekeeperAccountId,
+                            Message = "A job you were offered by the family has been canceled.",
+                            RedirectUrl = null,
+                            IsRead = false,
+                            CreatedDate = DateTime.Now
+                        });
+                    }
+                    else if (isHousekeeper)
+                    {
+                        await _notificationService.AddNotificationAsync(new Notification
+                        {
+                            AccountID = family.AccountID,
+                            Message = "The housekeeper has canceled the job.",
+                            RedirectUrl = null,
+                            IsRead = false,
+                            CreatedDate = DateTime.Now
+                        });
+                    }
+                }
+
+                return Ok("Job canceled successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Cancel Job Error: {ex.Message}");
+                return StatusCode(500, "Internal Server Error.");
+            }
+        }
     }
 }
