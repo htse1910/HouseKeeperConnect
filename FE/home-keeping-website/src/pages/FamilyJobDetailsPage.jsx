@@ -410,7 +410,7 @@ const FamilyJobDetailsPage = () => {
                     <div className="job-detail-similar">
                         <p><strong>Dọn dẹp và nấu ăn</strong></p>
                         <span>140,000 VND/giờ</span>
-                        <a href="#">Xem chi tiết</a>
+                        <a href="#">{t("job.view_detail")}</a>
                     </div>
                 </div>
             </div>

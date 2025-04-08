@@ -20,7 +20,7 @@ import FamilyProfilePage from './pages/FamilyProfilePage';
 //import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 import StaffDashboardPage from './pages/StaffDashboardPage';
-import UserVerificationPage from './pages/UserVerificationPage';
+import StaffUserVerificationPage from './pages/StaffUserVerificationPage';
 import StaffJobModerationPage from './pages/StaffJobModerationPage';
 import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage'; // ✅ Import new page
 import FamilyDashboardPage from './pages/FamilyDashboardPage';
@@ -35,6 +35,7 @@ import FamilyDepositReturnPage from "./pages/FamilyDepositReturnPage";
 import FamilyMessagesPage from "./pages/FamilyMessagesPage";
 import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
+import FamilyJobDetailUpdatePage from './pages/FamilyJobDetailUpdatePage';
 import UpdateVerificationPage from './pages/UpdateVerificationPage';
 import HousekeeperWalletPage from './pages/HousekeeperWalletPage'; // ✅ Add this line
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -82,7 +83,7 @@ function AppRoutes() {
         
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
-        <Route path="/dashboard/users" element={<UserVerificationPage />} />
+        <Route path="/dashboard/users" element={<StaffUserVerificationPage />} />
         <Route path="/dashboard/jobs" element={<StaffJobModerationPage />} />
 
         {/* Family Pages */}
@@ -92,7 +93,7 @@ function AppRoutes() {
         <Route path="/family/invite" element={<FamilyInvitationPage />} />
         <Route path="/family/post-job" element={<FamilyJobPostingPage />} />
         <Route path="/family/my-posts" element={<FamilyJobManagementPage />} />
-        <Route path="/family/job/update/:id" element={<JobDetailsPage />} />
+        <Route path="/family/job/update/:id" element={<FamilyJobDetailUpdatePage />} />
         <Route path="/family/job/detail/:id" element={<FamilyJobDetailsPage />} />
         <Route path="/family/deposit" element={<FamilyDepositPage />} />
         <Route path="/family/deposit/return" element={<FamilyDepositReturnPage />} />

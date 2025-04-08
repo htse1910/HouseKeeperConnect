@@ -24,8 +24,41 @@ function FamilyDashboardPage() {
     const [userName, setUserName] = useState("...");
     const [balance, setBalance] = useState(0);
     const [jobStats, setJobStats] = useState({ activeJobs: 0, applicants: 0 });
+    const [notifications, setNotifications] = useState([]);
+    const [transactions, setTransactions] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case 1: return t("transactionStatus.pending");
+            case 2: return t("transactionStatus.completed");
+            case 3: return t("transactionStatus.expired");
+            case 4: return t("transactionStatus.cancelled");
+            default: return t("transactionStatus.unknown");
+        }
+    };
+
+    const getStatusClass = (status) => {
+        switch (status) {
+            case 1: return "status-pending";
+            case 2: return "status-approved";
+            case 3: return "status-expired";
+            case 4: return "status-cancelled";
+            default: return "status-unknown";
+        }
+    };
+
+    const getTypeLabel = (type) => {
+        switch (type) {
+            case 1: return t("transactionStatus.deposit");
+            case 2: return t("transactionStatus.withdrawal");
+            case 3: return t("transactionStatus.payment");
+            case 4: return t("transactionStatus.payout");
+            default: return t("transaction_unknown");
+        }
+    };
 
     useEffect(() => {
         if (isDemo) {
@@ -35,18 +68,18 @@ function FamilyDashboardPage() {
             setLoading(false);
             return;
         }
-    
+
         if (!authToken || !accountID) {
             setError(t("error_auth"));
             setLoading(false);
             return;
         }
-    
+
         const headers = {
             Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
         };
-    
+
         const fetchDashboardData = async () => {
             setLoading(true);
             try {
@@ -55,7 +88,7 @@ function FamilyDashboardPage() {
                 const accData = accRes.data;
                 if (!accData?.accountID) throw new Error(t("error_auth"));
                 setUserName(accData.name || "...");
-    
+
                 // Bước 2: Lấy ví
                 try {
                     const walletRes = await axios.get(`http://localhost:5280/api/wallet/getWallet?id=${accountID}`, { headers });
@@ -64,7 +97,7 @@ function FamilyDashboardPage() {
                 } catch (walletErr) {
                     console.warn("Lỗi khi gọi API ví:", walletErr);
                 }
-    
+
                 // Bước 3: Lấy danh sách job
                 try {
                     const jobsRes = await axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
@@ -76,8 +109,33 @@ function FamilyDashboardPage() {
                 } catch (jobErr) {
                     console.warn("Lỗi khi gọi API job:", jobErr);
                 }
-    
+
                 setError(null);
+
+                // Bước 4: Lấy thông báo
+                try {
+                    const notiRes = await axios.get(
+                        `http://localhost:5280/api/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=5`,
+                        { headers }
+                    );
+                    const sortedNotis = (notiRes.data || []).sort(
+                        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+                    );
+                    setNotifications(sortedNotis.slice(0, 5));
+                } catch (notiErr) {
+                    console.warn("Lỗi khi gọi API thông báo:", notiErr);
+                }
+
+                // Bước 5: Lấy giao dịch
+                try {
+                    const txRes = await axios.get(
+                        `http://localhost:5280/api/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=5`,
+                        { headers }
+                    );
+                    setTransactions(txRes.data || []);
+                } catch (txErr) {
+                    console.warn("Lỗi khi gọi API giao dịch:", txErr);
+                }
             } catch (err) {
                 console.error("Lỗi xác thực:", err);
                 setError(t("error_auth"));
@@ -85,9 +143,9 @@ function FamilyDashboardPage() {
                 setLoading(false);
             }
         };
-    
+
         fetchDashboardData();
-    }, [isDemo]);    
+    }, [isDemo]);
 
     if (loading || error) {
         return (
@@ -178,27 +236,21 @@ function FamilyDashboardPage() {
                 <div className="dashboard-box">
                     <h5 className="dashboard-box-title">{t("notifications")}</h5>
                     <ul className="dashboard-notification-list">
-                        <li className="dashboard-notification-item">
-                            <FaBell className="icon text-warning" />
-                            <div>
-                                <p className="dashboard-notification-text">{t("dashboard_notification_deposit")}</p>
-                                <small className="dashboard-notification-time">2 giờ trước</small>
-                            </div>
-                        </li>
-                        <li className="dashboard-notification-item">
-                            <FaEnvelope className="icon text-warning" />
-                            <div>
-                                <p className="dashboard-notification-text">{t("dashboard_notification_message")}</p>
-                                <small className="dashboard-notification-time">5 giờ trước</small>
-                            </div>
-                        </li>
-                        <li className="dashboard-notification-item">
-                            <FaUserCheck className="icon text-warning" />
-                            <div>
-                                <p className="dashboard-notification-text">{t("dashboard_notification_apply")}</p>
-                                <small className="dashboard-notification-time">1 ngày trước</small>
-                            </div>
-                        </li>
+                        {notifications.length === 0 ? (
+                            <li className="text-muted">{t("no_notifications")}</li>
+                        ) : (
+                            notifications.map((noti) => (
+                                <li key={noti.notificationsID} className="dashboard-notification-item">
+                                    <FaBell className="icon text-warning" />
+                                    <div>
+                                        <p className="dashboard-notification-text">{noti.message}</p>
+                                        <small className="dashboard-notification-time">
+                                            {new Date(noti.createdDate).toLocaleString("vi-VN")}
+                                        </small>
+                                    </div>
+                                </li>
+                            ))
+                        )}
                     </ul>
                 </div>
 
@@ -208,30 +260,30 @@ function FamilyDashboardPage() {
                         <thead>
                             <tr>
                                 <th>{t("date")}</th>
+                                <th>{t("transaction_type")}</th>
                                 <th>{t("housekeeper")}</th>
                                 <th>{t("amount")}</th>
                                 <th>{t("status")}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>15/03/2025</td>
-                                <td>Nguyễn Hạ Vi</td>
-                                <td>500,000đ</td>
-                                <td className="status-approved">{t("completed")}</td>
-                            </tr>
-                            <tr>
-                                <td>14/03/2025</td>
-                                <td>Trần Văn Huy</td>
-                                <td>800,000đ</td>
-                                <td className="status-approved">{t("completed")}</td>
-                            </tr>
-                            <tr>
-                                <td>13/03/2025</td>
-                                <td>Đinh Thị Nga</td>
-                                <td>700,000đ</td>
-                                <td className="status-approved">{t("completed")}</td>
-                            </tr>
+                            {transactions.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" className="text-center text-muted">
+                                        {t("no_transactions")}
+                                    </td>
+                                </tr>
+                            ) : (
+                                transactions.map((tx, index) => (
+                                    <tr key={index}>
+                                        <td>{new Date(tx.createdDate).toLocaleDateString("vi-VN")}</td>
+                                        <td>{getTypeLabel(tx.transactionType)}</td>
+                                        <td>{tx.receiverName || ""}</td>
+                                        <td>{tx.amount.toLocaleString("vi-VN")} VNĐ</td>
+                                        <td className={getStatusClass(tx.status)}>{getStatusLabel(tx.status)}</td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
