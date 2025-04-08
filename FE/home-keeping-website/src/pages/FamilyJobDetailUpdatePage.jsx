@@ -113,7 +113,7 @@ const FamilyJobDetailUpdatePage = () => {
                         setFormData((prev) => ({
                             ...prev,
                             JobName: data.jobName || "",
-                            JobType: data.jobType || "",
+                            JobType: data.jobType?.toString() || "",
                             Location: data.location || "",
                             Price: data.price || "",
                             Description: data.description || "",
@@ -498,7 +498,7 @@ const FamilyJobDetailUpdatePage = () => {
                 <div className="job-posting-section job-posting-section-full">
                     <label>{t("Description")}</label>
                     <textarea
-                        name="description"
+                        name="Description"
                         className="job-posting-textarea"
                         rows="3"
                         value={formData.Description}

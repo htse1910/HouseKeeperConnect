@@ -20,7 +20,6 @@ import FamilyProfilePage from './pages/FamilyProfilePage';
 //import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 import StaffDashboardPage from './pages/StaffDashboardPage';
-import UserVerificationPage from './pages/UserVerificationPage';
 import StaffJobModerationPage from './pages/StaffJobModerationPage';
 import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage'; // ✅ Import new page
 import FamilyDashboardPage from './pages/FamilyDashboardPage';
@@ -83,7 +82,6 @@ function AppRoutes() {
         
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
-        <Route path="/dashboard/users" element={<UserVerificationPage />} />
         <Route path="/dashboard/jobs" element={<StaffJobModerationPage />} />
 
         {/* Family Pages */}

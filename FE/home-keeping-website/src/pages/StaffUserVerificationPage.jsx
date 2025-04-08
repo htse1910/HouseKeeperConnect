@@ -30,7 +30,7 @@ const generateFakeHousekeepers = () => {
     }));
 };
 
-const UserVerificationPage = () => {
+const StaffUserVerificationPage = () => {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const isDemo = searchParams.get("demo") === "true";
@@ -40,6 +40,8 @@ const UserVerificationPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userName, setUserName] = useState("");
+
+    const [emptyMessage, setEmptyMessage] = useState("");
 
     console.log("Housekeepers:", housekeepers);
 
@@ -111,6 +113,17 @@ const UserVerificationPage = () => {
             })
             .then(async (res) => {
                 const baseList = res.data;
+
+                const isEmpty =
+                    !baseList ||
+                    (Array.isArray(baseList) && baseList.length === 0) ||
+                    (typeof baseList === "string" && baseList.includes("Housekeeper Pending list is empty!"));
+
+                if (isEmpty) {
+                    setHousekeepers([]);
+                    setEmptyMessage("Hiện giờ PCHWF platform chưa có Người giúp việc mới đăng ký.");
+                    return;
+                }
 
                 // Bước 3: enrich dữ liệu từng housekeeper
                 const enrichedList = await Promise.all(
@@ -228,7 +241,7 @@ const UserVerificationPage = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
         };
-    
+
         try {
             // B1: Gọi CreateIDVerification
             await axios.post(`http://localhost:5280/api/IDVerifications/CreateIDVerification`, null, {
@@ -237,7 +250,7 @@ const UserVerificationPage = () => {
                 },
                 headers
             });
-    
+
             // B2: Gọi VerificationTasks/Approve
             await axios.put(`/api/VerificationTasks/Approve`, null, {
                 params: {
@@ -247,7 +260,7 @@ const UserVerificationPage = () => {
                 },
                 headers,
             });
-    
+
             toast.success('✅ Duyệt hồ sơ thành công!');
             setHousekeepers((prev) =>
                 prev.map((item) =>
@@ -258,7 +271,7 @@ const UserVerificationPage = () => {
             console.error(err);
             toast.error('❌ Lỗi khi duyệt hồ sơ.');
         }
-    };    
+    };
 
     const handleReject = async (housekeeper) => {
         const token = localStorage.getItem("authToken");
@@ -266,7 +279,7 @@ const UserVerificationPage = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
         };
-    
+
         try {
             // B1: Gọi CreateIDVerification
             await axios.post(`http://localhost:5280/api/IDVerifications/CreateIDVerification`, null, {
@@ -275,7 +288,7 @@ const UserVerificationPage = () => {
                 },
                 headers
             });
-    
+
             // B2: Gọi VerificationTasks/Reject
             await axios.put(`/api/VerificationTasks/Reject`, null, {
                 params: {
@@ -285,7 +298,7 @@ const UserVerificationPage = () => {
                 },
                 headers,
             });
-    
+
             toast.success('✅ Đã từ chối hồ sơ!');
             setHousekeepers((prev) =>
                 prev.map((item) =>
@@ -296,7 +309,7 @@ const UserVerificationPage = () => {
             console.error(err);
             toast.error('❌ Lỗi khi từ chối hồ sơ.');
         }
-    };    
+    };
 
     const handleViewCCCD = (housekeeper) => {
         if (!housekeeper.cccdFront || !housekeeper.cccdBack || !housekeeper.cccdWithUser) {
@@ -410,6 +423,11 @@ const UserVerificationPage = () => {
     return (
         <div className="dashboard-container">
             <h1>Housekeeper Management {isDemo ? "(Demo Mode)" : ""}</h1>
+            {emptyMessage && (
+                <div className="user-verification-empty-message">
+                    <p>{emptyMessage}</p>
+                </div>
+            )}
 
             {/* Ô tìm kiếm */}
             <input
@@ -582,4 +600,4 @@ const UserVerificationPage = () => {
     );
 };
 
-export default UserVerificationPage;
+export default StaffUserVerificationPage;
