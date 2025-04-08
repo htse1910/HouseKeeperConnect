@@ -49,7 +49,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("JobList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync([FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
             var jobs = await _jobService.GetAllJobsAsync(pageNumber, pageSize);
 
@@ -149,7 +149,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetJobsByAccountID")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsByAccountID([FromQuery] int accountId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsByAccountID([FromQuery] int accountId, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
 
             var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountId);
