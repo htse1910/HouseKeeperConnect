@@ -251,7 +251,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             // Wallet and balance check
-            var acc = await _accountService.GetAccountByIDAsync(jobCreateDTO.FamilyID);
+            var acc = await _familyProfileService.GetFamilyByIDAsync(jobCreateDTO.FamilyID);
             if (acc == null) return NotFound("Family account not found.");
 
             var wallet = await _walletService.GetWalletByUserAsync(acc.AccountID);
