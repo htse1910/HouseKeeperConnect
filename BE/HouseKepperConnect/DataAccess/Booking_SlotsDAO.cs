@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using Google;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -105,6 +106,14 @@ namespace DataAccess
                 .Select(bs => bs.SlotID)
                 .Distinct()
                 .ToListAsync(); // Return unique SlotIDs
+        }
+        public async Task UpdateBooking_SlotAsync(Booking_Slots bookingSlot)
+        {
+            using var context = new PCHWFDBContext();
+            {
+                context.Booking_Slots.Update(bookingSlot);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }
