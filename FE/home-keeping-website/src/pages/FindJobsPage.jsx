@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { FaSearch, FaMapMarkerAlt, FaMoneyBillWave, FaClock, FaUser } from "react-icons/fa";
-import { Pagination } from "react-bootstrap";
+import {
+  FaSearch,
+  FaMapMarkerAlt,
+  FaMoneyBillWave,
+  FaClock,
+  FaUser,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "../assets/styles/FindJobsPage.css";
 
 function FindJobsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({ location: "", jobType: "", salary: "" });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [allJobs, setAllJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
+
+  const [filters, setFilters] = useState({ location: "", jobType: "", salary: "" });
+  const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -25,121 +33,90 @@ function FindJobsPage() {
     "Thành phố Thủ Đức"
   ];
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        setLoading(true);
-        const listRes = await fetch("http://localhost:5280/api/Job/JobList", {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
+  const fetchJobs = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:5280/api/Job/JobList?pageNumber=${page}&pageSize=${jobsPerPage}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const data = await res.json();
+      const verifiedJobs = data.filter((job) => job.status === 2);
 
-        const jobList = await listRes.json();
-        const verifiedJobs = jobList.filter((job) => job.status === 2);
+      const detailedJobs = await Promise.all(
+        verifiedJobs.map(async (job) => {
+          const detailRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+          const jobDetail = await detailRes.json();
 
-        const detailedJobs = await Promise.all(
-          verifiedJobs.map(async (job) => {
-            const detailRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, {
+          let familyName = "Không rõ";
+          try {
+            const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
               headers: { Authorization: `Bearer ${authToken}` },
             });
-            const jobDetail = await detailRes.json();
+            const family = await familyRes.json();
 
-            let familyName = "Không rõ";
-            try {
-              const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
+            if (family?.accountID) {
+              const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${family.accountID}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
               });
-              const family = await familyRes.json();
+              const account = await accRes.json();
+              familyName = account?.name ?? "Không rõ";
+            }
+          } catch {}
 
-              if (family?.accountID) {
-                const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${family.accountID}`, {
-                  headers: { Authorization: `Bearer ${authToken}` },
-                });
-                const account = await accRes.json();
-                familyName = account?.name ?? "Không rõ";
-              }
-            } catch { }
+          return { ...jobDetail, familyName };
+        })
+      );
 
-            return { ...jobDetail, familyName };
-          })
-        );
+      setJobs(detailedJobs);
+      setHasNextPage(data.length === jobsPerPage);
+    } catch (error) {
+      console.error("Failed to fetch jobs:", error);
+      setJobs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setAllJobs(detailedJobs);
-        setJobs(detailedJobs);
-      } catch (err) {
-        console.error("Error fetching job details:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [page]);
+
+  const filteredJobs = jobs.filter((job) => {
+    const matchesSearch = searchTerm ? job.jobName?.toLowerCase().includes(searchTerm.toLowerCase()) : true;
+    const matchesLocation = filters.location ? job.location?.trim().toLowerCase() === filters.location.trim().toLowerCase() : true;
+    const matchesJobType = filters.jobType
+      ? job.jobType === (filters.jobType === "fulltime" ? 1 : 2)
+      : true;
+    const matchesSalary = (() => {
+      const salary = job.price || 0;
+      switch (filters.salary) {
+        case "500-1000": return salary >= 500000 && salary <= 1000000;
+        case "1000-1500": return salary > 1000000 && salary <= 1500000;
+        case "1500-2500": return salary > 1500000 && salary <= 2500000;
+        case "2500+": return salary > 2500000;
+        default: return true;
+      }
+    })();
+    return matchesSearch && matchesLocation && matchesJobType && matchesSalary;
+  });
 
   const handleSearchTermChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-
     if (!term.trim()) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
-
-    const hintList = allJobs
+    const hintList = jobs
       .filter((job) => job.jobName?.toLowerCase().includes(term.toLowerCase()))
       .map((job) => job.jobName);
-
     const uniqueHints = [...new Set(hintList)].slice(0, 5);
     setSuggestions(uniqueHints);
     setShowSuggestions(true);
   };
-
-  const handleSearch = () => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) return setJobs(allJobs);
-
-    const filtered = allJobs.filter((job) =>
-      job.jobName?.toLowerCase().includes(term)
-    );
-    setJobs(filtered);
-    setCurrentPage(1);
-  };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleApplyFilter = () => {
-    let filtered = [...allJobs];
-
-    if (filters.location) {
-      filtered = filtered.filter((job) => job.location?.trim().toLowerCase() === filters.location.trim().toLowerCase());
-    }
-    if (filters.jobType) {
-      const type = filters.jobType === "fulltime" ? 1 : 2;
-      filtered = filtered.filter((job) => job.jobType === type);
-    }
-    if (filters.salary) {
-      filtered = filtered.filter((job) => {
-        const salary = job.price || 0;
-        switch (filters.salary) {
-          case "500-1000": return salary >= 500000 && salary <= 1000000;
-          case "1000-1500": return salary > 1000000 && salary <= 1500000;
-          case "1500-2500": return salary > 1500000 && salary <= 2500000;
-          case "2500+": return salary > 2500000;
-          default: return true;
-        }
-      });
-    }
-
-    setJobs(filtered);
-    setCurrentPage(1);
-  };
-
-  const totalPages = Math.ceil(jobs.length / jobsPerPage);
 
   const getJobTypeLabel = (type) => (type === 1 ? "Full-time" : type === 2 ? "Part-time" : "Không xác định");
   const getJobStatusLabel = (status) => {
@@ -171,7 +148,7 @@ function FindJobsPage() {
               onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             />
-            <button className="btn btn-warning px-4" onClick={handleSearch}>Tìm kiếm</button>
+            <button className="btn btn-warning px-4">Tìm kiếm</button>
           </div>
 
           {showSuggestions && suggestions.length > 0 && (
@@ -196,22 +173,20 @@ function FindJobsPage() {
         <div className="w-75 mt-3">
           <div className="row g-2">
             <div className="col-md-4 col-lg-3">
-              <select className="form-select" name="location" value={filters.location} onChange={handleFilterChange}>
+              <select className="form-select" name="location" value={filters.location} onChange={(e) => setFilters({ ...filters, location: e.target.value })}>
                 <option value="">Tất cả địa điểm</option>
-                {hcmDistricts.map((district, idx) => (
-                  <option key={idx} value={district}>{district}</option>
-                ))}
+                {hcmDistricts.map((d, i) => <option key={i} value={d}>{d}</option>)}
               </select>
             </div>
             <div className="col-md-4 col-lg-3">
-              <select className="form-select" name="jobType" value={filters.jobType} onChange={handleFilterChange}>
+              <select className="form-select" name="jobType" value={filters.jobType} onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}>
                 <option value="">Tất cả loại</option>
                 <option value="fulltime">Full-time</option>
                 <option value="parttime">Part-time</option>
               </select>
             </div>
             <div className="col-md-4 col-lg-3">
-              <select className="form-select" name="salary" value={filters.salary} onChange={handleFilterChange}>
+              <select className="form-select" name="salary" value={filters.salary} onChange={(e) => setFilters({ ...filters, salary: e.target.value })}>
                 <option value="">Tất cả mức lương</option>
                 <option value="500-1000">500k - 1M</option>
                 <option value="1000-1500">1M - 1.5M</option>
@@ -220,9 +195,7 @@ function FindJobsPage() {
               </select>
             </div>
             <div className="col-md-12 col-lg-3">
-              <button className="btn btn-outline-primary w-100" onClick={handleApplyFilter}>
-                Áp dụng bộ lọc
-              </button>
+              <button className="btn btn-outline-primary w-100" onClick={() => setPage(1)}>Áp dụng bộ lọc</button>
             </div>
           </div>
         </div>
@@ -234,12 +207,12 @@ function FindJobsPage() {
             <div className="spinner-border text-warning" role="status" />
             <p className="mt-3">Đang tải công việc...</p>
           </div>
-        ) : jobs.length === 0 ? (
+        ) : filteredJobs.length === 0 ? (
           <div className="text-center text-muted py-5">Không tìm thấy công việc phù hợp.</div>
         ) : (
           <>
             <div className="row justify-content-center g-4">
-              {jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage).map((job) => (
+              {filteredJobs.map((job) => (
                 <div key={job.jobID} className="col-md-6 col-lg-4 d-flex">
                   <div className="card job-card shadow-sm p-3 border-0 flex-fill rounded-4">
                     <div className="card-body d-flex flex-column">
@@ -258,16 +231,24 @@ function FindJobsPage() {
               ))}
             </div>
 
-            <div className="d-flex justify-content-center mt-3">
-              <Pagination>
-                <Pagination.Prev onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                {[...Array(totalPages)].map((_, i) => (
-                  <Pagination.Item key={i + 1} active={i + 1 === currentPage} onClick={() => setCurrentPage(i + 1)}>
-                    {i + 1}
-                  </Pagination.Item>
-                ))}
-                <Pagination.Next onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-              </Pagination>
+            <div className="d-flex justify-content-between align-items-center mt-4">
+              <button
+                className="btn btn-outline-secondary rounded-pill px-4"
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => prev - 1)}
+              >
+                <FaChevronLeft className="me-2" />
+                Trang trước
+              </button>
+              <span className="text-muted">Trang {page}</span>
+              <button
+                className="btn btn-outline-primary rounded-pill px-4"
+                disabled={!hasNextPage}
+                onClick={() => setPage((prev) => prev + 1)}
+              >
+                Trang sau
+                <FaChevronRight className="ms-2" />
+              </button>
             </div>
           </>
         )}
