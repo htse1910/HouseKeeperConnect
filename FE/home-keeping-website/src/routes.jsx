@@ -24,6 +24,7 @@ import StaffUserVerificationPage from './pages/StaffUserVerificationPage';
 import StaffJobModerationPage from './pages/StaffJobModerationPage';
 import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage'; // ✅ Import new page
 import FamilyDashboardPage from './pages/FamilyDashboardPage';
+import FamilyWalletPage from './pages/FamilyWalletPage';
 import FamilyHousekeeperSearchPage from './pages/FamilyHousekeeperSearchPage';
 import FamilyInvitationPage from './pages/FamilyInvitationPage';
 import FamilyTransactionPage from './pages/FamilyTransactionPage';
@@ -89,6 +90,7 @@ function AppRoutes() {
         {/* Family Pages */}
         <Route path="/family/dashboard" element={<FamilyDashboardPage />} />
         <Route path="/family/profile" element={<FamilyProfilePage />} />
+        <Route path="/family/wallet" element={<FamilyWalletPage />} />
         <Route path="/family/find-housekeepers" element={<FamilyHousekeeperSearchPage />} />
         <Route path="/family/invite" element={<FamilyInvitationPage />} />
         <Route path="/family/post-job" element={<FamilyJobPostingPage />} />
