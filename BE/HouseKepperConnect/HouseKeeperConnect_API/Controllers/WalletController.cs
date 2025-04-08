@@ -115,7 +115,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(Message);
             }
             int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
-            int expiredAt = (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (60 * 5));
+            int expiredAt = (int)(DateTimeOffset.Now.ToUnixTimeSeconds() + (60 * 5));
 
             /*var nFee = balance * (10m / 100m);*/
 

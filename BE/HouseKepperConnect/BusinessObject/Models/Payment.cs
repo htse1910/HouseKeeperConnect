@@ -8,20 +8,20 @@ namespace BusinessObject.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PaymentID { get; set; }
 
+        [Required]
+        [ForeignKey("Job")]
+        public int JobID { get; set; }
+
+        [Required]
         [ForeignKey("Family")]
         public int FamilyID { get; set; }
-
-        [ForeignKey("Housekeeper")]
-        public int HousekeeperID { get; set; }
 
         public decimal Amount { get; set; }
         public decimal Commission { get; set; }
         public DateTime PaymentDate { get; set; }
-        public string PaymentStatus { get; set; }
-        public decimal WalletReduction { get; set; }
-        public decimal RemainingAmount { get; set; }
+        public string Status { get; set; }
 
+        public virtual Job Job { get; set; }
         public virtual Family Family { get; set; }
-        public virtual Housekeeper Housekeeper { get; set; }
     }
 }

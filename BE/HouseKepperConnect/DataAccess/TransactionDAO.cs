@@ -69,7 +69,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
+                    var oneWeekAgo = DateTime.Now.AddDays(-7);
                     var transactions = await context.Transaction
                 .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)TransactionStatus.Completed).
                 AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
