@@ -14,5 +14,6 @@ namespace BusinessObject.Models
 
         public virtual Account Account { get; set; }
         public virtual IEnumerable<Rating> Ratings { get; set; }
+        public virtual IEnumerable<Payment> Payments { get; set; }
     }
 }

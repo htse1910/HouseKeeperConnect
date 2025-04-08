@@ -190,7 +190,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
+                    var oneWeekAgo = DateTime.Now.AddDays(-7);
                     var jobs = await context.Job
                 .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Verified).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
 

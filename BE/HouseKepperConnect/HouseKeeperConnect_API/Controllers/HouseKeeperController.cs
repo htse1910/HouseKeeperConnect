@@ -332,7 +332,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
-        [HttpGet("ListHousekeeperPending")]
+        [HttpGet("ListHousekeeperIDPending")]
         [Authorize]
         public async Task<IActionResult> GetPendingHousekeepers(int pageNumber, int pageSize)
         {

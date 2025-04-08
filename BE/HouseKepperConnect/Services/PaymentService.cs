@@ -11,8 +11,7 @@ namespace Services
     {
         private readonly IConfiguration _configuration;
         private readonly ITransactionService _transactionService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly string _domain;
+        private readonly string _client;
         private readonly PayOS _payOS;
 
         public PaymentService(IConfiguration configuration, ITransactionService transactionService, IHttpContextAccessor httpContextAccessor)
@@ -24,9 +23,8 @@ namespace Services
                 ApiKey = _configuration.GetValue<string>("Environment:PAYOS_API_KEY"),
                 ChecksumKey = _configuration.GetValue<string>("Environment:PAYOS_CHECKSUM_KEY")
             };
-            _httpContextAccessor = httpContextAccessor;
             _payOS = new PayOS(payOS.ClientId, payOS.ApiKey, payOS.ChecksumKey);
-            _domain = _configuration.GetValue<string>("Domain");
+            _client = _configuration.GetValue<string>("Client");
             _transactionService = transactionService;
         }
 
@@ -34,16 +32,13 @@ namespace Services
         {
             List<ItemData> items = new List<ItemData>();
 
-            // Get the current request's base URL
-            var baseUrl = "http://localhost:5173";
-
             PaymentData paymentData = new PaymentData(
                 body.transID,
                 body.price,
                 body.description,
                 items,
-                $"{baseUrl}/family/deposit/return?status=cancelled&id={body.transID}",
-                $"{baseUrl}/family/deposit/return?status=success&id={body.transID}",
+                $"{_client}/family/deposit/return?status=cancelled&id={body.transID}",
+                $"{_client}/family/deposit/return?status=success&id={body.transID}",
                 null,
                 body.buyerName,
                 body.buyerEmail,
