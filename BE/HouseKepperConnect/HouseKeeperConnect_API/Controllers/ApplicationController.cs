@@ -279,12 +279,28 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No job found!";
                 return NotFound(Message);
             }
+
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+            if (jobDetail == null)
+            {
+                Message = "No job found!";
+                return NotFound(Message);
+            }
+
+
             var noti = new Notification();
             noti.AccountID = app.HouseKepper.AccountID;
+
+            if (jobDetail.HousekeeperID != null)
+            {
+                Message = "Đã có người được tuyển cho công việc này!";
+                return Forbid(Message);
+            }
             if (status == (int)ApplicationStatus.Accepted)
             {
                 Message = "Application Accepted!";
                 noti.Message = "Đơn ứng tuyển của bạn cho công việc" + job.JobID + " đã được chấp thuận!";
+                jobDetail.HousekeeperID = app.HouseKeeperID;
             }
             if (status == (int)ApplicationStatus.Denied)
             {
@@ -292,6 +308,7 @@ namespace HouseKeeperConnect_API.Controllers
                 noti.Message = "Đơn ứng tuyển của bạn cho công việc " + job.JobID + " đã bị từ chối!";
             }
 
+            await _jobService.UpdateJobDetailAsync(jobDetail);
             await _notificationService.AddNotificationAsync(noti);
             app.Status = status;
 
