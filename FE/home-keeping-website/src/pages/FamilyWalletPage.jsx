@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import ScrollToTopButton from "../components/ScrollToTopButton";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../assets/styles/Profile.css";
+import "../assets/styles/Transaction.css";
 import { useTranslation } from "react-i18next";
 import { formatDate, formatCurrency } from "../utils/formatData";
 
