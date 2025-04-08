@@ -24,7 +24,7 @@ namespace HouseKeeperConnect_API.Controllers
             _housekeeperService = housekeeperService;
         }
 
-        [HttpGet("VerificationTaskPending")]
+        /*[HttpGet("VerificationTaskPending")]
         [Authorize]
         public async Task<ActionResult<VerificationTask>> GetPendingTasks([FromQuery] int pageNumber, int pageSize)
         {
@@ -41,13 +41,13 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
 
         [HttpGet("GetVerificationTask")]
         [Authorize]
         public async Task<ActionResult<VerificationTask>> GetVerificationTask([FromQuery] int taskId)
         {
-            var task = await _verificationTaskService.GetByIdAsync(taskId);
+            var task = await _verificationTaskService.GetTaskByIdAsync(taskId);
             if (task == null)
             {
                 return NotFound("Verification task not found.");
@@ -60,8 +60,8 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
-                // Kiểm tra VerifyID có tồn tại không
-                var verification = await _verificationTaskService.GetByIdAsync(verifyID);
+               
+                var verification = await _verificationTaskService.GetTaskByIdAsync(verifyID);
                 if (verification == null)
                 {
                     return NotFound("No VerificationTask found!");
@@ -70,12 +70,12 @@ namespace HouseKeeperConnect_API.Controllers
                 var task = new VerificationTask
                 {
                     VerifyID = verifyID,
-                    Status = 1, // Pending
+                    Status = 1, 
                     AssignedDate = DateTime.Now
                 };
 
                 await _verificationTaskService.CreateVerificationTaskAsync(task);
-                return Ok(new { Message = "Verification task created successfully!", TaskID = task.TaskID });
+                return Ok("Verification task created successfully!");
             }
             catch (Exception ex)
             {
@@ -89,7 +89,7 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
-                var task = await _verificationTaskService.GetByIdAsync(taskId);
+                var task = await _verificationTaskService.GetTaskByIdAsync(taskId);
                 if (task == null || task.Status != 1)
                 {
                     return BadRequest("Invalid or non-pending verification task.");
@@ -123,7 +123,7 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
-                var task = await _verificationTaskService.GetByIdAsync(taskId);
+                var task = await _verificationTaskService.GetTaskByIdAsync(taskId);
                 if (task == null || task.Status != 1)
                 {
                     return BadRequest("Invalid or non-pending verification task.");

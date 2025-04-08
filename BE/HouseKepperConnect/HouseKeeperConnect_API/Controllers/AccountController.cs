@@ -333,20 +333,15 @@ namespace HouseKeeperConnect_API.Controllers
         [HttpPost("Request-forgot-password")]
         public async Task<IActionResult> RequestPasswordReset([FromBody] string email)
         {
-            // Kiểm tra tài khoản có tồn tại không
+            
             var account = await _accountService.GetAccountByEmailAsync(email);
             if (account == null) return NotFound("Email không tồn tại.");
-
-            // Tạo token đặt lại mật khẩu
             string token = Guid.NewGuid().ToString();
             DateTime expiry = DateTime.Now.AddHours(1);
             await _accountService.SavePasswordResetTokenAsync(account.AccountID, token, expiry);
-
-            // Gửi email - Cập nhật URL đúng với frontend
             string resetLink = $"http://localhost:5173/reset-password?token={token}";
             string subject = "Password Reset Request";
             string body = $"Click <a href='{resetLink}'>here</a> to reset your password.";
-
             await _emailHelper.SendEmailAsync(email, subject, body);
             return Ok("Email đặt lại mật khẩu đã được gửi.");
         }
