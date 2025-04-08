@@ -2,8 +2,10 @@ package com.example.housekeeperapplication.profile;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -12,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.housekeeperapplication.Adapter.ProfileOptionAdapter;
+import com.example.housekeeperapplication.NotificationActivity;
 import com.example.housekeeperapplication.ProfileOption;
 import com.example.housekeeperapplication.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -42,26 +45,28 @@ public class FamilyProfile extends AppCompatActivity {
         });
         recyclerView.setAdapter(adapter);
 
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
 
-        /*BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.nav_home:
-                    startActivity(new Intent(this, HomeActivity.class));
-                    return true;
-                case R.id.nav_activity:
-                    startActivity(new Intent(this, ActivityActivity.class));
-                    return true;
-                case R.id.nav_notification:
-                    startActivity(new Intent(this, NotificationActivity.class));
-                    return true;
-                case R.id.nav_chat:
-                    startActivity(new Intent(this, ChatActivity.class));
-                    return true;
-                case R.id.nav_profile:
-                    return true; // Đang ở trang Profile
+            /*if (itemId == R.id.nav_home) {
+                startActivity(new Intent(this, HomeActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_activity) {
+                startActivity(new Intent(this, ActivityActivity.class));
+                return true;
+            } else*/ if (itemId == R.id.nav_notification) {
+                startActivity(new Intent(this, NotificationActivity.class));
+                return true;
+            /*} else if (itemId == R.id.nav_chat) {
+                startActivity(new Intent(this, ChatActivity.class));
+                return true;*/
+            } else if (itemId == R.id.nav_profile) {
+                return true; // Đang ở trang Profile
             }
+
             return false;
-        });*/
+        });
+
     }
 }

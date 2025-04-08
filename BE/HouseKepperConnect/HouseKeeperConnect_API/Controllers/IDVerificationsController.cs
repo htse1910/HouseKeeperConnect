@@ -193,7 +193,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
 
-        [HttpPut("UpdateIDVerification")]
+        [HttpPut("UpdateIDVerification")] // staff
         public async Task<ActionResult> UpdateIDVerification([FromForm] IDVerificationUpdateDTO idVerificationDTO)
         {
             try
