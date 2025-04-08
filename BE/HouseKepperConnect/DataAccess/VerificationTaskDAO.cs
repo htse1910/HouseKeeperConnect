@@ -26,7 +26,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<VerificationTask>> GetPendingTasksAsync(int pageNumber, int pageSize)
+        /*public async Task<List<VerificationTask>> GetPendingTasksAsync(int pageNumber, int pageSize)
         {
             var list = new List<VerificationTask>();
             try
@@ -46,9 +46,9 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
             return list;
-        }
+        }*/
 
-        public async Task<VerificationTask> GetByIdAsync(int taskId)
+        public async Task<VerificationTask> GetTaskByIdAsync(int taskId)
         {
             try
             {
@@ -65,6 +65,24 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<VerificationTask> GetTaskByVerificationIdAsync(int verifyId)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.VerificationTask
+                        .Include(v => v.IDVerification)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(t => t.VerifyID == verifyId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
 
         public async Task CreateVerificationTaskAsync(VerificationTask task)
         {

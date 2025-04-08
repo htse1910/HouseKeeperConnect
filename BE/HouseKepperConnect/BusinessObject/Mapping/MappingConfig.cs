@@ -191,6 +191,7 @@ namespace BusinessObject.Mapping
         {
             CreateMap<HousekeeperPendingDTO, Housekeeper>();
             CreateMap<HousekeeperPendingDTO, IDVerification>();
+            CreateMap<HousekeeperPendingDTO, VerificationTask>();
         }
 
         private void Map_Update_Withdraw()

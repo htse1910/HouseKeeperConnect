@@ -9,6 +9,7 @@ using BusinessObject.Models.AppWrite;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -21,18 +22,20 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IAccountService _accountService;
         private readonly IIDVerificationService _verificationService;
         private readonly INotificationService _notificationService;
+        private readonly IVerificationTaskService _verificationTaskService;
         private readonly IConfiguration _configuration;
         private readonly Client _appWriteClient;
         private readonly IMapper _mapper;
         private string Message;
 
-        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService, Client appWriteClient, IConfiguration configuration)
+        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService, IVerificationTaskService verificationTaskService, Client appWriteClient, IConfiguration configuration)
         {
             _housekeeperService = housekeeperService;
             _accountService = accountService;
             _mapper = mapper;
             _verificationService = verificationService;
             _notificationService = notificationService;
+            _verificationTaskService = verificationTaskService;
             _configuration = configuration;
             AppwriteSettings appW = new AppwriteSettings()
             {
@@ -341,14 +344,16 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return NotFound("Housekeeper Pending list is empty!");
             }
-
+           
             var pendingList = new List<HousekeeperPendingDTO>();
             foreach (var hk in pendingHousekeepers)
             {
+                var task = await _verificationTaskService.GetTaskByVerificationIdAsync(hk.IDVerification.VerifyID);
                 var pendingListDTO = new HousekeeperPendingDTO()
                 {
                     HousekeeperID = hk.HousekeeperID,
                     VerifyID = hk.IDVerification.VerifyID,
+                    TaskID = task?.TaskID,
                     FrontPhoto = hk.IDVerification.FrontPhoto,
                     FacePhoto = hk.IDVerification.FacePhoto,
                     BackPhoto = hk.IDVerification.BackPhoto,
