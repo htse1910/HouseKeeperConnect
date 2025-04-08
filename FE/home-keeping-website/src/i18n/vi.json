@@ -138,6 +138,7 @@
   "transaction_type": "Loại giao dịch",
   "transaction_unknown": "Không rõ loại giao dịch",
   "transaction_withdraw": "Giao dịch rút tiền",
+  "view_all_transactions": "Xem tất cả giao dịch",
   "return_now": "Trở về ngay",
   "transactionStatus": {
     "pending": "Đang chờ xử lý",
