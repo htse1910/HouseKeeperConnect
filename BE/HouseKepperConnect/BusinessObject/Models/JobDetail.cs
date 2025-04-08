@@ -19,6 +19,9 @@ namespace BusinessObject.Models
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal PricePerHour { get; set; }
 
         [Required]
         public DateTime StartDate { get; set; }
