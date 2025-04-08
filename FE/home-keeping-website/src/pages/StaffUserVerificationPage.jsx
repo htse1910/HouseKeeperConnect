@@ -8,33 +8,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Dữ liệu giả lập (150 bản ghi)
-const generateFakeHousekeepers = () => {
-    const firstNames = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Bùi", "Đặng", "Đỗ", "Hồ"];
-    const middleNames = ["Văn", "Thị", "Hữu", "Minh", "Quốc", "Thanh", "Đức", "Tấn", "Công", "Duy"];
-    const lastNames = ["An", "Bình", "Châu", "Dương", "Hải", "Khang", "Linh", "Nam", "Phong", "Tú"];
-    const statuses = ["Pending", "Approved", "Rejected"];
-
-    const placeholderFront = "https://via.placeholder.com/200x100?text=CCCD+Front";
-    const placeholderBack = "https://via.placeholder.com/200x100?text=CCCD+Back";
-    const placeholderWithUser = "https://via.placeholder.com/200x100?text=CCCD+With+User";
-
-    return Array.from({ length: 150 }, (_, i) => ({
-        id: i + 1,
-        name: `${firstNames[Math.floor(Math.random() * firstNames.length)]} 
-               ${middleNames[Math.floor(Math.random() * middleNames.length)]} 
-               ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
-        status: statuses[Math.floor(Math.random() * statuses.length)],
-        cccdFront: placeholderFront,
-        cccdBack: placeholderBack,
-        cccdWithUser: placeholderWithUser
-    }));
-};
-
 const StaffUserVerificationPage = () => {
     const { t } = useTranslation();
-    const [searchParams] = useSearchParams();
-    const isDemo = searchParams.get("demo") === "true";
 
     const [accountInfo, setAccountInfo] = useState(null);
     const [housekeepers, setHousekeepers] = useState([]);
@@ -94,13 +69,6 @@ const StaffUserVerificationPage = () => {
     const [inputPage, setInputPage] = useState("");
 
     useEffect(() => {
-        if (isDemo) {
-            setHousekeepers(generateFakeHousekeepers());
-            setLoading(false);
-            setError(null);
-            return;
-        }
-
         setLoading(true);
         setError(null);
 
@@ -179,6 +147,7 @@ const StaffUserVerificationPage = () => {
                                 ...hk,
                                 id: hk.housekeeperID,
                                 accountID: hk.accountID,
+                                taskID: hk.taskID,
                                 verifyID: detail.verifyID,
                                 status: "Pending",
                                 cccdFront: hk.frontPhoto,
@@ -216,7 +185,7 @@ const StaffUserVerificationPage = () => {
             .finally(() => {
                 setLoading(false);
             });
-    }, [isDemo]);
+    }, []);
 
     const processVerification = async (verifyID, action = "Approve") => {
         const token = localStorage.getItem("authToken");
@@ -270,18 +239,10 @@ const StaffUserVerificationPage = () => {
         };
 
         try {
-            // B1: Gọi CreateIDVerification
-            await axios.post(`http://localhost:5280/api/IDVerifications/CreateIDVerification`, null, {
-                params: {
-                    housekeeperID: housekeeper.id
-                },
-                headers
-            });
-
             // B2: Gọi VerificationTasks/Approve
-            await axios.put(`/api/VerificationTasks/Approve`, null, {
+            await axios.put(`http://localhost:5280/api/VerificationTasks/Approve`, null, {
                 params: {
-                    taskId: housekeeper.verifyID,
+                    taskId: housekeeper.taskID,
                     accountID: accountInfo.accountID,
                     notes: 'Approved by staff',
                 },
@@ -308,18 +269,10 @@ const StaffUserVerificationPage = () => {
         };
 
         try {
-            // B1: Gọi CreateIDVerification
-            await axios.post(`http://localhost:5280/api/IDVerifications/CreateIDVerification`, null, {
-                params: {
-                    housekeeperID: housekeeper.id
-                },
-                headers
-            });
-
             // B2: Gọi VerificationTasks/Reject
-            await axios.put(`/api/VerificationTasks/Reject`, null, {
+            await axios.put(`http://localhost:5280/api/VerificationTasks/Reject`, null, {
                 params: {
-                    taskId: housekeeper.verifyID,
+                    taskId: housekeeper.taskID,
                     accountID: accountInfo.accountID,
                     notes: 'Rejected by staff',
                 },
@@ -436,11 +389,6 @@ const StaffUserVerificationPage = () => {
                 {error && (
                     <>
                         <p className="error">❌ {error}</p>
-                        {!isDemo && (
-                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                                {t("view_demo")}
-                            </button>
-                        )}
                     </>
                 )}
             </div>
@@ -449,7 +397,7 @@ const StaffUserVerificationPage = () => {
 
     return (
         <div className="dashboard-container">
-            <h1>Housekeeper Management {isDemo ? "(Demo Mode)" : ""}</h1>
+            <h1>Housekeeper Management</h1>
             {emptyMessage && (
                 <div className="user-verification-empty-message">
                     <p>{emptyMessage}</p>
@@ -517,13 +465,13 @@ const StaffUserVerificationPage = () => {
                                         <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(hk)}>
                                             Approve
                                         </button>
-                                        <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(hk.id)}>
+                                        <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(hk)}>
                                             Reject
                                         </button>
                                     </>
                                 )}
                                 {hk.status === "Approved" && (
-                                    <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(hk.id)}>
+                                    <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(hk)}>
                                         Reject
                                     </button>
                                 )}
@@ -692,10 +640,10 @@ const StaffUserVerificationPage = () => {
                             />
                         </div>
                         <div className="modal-actions">
-                            <button className="approve-btn" onClick={() => handleApprove(selectedHousekeeper.id)}>
+                            <button className="approve-btn" onClick={() => handleApprove(selectedHousekeeper)}>
                                 Approve
                             </button>
-                            <button className="reject-btn" onClick={() => handleReject(selectedHousekeeper.id)}>
+                            <button className="reject-btn" onClick={() => handleReject(selectedHousekeeper)}>
                                 Reject
                             </button>
                         </div>
