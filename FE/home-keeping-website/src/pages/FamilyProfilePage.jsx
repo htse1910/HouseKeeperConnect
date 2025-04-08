@@ -38,7 +38,7 @@ const FamilyProfilePage = () => {
             default: return "Không xác định";
         }
     };
-    
+
     useEffect(() => {
         if (isDemo) {
             setAccountInfo({
@@ -199,7 +199,15 @@ const FamilyProfilePage = () => {
                 </div>
                 {/* Thông tin cá nhân */}
                 <div className="profile-details">
-                    <h1 className="profile-title">Thông tin cá nhân ✏️</h1>
+                    <h1 className="profile-title">Thông tin cá nhân
+                        <button
+                            className="edit-button"
+                            onClick={() => window.location.href = "/family/profile/update"}
+                            title="Chỉnh sửa hồ sơ"
+                        >
+                            ✏️
+                        </button>
+                    </h1>
                     {family?.rating ? (
                         <div className="profile-rating">
                             {Array.from({ length: 5 }, (_, index) => (

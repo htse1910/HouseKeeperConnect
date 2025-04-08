@@ -16,6 +16,7 @@ import UpdateHousekeeperPage from './pages/UpdateHousekeeperPage'; // ✅ Import
 // import AddIdentificationPicturePage from './pages/AddIdentificationPicturePage';
 //import HousekeeperProfilePage from './pages/HousekeeperProfilePage';
 import FamilyProfilePage from './pages/FamilyProfilePage';
+import FamilyProfileUpdatePage from "./pages/FamilyProfileUpdatePage.jsx";
 //import AdminProfilePage from './pages/AdminProfilePage';
 //import AdminDashboard from './pages/AdminDashboard';
 import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
@@ -91,6 +92,7 @@ function AppRoutes() {
         {/* Family Pages */}
         <Route path="/family/dashboard" element={<FamilyDashboardPage />} />
         <Route path="/family/profile" element={<FamilyProfilePage />} />
+        <Route path="/family/profile/update" element={<FamilyProfileUpdatePage />} />
         <Route path="/family/wallet" element={<FamilyWalletPage />} />
         <Route path="/family/find-housekeepers" element={<FamilyHousekeeperSearchPage />} />
         <Route path="/family/housekeeper/profile/:accountID" element={<FamilyHousekeeperViewPage />} />

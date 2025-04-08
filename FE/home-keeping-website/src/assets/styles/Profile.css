@@ -638,6 +638,59 @@
     margin-top: 16px;
 }
 
+.family-profile-update-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 20px;
+    padding: 30px;
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.family-profile-update-form label {
+    font-weight: bold;
+    font-size: var(--font-size-label);
+    color: var(--text-color);
+}
+
+.family-profile-update-form input,
+.family-profile-update-form select,
+.family-profile-update-form textarea {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: white;
+    color: var(--text-body);
+    width: 100%;
+}
+
+.family-profile-update-form textarea {
+    resize: vertical;
+}
+
+.family-profile-update-form button {
+    align-self: flex-start;
+    margin-top: 10px;
+}
+
+.profile-edit-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--main-color);
+    margin-left: 10px;
+    transition: transform 0.2s ease;
+}
+
+.profile-edit-button:hover {
+    color: var(--secondary-color);
+    transform: scale(1.1);
+}
+
 @media (max-width: 768px) {
     .family-message-page-container {
         flex-direction: column;

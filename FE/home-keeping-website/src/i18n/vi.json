@@ -21,6 +21,7 @@
   "profile": "Trang cá nhân",
   "wallet": "Ví tiền",
   "logout": "Đăng xuất",
+  "nickname": "Tên thường gọi",
   "dashboard_welcome_message": "Chào mừng trở lại, {{name}}!",
   "dashboard_welcome_detail_housekeeper": "Khám phá những công việc phù hợp với bạn.",
   "dashboard_welcome_detail_family": "Khám phá những người đồng hành phù hợp với bạn.",
@@ -168,6 +169,9 @@
     "not_available": "Không có thông tin",
     "no_notifications": "Không có thông báo nào"
   },
+  "update_success": "🎉 Thông tin đã được cập nhật thành công!",
+  "update_failed": "Thông tin của bạn chưa được cập nhật.",
+  "no_changes": "Bạn chưa thay đổi thông tin gì.",
   "job": {
     "posted": "Công việc đã đăng",
     "completed": "Công việc đã hoàn thành",

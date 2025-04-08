@@ -6,6 +6,7 @@ import { FaFilter } from "react-icons/fa";
 import "../assets/styles/Dashboard.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Dữ liệu giả lập (150 bản ghi)
 const generateFakeHousekeepers = () => {
@@ -54,6 +55,32 @@ const StaffUserVerificationPage = () => {
 
     // View CCCD
     const [selectedHousekeeper, setSelectedHousekeeper] = useState(null);
+    const [note, setNote] = useState("");
+    const [previewImage, setPreviewImage] = useState(null);
+    const [previewIndex, setPreviewIndex] = useState(null);
+
+    const cccdImages = selectedHousekeeper
+        ? [
+            selectedHousekeeper.cccdFront,
+            selectedHousekeeper.cccdBack,
+            selectedHousekeeper.cccdWithUser,
+        ]
+        : [];
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (previewIndex === null) return;
+
+            if (event.key === "ArrowLeft") {
+                setPreviewIndex((prev) => (prev > 0 ? prev - 1 : cccdImages.length - 1));
+            } else if (event.key === "ArrowRight") {
+                setPreviewIndex((prev) => (prev < cccdImages.length - 1 ? prev + 1 : 0));
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [previewIndex, cccdImages.length]);
 
     // Filter and Search
     const [searchTerm, setSearchTerm] = useState("");
@@ -106,8 +133,8 @@ const StaffUserVerificationPage = () => {
                 setAccountInfo(account);
 
                 // Bước 2: Lấy danh sách housekeeper đang chờ
-                return axios.get(`http://localhost:5280/api/HouseKeeper/ListHousekeeperPending`, {
-                    params: { pageNumber: 1, pageSize: 1000 },
+                return axios.get(`http://localhost:5280/api/HouseKeeper/ListHousekeeperIDPending`, {
+                    params: { pageNumber: 1, pageSize: 10 },
                     headers
                 });
             })
@@ -255,8 +282,8 @@ const StaffUserVerificationPage = () => {
             await axios.put(`/api/VerificationTasks/Approve`, null, {
                 params: {
                     taskId: housekeeper.verifyID,
-                    accountID: housekeeper.accountID,
-                    notes: 'Approved by admin',
+                    accountID: accountInfo.accountID,
+                    notes: 'Approved by staff',
                 },
                 headers,
             });
@@ -293,8 +320,8 @@ const StaffUserVerificationPage = () => {
             await axios.put(`/api/VerificationTasks/Reject`, null, {
                 params: {
                     taskId: housekeeper.verifyID,
-                    accountID: housekeeper.accountID,
-                    notes: 'Rejected by admin',
+                    accountID: accountInfo.accountID,
+                    notes: 'Rejected by staff',
                 },
                 headers,
             });
@@ -570,16 +597,99 @@ const StaffUserVerificationPage = () => {
                         <div className="cccd-gallery">
                             <div className="cccd-item">
                                 <p>Mặt trước</p>
-                                <img src={selectedHousekeeper.cccdFront || ""} alt="CCCD Front" />
+                                <img
+                                    src={selectedHousekeeper.cccdFront || ""}
+                                    alt="CCCD Front"
+                                    onClick={() => setPreviewIndex(0)}
+                                />
                             </div>
                             <div className="cccd-item">
                                 <p>Mặt sau</p>
-                                <img src={selectedHousekeeper.cccdBack || ""} alt="CCCD Back" />
+                                <img
+                                    src={selectedHousekeeper.cccdBack || ""}
+                                    alt="CCCD Back"
+                                    onClick={() => setPreviewIndex(1)}
+                                />
                             </div>
                             <div className="cccd-item">
                                 <p>Cầm trên tay</p>
-                                <img src={selectedHousekeeper.cccdWithUser || ""} alt="CCCD With User" />
+                                <img
+                                    src={selectedHousekeeper.cccdWithUser || ""}
+                                    alt="CCCD With User"
+                                    onClick={() => setPreviewIndex(2)}
+                                />
                             </div>
+                            {previewIndex !== null && (
+                                <div className="cccd-preview-overlay" onClick={() => setPreviewIndex(null)}>
+                                    <div className="cccd-preview-container" onClick={(e) => e.stopPropagation()}>
+                                        <span className="cccd-preview-close" onClick={() => setPreviewIndex(null)}>&times;</span>
+
+                                        {/* Nút trái */}
+                                        <button
+                                            className="cccd-nav-btn left"
+                                            onClick={() =>
+                                                setPreviewIndex((prev) => (prev > 0 ? prev - 1 : cccdImages.length - 1))
+                                            }
+                                        >
+                                            &#8592;
+                                        </button>
+
+                                        <div className="cccd-preview-image-box">
+                                            <AnimatePresence mode="wait">
+                                                <motion.img
+                                                    key={previewIndex}
+                                                    src={cccdImages[previewIndex]}
+                                                    alt="CCCD Preview"
+                                                    initial={{ x: 100, opacity: 0 }}
+                                                    animate={{ x: 0, opacity: 1 }}
+                                                    exit={{ x: -100, opacity: 0 }}
+                                                    transition={{ duration: 0.35 }}
+                                                />
+                                            </AnimatePresence>
+                                            <div className="cccd-floating-note">
+                                                <label htmlFor="note">Ghi chú (nếu có):</label>
+                                                <textarea
+                                                    id="note"
+                                                    rows={2}
+                                                    value={note}
+                                                    onChange={(e) => setNote(e.target.value)}
+                                                    placeholder="Nhập ghi chú liên quan đến hồ sơ..."
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Nút phải */}
+                                        <button
+                                            className="cccd-nav-btn right"
+                                            onClick={() =>
+                                                setPreviewIndex((prev) => (prev < cccdImages.length - 1 ? prev + 1 : 0))
+                                            }
+                                        >
+                                            &#8594;
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div style={{ marginTop: "20px" }}>
+                            <label htmlFor="note" style={{ fontWeight: "bold", display: "block", marginBottom: "6px" }}>
+                                Ghi chú (nếu có):
+                            </label>
+                            <textarea
+                                id="note"
+                                rows={3}
+                                value={note}
+                                onChange={(e) => setNote(e.target.value)}
+                                placeholder="Nhập ghi chú liên quan đến hồ sơ..."
+                                style={{
+                                    width: "100%",
+                                    padding: "10px",
+                                    borderRadius: "8px",
+                                    border: "1px solid var(--border-color)",
+                                    fontSize: "14px",
+                                    fontFamily: "inherit",
+                                }}
+                            />
                         </div>
                         <div className="modal-actions">
                             <button className="approve-btn" onClick={() => handleApprove(selectedHousekeeper.id)}>
