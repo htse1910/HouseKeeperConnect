@@ -61,7 +61,7 @@ const FamilyInvitationPage = () => {
     };
 
     useEffect(() => {
-        axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountID=${accountID}`, { headers })
+        axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountID=${accountID}&pageNumber=1&pageSize=10`, { headers })
             .then(res => {
                 const list = res.data?.filter(j => !j.isOffered && j.status === 1) || [];
                 setJobs(list);
