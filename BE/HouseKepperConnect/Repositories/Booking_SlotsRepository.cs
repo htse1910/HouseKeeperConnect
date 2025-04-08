@@ -1,5 +1,6 @@
 ﻿using BusinessObject.Models;
 using DataAccess;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Interface;
 
 namespace Repositories
@@ -36,5 +37,9 @@ namespace Repositories
         => await _bookingSlotsDAO.GetBookedSlotsByHousekeeper(housekeeperId, startDate, endDate);
 
         public async Task<List<int>> GetAllSlotIDsAsync() => await _bookingSlotsDAO.GetAllSlotIDsAsync();
+        public async Task UpdateBooking_SlotAsync(Booking_Slots bookingSlot)
+        {
+            await _bookingSlotsDAO.UpdateBooking_SlotAsync(bookingSlot);
+        }
     }
 }

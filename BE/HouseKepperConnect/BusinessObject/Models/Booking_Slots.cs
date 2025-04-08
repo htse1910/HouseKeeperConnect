@@ -15,6 +15,10 @@ namespace BusinessObject.Models
         public int DayOfWeek { get; set; }
 
         public int SlotID { get; set; }
+        public bool IsCheckedIn { get; set; } = false;
+        public DateTime? CheckInTime { get; set; } // optional, for logging exact time
+        public bool IsConfirmedByFamily { get; set; } = false;
+        public DateTime? ConfirmedAt { get; set; } // optional
         public virtual Booking Booking { get; set; }
         public virtual Slot Slot { get; set; }
     }

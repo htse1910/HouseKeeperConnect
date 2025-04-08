@@ -743,5 +743,75 @@ namespace HouseKeeperConnect_API.Controllers
                 return StatusCode(500, "Internal Server Error.");
             }
         }
+        [HttpPost("CheckIn")]
+        [Authorize(Roles = "Housekeeper")]
+        public async Task<ActionResult> CheckIn([FromQuery] int bookingId, [FromQuery] int slotId)
+        {
+            // Get current user
+            var userId = int.Parse(User.FindFirst("UserID").Value);
+
+            // Get all slots for the booking
+            var bookingSlots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(bookingId);
+            if (bookingSlots == null || !bookingSlots.Any())
+                return NotFound("No slots found for this booking.");
+
+            // Find the specific slot
+            var targetSlot = bookingSlots.FirstOrDefault(bs => bs.SlotID == slotId);
+            if (targetSlot == null)
+                return NotFound("Slot not found for this booking.");
+
+            if (targetSlot.IsCheckedIn)
+                return BadRequest("Already checked in for this slot.");
+
+            // Optional: validate that current housekeeper owns this booking
+            var booking = await _bookingService.GetBookingByIDAsync(bookingId);
+            if (booking == null || booking.HousekeeperID != userId)
+                return Unauthorized("You are not assigned to this booking.");
+
+            // Mark check-in
+            targetSlot.IsCheckedIn = true;
+            targetSlot.CheckInTime = DateTime.Now;
+
+            await _bookingSlotsService.UpdateBooking_SlotAsync(targetSlot);
+
+            return Ok("Checked in successfully.");
+        }
+        [HttpPost("ConfirmSlotWorked")]
+        [Authorize(Roles = "Family")]
+        public async Task<IActionResult> ConfirmSlotWorked(int bookingId, int slotId)
+        {
+            // Get all slots for the booking
+            var bookingSlots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(bookingId);
+            if (bookingSlots == null || !bookingSlots.Any())
+            {
+                return NotFound("No slots found for this booking.");
+            }
+
+            // Find the specific slot by slotId
+            var bookingSlot = bookingSlots.FirstOrDefault(bs => bs.SlotID == slotId);
+            if (bookingSlot == null)
+            {
+                return NotFound("Booking slot not found.");
+            }
+
+            if (!bookingSlot.IsCheckedIn)
+            {
+                return BadRequest("Housekeeper did not check in for this slot.");
+            }
+
+            if (bookingSlot.IsConfirmedByFamily)
+            {
+                return BadRequest("Slot already confirmed.");
+            }
+
+            bookingSlot.IsConfirmedByFamily = true;
+            bookingSlot.ConfirmedAt = DateTime.Now;
+            await _bookingSlotsService.UpdateBooking_SlotAsync(bookingSlot);
+
+            return Ok("Slot confirmed successfully.");
+        }
+
+
+
     }
 }

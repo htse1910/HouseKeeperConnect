@@ -54,5 +54,9 @@ namespace Services
         {
             return await _bookingSlotsRepository.GetAllSlotIDsAsync(); // Await the Task<List<int>> here as well
         }
+        public async Task UpdateBooking_SlotAsync(Booking_Slots bookingSlot)
+        {
+            await _bookingSlotsRepository.UpdateBooking_SlotAsync(bookingSlot);
+        }
     }
 }
