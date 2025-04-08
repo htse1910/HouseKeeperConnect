@@ -13,6 +13,9 @@
         android:theme="@style/Theme.HouseKeeperApplication"
         tools:targetApi="31">
         <activity
+            android:name=".NotificationActivity"
+            android:exported="false" />
+        <activity
             android:name=".profile.EditHousekeeperProfile"
             android:exported="false" />
         <activity
@@ -23,9 +26,11 @@
             android:name=".profile.HousekeeperProfile"
             android:exported="false" />
         -->
-        <!--<activity
+        <!--
+<activity
             android:name=".profile.FamilyProfile"
-            android:exported="false" />-->
+            android:exported="false" />
+        -->
         <activity
             android:name=".Register"
             android:exported="false" />

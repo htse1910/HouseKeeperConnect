@@ -30,12 +30,16 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(chats);
         }
 
-        [HttpPost("send")]
+        [HttpPost("Send")]
         public async Task<IActionResult> SendMessage([FromQuery] ChatDTO chatDto)
         {
             if (chatDto == null || chatDto.FromAccountId <= 0 || chatDto.ToAccountId <= 0 || string.IsNullOrWhiteSpace(chatDto.Message))
             {
                 return BadRequest("Invalid chat message. Ensure all fields are provided.");
+            }
+            if (chatDto.FromAccountId == chatDto.ToAccountId)
+            {
+                return BadRequest("Cannot send message to yourself.");
             }
             var fromAccount = await _accountService.GetAccountByIDAsync(chatDto.FromAccountId);
             var toAccount = await _accountService.GetAccountByIDAsync(chatDto.ToAccountId);
@@ -59,10 +63,10 @@ namespace HouseKeeperConnect_API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return BadRequest("Internal server error");
             }
 
-            return Ok(new { message = "Message sent successfully!" });
+            return Ok("Message sent successfully!");
         }
     }
-}
+12345
