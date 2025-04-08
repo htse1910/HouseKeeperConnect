@@ -75,6 +75,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("CreateIDVerification")]
+        [Authorize]
         public async Task<ActionResult> CreateIDVerification([FromForm] IDVerificationCreateDTO idVerificationDTO, [FromQuery] int housekeeperId)
         {
             if (idVerificationDTO == null)
@@ -192,8 +193,8 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(new { Message = "ID Verification created successfully!", VerifyID = verifyId });
         }
 
-
         [HttpPut("UpdateIDVerification")] // staff
+        [Authorize(Policy = "Staff")]
         public async Task<ActionResult> UpdateIDVerification([FromForm] IDVerificationUpdateDTO idVerificationDTO)
         {
             try
@@ -265,7 +266,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var faceUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response3.BucketId}/files/{faceID}/view?project={projectID}";
 
                 var id = await _idVerificationService.GetIDVerifyByIDAsync(idVerificationDTO.VerifyID);
-                if(id == null)
+                if (id == null)
                 {
                     Message = "No verifyID";
                     return NotFound(Message);
@@ -280,7 +281,7 @@ namespace HouseKeeperConnect_API.Controllers
                 id.Status = (int)VerificationStatus.Pending;
 
                 await _idVerificationService.UpdateIDVerifyAsync(id);
-                
+
                 return Ok("ID Verification updated successfully!");
             }
             catch (Exception ex)

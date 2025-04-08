@@ -14,7 +14,7 @@ namespace BusinessObject.Models
         [EmailAddress]
         public string Email { get; set; }
 
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         [Phone]
         public string? Phone { get; set; }
@@ -27,7 +27,7 @@ namespace BusinessObject.Models
         public string? GoogleId { get; set; }  // Lưu Google ID
         public string? Provider { get; set; } // "Google" hoặc "Local"
         public string? GoogleProfilePicture { get; set; } // Ảnh đại diện Google
-        public string LocalProfilePicture { get; set; }
+        public string? LocalProfilePicture { get; set; }
 
         [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]
         public string? BankAccountNumber { get; set; }

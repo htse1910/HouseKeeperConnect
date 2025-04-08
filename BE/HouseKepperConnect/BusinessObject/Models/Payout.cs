@@ -10,17 +10,18 @@ namespace BusinessObject.Models
         public int PayoutID { get; set; }
 
         [Required]
-        public int HousekeeperID { get; set; }
+        [ForeignKey("Booking")]
+        public int BookingID { get; set; }
 
         [Required]
-        public int WalletID { get; set; }
+        [ForeignKey("Housekeeper")]
+        public int HousekeeperID { get; set; }
 
-        public decimal PayoutAmount { get; set; }
+        public decimal Amount { get; set; }
         public DateTime PayoutDate { get; set; }
-        public int PayoutStatus { get; set; }
-        public decimal WalletWithdrawalAmount { get; set; }
+        public int Status { get; set; }
 
         public virtual Housekeeper Housekeeper { get; set; }
-        public virtual Wallet Wallet { get; set; }
+        public virtual Booking Booking { get; set; }
     }
 }

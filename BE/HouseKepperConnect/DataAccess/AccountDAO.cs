@@ -419,6 +419,7 @@ namespace DataAccess
                 }
 
                 var tokenizedData = _mapper.Map<TokenModel>(account);
+
                 return tokenizedData;
             }
         }

@@ -126,7 +126,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetApplicationsByAccountID")]
         [Authorize]
-        public async Task<ActionResult<List<Application>>> GetAppByAccID(int uid, int pageNumber, int pageSize)
+        public async Task<ActionResult<List<Application>>> GetAppByAccID([FromQuery]int uid, int pageNumber, int pageSize)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(uid);
             if (hk == null)

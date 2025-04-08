@@ -23,5 +23,6 @@ namespace BusinessObject.Models
 
         public virtual Job Job { get; set; }
         public virtual Housekeeper Housekeeper { get; set; }
+        public virtual Payout Payout { get; set; }
     }
 }
