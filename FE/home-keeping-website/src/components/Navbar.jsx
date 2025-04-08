@@ -3,7 +3,15 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import "../assets/styles/Navbar.css";
 import logo from "../assets/images/logo.png";
-import { FaGlobe, FaSearch, FaBars, FaCaretDown, FaUser, FaSignOutAlt, FaTachometerAlt, FaWallet } from "react-icons/fa";
+import {
+  FaGlobe,
+  FaSearch,
+  FaBars,
+  FaUser,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaWallet,
+} from "react-icons/fa";
 import userAvatar from "../assets/images/default-avatar.png";
 import { UserRoleContext } from "./UserRoleProvider";
 import { useMenuItems } from "./menuConfig";
@@ -30,12 +38,12 @@ function Navbar() {
     if (normalized === "staff") return "Staff";
     return "Guest";
   };
-  
+
   useEffect(() => {
     const rawRole = localStorage.getItem("userRole");
     const formatted = formatRole(rawRole);
     setUserRole(formatted);
-  }, []);  
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -83,7 +91,7 @@ function Navbar() {
         ))}
       </ul>
 
-      {/* Ô tìm kiếm */}
+      {/* Search box */}
       <div className="navbar-search-container" ref={searchRef}>
         {searchVisible && (
           <input type="text" placeholder={t("search")} className="navbar-search-input" />
@@ -93,22 +101,23 @@ function Navbar() {
         </button>
       </div>
 
-      <div className="navbar-user-container">
-        {/* Avatar hoặc Đăng nhập/Đăng ký */}
-        <div className="navbar-user"
-          ref={userMenuRef}
-          onMouseEnter={() => setUserMenuVisible(true)}
-          onMouseLeave={() => setUserMenuVisible(false)} >
-          {userRole && userRole !== "Guest" ? (
-            <>
-              <NotificationButton />
-              <img
-                src={userAvatar}
-                alt="User Avatar"
-                className="user-avatar"
-              />
+      <div className="navbar-user-container d-flex align-items-center gap-2">
+        {userRole && userRole !== "Guest" ? (
+          <>
+            {/* 🔔 Bell */}
+            <NotificationButton />
+
+            {/* 🧍 Avatar with dropdown */}
+            <div
+              className="navbar-user position-relative"
+              ref={userMenuRef}
+              onClick={() => setUserMenuVisible((prev) => !prev)}
+              style={{ cursor: "pointer" }}
+            >
+              <img src={userAvatar} alt="User Avatar" className="user-avatar" />
+
               {userMenuVisible && (
-                <div className="user-dropdown">
+                <div className="user-dropdown position-absolute end-0 mt-2">
                   <button onClick={() => navigate(`/${userRole.toLowerCase()}/dashboard`)}>
                     <FaTachometerAlt /> {t("dashboard")}
                   </button>
@@ -123,24 +132,26 @@ function Navbar() {
                   </button>
                 </div>
               )}
-            </>
-          ) : (
-            <>
-              <button className="btn-login" onClick={() => navigate("/login")}>
-                {t("login").toUpperCase()}
-              </button>
-              <button className="btn-register" onClick={() => navigate("/register")}>
-                {t("register").toUpperCase()}
-              </button>
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <button className="btn-login" onClick={() => navigate("/login")}>
+              {t("login").toUpperCase()}
+            </button>
+            <button className="btn-register" onClick={() => navigate("/register")}>
+              {t("register").toUpperCase()}
+            </button>
+          </>
+        )}
 
-        {/* Language Switcher */}
-        <div className="language-switcher"
+        {/* 🌐 Language Switcher */}
+        <div
+          className="language-switcher"
           ref={langRef}
           onMouseEnter={() => setDropdownVisible(true)}
-          onMouseLeave={() => setDropdownVisible(false)} >
+          onMouseLeave={() => setDropdownVisible(false)}
+        >
           <button className="lang-btn">
             <FaGlobe />
           </button>
@@ -153,7 +164,7 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Nút menu trên mobile */}
+      {/* Mobile menu button */}
       <div className="navbar-menu">
         <FaBars />
       </div>

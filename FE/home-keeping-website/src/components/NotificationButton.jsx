@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { FaEnvelope } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const NotificationButton = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();
 
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
@@ -12,7 +14,7 @@ const NotificationButton = () => {
   const fetchNotifications = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5280/api/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=7`,
+        `http://localhost:5280/api/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=10`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -34,8 +36,18 @@ const NotificationButton = () => {
   }, []);
 
   const toggleDropdown = async () => {
-    setShowDropdown(!showDropdown);
-    if (!showDropdown) await fetchNotifications();
+    const nextShow = !showDropdown;
+    setShowDropdown(nextShow);
+
+    if (nextShow) {
+      await fetchNotifications();
+
+      // ⏳ Auto-mark unread notifications after 2.5s
+      setTimeout(() => {
+        const unread = notifications.filter((n) => !n.isRead);
+        unread.forEach((n) => markAsRead(n.notificationsID));
+      }, 2500);
+    }
   };
 
   const markAsRead = async (id) => {
@@ -50,9 +62,7 @@ const NotificationButton = () => {
         }
       );
       setNotifications((prev) =>
-        prev.map((n) =>
-          n.notificationsID === id ? { ...n, isRead: true } : n
-        )
+        prev.map((n) => (n.notificationsID === id ? { ...n, isRead: true } : n))
       );
       setUnreadCount((prev) => Math.max(prev - 1, 0));
     } catch (err) {
@@ -72,43 +82,65 @@ const NotificationButton = () => {
           border: "1px solid #ccc",
         }}
       >
-        <FaEnvelope size={16} />
+        <FaBell size={16} />
         {unreadCount > 0 && (
-          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: "0.6rem" }}>
+          <span
+            className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            style={{ fontSize: "0.6rem" }}
+          >
             {unreadCount}
           </span>
         )}
       </button>
 
       {showDropdown && (
-        <div className="card shadow-sm position-absolute end-0 mt-2" style={{ width: "300px", maxHeight: "400px", overflowY: "auto", zIndex: 999 }}>
+        <div
+          className="card shadow-sm position-absolute end-0 mt-2"
+          style={{
+            width: "300px",
+            maxHeight: "400px",
+            overflowY: "auto",
+            zIndex: 999,
+          }}
+        >
           <div className="card-body">
             <h6 className="card-title mb-2">Notifications</h6>
             {notifications.length === 0 ? (
               <p className="text-muted">No notifications</p>
             ) : (
-              notifications
-                .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
-                .map((notification) => (
-                  <div key={notification.notificationsID} className="mb-3">
-                    <div className="small">{notification.message}</div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <small className="text-muted">
-                        {new Date(notification.createdDate).toLocaleString()}
-                      </small>
-                      {notification.isRead ? (
-                        <span className="badge bg-secondary">Read</span>
-                      ) : (
-                        <button
-                          className="badge bg-warning border-0"
-                          onClick={() => markAsRead(notification.notificationsID)}
-                        >
-                          Unread
-                        </button>
-                      )}
+              <>
+                {notifications
+                  .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
+                  .map((notification) => (
+                    <div key={notification.notificationsID} className="mb-3">
+                      <div className="small">{notification.message}</div>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <small className="text-muted">
+                          {new Date(notification.createdDate).toLocaleString()}
+                        </small>
+                        {notification.isRead ? (
+                          <span className="badge bg-secondary">Read</span>
+                        ) : (
+                          <button
+                            className="badge bg-warning border-0"
+                            onClick={() => markAsRead(notification.notificationsID)}
+                          >
+                            Unread
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                {/* 👉 See more link */}
+                <div className="text-center mt-3">
+                  <button
+                    className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                    onClick={() => navigate("/account/notifications")}
+                  >
+                    🔗 Xem tất cả
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>

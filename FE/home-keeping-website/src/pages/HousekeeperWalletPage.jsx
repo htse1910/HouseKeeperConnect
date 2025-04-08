@@ -8,6 +8,7 @@ import {
 import { Button, Modal, Form } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 
 const HousekeeperWalletPage = () => {
   const [wallet, setWallet] = useState(null);
@@ -21,16 +22,13 @@ const HousekeeperWalletPage = () => {
 
   const fetchWallet = async () => {
     try {
-      const res = await fetch(
-        `http://localhost:5280/api/Wallet/getWallet?id=${accountID}`,
-        {
-          headers: { Authorization: `Bearer ${authToken}` },
-        }
-      );
+      const res = await fetch(`http://localhost:5280/api/Wallet/getWallet?id=${accountID}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
       const data = await res.json();
       setWallet(data);
     } catch {
-      toast.error("Lỗi khi lấy ví.");
+      toast.error("Lỗi khi lấy thông tin ví.");
     }
   };
 
@@ -43,7 +41,7 @@ const HousekeeperWalletPage = () => {
       const data = await res.json();
       setTransactions(data || []);
     } catch {
-      toast.error("Lỗi khi lấy danh sách giao dịch.");
+      toast.error("Lỗi khi lấy giao dịch.");
     } finally {
       setLoading(false);
     }
@@ -52,12 +50,12 @@ const HousekeeperWalletPage = () => {
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
     if (!amount || amount < 10000) {
-      toast.warning("Số tiền phải từ 10,000đ trở lên.");
+      toast.warning("Số tiền phải từ 10,000₫ trở lên.");
       return;
     }
 
     try {
-      const response = await fetch(
+      const res = await fetch(
         `http://localhost:5280/api/Withdraw/AddWithdraw?AccountID=${accountID}&Amount=${amount}`,
         {
           method: "POST",
@@ -68,17 +66,19 @@ const HousekeeperWalletPage = () => {
         }
       );
 
-      if (response.ok) {
-        toast.success("🎉 Yêu cầu rút tiền đã được gửi!");
+      const message = await res.text();
+
+      if (res.ok) {
+        toast.success(message || "Yêu cầu rút tiền đã được gửi!");
         setShowModal(false);
         setWithdrawAmount("");
         fetchWallet();
         fetchTransactions();
       } else {
-        toast.error("Rút tiền thất bại.");
+        toast.error(message || "Rút tiền thất bại.");
       }
     } catch {
-      toast.error("Lỗi kết nối khi rút tiền.");
+      toast.error("Lỗi khi gửi yêu cầu rút tiền.");
     }
   };
 
@@ -90,37 +90,36 @@ const HousekeeperWalletPage = () => {
   }, [accountID, authToken]);
 
   return (
-    <div className="container py-5">
-      <ToastContainer />
+    <div className="container py-4">
+      <ScrollToTopButton />
+      <ToastContainer position="top-center" autoClose={3000} />
 
-      <div className="card p-4 rounded-4 shadow-sm">
-        <h2 className="fw-bold mb-4 text-center text-primary">
-          Ví Người Giúp Việc
-        </h2>
+      <div className="card rounded-4 shadow-sm border-0 p-4 mx-auto" style={{ maxWidth: "900px" }}>
+        <h4 className="fw-bold text-center text-primary mb-4">💰 Ví Người Giúp Việc</h4>
 
         <div className="row g-4">
-          {/* Wallet Summary - Left Column */}
-          <div className="col-lg-4">
-            <div className="card p-4 border-0 shadow-sm rounded-4 bg-light h-100">
+          {/* Wallet Info */}
+          <div className="col-md-4">
+            <div className="card bg-light border-0 rounded-4 shadow-sm p-3 h-100">
               {wallet ? (
                 <>
-                  <h5 className="fw-bold mb-2">
+                  <div className="fw-semibold text-muted small mb-1">
                     <FaWallet className="me-2 text-primary" />
                     Số dư hiện tại
-                  </h5>
-                  <small className="text-muted">
-                    Cập nhật: {new Date(wallet.updatedAt).toLocaleString()}
-                  </small>
-                  <h3 className="fw-bold text-success mt-3">
+                  </div>
+                  <div className="fs-4 fw-bold text-success">
                     {wallet.balance.toLocaleString("vi-VN")}₫
-                  </h3>
-                  <small className="text-muted">
-                    Đang giữ: {wallet.onHold.toLocaleString("vi-VN")}₫
-                  </small>
-                  <div className="mt-4 text-center">
+                  </div>
+                  <div className="text-muted small mb-3">
+                    Giữ: {wallet.onHold.toLocaleString("vi-VN")}₫
+                  </div>
+                  <div className="small text-muted">
+                    Cập nhật: {new Date(wallet.updatedAt).toLocaleString()}
+                  </div>
+                  <div className="text-center mt-4">
                     <Button
                       variant="warning"
-                      className="text-white fw-bold rounded-pill px-4"
+                      className="text-white fw-semibold rounded-pill px-4"
                       onClick={() => setShowModal(true)}
                     >
                       <FaCashRegister className="me-2" />
@@ -129,54 +128,45 @@ const HousekeeperWalletPage = () => {
                   </div>
                 </>
               ) : (
-                <p className="text-muted">Đang tải ví...</p>
+                <p className="text-muted small">Đang tải ví...</p>
               )}
             </div>
           </div>
 
-          {/* Transaction History - Right Column */}
-          <div className="col-lg-8">
-            <div className="card p-4 border-0 shadow-sm rounded-4 h-100">
-              <h5 className="fw-semibold mb-3">
+          {/* Transactions */}
+          <div className="col-md-8">
+            <div className="card border-0 rounded-4 shadow-sm p-3 h-100">
+              <div className="fw-semibold mb-3 text-muted">
                 <FaMoneyBillWave className="me-2 text-success" />
                 Lịch sử giao dịch
-              </h5>
+              </div>
 
               {loading ? (
-                <p className="text-muted">Đang tải...</p>
+                <p className="text-muted small">Đang tải...</p>
               ) : transactions.length === 0 ? (
-                <p className="text-muted">Không có giao dịch nào.</p>
+                <p className="text-muted small">Không có giao dịch nào.</p>
               ) : (
-                <ul
-                  className="list-group list-group-flush"
-                  style={{ maxHeight: "400px", overflowY: "auto" }}
-                >
-                  {transactions.map((tx, index) => (
-                    <li
-                      key={index}
-                      className="list-group-item d-flex justify-content-between align-items-start px-3 py-3 border-0 border-bottom bg-white"
-                    >
-                      <div className="flex-grow-1">
-                        <div className="fw-semibold text-break">
-                          {tx.description || "Giao dịch"}
+                <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                  <ul className="list-group list-group-flush small">
+                    {transactions.map((tx, index) => (
+                      <li
+                        key={index}
+                        className="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom py-2 px-1"
+                      >
+                        <div className="me-2">
+                          <div className="fw-semibold">{tx.description || "Giao dịch"}</div>
+                          <small className="text-muted d-flex align-items-center mt-1">
+                            <FaInfoCircle className="me-1" />
+                            {new Date(tx.createdDate).toLocaleString()}
+                          </small>
                         </div>
-                        <small className="text-muted d-flex align-items-center mt-1">
-                          <FaInfoCircle className="me-1" />
-                          {new Date(tx.createdDate).toLocaleString()}
-                        </small>
-                      </div>
-                      <div className="text-end">
-                        <div
-                          className={`fw-bold ${
-                            tx.amount > 0 ? "text-success" : "text-danger"
-                          }`}
-                        >
+                        <div className={`fw-bold ${tx.amount > 0 ? "text-success" : "text-danger"}`}>
                           {tx.amount.toLocaleString("vi-VN")}₫
                         </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           </div>
@@ -186,27 +176,29 @@ const HousekeeperWalletPage = () => {
       {/* Withdraw Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Yêu cầu rút tiền</Modal.Title>
+          <Modal.Title className="fw-semibold">💳 Yêu cầu rút tiền</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group>
-            <Form.Label>Số tiền muốn rút (₫)</Form.Label>
+            <Form.Label className="small">Số tiền muốn rút (₫)</Form.Label>
             <Form.Control
               type="number"
-              min="10000"
-              placeholder="Tối thiểu 10,000đ"
-              value={withdrawAmount}
-              onChange={(e) => setWithdrawAmount(e.target.value)}
+              min={10000}
+              step={10000}
+              placeholder="Tối thiểu 10,000₫"
               className="rounded-3"
+              value={withdrawAmount}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (!value || /^[0-9]+$/.test(value)) {
+                  setWithdrawAmount(value);
+                }
+              }}
             />
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="secondary"
-            className="rounded-pill"
-            onClick={() => setShowModal(false)}
-          >
+          <Button variant="secondary" className="rounded-pill" onClick={() => setShowModal(false)}>
             Hủy
           </Button>
           <Button
@@ -214,7 +206,7 @@ const HousekeeperWalletPage = () => {
             className="text-white fw-bold rounded-pill"
             onClick={handleWithdraw}
           >
-            Xác nhận rút
+            Xác nhận
           </Button>
         </Modal.Footer>
       </Modal>

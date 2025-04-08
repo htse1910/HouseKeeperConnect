@@ -40,6 +40,11 @@ import HousekeeperWalletPage from './pages/HousekeeperWalletPage'; // ✅ Add th
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import HousekeeperBookingManagementPage from "./pages/HousekeeperBookingManagementPage";
+import UserNotifications from './pages/UserNotifications';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminAccountPage from './pages/AdminAccountPage';
+import AdminServicesPage from './pages/AdminServicesPage';
+import AdminTransactionPage from './pages/AdminTransactionPage';
 
 function AppRoutes() {
   return (
@@ -52,6 +57,7 @@ function AppRoutes() {
         <Route path="/confirm-account" element={<ConfirmAccountPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/account/notifications" element={<UserNotifications />} />
         {/* Role-Based Dashboard Routes */}
         <Route path="/housekeeper/dashboard" element={<HousekeeperDashboardPage />} />
         <Route path="/family-dashboard" element={<FamilyDashboardPage />} />
@@ -92,6 +98,12 @@ function AppRoutes() {
         <Route path="/family/deposit/return" element={<FamilyDepositReturnPage />} />
         <Route path="/family/transactions" element={<FamilyTransactionPage />} />
         <Route path="/family/messages" element={<FamilyMessagesPage />} />
+
+        {/* Admin Pages */}
+        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route path="/admin/users" element={<AdminAccountPage />} />
+        <Route path="/admin/services" element={<AdminServicesPage />} />
+        <Route path="/admin/transaction" element={<AdminTransactionPage />} />
       </Routes>
     </Layout>
   );

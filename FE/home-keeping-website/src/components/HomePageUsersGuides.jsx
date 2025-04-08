@@ -1,86 +1,71 @@
 import React from 'react';
-import { FaUserPlus, FaQuestionCircle, FaHandshake, FaStar } from 'react-icons/fa';
+import {
+  FaUserPlus,
+  FaQuestionCircle,
+  FaHandshake,
+  FaStar
+} from 'react-icons/fa';
 
 function HomePageUsersGuides() {
+  const steps = [
+    {
+      icon: <FaUserPlus size={28} className="text-white" />,
+      title: "Đăng ký tài khoản",
+      desc: "Tạo tài khoản miễn phí trong vài phút với thông tin cơ bản của bạn",
+    },
+    {
+      icon: <FaQuestionCircle size={28} className="text-white" />,
+      title: "Xác thực thông tin",
+      desc: "Hoàn thành xác minh danh tính để đảm bảo an toàn cho cộng đồng",
+    },
+    {
+      icon: <FaHandshake size={28} className="text-white" />,
+      title: "Kết nối đối tác",
+      desc: "Tìm kiếm và kết nối với đối tác phù hợp nhất với nhu cầu của bạn",
+    },
+    {
+      icon: <FaStar size={28} className="text-white" />,
+      title: "Thanh toán & Đánh giá",
+      desc: "Hoàn tất thanh toán an toàn và chia sẻ đánh giá trải nghiệm của bạn",
+    }
+  ];
+
   return (
-    <section style={{ backgroundColor: 'white', padding: '3rem 0' }}>
+    <section style={{ backgroundColor: '#FFFDF9', padding: '4rem 0' }}>
       <div className="container text-center">
-        <h2 className="fw-bold" style={{ color: '#FF7F00' }}>PCHWF Hoạt động như thế nào?</h2>
-        <p className="text-muted mt-3">
+        <h2
+          className="fw-bold mb-3"
+          style={{
+            background: 'linear-gradient(to right, #FF8C00, #FFA500)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          PCHWF Hoạt động như thế nào?
+        </h2>
+        <p className="text-muted mb-5">
           Quy trình đơn giản, hiệu quả để bắt đầu sử dụng nền tảng của chúng tôi
         </p>
-        <div className="row mt-5">
-          {/* Step 1 */}
-          <div className="col-md-3 d-flex">
-            <div className="p-4 bg-white rounded shadow flex-fill">
-              <div className="mb-3">
-                <span
-                  className="d-inline-block rounded-circle p-3"
-                  style={{ backgroundColor: '#FFE4B5' }}
-                >
-                  <FaUserPlus className="text-warning" size={32} />
-                </span>
-              </div>
-              <h5 className="fw-bold">Đăng ký tài khoản</h5>
-              <p className="text-muted">
-                Tạo tài khoản miễn phí trong vài phút với thông tin cơ bản của bạn
-              </p>
-            </div>
-          </div>
 
-          {/* Step 2 */}
-          <div className="col-md-3 d-flex">
-            <div className="p-4 bg-white rounded shadow flex-fill">
-              <div className="mb-3">
-                <span
-                  className="d-inline-block rounded-circle p-3"
-                  style={{ backgroundColor: '#FFE4B5' }}
+        <div className="row g-4">
+          {steps.map((step, index) => (
+            <div className="col-md-3" key={index}>
+              <div className="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <div
+                  className="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle"
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    backgroundColor: "#FFC107",
+                  }}
                 >
-                  <FaQuestionCircle className="text-warning" size={32} />
-                </span>
+                  {step.icon}
+                </div>
+                <h5 className="fw-bold mb-2">{step.title}</h5>
+                <p className="text-muted small mb-0">{step.desc}</p>
               </div>
-              <h5 className="fw-bold">Xác thực thông tin</h5>
-              <p className="text-muted">
-                Hoàn thành xác minh danh tính để đảm bảo an toàn cho cộng đồng
-              </p>
             </div>
-          </div>
-
-          {/* Step 3 */}
-          <div className="col-md-3 d-flex">
-            <div className="p-4 bg-white rounded shadow flex-fill">
-              <div className="mb-3">
-                <span
-                  className="d-inline-block rounded-circle p-3"
-                  style={{ backgroundColor: '#FFE4B5' }}
-                >
-                  <FaHandshake className="text-warning" size={32} />
-                </span>
-              </div>
-              <h5 className="fw-bold">Kết nối đối tác</h5>
-              <p className="text-muted">
-                Tìm kiếm và kết nối với đối tác phù hợp nhất với nhu cầu của bạn
-              </p>
-            </div>
-          </div>
-
-          {/* Step 4 */}
-          <div className="col-md-3 d-flex">
-            <div className="p-4 bg-white rounded shadow flex-fill">
-              <div className="mb-3">
-                <span
-                  className="d-inline-block rounded-circle p-3"
-                  style={{ backgroundColor: '#FFE4B5' }}
-                >
-                  <FaStar className="text-warning" size={32} />
-                </span>
-              </div>
-              <h5 className="fw-bold">Thanh toán & Đánh giá</h5>
-              <p className="text-muted">
-                Hoàn tất thanh toán an toàn và chia sẻ đánh giá trải nghiệm của bạn
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
