@@ -8,9 +8,11 @@ import CertificatesAndDocuments from "../components/CertificatesAndDocuments";
 import IDCardImages from "../components/IDCardImages";
 import HouseKeeperSkillsCard from "../components/HouseKeeperSkillsCard";
 import HousekeeperReviewList from "../components/HousekeeperReviewList";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 const HousekeeperProfilePage = () => {
   return (
     <div className="container py-4">
+      <ScrollToTopButton />
       {/* Profile Header */}
       <ProfileCard />
 

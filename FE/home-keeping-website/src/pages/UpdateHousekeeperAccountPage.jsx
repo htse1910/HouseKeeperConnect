@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 
 function UpdateHousekeeperAccountPage() {
     const [formData, setFormData] = useState({
@@ -89,6 +90,7 @@ function UpdateHousekeeperAccountPage() {
 
     return (
         <div className="container mt-4">
+            <ScrollToTopButton />
             <h2 className="fw-bold">Cập nhật tài khoản</h2>
             {error && <div className="alert alert-danger">{error}</div>}
             {success && <div className="alert alert-success">{success}</div>}

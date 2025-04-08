@@ -34,8 +34,8 @@ export function useMenuItems() {
     Admin: [
       { label: t("dashboard"), link: "/admin/dashboard" },
       { label: t("users"), link: "/admin/users" },
-      { label: t("approval"), link: "/admin/approval", dropdown: true },
-      { label: t("analytics"), link: "/admin/analytics" },
+      { label: t("services"), link: "/admin/services", dropdown: true },
+      { label: t("transactions"), link: "/admin/transaction" },
       { label: t("management"), link: "/admin/management" },
     ],
   };

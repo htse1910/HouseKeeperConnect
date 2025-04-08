@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 
 function UpdateHousekeeperPage() {
   const navigate = useNavigate();
@@ -87,6 +88,7 @@ function UpdateHousekeeperPage() {
 
   return (
     <div className="container my-5">
+      <ScrollToTopButton />
       <ToastContainer />
       <div className="card shadow-sm p-4 border-0">
         <h4 className="fw-bold mb-4 text-primary">Cập nhật thông tin người giúp việc</h4>
