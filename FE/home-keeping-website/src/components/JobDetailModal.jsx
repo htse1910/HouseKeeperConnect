@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { serviceMap } from "../utils/serviceMap";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 const slotMap = {
   1: "8H - 9H",
@@ -22,7 +21,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const authToken = localStorage.getItem("authToken");
-  const [accountID] = useState(localStorage.getItem("accountID"));
+  const accountID = localStorage.getItem("accountID");
 
   useEffect(() => {
     const fetchJobDetail = async () => {
@@ -65,13 +64,40 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
 
       if (res.ok) {
         toast.success(message || "Chấp nhận công việc thành công");
-        onClose(); // close after toast success
+        setTimeout(() => onClose(), 1000); // Delay closing to allow toast to show
       } else {
         toast.error(message || "Chấp nhận công việc thất bại");
       }
     } catch (err) {
       console.error("❌ Error accepting job:", err);
       toast.error("Có lỗi khi chấp nhận công việc.");
+    }
+  };
+
+  const handleRejectJob = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5280/api/Job/DenyJob?jobId=${jobID}&accountID=${accountID}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      const message = await res.text();
+
+      if (res.ok) {
+        toast.success(message || "Từ chối công việc thành công");
+        setTimeout(() => onClose(), 1000); // Delay closing
+      } else {
+        toast.error(message || "Từ chối công việc thất bại");
+      }
+    } catch (err) {
+      console.error("❌ Error rejecting job:", err);
+      toast.error("Có lỗi khi từ chối công việc.");
     }
   };
 
@@ -107,7 +133,6 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
 
       <div className="modal-dialog modal-dialog-scrollable" role="document">
         <div className="modal-content border-0 rounded-4 shadow-sm p-4">
-          <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 className="fw-bold text-warning mb-0">Chi tiết công việc</h5>
@@ -165,7 +190,10 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
                 )}
 
                 {applicationStatus === 2 && (
-                  <div className="text-end mt-4">
+                  <div className="d-flex justify-content-end gap-2 mt-4">
+                    <button className="btn btn-outline-danger fw-semibold rounded-2" onClick={handleRejectJob}>
+                      Từ chối
+                    </button>
                     <button className="btn btn-warning fw-semibold rounded-2" onClick={handleAcceptJob}>
                       Chấp nhận công việc
                     </button>

@@ -16,9 +16,6 @@ function UpdateHousekeeperPage() {
   const [bankAccount, setBankAccount] = useState("");
   const [location, setLocation] = useState("");
   const [localProfilePicture, setLocalProfilePicture] = useState(null);
-  const [frontPhoto, setFrontPhoto] = useState(null);
-  const [backPhoto, setBackPhoto] = useState(null);
-  const [facePhoto, setFacePhoto] = useState(null);
 
   useEffect(() => {
     if (!accountId || !authToken) {
@@ -60,9 +57,6 @@ function UpdateHousekeeperPage() {
     formData.append("Address", location);
 
     if (localProfilePicture) formData.append("LocalProfilePicture", localProfilePicture);
-    if (frontPhoto) formData.append("FrontPhoto", frontPhoto);
-    if (backPhoto) formData.append("BackPhoto", backPhoto);
-    if (facePhoto) formData.append("FacePhoto", facePhoto);
 
     try {
       const response = await fetch("http://localhost:5280/api/HouseKeeper/UpdateHousekeeper", {
@@ -127,21 +121,6 @@ function UpdateHousekeeperPage() {
           <div className="col-md-4">
             <label className="form-label">Ảnh đại diện</label>
             <input type="file" className="form-control" onChange={(e) => setLocalProfilePicture(e.target.files[0])} />
-          </div>
-
-          <div className="col-md-4">
-            <label className="form-label">Ảnh mặt trước CMND</label>
-            <input type="file" className="form-control" onChange={(e) => setFrontPhoto(e.target.files[0])} />
-          </div>
-
-          <div className="col-md-4">
-            <label className="form-label">Ảnh mặt sau CMND</label>
-            <input type="file" className="form-control" onChange={(e) => setBackPhoto(e.target.files[0])} />
-          </div>
-
-          <div className="col-md-4">
-            <label className="form-label">Ảnh khuôn mặt</label>
-            <input type="file" className="form-control" onChange={(e) => setFacePhoto(e.target.files[0])} />
           </div>
 
           <div className="col-12 text-end mt-4">

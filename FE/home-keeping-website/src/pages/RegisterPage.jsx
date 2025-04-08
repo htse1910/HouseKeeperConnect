@@ -76,10 +76,10 @@ function RegisterPage() {
       );
 
       if (registerResponse.status === 200) {
-        toast.success('🎉 Registration successful! Auto-login in 10 seconds...');
+        toast.success('🎉 Registration successful! Auto-login in 5 seconds...');
         // 👇 Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        setCountdown(10);
+        setCountdown(5);
         setShouldAutoLogin(true);
       }
     } catch (error) {
