@@ -8,12 +8,12 @@ import {
 } from "react-icons/fa";
 import JobName from "../components/JobName";
 import JobDetailModal from "../components/JobDetailModal";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function HouseKeeperManagePage() {
   const [activeTab, setActiveTab] = useState("all");
-  const [housekeeperID] = useState(localStorage.getItem("housekeeperID"));
+  const [accountID] = useState(localStorage.getItem("accountID"));
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState(null);
@@ -22,56 +22,62 @@ function HouseKeeperManagePage() {
   const fetchApplications = async () => {
     const authToken = localStorage.getItem("authToken");
     try {
-      const resApp = await fetch(`http://localhost:5280/api/Application/GetApplicationsByAccountID?uid=${housekeeperID}&pageNumber=1&pageSize=50`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
+      const resApp = await fetch(
+        `http://localhost:5280/api/Application/GetApplicationsByAccountID?uid=${accountID}&pageNumber=1&pageSize=50`,
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
       const appData = await resApp.json();
 
-      const appsWithFamilies = await Promise.all(appData.map(async (app) => {
-        try {
-          const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${app.familyID}`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-          });
-          const familyData = await familyRes.json();
+      const appsWithExtras = await Promise.all(
+        appData.map(async (app) => {
+          try {
+            const [familyRes, jobRes] = await Promise.all([
+              fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${app.familyID}`, {
+                headers: { Authorization: `Bearer ${authToken}` },
+              }),
+              fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${app.jobID}`, {
+                headers: { Authorization: `Bearer ${authToken}` },
+              }),
+            ]);
 
-          const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${familyData.accountID}`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-          });
-          const accData = await accRes.json();
+            const familyData = await familyRes.json();
+            const jobData = await jobRes.json();
 
-          const jobRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${app.jobID}`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-          });
-          const jobData = await jobRes.json();
+            const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${familyData.accountID}`, {
+              headers: { Authorization: `Bearer ${authToken}` },
+            });
 
-          return {
-            ...app,
-            familyName: accData.name,
-            price: jobData.price,
-            startDate: jobData.startDate,
-            endDate: jobData.endDate,
-          };
-        } catch (err) {
-          return {
-            ...app,
-            familyName: "Không xác định",
-            price: null,
-          };
-        }
-      }));
+            const accData = await accRes.json();
 
-      setApplications(appsWithFamilies);
+            return {
+              ...app,
+              familyName: accData.name,
+              price: jobData.price,
+              startDate: jobData.startDate,
+              endDate: jobData.endDate,
+            };
+          } catch {
+            return {
+              ...app,
+              familyName: "Không rõ",
+              price: null,
+            };
+          }
+        })
+      );
+
+      setApplications(appsWithExtras);
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu:", err);
-      setError("Lỗi khi tải dữ liệu.");
+      setError("Không thể tải công việc.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (housekeeperID) fetchApplications();
-  }, [housekeeperID]);
+    if (accountID) fetchApplications();
+  }, [accountID]);
 
   const tabStatusMap = {
     all: null,
@@ -92,53 +98,76 @@ function HouseKeeperManagePage() {
           overflow-y: auto;
           max-height: 500px;
         }
+
         .scroll-shadow::-webkit-scrollbar {
           width: 6px;
         }
+
         .scroll-shadow::-webkit-scrollbar-thumb {
           background-color: rgba(0,0,0,0.1);
           border-radius: 3px;
         }
+
+        .app-card {
+          transition: background-color 0.3s ease;
+          border-radius: 1rem;
+        }
+
         .app-card:hover {
           background-color: #fffbea;
-          transition: background-color 0.3s ease;
+        }
+
+        .tab-link {
+          cursor: pointer;
+          transition: all 0.2s ease-in-out;
+        }
+
+        .tab-link:hover {
+          color: #d39e00;
+        }
+
+        .giant-card {
+          max-width: 900px;
+          margin: auto;
         }
       `}</style>
 
-      <h3 className="fw-bold mb-3">Công việc của tôi</h3>
+      <div className="card giant-card shadow-sm rounded-4 p-4 border-0">
 
-      <div className="row g-3 mb-4">
-        {[{
-          label: "Tổng đơn",
-          count: applications.length,
-          icon: <FaBriefcase className="text-warning" size={26} />
-        }, {
-          label: "Đang chờ",
-          count: applications.filter(a => a.status === 1).length,
-          icon: <FaClock className="text-info" size={26} />
-        }, {
-          label: "Đã chấp nhận",
-          count: applications.filter(a => a.status === 2).length,
-          icon: <FaCheckCircle className="text-success" size={26} />
-        }, {
-          label: "Đã từ chối",
-          count: applications.filter(a => a.status === 3).length,
-          icon: <FaTimesCircle className="text-danger" size={26} />
-        }].map((item, i) => (
-          <div className="col-md-3" key={i}>
-            <div className="card shadow-sm p-3 d-flex justify-content-between align-items-center flex-row bg-light">
-              <div>
-                <div className="text-muted">{item.label}</div>
-                <h4 className="fw-bold">{item.count}</h4>
+        {/* Header */}
+        <h4 className="fw-bold mb-4 text-warning text-center">Công việc của tôi</h4>
+
+        {/* Summary Section */}
+        <div className="row row-cols-2 row-cols-md-4 g-3 mb-4">
+          {[{
+            label: "Tổng đơn",
+            count: applications.length,
+            icon: <FaBriefcase size={18} className="text-warning" />
+          }, {
+            label: "Đang chờ",
+            count: applications.filter(a => a.status === 1).length,
+            icon: <FaClock size={18} className="text-info" />
+          }, {
+            label: "Đã chấp nhận",
+            count: applications.filter(a => a.status === 2).length,
+            icon: <FaCheckCircle size={18} className="text-success" />
+          }, {
+            label: "Đã từ chối",
+            count: applications.filter(a => a.status === 3).length,
+            icon: <FaTimesCircle size={18} className="text-danger" />
+          }].map((item, i) => (
+            <div className="col" key={i}>
+              <div className="d-flex flex-column align-items-center bg-light rounded-3 p-2 shadow-sm text-center h-100">
+                {item.icon}
+                <div className="text-muted small mt-1">{item.label}</div>
+                <div className="fw-bold fs-5">{item.count}</div>
               </div>
-              {item.icon}
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="card shadow-sm p-4">
-        <div className="d-flex gap-4 border-bottom pb-2 mb-3">
+        {/* Filter Tabs */}
+        <div className="d-flex justify-content-between flex-wrap gap-3 small border-bottom pb-2 mb-3">
           {[
             { key: "all", label: "Tất cả" },
             { key: "pending", label: "Đang chờ" },
@@ -147,8 +176,7 @@ function HouseKeeperManagePage() {
           ].map(tab => (
             <div
               key={tab.key}
-              className={`pb-2 ${activeTab === tab.key ? "text-warning fw-bold border-bottom border-2 border-warning" : "text-secondary"}`}
-              style={{ cursor: "pointer" }}
+              className={`tab-link ${activeTab === tab.key ? "fw-bold text-warning border-bottom border-2 border-warning" : "text-secondary"}`}
               onClick={() => setActiveTab(tab.key)}
             >
               {tab.label}
@@ -156,45 +184,56 @@ function HouseKeeperManagePage() {
           ))}
         </div>
 
+        {/* Application List */}
         <div className="scroll-shadow">
           {error && <div className="alert alert-danger">{error}</div>}
 
-          {visibleApplications.length === 0 ? (
-            <div className="alert alert-info">Không có công việc phù hợp.</div>
+          {loading ? (
+            <div className="text-center text-muted py-4">Đang tải công việc...</div>
+          ) : visibleApplications.length === 0 ? (
+            <div className="alert alert-info small">Không có công việc phù hợp.</div>
           ) : (
             visibleApplications.map(app => (
-              <div key={app.applicationID} className="card app-card mb-3 p-3 shadow-sm">
-                <div className="d-flex justify-content-between align-items-center mb-1">
-                  <h5 className="fw-bold mb-0"><JobName jobID={app.jobID} /></h5>
+              <div key={app.applicationID} className="card app-card mb-3 p-3 shadow-sm border-0">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <h6 className="fw-bold mb-0"><JobName jobID={app.jobID} /></h6>
                   <span className={`badge text-white bg-${app.status === 1 ? "info" : app.status === 2 ? "success" : "danger"}`}>
                     {app.status === 1 ? "Đang chờ" : app.status === 2 ? "Đã chấp nhận" : "Đã từ chối"}
                   </span>
                 </div>
-                <p className="text-muted small mb-2">
-                  <strong>Gia đình:</strong> {app.familyName || "Không xác định"} |{" "}
-                  <FaMoneyBillWave className="text-success mx-1" />
-                  Mức lương: {app.price?.toLocaleString() ?? "N/A"} VND |{" "}
-                  Từ: {app.startDate ? new Date(app.startDate).toLocaleDateString() : "-"} đến {app.endDate ? new Date(app.endDate).toLocaleDateString() : "-"}
-                </p>
-                <button
-                  className="btn btn-sm btn-outline-warning"
-                  onClick={() => setSelectedApplication({ jobID: app.jobID, status: app.status })}
-                >
-                  Xem chi tiết
-                </button>
+
+                <div className="text-muted small mb-2">
+                  <div><strong className="me-1">👪 Gia đình:</strong>{app.familyName}</div>
+                  <div><strong className="me-1">💰 Lương:</strong>{app.price?.toLocaleString() ?? "N/A"} VND</div>
+                  <div>
+                    <strong className="me-1">📅 Thời gian:</strong>
+                    {app.startDate ? new Date(app.startDate).toLocaleDateString() : "-"} → {app.endDate ? new Date(app.endDate).toLocaleDateString() : "-"}
+                  </div>
+                </div>
+
+                <div className="text-end">
+                  <button
+                    className="btn btn-sm btn-outline-warning fw-semibold"
+                    onClick={() => setSelectedApplication({ jobID: app.jobID, status: app.status })}
+                    aria-label="Xem chi tiết công việc"
+                  >
+                    Xem chi tiết
+                  </button>
+                </div>
               </div>
             ))
           )}
         </div>
       </div>
 
+      {/* Modal */}
       {selectedApplication && (
         <JobDetailModal
           jobID={selectedApplication.jobID}
           applicationStatus={selectedApplication.status}
           onClose={() => {
             setSelectedApplication(null);
-            fetchApplications(); // Refresh list on close
+            fetchApplications();
           }}
         />
       )}

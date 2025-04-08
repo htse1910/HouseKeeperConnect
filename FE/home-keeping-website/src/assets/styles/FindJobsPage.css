@@ -1,14 +1,21 @@
 .job-card {
   height: 100%;
-  min-height: 350px; /* You can adjust this */
+  min-height: 350px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: transform 0.2s ease;
+  margin-bottom: 24px; /* ✅ Apply margin directly on card */
 }
 
 .job-card:hover {
   transform: translateY(-4px);
+}
+
+/* Optional: Add gutter between columns */
+.row > [class*="col-"] {
+  padding-left: 12px;
+  padding-right: 12px;
 }
 
 .row.justify-content-center > .col-md-4 {
@@ -43,4 +50,18 @@ input::placeholder {
 .btn-warning:hover {
   background-color: #e68a00;
   border-color: #e68a00;
+}
+
+.btn-outline-warning:hover {
+  background-color: #fff7e6;
+  border-color: #ffc107;
+}
+
+.form-select,
+.form-control {
+  border-radius: 12px;
+}
+
+.card {
+  border-radius: 16px;
 }

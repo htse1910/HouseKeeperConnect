@@ -11,8 +11,10 @@ function FindJobsPage() {
   const [allJobs, setAllJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const jobsPerPage = 9;
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
+  const jobsPerPage = 9;
   const authToken = localStorage.getItem("authToken");
 
   const hcmDistricts = [
@@ -28,9 +30,7 @@ function FindJobsPage() {
       try {
         setLoading(true);
         const listRes = await fetch("http://localhost:5280/api/Job/JobList", {
-          method: "GET",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
         });
@@ -41,41 +41,25 @@ function FindJobsPage() {
         const detailedJobs = await Promise.all(
           verifiedJobs.map(async (job) => {
             const detailRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`,
-              },
+              headers: { Authorization: `Bearer ${authToken}` },
             });
-
             const jobDetail = await detailRes.json();
 
-            // Step 1: Get accountID via familyID
             let familyName = "Không rõ";
             try {
               const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
-                method: "GET",
-                headers: {
-                  "Authorization": `Bearer ${authToken}`,
-                },
+                headers: { Authorization: `Bearer ${authToken}` },
               });
               const family = await familyRes.json();
 
-              // Step 2: Get name via accountID
               if (family?.accountID) {
                 const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${family.accountID}`, {
-                  method: "GET",
-                  headers: {
-                    "Authorization": `Bearer ${authToken}`,
-                  },
+                  headers: { Authorization: `Bearer ${authToken}` },
                 });
-
                 const account = await accRes.json();
                 familyName = account?.name ?? "Không rõ";
               }
-            } catch (err) {
-              console.warn(`Could not fetch family info for jobID ${job.jobID}`);
-            }
+            } catch { }
 
             return { ...jobDetail, familyName };
           })
@@ -93,25 +77,34 @@ function FindJobsPage() {
     fetchJobs();
   }, []);
 
-  const handleSearch = () => {
-    if (!searchTerm.trim()) {
-      setJobs(allJobs);
+  const handleSearchTermChange = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+
+    if (!term.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
       return;
     }
 
-    fetch(`http://localhost:5280/api/Job/SearchJob?name=${encodeURIComponent(searchTerm)}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setJobs(data);
-        setCurrentPage(1);
-      })
-      .catch((err) => console.error("Search error:", err));
+    const hintList = allJobs
+      .filter((job) => job.jobName?.toLowerCase().includes(term.toLowerCase()))
+      .map((job) => job.jobName);
+
+    const uniqueHints = [...new Set(hintList)].slice(0, 5);
+    setSuggestions(uniqueHints);
+    setShowSuggestions(true);
+  };
+
+  const handleSearch = () => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return setJobs(allJobs);
+
+    const filtered = allJobs.filter((job) =>
+      job.jobName?.toLowerCase().includes(term)
+    );
+    setJobs(filtered);
+    setCurrentPage(1);
   };
 
   const handleFilterChange = (e) => {
@@ -123,16 +116,12 @@ function FindJobsPage() {
     let filtered = [...allJobs];
 
     if (filters.location) {
-      filtered = filtered.filter((job) =>
-        job.location?.trim().toLowerCase() === filters.location.trim().toLowerCase()
-      );
+      filtered = filtered.filter((job) => job.location?.trim().toLowerCase() === filters.location.trim().toLowerCase());
     }
-    
     if (filters.jobType) {
       const type = filters.jobType === "fulltime" ? 1 : 2;
       filtered = filtered.filter((job) => job.jobType === type);
     }
-
     if (filters.salary) {
       filtered = filtered.filter((job) => {
         const salary = job.price || 0;
@@ -167,25 +156,46 @@ function FindJobsPage() {
 
   return (
     <div className="container-fluid p-0">
-      {/* Search & Filters */}
-      <div className="d-flex flex-column align-items-center justify-content-center" style={{ backgroundColor: "#ffedd5", minHeight: "240px" }}>
-        <div className="input-group w-75 shadow-sm mb-3">
-          <span className="input-group-text bg-white border-end-0 px-3">
-            <FaSearch className="text-muted" />
-          </span>
-          <input
-            type="text"
-            className="form-control border-start-0 py-3"
-            placeholder="Nhập từ khóa công việc..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button className="btn btn-warning px-4" onClick={handleSearch}>Tìm kiếm</button>
+      <div className="d-flex flex-column align-items-center justify-content-center bg-light py-5">
+        <div className="position-relative w-75">
+          <div className="input-group shadow-sm rounded mb-2">
+            <span className="input-group-text bg-white border-end-0 px-3">
+              <FaSearch className="text-muted" />
+            </span>
+            <input
+              type="text"
+              className="form-control border-start-0 py-3"
+              placeholder="Tìm kiếm công việc theo tên..."
+              value={searchTerm}
+              onChange={handleSearchTermChange}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            />
+            <button className="btn btn-warning px-4" onClick={handleSearch}>Tìm kiếm</button>
+          </div>
+
+          {showSuggestions && suggestions.length > 0 && (
+            <ul className="list-group position-absolute w-100 z-3 mt-1 rounded shadow-sm">
+              {suggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  className="list-group-item list-group-item-action"
+                  onMouseDown={() => {
+                    setSearchTerm(suggestion);
+                    setShowSuggestions(false);
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  {suggestion}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        <div className="w-75">
+        <div className="w-75 mt-3">
           <div className="row g-2">
-            <div className="col-3">
+            <div className="col-md-4 col-lg-3">
               <select className="form-select" name="location" value={filters.location} onChange={handleFilterChange}>
                 <option value="">Tất cả địa điểm</option>
                 {hcmDistricts.map((district, idx) => (
@@ -193,14 +203,14 @@ function FindJobsPage() {
                 ))}
               </select>
             </div>
-            <div className="col-3">
+            <div className="col-md-4 col-lg-3">
               <select className="form-select" name="jobType" value={filters.jobType} onChange={handleFilterChange}>
                 <option value="">Tất cả loại</option>
                 <option value="fulltime">Full-time</option>
                 <option value="parttime">Part-time</option>
               </select>
             </div>
-            <div className="col-3">
+            <div className="col-md-4 col-lg-3">
               <select className="form-select" name="salary" value={filters.salary} onChange={handleFilterChange}>
                 <option value="">Tất cả mức lương</option>
                 <option value="500-1000">500k - 1M</option>
@@ -209,7 +219,7 @@ function FindJobsPage() {
                 <option value="2500+">Trên 2.5M</option>
               </select>
             </div>
-            <div className="col-3">
+            <div className="col-md-12 col-lg-3">
               <button className="btn btn-outline-primary w-100" onClick={handleApplyFilter}>
                 Áp dụng bộ lọc
               </button>
@@ -218,7 +228,6 @@ function FindJobsPage() {
         </div>
       </div>
 
-      {/* Job Listings */}
       <div className="container py-4">
         {loading ? (
           <div className="text-center py-5">
@@ -226,33 +235,30 @@ function FindJobsPage() {
             <p className="mt-3">Đang tải công việc...</p>
           </div>
         ) : jobs.length === 0 ? (
-          <div className="text-center text-muted py-5">
-            Không tìm thấy công việc phù hợp.
-          </div>
+          <div className="text-center text-muted py-5">Không tìm thấy công việc phù hợp.</div>
         ) : (
           <>
-            <div className="row justify-content-center">
+            <div className="row justify-content-center g-4">
               {jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage).map((job) => (
-                <div key={job.jobID} className="col-md-4 d-flex">
-                <div className="card shadow-sm p-3 mb-4 border-0 job-card flex-fill">
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="fw-bold">{job.jobName}</h5>
-                    <p><FaUser className="me-1 text-muted" /> Gia đình: {job.familyName}</p>
-                    <p><FaMapMarkerAlt className="me-1 text-muted" /> Địa điểm: {job.location ?? "Chưa cập nhật"}</p>
-                    <p><FaMoneyBillWave className="me-1 text-muted" /> Mức lương: {job.price?.toLocaleString()} VND</p>
-                    <p><FaClock className="me-1 text-muted" /> Trạng thái: {getJobStatusLabel(job.status)}</p>
-                    <p>Loại: {getJobTypeLabel(job.jobType)}</p>
-                    <div className="mt-auto">
-                      <Link to={`/job/${job.jobID}`} className="btn btn-outline-warning w-100 mt-3">Xem chi tiết</Link>
+                <div key={job.jobID} className="col-md-6 col-lg-4 d-flex">
+                  <div className="card job-card shadow-sm p-3 border-0 flex-fill rounded-4">
+                    <div className="card-body d-flex flex-column">
+                      <h5 className="fw-bold text-primary mb-2">{job.jobName}</h5>
+                      <p className="mb-1"><FaUser className="me-1 text-muted" /> <strong>Gia đình:</strong> {job.familyName}</p>
+                      <p className="mb-1"><FaMapMarkerAlt className="me-1 text-muted" /> <strong>Địa điểm:</strong> {job.location ?? "Chưa cập nhật"}</p>
+                      <p className="mb-1"><FaMoneyBillWave className="me-1 text-muted" /> <strong>Lương:</strong> {job.price?.toLocaleString()} VND</p>
+                      <p className="mb-1"><FaClock className="me-1 text-muted" /> <strong>Trạng thái:</strong> {getJobStatusLabel(job.status)}</p>
+                      <p className="mb-3"><strong>Loại:</strong> {getJobTypeLabel(job.jobType)}</p>
+                      <Link to={`/job/${job.jobID}`} className="btn btn-outline-warning mt-auto fw-bold">
+                        Xem chi tiết
+                      </Link>
                     </div>
                   </div>
                 </div>
-              </div>              
               ))}
             </div>
 
-            {/* Pagination */}
-            <div className="d-flex justify-content-center">
+            <div className="d-flex justify-content-center mt-3">
               <Pagination>
                 <Pagination.Prev onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
                 {[...Array(totalPages)].map((_, i) => (

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import IDVerificationForm from "../components/IDVerificationForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ScrollToTopButton from "../components/ScrollToTopButton";
 
 const IDVerificationCreatePage = () => {
   const housekeeperID = localStorage.getItem("housekeeperID");
@@ -47,6 +48,7 @@ const IDVerificationCreatePage = () => {
 
   return (
     <div className="container py-5">
+      <ScrollToTopButton />
       <ToastContainer />
       <div className="card shadow-sm border-0 p-4">
         <div className="d-flex justify-content-between align-items-center mb-3">

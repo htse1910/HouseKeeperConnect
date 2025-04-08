@@ -1,64 +1,60 @@
-import React from 'react';
+import React from "react";
+import { FaShieldAlt, FaTasks, FaCreditCard } from "react-icons/fa";
 
 function HomePageUsersDesire() {
+  const items = [
+    {
+      icon: <FaShieldAlt size={20} className="text-white" />,
+      title: "Chuyên gia đáng tin cậy",
+      desc: "Tất cả người giúp việc đều được xác minh vì sự an toàn của bạn",
+    },
+    {
+      icon: <FaTasks size={20} className="text-white" />,
+      title: "Dịch vụ tuỳ chỉnh",
+      desc: "Điều chỉnh công việc vệ sinh phù hợp với nhu cầu của bạn",
+    },
+    {
+      icon: <FaCreditCard size={20} className="text-white" />,
+      title: "Thanh toán an toàn",
+      desc: "Phương thức thanh toán nhanh chóng và an toàn",
+    },
+  ];
+
   return (
-    <section style={{ backgroundColor: '#FFEFD5', padding: '3rem 0' }}>
+    <section style={{ backgroundColor: "#FFF8EE", padding: "4rem 0" }}>
       <div className="container text-center">
-        <h2 className="fw-bold" style={{ color: '#FF7F00' }}>Tại sao bạn yêu cầu chúng tôi?</h2>
-        <div className="row mt-5">
-          {/* Card 1 */}
-          <div className="col-md-4">
-            <div className="p-4 bg-white rounded shadow">
-              <div className="mb-3">
-                <span
-                  className="d-inline-block rounded-circle bg-warning p-3"
-                  style={{ backgroundColor: '#FFE4B5' }}
-                >
-                  <i className="fas fa-shield-alt text-orange"></i>
-                </span>
-              </div>
-              <h5 className="fw-bold">Chuyên gia đáng tin cậy</h5>
-              <p className="text-muted">
-                Tất cả người giúp việc đều được xác minh vì sự an toàn của bạn
-              </p>
-            </div>
-          </div>
+        <h2
+          className="fw-bold mb-5"
+          style={{
+            background: "linear-gradient(to right, #FF8C00, #FFA500)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Tại sao bạn yêu cầu chúng tôi?
+        </h2>
 
-          {/* Card 2 */}
-          <div className="col-md-4">
-            <div className="p-4 bg-white rounded shadow">
-              <div className="mb-3">
-                <span
-                  className="d-inline-block rounded-circle bg-warning p-3"
-                  style={{ backgroundColor: '#FFE4B5' }}
+        <div className="row g-4">
+          {items.map((item, index) => (
+            <div className="col-md-4" key={index}>
+              <div className="bg-white rounded-4 shadow-sm p-4 h-100">
+                <div
+                  className="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle"
+                  style={{
+                    width: "56px",
+                    height: "56px",
+                    backgroundColor: "#FFC107",
+                  }}
                 >
-                  <i className="fas fa-tasks text-orange"></i>
-                </span>
+                  {item.icon}
+                </div>
+                <h5 className="fw-bold mb-2">{item.title}</h5>
+                <p className="text-muted mb-0" style={{ fontSize: "0.95rem" }}>
+                  {item.desc}
+                </p>
               </div>
-              <h5 className="fw-bold">Dịch vụ tuỳ chỉnh</h5>
-              <p className="text-muted">
-                Điều chỉnh công việc vệ sinh phù hợp với nhu cầu của bạn
-              </p>
             </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className="col-md-4">
-            <div className="p-4 bg-white rounded shadow">
-              <div className="mb-3">
-                <span
-                  className="d-inline-block rounded-circle bg-warning p-3"
-                  style={{ backgroundColor: '#FFE4B5' }}
-                >
-                  <i className="fas fa-credit-card text-orange"></i>
-                </span>
-              </div>
-              <h5 className="fw-bold">Thanh toán an toàn</h5>
-              <p className="text-muted">
-                Phương thức thanh toán nhanh chóng và an toàn
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

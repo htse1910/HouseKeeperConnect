@@ -1,89 +1,74 @@
 import React from 'react';
 
 function HomePageUserStories() {
+  const stories = [
+    {
+      name: "Nguyễn Thu Hà",
+      type: "Gia đình",
+      avatar: "https://i.pinimg.com/736x/fc/04/73/fc047347b17f7df7ff288d78c8c281cf.jpg",
+      content: "Tôi đã tìm được người giúp việc tuyệt vời chỉ sau 2 ngày đăng tin! Dịch vụ rất chuyên nghiệp và đáng tin cậy.",
+      rating: 5
+    },
+    {
+      name: "Trần Việt Tú",
+      type: "Người giúp việc",
+      avatar: "https://i.pinimg.com/736x/fc/04/73/fc047347b17f7df7ff288d78c8c281cf.jpg",
+      content: "PCHWF giúp tôi có thu nhập ổn định hàng tháng. Tôi tìm được những gia đình tuyệt vời để làm việc.",
+      rating: 5
+    },
+    {
+      name: "Phạm Văn Đức",
+      type: "Gia đình",
+      avatar: "https://i.pinimg.com/736x/fc/04/73/fc047347b17f7df7ff288d78c8c281cf.jpg",
+      content: "Dịch vụ tuyệt vời! Tôi đã giới thiệu PCHWF cho nhiều bạn bè và họ đều rất hài lòng với trải nghiệm này.",
+      rating: 5
+    }
+  ];
+
   return (
-    <section style={{ backgroundColor: '#FFF8F0', padding: '3rem 0' }}>
+    <section style={{ backgroundColor: '#FFF8F0', padding: '4rem 0' }}>
       <div className="container text-center">
-        <h2 className="fw-bold" style={{ color: '#FF7F00' }}>Câu chuyện từ người dùng</h2>
-        <p className="text-muted mt-3">
+        <h2
+          className="fw-bold mb-2"
+          style={{
+            background: "linear-gradient(to right, #FF8C00, #FFA500)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Câu chuyện từ người dùng
+        </h2>
+        <p className="text-muted mb-5">
           Khám phá những trải nghiệm thực tế từ các gia đình và người giúp việc đã tin tưởng sử dụng dịch vụ của chúng tôi
         </p>
-        <div className="row mt-5">
-          {/* Story 1 */}
-          <div className="col-md-4">
-            <div className="p-4 bg-white rounded shadow">
-              <div className="d-flex align-items-center mb-3">
-                <img
-                  src="https://i.pinimg.com/736x/fc/04/73/fc047347b17f7df7ff288d78c8c281cf.jpg"
-                  alt="Nguyễn Thu Hà"
-                  className="rounded-circle me-3"
-                  style={{ width: '50px', height: '50px' }}
-                />
-                <div className="text-start">
-                  <h5 className="fw-bold">Nguyễn Thu Hà</h5>
-                  <p className="text-muted mb-0">Gia đình</p>
-                </div>
-              </div>
-              <p className="text-muted">
-                "Tôi đã tìm được người giúp việc tuyệt vời chỉ sau 2 ngày đăng tin! Dịch vụ rất chuyên nghiệp và đáng tin cậy."
-              </p>
-              <div className="text-warning">
-                ★★★★★
-              </div>
-            </div>
-          </div>
 
-          {/* Story 2 */}
-          <div className="col-md-4">
-            <div className="p-4 bg-white rounded shadow">
-              <div className="d-flex align-items-center mb-3">
-                <img
-                  src="https://i.pinimg.com/736x/fc/04/73/fc047347b17f7df7ff288d78c8c281cf.jpg"
-                  alt="Trần Việt Tú"
-                  className="rounded-circle me-3"
-                  style={{ width: '50px', height: '50px' }}
-                />
-                <div className="text-start">
-                  <h5 className="fw-bold">Trần Việt Tú</h5>
-                  <p className="text-muted mb-0">Người giúp việc</p>
+        <div className="row g-4">
+          {stories.map((s, i) => (
+            <div className="col-md-4" key={i}>
+              <div className="bg-white rounded-4 shadow-sm p-4 h-100">
+                <div className="d-flex align-items-center mb-3">
+                  <img
+                    src={s.avatar}
+                    alt={s.name}
+                    className="rounded-circle me-3"
+                    style={{ width: '56px', height: '56px', objectFit: 'cover' }}
+                  />
+                  <div className="text-start">
+                    <h5 className="fw-bold mb-0">{s.name}</h5>
+                    <small className="text-muted">{s.type}</small>
+                  </div>
+                </div>
+                <p className="text-muted fst-italic">"{s.content}"</p>
+                <div className="text-warning fs-5">
+                  {'★'.repeat(s.rating)}{'☆'.repeat(5 - s.rating)}
                 </div>
               </div>
-              <p className="text-muted">
-                "PCHWF giúp tôi có thu nhập ổn định hàng tháng. Tôi tìm được những gia đình tuyệt vời để làm việc."
-              </p>
-              <div className="text-warning">
-                ★★★★★
-              </div>
             </div>
-          </div>
-
-          {/* Story 3 */}
-          <div className="col-md-4">
-            <div className="p-4 bg-white rounded shadow">
-              <div className="d-flex align-items-center mb-3">
-                <img
-                  src="https://i.pinimg.com/736x/fc/04/73/fc047347b17f7df7ff288d78c8c281cf.jpg"
-                  alt="Phạm Văn Đức"
-                  className="rounded-circle me-3"
-                  style={{ width: '50px', height: '50px' }}
-                />
-                <div className="text-start">
-                  <h5 className="fw-bold">Phạm Văn Đức</h5>
-                  <p className="text-muted mb-0">Gia đình</p>
-                </div>
-              </div>
-              <p className="text-muted">
-                "Dịch vụ tuyệt vời! Tôi đã giới thiệu PCHWF cho nhiều bạn bè và họ đều rất hài lòng với trải nghiệm này."
-              </p>
-              <div className="text-warning">
-                ★★★★★
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="mt-4">
-          <button className="btn btn-warning text-white fw-bold">
+        <div className="mt-5">
+          <button className="btn btn-warning text-white fw-bold rounded-pill px-4 shadow-sm">
             Xem thêm đánh giá →
           </button>
         </div>

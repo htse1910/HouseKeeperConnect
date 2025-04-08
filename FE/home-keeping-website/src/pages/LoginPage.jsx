@@ -87,7 +87,7 @@ function LoginPage() {
       case 1: navigate("/housekeeper/dashboard"); break;
       case 2: navigate("/family-dashboard"); break;
       case 3: navigate("/staff-dashboard"); break;
-      case 4: navigate("/admin-dashboard"); break; // ✅ Redirect Admin Role (roleID 4)
+      case 4: navigate("/admin/dashboard"); break; // ✅ Redirect Admin Role (roleID 4)
       default: toast.error("Invalid role. Please contact support.");
     }
   };

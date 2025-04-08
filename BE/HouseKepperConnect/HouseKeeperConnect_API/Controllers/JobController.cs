@@ -22,11 +22,15 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly INotificationService _notificationService;
         private readonly IFamilyProfileService _familyProfileService;
         private readonly IHouseKeeperService _houseKeeperService;
+        private readonly IServiceService _serviceService;
+        private readonly IAccountService _accountService;
+        private readonly ITransactionService _transactionService;
+        private readonly IWalletService _walletService;
         private string Message;
         private readonly IMapper _mapper;
 
         public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService, IBooking_SlotsService bookingSlotsService, INotificationService notificationService,
-            IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService)
+            IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService, IServiceService serviceService, IAccountService accountService, ITransactionService transactionService, IWalletService walletService)
         {
             _jobService = jobService;
             _jobServiceService = job_ServiceService;
@@ -37,6 +41,10 @@ namespace HouseKeeperConnect_API.Controllers
             _notificationService = notificationService;
             _familyProfileService = familyProfileService;
             _houseKeeperService = houseKeeperService;
+            _serviceService = serviceService;
+            _accountService = accountService;
+            _transactionService = transactionService;
+            _walletService = walletService;
         }
 
         [HttpGet("JobList")]
@@ -183,13 +191,11 @@ namespace HouseKeeperConnect_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("Invalid job data.");
 
-            // If the job is offered to a housekeeper, validate HousekeeperID and slot availability
             if (jobCreateDTO.IsOffered)
             {
                 if (!jobCreateDTO.HousekeeperID.HasValue)
                     return BadRequest("HousekeeperID is required when IsOffered is true.");
 
-                // Check slot conflicts
                 foreach (var slotID in jobCreateDTO.SlotIDs)
                 {
                     foreach (var day in jobCreateDTO.DayofWeek)
@@ -210,26 +216,122 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            // Create job
+            // Calculate price per hour based on selected services
+            decimal totalServicePrice = 0;
+            foreach (var serviceID in jobCreateDTO.ServiceIDs)
+            {
+                var service = await _serviceService.GetServiceByIDAsync(serviceID);
+                if (service == null)
+                    return BadRequest($"Service ID {serviceID} not found.");
+                totalServicePrice += service.Price;
+            }
+
+            decimal pricePerHour = totalServicePrice;
+
+            TimeSpan dateRange = jobCreateDTO.EndDate.Date - jobCreateDTO.StartDate.Date;
+            int numberOfWeeks = (int)Math.Ceiling(dateRange.TotalDays / 7.0);
+            int slotsPerWeek = jobCreateDTO.SlotIDs.Count * jobCreateDTO.DayofWeek.Count;
+            int totalSlots = slotsPerWeek * numberOfWeeks;
+
+            decimal totalJobPrice = pricePerHour * totalSlots;
+
+            // Determine charge amount based on job type
+            decimal chargeAmount = 0;
+            if (jobCreateDTO.JobType == 1) // Subscription (charge for 1st week)
+            {
+                chargeAmount = pricePerHour * jobCreateDTO.SlotIDs.Count * jobCreateDTO.DayofWeek.Count;
+            }
+            else if (jobCreateDTO.JobType == 2) // One-time
+            {
+                chargeAmount = totalJobPrice;
+            }
+            else
+            {
+                return BadRequest("Invalid job type.");
+            }
+
+            // Wallet and balance check
+            var acc = await _accountService.GetAccountByIDAsync(jobCreateDTO.FamilyID);
+            if (acc == null) return NotFound("Family account not found.");
+
+            var wallet = await _walletService.GetWalletByUserAsync(acc.AccountID);
+            if (wallet == null) return NotFound("Wallet not found.");
+
+            if (wallet.Balance < chargeAmount)
+            {
+                return BadRequest(new
+                {
+                    message = "Not enough balance to create the job.",
+                    requiredAmount = chargeAmount,
+                    currentBalance = wallet.Balance,
+                    topUpNeeded = chargeAmount - wallet.Balance
+                });
+            }
+
+            // Deduct wallet
+            wallet.Balance -= chargeAmount;
+            wallet.UpdatedAt = DateTime.Now;
+            await _walletService.UpdateWalletAsync(wallet);
+
+            // Platform fee and housekeeper earnings
+            decimal platformFee = chargeAmount * 0.10m;
+            decimal housekeeperEarnings = chargeAmount * 0.90m;
+
+            // Add transaction: payment from family
+            var transactionId = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+            await _transactionService.AddTransactionAsync(new Transaction
+            {
+                TransactionID = transactionId,
+                WalletID = wallet.WalletID,
+                AccountID = acc.AccountID,
+                Amount = chargeAmount,
+                Fee = platformFee,
+                CreatedDate = DateTime.Now,
+                Description = "Payment for job creation",
+                UpdatedDate = DateTime.Now,
+                TransactionType = (int)TransactionType.Payment,
+                Status = (int)TransactionStatus.Completed,
+            });
+
+            // (Optional) Add transaction: earnings to housekeeper
+            if (jobCreateDTO.HousekeeperID.HasValue)
+            {
+                var hkwallet = await _walletService.GetWalletByUserAsync(jobCreateDTO.HousekeeperID.Value);
+                await _transactionService.AddTransactionAsync(new Transaction
+                {
+                    TransactionID = transactionId + 1,
+                    WalletID = hkwallet.WalletID,
+                    AccountID = jobCreateDTO.HousekeeperID.Value,
+                    Amount = housekeeperEarnings,
+                    Fee = 0,
+                    CreatedDate = DateTime.Now,
+                    Description = "Earnings reserved from job",
+                    UpdatedDate = DateTime.Now,
+                    TransactionType = (int)TransactionType.Payout,
+                    Status = (int)TransactionStatus.Pending
+                });
+            }
+
+            // Create job (no Price or PricePerHour in Job)
             var job = _mapper.Map<Job>(jobCreateDTO);
             job.Status = (int)JobStatus.Pending;
-
             await _jobService.AddJobAsync(job);
 
-            // Add job details
+            // Create job detail (store Price and PricePerHour here)
             var jobDetail = _mapper.Map<JobDetail>(jobCreateDTO);
             jobDetail.JobID = job.JobID;
+            jobDetail.Price = totalJobPrice;
+            jobDetail.PricePerHour = pricePerHour;
             await _jobService.AddJobDetailAsync(jobDetail);
 
             // Add job services
             foreach (var serviceID in jobCreateDTO.ServiceIDs)
             {
-                var jobService = new Job_Service
+                await _jobServiceService.AddJob_ServiceAsync(new Job_Service
                 {
                     JobID = job.JobID,
                     ServiceID = serviceID
-                };
-                await _jobServiceService.AddJob_ServiceAsync(jobService);
+                });
             }
 
             // Add job slots
@@ -237,18 +339,20 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 foreach (var day in jobCreateDTO.DayofWeek)
                 {
-                    var jobSlot = new Job_Slots
+                    await _jobSlotsService.AddJob_SlotsAsync(new Job_Slots
                     {
                         JobID = job.JobID,
                         SlotID = slotID,
                         DayOfWeek = day
-                    };
-                    await _jobSlotsService.AddJob_SlotsAsync(jobSlot);
+                    });
                 }
             }
 
             return Ok("Job created successfully!");
         }
+
+
+
 
         /*
                 private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
