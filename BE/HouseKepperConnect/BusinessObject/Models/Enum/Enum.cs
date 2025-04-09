@@ -105,4 +105,17 @@
         Accepted = 2,
         Denied = 3
     }
+
+    public enum PayoutStatus
+    {
+        Pending = 1,
+        Completed = 2
+    }
+    
+    public enum PaymentStatus
+    {
+        Pending = 1,
+        Completed = 2
+    }
+
 }
