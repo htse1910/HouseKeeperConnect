@@ -209,6 +209,8 @@
   "no_jobs_yet": "Bạn chưa đăng công việc nào.",
   "no_family_profile": "Bạn chưa tạo hồ sơ gia đình.",
   "jobPost": {
+    "priceAutoCalculationNote": "💡 Hệ thống tự động tính lương dựa trên dịch vụ, thời gian và loại công việc.",
+  "selectedServiceBreakdown": "Chi tiết dịch vụ đã chọn",
     "success": "🎉 Công việc đã được đăng thành công!",
     "jobTitlePlaceholder": "Nhập tiêu đề công việc, ví dụ: Giúp việc buổi sáng",
     "locationPlaceholder": "Nhập địa điểm làm việc, ví dụ: Quận 1, TP.HCM",
