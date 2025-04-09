@@ -773,58 +773,67 @@ namespace HouseKeeperConnect_API.Controllers
         }
         [HttpPost("CheckIn")]
         [Authorize(Policy = "Housekeeper")]
-        public async Task<ActionResult> CheckIn([FromQuery] int bookingSlotId)
+        public async Task<ActionResult> CheckIn([FromQuery] int bookingId)
         {
-            // Get the Booking_Slot by ID using service
-            var bookingSlot = await _bookingSlotsService.GetBooking_SlotsByIDAsync(bookingSlotId);
-            if (bookingSlot == null)
-                return NotFound("Booking slot not found.");
+            // 🔍 Get today's date
+            var today = DateTime.Today;
 
-            // Check if the slot's date is today
-            if (bookingSlot.Date != DateTime.Today)
-                return BadRequest("You can only check in on the correct date.");
+            // ✅ Retrieve all booking slots for this booking and today's date
+            var todaySlots = await _bookingSlotsService.GetBookingSlotsByDateAndBookingIDAsync(bookingId, today);
+            if (todaySlots == null || !todaySlots.Any())
+                return NotFound("No booking slots found for today.");
 
-            if (bookingSlot.IsCheckedIn)
-                return BadRequest("Already checked in for this slot.");
+            // 🚫 Check if all slots are already checked in
+            if (todaySlots.All(s => s.IsCheckedIn))
+                return BadRequest("You have already checked in for all today's slots.");
 
-            // Mark check-in
-            bookingSlot.IsCheckedIn = true;
-            bookingSlot.CheckInTime = DateTime.Now;
+            // 🔁 Loop through and mark each slot as checked in
+            foreach (var slot in todaySlots)
+            {
+                if (!slot.IsCheckedIn)
+                {
+                    slot.IsCheckedIn = true;
+                    slot.CheckInTime = DateTime.Now;
+                    await _bookingSlotsService.UpdateBooking_SlotAsync(slot);
+                }
+            }
 
-            await _bookingSlotsService.UpdateBooking_SlotAsync(bookingSlot);
-
-            return Ok("Checked in successfully.");
+            return Ok("Checked in successfully for all today's slots.");
         }
 
         [HttpPost("ConfirmSlotWorked")]
         [Authorize(Policy = "Family")]
-        public async Task<IActionResult> ConfirmSlotWorked([FromQuery] int bookingSlotId)
+        public async Task<IActionResult> ConfirmSlotWorked([FromQuery] int bookingId)
         {
-            // Get the Booking_Slot by ID
-            var bookingSlot = await _bookingSlotsService.GetBooking_SlotsByIDAsync(bookingSlotId);
-            if (bookingSlot == null)
-                return NotFound("Booking slot not found.");
+            var today = DateTime.Today;
 
-            // Check if the slot date is today
-            if (bookingSlot.Date != DateTime.Today)
-                return BadRequest("You can only confirm the slot on the correct date.");
+            // 🔍 Get today's booking slots for this booking
+            var todaySlots = await _bookingSlotsService.GetBookingSlotsByDateAndBookingIDAsync(bookingId, today);
+            if (todaySlots == null || !todaySlots.Any())
+                return NotFound("No booking slots found for today.");
 
-            // Check if housekeeper checked in
-            if (!bookingSlot.IsCheckedIn)
-                return BadRequest("Housekeeper did not check in for this slot.");
+            // 🚫 Check if all slots are already confirmed
+            if (todaySlots.All(s => s.IsConfirmedByFamily))
+                return BadRequest("All today's slots have already been confirmed.");
 
-            // Check if already confirmed
-            if (bookingSlot.IsConfirmedByFamily)
-                return BadRequest("Slot already confirmed.");
+            // 🔁 Loop through and confirm each slot if eligible
+            foreach (var slot in todaySlots)
+            {
+                if (!slot.IsConfirmedByFamily)
+                {
+                    if (!slot.IsCheckedIn)
+                        return BadRequest($"Housekeeper did not check in for slot {slot.SlotID}.");
 
-            // Confirm it
-            bookingSlot.IsConfirmedByFamily = true;
-            bookingSlot.ConfirmedAt = DateTime.Now;
+                    slot.IsConfirmedByFamily = true;
+                    slot.ConfirmedAt = DateTime.Now;
 
-            await _bookingSlotsService.UpdateBooking_SlotAsync(bookingSlot);
+                    await _bookingSlotsService.UpdateBooking_SlotAsync(slot);
+                }
+            }
 
-            return Ok("Slot confirmed successfully.");
+            return Ok("Today's slots confirmed successfully.");
         }
+
 
         [HttpPost("HousekeeperCompleteJob")]
         [Authorize(Policy = "Housekeeper")]

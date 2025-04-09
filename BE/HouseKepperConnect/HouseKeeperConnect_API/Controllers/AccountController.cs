@@ -299,13 +299,16 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Google Token is required.");
             }
 
-            var tokenModel = await _accountService.LoginWithGoogleAsync(googleLoginDTO.GoogleToken);
-            if (tokenModel == null)
+            var loginInfo = await _accountService.LoginWithGoogleAsync(googleLoginDTO.GoogleToken, googleLoginDTO.RoleID);
+            if (loginInfo == null)
             {
                 return Unauthorized("Invalid Google Token.");
             }
-
-            return Ok(tokenModel);
+            if (loginInfo.RoleID != googleLoginDTO.RoleID)
+            {
+                return BadRequest ("This account is already registered with another role.");
+            }
+            return Ok(loginInfo);
         }
 
         [HttpGet("TotalAccount")]
