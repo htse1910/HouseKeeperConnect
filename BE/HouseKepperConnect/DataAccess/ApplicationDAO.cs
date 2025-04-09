@@ -50,7 +50,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Application.Include(a => a.HouseKepper.Account).Where(a => a.HouseKeeperID == uid).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Application.Include(a => a.HouseKepper.Account).Include(a => a.Job.Family).Where(a => a.HouseKeeperID == uid).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

@@ -158,7 +158,7 @@ namespace HouseKeeperConnect_API.Controllers
                 display.LocalProfilePicture = item.HouseKepper.Account.LocalProfilePicture;
                 display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
                 display.AccountID = item.HouseKepper.AccountID;
-                display.FamilyID = item.Job.FamilyID;
+                display.HousekeeperID = item.HouseKeeperID;
                 display.JobID = item.JobID;
                 display.StartDate = jobDetail.StartDate;
                 display.EndDate = jobDetail.EndDate;
