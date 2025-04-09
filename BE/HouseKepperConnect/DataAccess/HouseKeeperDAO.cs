@@ -50,7 +50,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    Housekeeper = await context.Housekeeper.SingleOrDefaultAsync(x => x.HousekeeperID == id);
+                    Housekeeper = await context.Housekeeper.Include(x => x.Account).SingleOrDefaultAsync(x => x.HousekeeperID == id);
                 }
             }
             catch (Exception ex)
