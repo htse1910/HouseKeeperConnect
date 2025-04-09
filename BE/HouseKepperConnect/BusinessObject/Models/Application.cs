@@ -7,9 +7,11 @@ namespace BusinessObject.Models
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ApplicationID { get; set; }
+        public int JobID { get; set; }
 
         public int HouseKeeperID { get; set; }
         public int Status { get; set; }
+        public virtual Job Job { get; set; }
 
         public virtual Housekeeper HouseKepper { get; set; }
     }

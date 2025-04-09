@@ -12,6 +12,7 @@ namespace Repositories
 
         public async Task<List<Application>> GetAllApplicationsAsync(int pageNumber, int pageSize) => await ApplicationDAO.Instance.GetAllApplicationsAsync(pageNumber, pageSize);
 
+        public async Task<List<Application>> GetAllApplicationsByJobIDAsync(int jobID, int pageNumber, int pageSize) => await ApplicationDAO.Instance.GetAllApplicationsByJobIDAsync(jobID, pageNumber, pageSize);
         public async Task<List<Application>> GetAllApplicationsByUserAsync(int uid, int pageNumber, int pageSize) => await ApplicationDAO.Instance.GetAllApplicationsByUserAsync(uid, pageNumber, pageSize);
 
         public async Task<Application> GetApplicationByHKIDAsync(int id) => await ApplicationDAO.Instance.GetApplicationByHKIDAsync(id);
