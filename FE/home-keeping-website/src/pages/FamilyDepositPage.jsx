@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import "../assets/styles/Dashboard.css";
 import "../assets/styles/Payment.css";
+import { shouldShowLoadingOrError } from "../utils/uiHelpers";
 
 const FamilyDepositPage = () => {
   const { t } = useTranslation();
@@ -30,7 +31,7 @@ const FamilyDepositPage = () => {
     }
 
     if (!accountID || !authToken) {
-      setError(t("error_auth"));
+      setError(t("error.error_auth"));
       setLoading(false);
       return;
     }
@@ -43,7 +44,7 @@ const FamilyDepositPage = () => {
       })
       .catch((err) => {
         console.error("Lỗi xác minh account:", err);
-        setError(t("error_loading"));
+        setError(t("error.error_loading"));
       })
       .finally(() => setLoading(false));
   }, [accountID]);
@@ -73,47 +74,35 @@ const FamilyDepositPage = () => {
       })
       .catch((err) => {
         console.error("Lỗi nạp tiền:", err);
-        setError(t("deposit_failed"));
+        setError(t("deposit.deposit_failed"));
       })
       .finally(() => {
         setIsSubmitting(false);
       });
   };
 
-  if (loading) {
-    return (
-      <div className="dashboard-container text-center">
-        <span className="icon-loading" />
-        <p>{t("loading_data")}</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="dashboard-container text-center">
-        <p className="job-posting-alert job-posting-error">❌ {error}</p>
-        {!isDemo && (
-          <button className="btn-secondary" onClick={() => (window.location.search = "?demo=true")}>
-            {t("view_demo")}
-          </button>
-        )}
-      </div>
-    );
-  }
+  const loadingOrError = shouldShowLoadingOrError(loading, error, t, !isDemo && (
+    <button
+      className="btn-secondary"
+      onClick={() => (window.location.search = "?demo=true")}
+    >
+      {t("misc.view_demo")}
+    </button>
+  ));
+  if (loadingOrError) return loadingOrError;
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-box shadow-box" style={{ maxWidth: 500, margin: "0 auto" }}>
-        <h2 className="dashboard-heading">{t("deposit_title")}</h2>
-        <p className="dashboard-subtext">{t("deposit_description")}</p>
+        <h2 className="dashboard-heading">{t("deposit.deposit_title")}</h2>
+        <p className="dashboard-subtext">{t("deposit.deposit_description")}</p>
 
         <div className="deposit-form">
-          <label className="form-label">{t("deposit_placeholder")}</label>
+          <label className="form-label">{t("deposit.deposit_placeholder")}</label>
           <div className="deposit-input-wrapper">
             <input
               type="number"
-              placeholder={t("deposit_placeholder")}
+              placeholder={t("deposit.deposit_placeholder")}
               className="form-input"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -122,11 +111,13 @@ const FamilyDepositPage = () => {
             <span className="vnd-suffix">VNĐ</span>
           </div>
 
-          <button className="deposit-button" onClick={handleDeposit} disabled={isSubmitting}>
-            {isSubmitting ? t("deposit_processing") : t("deposit_submit")}
+          <button className="btn-primary" onClick={handleDeposit} disabled={isSubmitting}>
+            {isSubmitting ? t("deposit.deposit_processing") : t("deposit.deposit_submit")}
           </button>
 
-          {success && <p className="success-text mt-3">✅ {t("deposit_success")}</p>}
+          {success && (
+            <p className="text-success mt-3">✅ {t("deposit.deposit_success")}</p>
+          )}
         </div>
       </div>
     </div>

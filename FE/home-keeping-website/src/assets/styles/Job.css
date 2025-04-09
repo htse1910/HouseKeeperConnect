@@ -751,9 +751,13 @@
 }
 
 .job-detail-candidate img {
-    width: 48px;
-    height: 48px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
+}
+
+.job-detail-candidate div {
+    margin-left: 20px;
 }
 
 .job-detail-rating {
@@ -995,6 +999,38 @@
     margin-top: 8px;
 }
 
+.job-detail-applicant-status-and-actions {
+    width: fit-content;
+}
+
+.job-detail-status-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.job-detail-applicant-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.job-detail-status-actions-inline {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.job-detail-status-actions-inline button {
+    margin-top: 5px;
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
 .job-management-status-badge {
     font-size: 14px;
     padding: 4px 10px;
@@ -1108,4 +1144,14 @@
     display: flex;
     justify-content: center;
     gap: 16px;
+}
+
+.job-invite-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-light);
+    border: 2px solid var(--main-color);
 }

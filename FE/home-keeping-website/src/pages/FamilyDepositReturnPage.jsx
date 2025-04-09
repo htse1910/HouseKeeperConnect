@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../assets/styles/Payment.css";
+import { formatCurrency } from "../utils/formatData";
 
 function FamilyDepositReturnPage() {
   const { t } = useTranslation();
@@ -21,11 +22,10 @@ function FamilyDepositReturnPage() {
   };
 
   useEffect(() => {
-    const result = searchParams.get("status")?.toLowerCase(); // success / cancelled
+    const result = searchParams.get("status")?.toLowerCase(); // paid / cancelled
     const transID = searchParams.get("orderCode");
     const amountValue = searchParams.get("amount");
 
-    setStatus(result);
     setTransactionId(transID);
     setAmount(amountValue);
 
@@ -42,13 +42,13 @@ function FamilyDepositReturnPage() {
         .catch(() => {
           setStatus("failed");
         });
-    }
-
-    if (transID && result === "cancelled") {
+    } else if (transID && result === "cancelled") {
       axios
         .get(`http://localhost:5280/api/Payment/cancel?orderCode=${transID}`, { headers })
         .then(() => setStatus("cancelled"))
         .catch(() => setStatus("failed"));
+    } else {
+      setStatus("failed");
     }
 
     const timeout = setTimeout(() => {
@@ -61,22 +61,22 @@ function FamilyDepositReturnPage() {
   const getStatusTitle = () => {
     switch (status) {
       case "success":
-        return t("deposit_return_success");
+        return t("deposit.deposit_return_success");
       case "cancelled":
-        return t("deposit_return_cancel");
+        return t("deposit.deposit_return_cancel");
       default:
-        return t("deposit_return_fail");
+        return t("deposit.deposit_return_fail");
     }
   };
 
   const getStatusMessage = () => {
     switch (status) {
       case "success":
-        return t("deposit_return_note_success");
+        return t("deposit.deposit_return_note_success");
       case "cancelled":
-        return t("deposit_return_note_cancel");
+        return t("deposit.deposit_return_note_cancel");
       default:
-        return t("deposit_return_note_fail");
+        return t("deposit.deposit_return_note_fail");
     }
   };
 
@@ -89,25 +89,23 @@ function FamilyDepositReturnPage() {
         <div className="payment-info-box">
           {transactionId && (
             <p>
-              🧾 <strong>{t("transaction_id")}:</strong>{" "}
+              🧾 <strong>{t("transaction.transaction_id")}:</strong>{" "}
               <span className="text-emphasis">{transactionId}</span>
             </p>
           )}
           {amount && (
             <p>
-              💰 <strong>{t("deposit_amount")}:</strong>{" "}
-              <span className="text-emphasis">
-                {Number(amount).toLocaleString()} VNĐ
-              </span>
+              💰 <strong>{t("deposit.deposit_amount")}:</strong>{" "}
+              <span className="text-emphasis">{formatCurrency(amount, t)}</span>
             </p>
           )}
         </div>
       )}
 
-      <p className="payment-note mt-3">{t("redirecting_dashboard")}</p>
+      <p className="payment-note mt-3">{t("misc.redirecting_dashboard")}</p>
 
       <button className="btn-secondary mt-2" onClick={() => navigate("/family/dashboard")}>
-        {t("return_now")}
+        {t("misc.return_now")}
       </button>
     </div>
   );

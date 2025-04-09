@@ -7,6 +7,7 @@ import "../assets/styles/Dashboard.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion, AnimatePresence } from "framer-motion";
+import Pagination from "../components/Pagination";
 
 const StaffUserVerificationPage = () => {
     const { t } = useTranslation();
@@ -487,53 +488,15 @@ const StaffUserVerificationPage = () => {
             </table>
 
             {/* Pagination Controls */}
-            <div className="housekeeper-pagination">
-                {totalPages > 15 && (
-                    <button
-                        onClick={() => paginate(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
-                        &laquo;
-                    </button>
-                )}
-
-                {paginationRange.map((page, index) =>
-                    page === "..." ? (
-                        <span key={index} className="dots">...</span>
-                    ) : (
-                        <button
-                            key={index}
-                            onClick={() => paginate(page)}
-                            className={currentPage === page ? "active-page" : ""}
-                        >
-                            {page}
-                        </button>
-                    )
-                )}
-
-                {totalPages > 15 && (
-                    <button
-                        onClick={() => paginate(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                        &raquo;
-                    </button>
-                )}
-
-                {/* Ô nhập số trang */}
-                {totalPages > 15 && (
-                    <form onSubmit={handlePageSubmit} className="pagination-input-form">
-                        <input
-                            type="text"
-                            className="pagination-input"
-                            value={inputPage}
-                            onChange={handlePageInput}
-                            placeholder="Go to..."
-                        />
-                        <button type="submit" className="pagination-go-btn">Go</button>
-                    </form>
-                )}
-            </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageRange={paginationRange}
+                onPageChange={paginate}
+                onPageInput={handlePageInput}
+                onPageSubmit={handlePageSubmit}
+                inputPage={inputPage}
+            />
 
             {/* Modal xem hình CCCD */}
             {selectedHousekeeper && (

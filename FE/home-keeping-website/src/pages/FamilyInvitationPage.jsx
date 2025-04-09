@@ -1,49 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import "../assets/styles/Job.css";
-
-const slotList = [
-    { slotID: 1, time: "8:00 - 9:00" },
-    { slotID: 2, time: "10:00 - 11:00" },
-    { slotID: 3, time: "11:00 - 12:00" },
-    { slotID: 4, time: "12:00 - 13:00" },
-    { slotID: 5, time: "13:00 - 14:00" },
-    { slotID: 6, time: "14:00 - 15:00" },
-    { slotID: 7, time: "15:00 - 16:00" },
-    { slotID: 8, time: "16:00 - 17:00" },
-    { slotID: 9, time: "17:00 - 18:00" },
-    { slotID: 10, time: "18:00 - 19:00" },
-    { slotID: 11, time: "19:00 - 20:00" },
-    { slotID: 12, time: "20:00 - 21:00" },
-];
-
-const renderWorkingTime = (dayofWeek = [], slotIDs = []) => {
-    const weekdays = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
-    const dayText = dayofWeek.map(d => weekdays[d]).join(", ") || "Không rõ";
-
-    const sortedSlots = slotList.filter(s => slotIDs.includes(s.slotID)).sort((a, b) => a.slotID - b.slotID);
-    if (sortedSlots.length === 0) return `Làm vào ${dayText}`;
-
-    const ranges = [];
-    let start = sortedSlots[0];
-    for (let i = 1; i <= sortedSlots.length; i++) {
-        const curr = sortedSlots[i];
-        const prev = sortedSlots[i - 1];
-        if (!curr || curr.slotID !== prev.slotID + 1) {
-            ranges.push({ start: start.time.split(" - ")[0], end: prev.time.split(" - ")[1] });
-            start = curr;
-        }
-    }
-
-    const timeText = ranges.map(r => `từ ${r.start} đến ${r.end}`).join(" và ");
-    return `Làm vào ${dayText}, ${timeText}`;
-};
+import { renderWorkingTime, formatGender } from "../utils/formatData";
+import { shouldShowLoadingOrError } from "../utils/uiHelpers";
 
 const FamilyInvitationPage = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
-    const housekeepers = location.state?.housekeepers || [];
+    const housekeeper = location.state?.housekeepers?.[0] || null;
 
     const [jobID, setJobID] = useState("");
     const [jobDetail, setJobDetail] = useState(null);
@@ -51,6 +18,7 @@ const FamilyInvitationPage = () => {
     const [jobs, setJobs] = useState([]);
     const [note, setNote] = useState("");
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const authToken = localStorage.getItem("authToken");
     const accountID = localStorage.getItem("accountID");
@@ -61,12 +29,13 @@ const FamilyInvitationPage = () => {
     };
 
     useEffect(() => {
-        axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountID=${accountID}&pageNumber=1&pageSize=10`, { headers })
-            .then(res => {
-                const list = res.data?.filter(j => !j.isOffered && j.status === 1) || [];
+        axios
+            .get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountID=${accountID}&pageNumber=1&pageSize=10`, { headers })
+            .then((res) => {
+                const list = res.data?.filter((j) => !j.isOffered && j.status === 1) || [];
                 setJobs(list);
             })
-            .catch(() => alert("Lỗi khi tải danh sách công việc"))
+            .catch(() => setError(t("error.error_loading")))
             .finally(() => setLoading(false));
     }, []);
 
@@ -77,148 +46,155 @@ const FamilyInvitationPage = () => {
             return;
         }
 
-        axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${jobID}`, { headers })
-            .then(res => {
+        axios
+            .get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${jobID}`, { headers })
+            .then((res) => {
                 const job = res.data;
                 setJobDetail(job);
 
-                const fetchServices = job.serviceIDs.map(id =>
-                    axios.get(`http://localhost:5280/api/Service/GetServiceByID?id=${id}`, { headers })
-                        .then(res => res.data)
+                const fetchServices = job.serviceIDs.map((id) =>
+                    axios
+                        .get(`http://localhost:5280/api/Service/GetServiceByID?id=${id}`, { headers })
+                        .then((res) => res.data)
                         .catch(() => null)
                 );
 
-                Promise.all(fetchServices).then(results => {
+                Promise.all(fetchServices).then((results) => {
                     setServices(results.filter(Boolean));
                 });
             });
     }, [jobID]);
 
     const handleInvite = async () => {
-        if (!jobID || housekeepers.length === 0) {
-            alert("Vui lòng chọn công việc và ít nhất 1 người giúp việc.");
+        if (!jobID || !housekeeper) {
+            alert(t("misc.confirm"));
             return;
         }
 
-        const confirmed = window.confirm(`Xác nhận gửi lời mời cho ${housekeepers.length} người?`);
+        const confirmed = window.confirm(`${t("misc.confirm")} " mời " ${housekeeper.name} "?"`);
         if (!confirmed) return;
 
         try {
-            for (const hk of housekeepers) {
-                await axios.post("http://localhost:5280/api/Application/AddApplication", null, {
-                    headers,
-                    params: {
-                        accountID: hk.accountID,
-                        jobID
-                    }
-                });
-            }
+            await axios.put("http://localhost:5280/api/Job/OfferJob", null, {
+                headers,
+                params: {
+                    jobId: jobID,
+                    housekeeperId: housekeeper.housekeeperID
+                }
+            });
 
-            alert("🎉 Gửi lời mời thành công!");
+            alert("🎉 " + t("job.jobPost.offer_success"));
             navigate("/family/find-housekeepers");
         } catch (err) {
-            console.error("Lỗi gửi lời mời:", err);
-            alert("❌ Có lỗi xảy ra khi gửi lời mời.");
+            console.error(err);
+            alert(t("error.unexpected_error"));
         }
     };
 
+    const feedback = shouldShowLoadingOrError(loading, error, t);
+    if (feedback) return feedback;
+
     return (
         <div className="job-posting-container">
-            <h2>📨 Gửi lời mời làm việc</h2>
-            <p><strong>Người giúp việc được chọn:</strong> {housekeepers.length} người</p>
+            <h2 className="job-posting-title">{t("misc.invite_to_work")}</h2>
 
-            <div className="job-detail-card" style={{ margin: "16px 0" }}>
-    <h3>👩‍🔧 Danh sách người giúp việc</h3>
-    <div className="job-detail-candidate-list">
-        {housekeepers.map((hk, index) => (
-            <div key={index} className="job-detail-candidate">
-                <img src={hk.avatar || "/avatar0.png"} alt="avatar" />
-                <div>
-                    <p><strong>{hk.name}</strong> ({hk.gender})</p>
-                    {hk.skills && hk.skills.length > 0 && (
-                        <div className="job-detail-tags">
-                            {hk.skills.map((skill, i) => (
-                                <span key={i} className="tag">{skill}</span>
-                            ))}
-                        </div>
-                    )}
-                    <p>Email: {hk.email}</p>
+            {housekeeper && (
+                <div className="job-detail-candidate">
+                    <img
+                        src={
+                            housekeeper.localProfilePicture ||
+                            housekeeper.googleProfilePicture ||
+                            housekeeper.avatar ||
+                            "/avatar0.png"
+                        }
+                        alt="avatar"
+                        className="job-invite-avatar"
+                        onError={(e) => (e.target.src = "/avatar0.png")}
+                    />
+                    <div>
+                        <label><strong>{housekeeper.name}</strong> ({housekeeper.gender})</label>
+                        {housekeeper.skills?.length > 0 && (
+                            <div className="job-detail-tags">
+                                {housekeeper.skills.map((skill, i) => (
+                                    <span key={i} className="tag">{skill}</span>
+                                ))}
+                            </div>
+                        )}
+                        <p><strong>{t("user.gender")}:</strong> {formatGender(housekeeper.gender, t)}</p>
+                        <p><strong>{t("user.address")}:</strong> {housekeeper.address}</p>
+                        <p><strong>Email:</strong> {housekeeper.email}</p>
+                        <p><strong>{t("user.phone")}:</strong> {housekeeper.phone}</p>
+                    </div>
                 </div>
-            </div>
-        ))}
-    </div>
-</div>
+            )}
 
-            {loading ? (
-                <p>Đang tải công việc...</p>
+            {jobs.length === 0 ? (
+                <>
+                    <p>{t("misc.no_jobs_found")}</p>
+                    <button className="btn-primary" onClick={() => navigate("/family/post-job")}>
+                        {t("misc.create_new_job")}
+                    </button>
+                </>
             ) : (
                 <>
-                    {jobs.length === 0 ? (
-                        <>
-                            <p>Bạn chưa có công việc nào phù hợp.</p>
-                            <button className="btn-primary" onClick={() => navigate("/family/post-job")}>
-                                ➕ Tạo công việc mới
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <label>Chọn công việc:</label>
-                            <select className="job-posting-input" value={jobID} onChange={e => setJobID(e.target.value)}>
-                                <option value="">-- Chọn --</option>
-                                {jobs.map(j => (
-                                    <option key={j.jobID} value={j.jobID}>
-                                        {j.jobName} - {j.location}
-                                    </option>
+                    <label><strong>{t("misc.choose_job")}:</strong></label>
+                    <select className="job-posting-input" value={jobID} onChange={(e) => setJobID(e.target.value)}>
+                        <option value="">-- {t("misc.choose_job")} --</option>
+                        {jobs.map((j) => (
+                            <option key={j.jobID} value={j.jobID}>
+                                {j.jobName} - {j.location}
+                            </option>
+                        ))}
+                    </select>
+
+                    {jobDetail && (
+                        <div className="job-detail-card" style={{ marginTop: "24px" }}>
+                            <h3 className="job-detail-section-title">{t("misc.job_detail")}</h3>
+                            <p><strong>{t("job.job_title")}:</strong> {jobDetail.jobName}</p>
+                            <p><strong>{t("misc.location")}:</strong> {jobDetail.location}</p>
+                            <p><strong>{t("misc.salary")}:</strong> {jobDetail.price?.toLocaleString()} {t("job.jobPost.salaryUnit")}</p>
+                            <p><strong>{t("job.jobDetail.workingSchedule")}:</strong> {renderWorkingTime(jobDetail.dayofWeek, jobDetail.slotIDs, t)}</p>
+
+                            <ul className="job-detail-service-list">
+                                {Object.entries(
+                                    services.reduce((acc, s) => {
+                                        const type = s?.serviceType?.serviceTypeName || "Khác";
+                                        if (!acc[type]) acc[type] = [];
+                                        acc[type].push(s);
+                                        return acc;
+                                    }, {})
+                                ).map(([type, list]) => (
+                                    <li key={type}>
+                                        <strong>{type}:</strong>
+                                        <ul>
+                                            {list.map((s) => (
+                                                <li key={s.serviceID} className="job-detail-checked-service-item">
+                                                    {s.serviceName}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </li>
                                 ))}
-                            </select>
+                            </ul>
 
-                            {jobDetail && (
-                                <div className="job-detail-card" style={{ marginTop: "24px" }}>
-                                    <h3>📋 Chi tiết công việc</h3>
-                                    <p><strong>Tiêu đề:</strong> {jobDetail.jobName}</p>
-                                    <p><strong>Địa điểm:</strong> {jobDetail.location}</p>
-                                    <p><strong>Lương:</strong> {jobDetail.price?.toLocaleString()} VNĐ/giờ</p>
-                                    <p><strong>Lịch làm việc:</strong> {renderWorkingTime(jobDetail.dayofWeek, jobDetail.slotIDs)}</p>
-                                    <p><strong>Dịch vụ:</strong></p>
-                                    <ul className="job-detail-service-list">
-                                        {Object.entries(services.reduce((acc, s) => {
-                                            const type = s?.serviceType?.serviceTypeName || "Khác";
-                                            if (!acc[type]) acc[type] = [];
-                                            acc[type].push(s);
-                                            return acc;
-                                        }, {})).map(([type, list]) => (
-                                            <li key={type}>
-                                                <strong>{type}:</strong>
-                                                <ul>
-                                                    {list.map(s => (
-                                                        <li key={s.serviceID} className="job-detail-checked-service-item">
-                                                            {s.serviceName}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    {jobDetail.specialRequirement && (
-                                        <p><strong>Yêu cầu đặc biệt:</strong> {jobDetail.specialRequirement}</p>
-                                    )}
-                                </div>
+                            {jobDetail.specialRequirement && (
+                                <p><strong>{t("misc.special_requirements")}:</strong> {jobDetail.specialRequirement}</p>
                             )}
-
-                            <label style={{ marginTop: "20px" }}>📝 Ghi chú gửi kèm:</label>
-                            <textarea
-                                className="job-posting-textarea"
-                                value={note}
-                                onChange={(e) => setNote(e.target.value)}
-                                placeholder="Ghi chú cho người giúp việc (không gửi qua API, chỉ để bạn lưu ý nội bộ)..."
-                                rows={3}
-                            />
-
-                            <button className="btn-primary" style={{ marginTop: "20px" }} onClick={handleInvite}>
-                                📤 Gửi lời mời
-                            </button>
-                        </>
+                        </div>
                     )}
+
+                    <label style={{ marginTop: "20px", fontWeight: "bold" }}>{t("misc.note")}:</label>
+                    <textarea
+                        className="job-posting-textarea"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder={t("misc.note_placeholder")}
+                        rows={3}
+                    />
+
+                    <button className="btn-primary job-posting-submit-btn" onClick={handleInvite}>
+                        {t("misc.send_invite")}
+                    </button>
                 </>
             )}
         </div>

@@ -1,284 +1,271 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { FaSearch } from "react-icons/fa";
-import "../assets/styles/Search.css";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
+import { FaSearch, FaMapMarkerAlt } from "react-icons/fa";
 
-const generateFakeHousekeepers = () => [
-    {
-        name: "Nguyễn Trường",
-        address: "Hà Nội",
-        phone: "0901234567",
-        email: "a@gmail.com",
-        gender: "Nam",
-        salary: 150000,
-        skills: ["Dọn dẹp", "Giặt ủi"],
-        workType: "Full-time",
-        rating: 4.5,
-        avatar: "https://via.placeholder.com/80"
-    },
-    {
-        name: "Lý Mai",
-        address: "TP.HCM",
-        phone: "0912345678",
-        email: "b@gmail.com",
-        gender: "Nữ",
-        salary: 140000,
-        skills: ["Nấu ăn"],
-        workType: "Part-time",
-        rating: 4.2,
-        avatar: "https://via.placeholder.com/80"
-    },
-    {
-        name: "Nguyễn Hưng",
-        address: "Đà Nẵng",
-        phone: "0923456789",
-        email: "c@gmail.com",
-        gender: "Nam",
-        salary: 170000,
-        skills: ["Giặt ủi"],
-        workType: "Contract",
-        rating: 4.0,
-        avatar: "https://via.placeholder.com/80"
-    }
-];
+import "../assets/styles/Search.css";
+import {
+  formatCurrency,
+  formatWorkTypeClass,
+  formatWorkTypeLabel,
+  formatGender,
+  formatSkillName
+} from "../utils/formatData";
+import { shouldShowLoadingOrError } from "../utils/uiHelpers";
 
 const FamilyHousekeeperSearchPage = () => {
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
-    const isDemo = searchParams.get("demo") === "true";
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [location, setLocation] = useState("");
-    const [selectedSkill, setSelectedSkill] = useState("");
-    const [selectedGender, setSelectedGender] = useState("");
-    const [selectedSalaryOrder, setSelectedSalaryOrder] = useState("");
-    const [selectedWorkType, setSelectedWorkType] = useState("");
-    const [housekeepers, setHousekeepers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [location, setLocation] = useState("");
+  const [selectedSkill, setSelectedSkill] = useState("");
+  const [selectedGender, setSelectedGender] = useState("");
+  const [selectedSalaryOrder, setSelectedSalaryOrder] = useState("");
+  const [selectedWorkType, setSelectedWorkType] = useState("");
+  const [housekeepers, setHousekeepers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    const authToken = localStorage.getItem("authToken");
-    const accountID = localStorage.getItem("accountID");
+  const authToken = localStorage.getItem("authToken");
+  const accountID = localStorage.getItem("accountID");
 
-    const headers = {
-        Authorization: `Bearer ${authToken}`,
-        "Content-Type": "application/json"
-    };
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+    "Content-Type": "application/json",
+  };
 
-    useEffect(() => {
-        if (isDemo) {
-            setHousekeepers(generateFakeHousekeepers());
-            setLoading(false);
-            return;
-        }
+  useEffect(() => {
+    if (!authToken || !accountID) {
+      setError(t("error.error_auth"));
+      setLoading(false);
+      return;
+    }
 
-        if (!authToken || !accountID) {
-            setError("Lỗi xác thực hoặc thiếu tài khoản.");
-            setLoading(false);
-            return;
-        }
-
-        setLoading(true);
-        axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-            .then((accountRespone) => {
-                if (!accountRespone.data?.accountID) throw new Error("Không hợp lệ");
-
-                return axios.get("http://localhost:5280/api/HouseKeeper/HousekeeperDisplay", {
-                    headers,
-                    params: { pageNumber: 1, pageSize: 20 }
-                });
-            })
-            .then((hkListrespone) => {
-                const housekeeperList = transformHousekeeperData(hkListrespone.data || []);
-                console.log("Housekeepers sau khi transform:", housekeeperList);
-                setHousekeepers(housekeeperList);
-            })
-            .catch((err) => {
-                console.error("API Error:", err);
-                setError("Không thể tải danh sách.");
-            })
-            .finally(() => setLoading(false));
-    }, [isDemo]);
-
-    const transformHousekeeperData = (rawList) => {
-        return rawList.map(hk => ({
-            accountID: hk.accountID, // ✔️ Giữ nguyên
-            name: hk.name, // ❗ Đã đổi từ nickname → name
-            address: hk.address,
-            phone: hk.phone,
-            email: hk.email,
-            gender: hk.gender === 1 ? "Nam" : "Nữ",
-            workType: hk.workType === 1 ? "Full-time" : "Part-time",
-            salary: 150000,
-            skills: ["Dọn dẹp", "Nấu ăn"], // nếu backend chưa trả kỹ năng, tạm thời dùng giả
-            rating: hk.rating || 5,
-            avatar: hk.localProfilePicture
+    setLoading(true);
+    axios
+      .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+        headers,
+      })
+      .then((res) => {
+        if (!res.data?.accountID) throw new Error();
+        return axios.get(
+          "http://localhost:5280/api/HouseKeeper/HousekeeperDisplay",
+          {
+            headers,
+            params: { pageNumber: 1, pageSize: 20 },
+          }
+        );
+      })
+      .then((res) => {
+        const transformed = res.data.map((hk) => ({
+          accountID: hk.accountID,
+          name: hk.name,
+          address: hk.address,
+          phone: hk.phone,
+          email: hk.email,
+          gender: hk.gender,
+          workType: hk.workType,
+          salary: hk.salary || 0,
+          skills: hk.skills || [],
+          rating: hk.rating || 5,
+          avatar: hk.localProfilePicture,
         }));
-    };
+        setHousekeepers(transformed);
+      })
+      .catch(() => setError(t("error.error_loading")))
+      .finally(() => setLoading(false));
+  }, []);
 
-    console.log("💡 Filter debug:", {
-        searchTerm,
-        location,
-        selectedSkill,
-        selectedGender,
-        selectedWorkType
+  const feedback = shouldShowLoadingOrError(loading, error, t);
+  if (feedback) return feedback;
+
+  const filtered = housekeepers
+    .filter(
+      (h) =>
+        h.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) &&
+        h.address?.toLowerCase().includes(location.trim().toLowerCase()) &&
+        (selectedSkill === "" || h.skills?.includes(selectedSkill)) &&
+        (selectedGender === "" || String(h.gender) === selectedGender) &&
+        (selectedWorkType === "" || h.workType === selectedWorkType)
+    )
+    .sort((a, b) => {
+      if (!selectedSalaryOrder) return 0;
+      return selectedSalaryOrder === "asc"
+        ? a.salary - b.salary
+        : b.salary - a.salary;
     });
 
-    const filteredHousekeepers = housekeepers
-        .filter(h =>
-            h.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) &&
-            h.address?.toLowerCase().includes(location.trim().toLowerCase()) &&
-            (selectedSkill === "" || h.skills?.some(skill => skill === selectedSkill)) &&
-            (selectedGender === "" || h.gender?.toLowerCase() === selectedGender.toLowerCase()) &&
-            (selectedWorkType === "" || h.workType?.toLowerCase() === selectedWorkType.toLowerCase())
-        )
-        .sort((a, b) => {
-            if (!selectedSalaryOrder) return 0;
-            return selectedSalaryOrder === "asc"
-                ? (a.salary || 0) - (b.salary || 0)
-                : (b.salary || 0) - (a.salary || 0);
-        });
-
-    return (
-        <div className="search-page">
-            <div className="search-page-header">
-                <div className="search-page-panel">
-                    <div className="search-page-box">
-                        <div className="search-page-icon"><FaSearch /></div>
-                        <input
-                            className="search-page-input"
-                            type="text"
-                            placeholder="Nhập từ khóa..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="search-page-filter-row">
-                        <select className="search-page-select" value={location} onChange={e => setLocation(e.target.value)}>
-                            <option value="">Địa điểm</option>
-                            <option value="Hà Nội">Hà Nội</option>
-                            <option value="TP.HCM">TP.HCM</option>
-                            <option value="Đà Nẵng">Đà Nẵng</option>
-                        </select>
-                        <select className="search-page-select" value={selectedSkill} onChange={e => setSelectedSkill(e.target.value)}>
-                            <option value="">Kỹ năng</option>
-                            <option value="Dọn dẹp">Dọn dẹp</option>
-                            <option value="Giặt ủi">Giặt ủi</option>
-                            <option value="Nấu ăn">Nấu ăn</option>
-                        </select>
-                        <select className="search-page-select" value={selectedGender} onChange={e => setSelectedGender(e.target.value)}>
-                            <option value="">Giới tính</option>
-                            <option value="Nam">Nam</option>
-                            <option value="Nữ">Nữ</option>
-                        </select>
-                        <select className="search-page-select" value={selectedSalaryOrder} onChange={e => setSelectedSalaryOrder(e.target.value)}>
-                            <option value="">Mức lương</option>
-                            <option value="asc">Thấp đến cao</option>
-                            <option value="desc">Cao đến thấp</option>
-                        </select>
-                        <select className="search-page-select" value={selectedWorkType} onChange={e => setSelectedWorkType(e.target.value)}>
-                            <option value="">Hợp đồng</option>
-                            <option value="Full-time">Full-time</option>
-                            <option value="Part-time">Part-time</option>
-                            <option value="Contract">Contract</option>
-                        </select>
-                        <button className="search-page-btn">Tìm kiếm</button>
-                    </div>
-                </div>
+  return (
+    <div className="search-page">
+      <div className="search-page-header">
+        <div className="search-page-panel">
+          <div className="search-page-box">
+            <div className="search-page-icon">
+              <FaSearch />
             </div>
+            <input
+              className="search-page-input"
+              type="text"
+              placeholder={t("misc.search")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
-            {loading || error ? (
-                <div className={loading ? "search-page-loading" : "search-page-error"}>
-                    {loading && <>🔄 Đang tải dữ liệu...</>}
-                    {error && <><div>❌ {error}</div>
-                        {!isDemo && (
-                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                                Dùng thử chế độ demo
-                            </button>
-                        )}
-                    </>}
-                </div>
-            ) : (
-                <div className="search-page-result-container">
-                    {filteredHousekeepers.length > 0 ? filteredHousekeepers.map((h, idx) => (
-                        <div key={idx} className="search-page-card">
-                            {h.avatar && (
-                                <img
-                                    src={h.avatar}
-                                    alt={h.name}
-                                    className="search-page-avatar-img"
-                                    onError={(e) => { e.target.style.display = "none"; }}
-                                />
-                            )}
+          <div className="search-page-filter-row">
+            <select
+              className="search-page-select"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            >
+              <option value="">{t("misc.location")}</option>
+              <option value="Hà Nội">Hà Nội</option>
+              <option value="TP.HCM">TP.HCM</option>
+              <option value="Đà Nẵng">Đà Nẵng</option>
+            </select>
 
-                            <h5 className="search-page-title">
-                                {h.name}
-                                {h.workType && (
-                                    <span className={`search-page-badge-type ${h.workType.toLowerCase().replace("-", "")}`}>
-                                        {h.workType}
-                                    </span>
-                                )}
-                            </h5>
+            <select
+              className="search-page-select"
+              value={selectedSkill}
+              onChange={(e) => setSelectedSkill(e.target.value)}
+            >
+              <option value="">{t("misc.skills")}</option>
+              <option value="Cleaning">{t("service.serviceTypeName.Cleaning")}</option>
+              <option value="Laundry">{t("service.serviceTypeName.Laundry")}</option>
+              <option value="Cooking">{t("service.serviceTypeName.Cooking")}</option>
+            </select>
 
-                            <p className="search-page-info">
-                                <span className="location-icon"></span>
-                                {h.address}
-                            </p>
-                            <p className="search-page-info">
-                                {Array.from({ length: 5 }, (_, index) => (
-                                    <span key={index} className={`star-icon ${index < h.rating ? "filled" : ""}`}>
-                                        ★
-                                    </span>
-                                ))}
-                                {h.rating?.toFixed(1)}
-                            </p>
-                            <p className="search-page-info">
-                                <span className="salary-icon">💰</span>
-                                {h.salary?.toLocaleString()} VNĐ/giờ
-                            </p>
+            <select
+              className="search-page-select"
+              value={selectedGender}
+              onChange={(e) => setSelectedGender(e.target.value)}
+            >
+              <option value="">{t("user.gender")}</option>
+              <option value="1">{t("user.male")}</option>
+              <option value="2">{t("user.female")}</option>
+            </select>
 
-                            <div className="search-page-skill-tags">
-                                {h.skills?.map((skill, i) => (
-                                    <span key={i} className="search-page-skill-tag">{skill}</span>
-                                ))}
-                            </div>
+            <select
+              className="search-page-select"
+              value={selectedSalaryOrder}
+              onChange={(e) => setSelectedSalaryOrder(e.target.value)}
+            >
+              <option value="">{t("misc.salary")}</option>
+              <option value="asc">{t("misc.salary_asc")}</option>
+              <option value="desc">{t("misc.salary_desc")}</option>
+            </select>
 
-                            <div className="search-page-card-actions">
-                                <button
-                                    className="btn-primary"
-                                    onClick={() => navigate("/family/invite", {
-                                        state: {
-                                            housekeepers: [{
-                                                ...h,
-                                                accountID: h.accountID,
-                                                name: h.name,
-                                                email: h.email,
-                                                gender: h.gender,
-                                                avatar: h.avatar,
-                                                skills: h.skills || []
-                                            }]
-                                        }
-                                    })}
-                                >
-                                    Mời làm việc
-                                </button>
-                                <button
-                                    className="search-page-detail-btn"
-                                    onClick={() => navigate(`/family/housekeeper/profile/${h.accountID}`)}
-                                >
-                                    Xem chi tiết
-                                </button>
-                            </div>
-                        </div>
-                    )) : (
-                        <div className="search-page-no-result">Không tìm thấy người giúp việc phù hợp.</div>
-                    )}
-                </div>
-            )}
+            <select
+              className="search-page-select"
+              value={selectedWorkType}
+              onChange={(e) => setSelectedWorkType(e.target.value)}
+            >
+              <option value="">{t("job.job_type")}</option>
+              <option value="Full-time">{t("job.jobPost.fullTime")}</option>
+              <option value="Part-time">{t("job.jobPost.partTime")}</option>
+            </select>
+
+            <button className="search-page-btn">{t("misc.search")}</button>
+          </div>
         </div>
-    );
+      </div>
+
+      <div className="search-page-result-container">
+        {filtered.length > 0 ? (
+          filtered.map((h, idx) => (
+            <div key={idx} className="search-page-card">
+              {h.avatar && (
+                <img
+                  src={h.avatar}
+                  alt={h.name}
+                  className="search-page-avatar-img"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
+                />
+              )}
+
+              <h5 className="search-page-title">
+                {h.name}
+                {h.workType && (
+                  <span className={`search-page-badge-type ${formatWorkTypeClass(h.workType)}`}>
+                    {formatWorkTypeLabel(h.workType, t)}
+                  </span>
+                )}
+              </h5>
+
+              <p className="search-page-info">
+                <FaMapMarkerAlt
+                  style={{
+                    marginRight: "6px",
+                    color: "#FF4136",
+                    fontSize: "16px",
+                    verticalAlign: "middle",
+                    minWidth: "16px"
+                  }}
+                />
+                {h.address}
+              </p>
+
+              <p className="search-page-info">
+                {Array.from({ length: 5 }, (_, index) => (
+                  <span
+                    key={index}
+                    className={`star-icon ${index < h.rating ? "filled" : ""}`}
+                  >
+                    ★
+                  </span>
+                ))}
+                {h.rating?.toFixed(1)}
+              </p>
+
+              {h.salary > 0 && (
+                <p className="search-page-info">
+                  <span className="salary-icon">💰</span>
+                  {formatCurrency(h.salary, t)} {t("job.jobPost.salaryUnit")}
+                </p>
+              )}
+
+              <div className="search-page-skill-tags">
+                {h.skills?.map((skill, i) => (
+                  <span key={i} className="search-page-skill-tag">
+                    {formatSkillName(skill, t)}
+                  </span>
+                ))}
+              </div>
+
+              <div className="search-page-card-actions">
+                <button
+                  className="btn-primary"
+                  onClick={() =>
+                    navigate("/family/invite", {
+                      state: { housekeepers: [h] },
+                    })
+                  }
+                >
+                  {t("misc.send_message")}
+                </button>
+                <button
+                  className="search-page-detail-btn"
+                  onClick={() =>
+                    navigate(`/family/housekeeper/profile/${h.accountID}`)
+                  }
+                >
+                  {t("misc.view_profile")}
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="search-page-no-result">
+            {t("misc.no_jobs_found")}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default FamilyHousekeeperSearchPage;

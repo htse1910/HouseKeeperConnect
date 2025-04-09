@@ -119,16 +119,16 @@ function Navbar() {
               {userMenuVisible && (
                 <div className="user-dropdown position-absolute end-0 mt-2">
                   <button onClick={() => navigate(`/${userRole.toLowerCase()}/dashboard`)}>
-                    <FaTachometerAlt /> {t("dashboard")}
+                    <FaTachometerAlt /> {t("navigation.dashboard")}
                   </button>
                   <button onClick={() => navigate(`/${userRole.toLowerCase()}/profile`)}>
-                    <FaUser /> {t("profile")}
+                    <FaUser /> {t("user.profile")}
                   </button>
                   <button onClick={() => navigate(`/${userRole.toLowerCase()}/wallet`)}>
-                    <FaWallet /> {t("wallet")}
+                    <FaWallet /> {t("uncategorized.wallet")}
                   </button>
                   <button onClick={handleLogout}>
-                    <FaSignOutAlt /> {t("logout")}
+                    <FaSignOutAlt /> {t("auth.logout")}
                   </button>
                 </div>
               )}
@@ -137,10 +137,10 @@ function Navbar() {
         ) : (
           <>
             <button className="btn-login" onClick={() => navigate("/login")}>
-              {t("login").toUpperCase()}
+              {t("auth.login").toUpperCase()}
             </button>
             <button className="btn-register" onClick={() => navigate("/register")}>
-              {t("register").toUpperCase()}
+              {t("auth.register").toUpperCase()}
             </button>
           </>
         )}
