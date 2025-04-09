@@ -465,7 +465,14 @@ namespace HouseKeeperConnect_API.Controllers
 
                     currentDate = currentDate.AddDays(7);
                 }
-
+                var notification = new Notification
+                {
+                    AccountID = job.FamilyID, // Or use job.AccountID depending on your model
+                    Message = $"Công việc của bạn '{job.JobName}' đã được chấp nhận bởi người giúp việc.",
+                    CreatedDate = DateTime.Now,
+                    IsRead = false
+                };
+                await _notificationService.AddNotificationAsync(notification);
                 return Ok("Job accepted, booking and booking slots created successfully.");
             }
             catch (Exception ex)
@@ -527,7 +534,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var notification = new Notification
                 {
                     AccountID = job.FamilyID, // Or use job.AccountID depending on your model
-                    Message = $"Your job '{job.JobName}' was denied by the housekeeper.",
+                    Message = $"Công việc của bạn '{job.JobName}' đã bị từ chối bởi người giúp việc.",
                     CreatedDate = DateTime.Now,
                     IsRead = false
                 };
