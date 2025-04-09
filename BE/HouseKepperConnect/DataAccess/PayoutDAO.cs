@@ -63,13 +63,13 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Payout>> GetPayoutsByHKAsync(int hkID)
+        public async Task<List<Payout>> GetPayoutsByHKAsync(int hkID, int pageNumber, int pageSize)
         {
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    return await context.Payout.Where(r => r.HousekeeperID == hkID).ToListAsync();
+                    return await context.Payout.Where(r => r.HousekeeperID == hkID).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

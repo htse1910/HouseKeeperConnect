@@ -11,7 +11,7 @@ namespace Repositories.Interface
     {
         Task<List<Payment>> GetAllPaymentsAsync(int pageNumber, int pageSize);
         Task<Payment> GetPaymentByIDAsync(int rID);
-        Task<List<Payment>> GetPaymentsByFamilyAsync(int familyID);
+        Task<List<Payment>> GetPaymentsByFamilyAsync(int familyID, int pageNumber, int pageSize);
         Task AddPaymentAsync(Payment Payment);
         Task DeletePaymentAsync(int id);
         Task UpdatePaymentAsync(Payment Payment);

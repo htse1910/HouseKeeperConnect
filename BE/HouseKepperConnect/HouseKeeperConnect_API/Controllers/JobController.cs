@@ -5,6 +5,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using Services;
 using Services.Interface;
 
@@ -744,11 +745,18 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
         [HttpPost("CheckIn")]
-        [Authorize(Roles = "Housekeeper")]
-        public async Task<ActionResult> CheckIn([FromQuery] int bookingId, [FromQuery] int slotId)
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult> CheckIn([FromQuery] int bookingId, [FromQuery] int slotId, int accountID)
         {
-            // Get current user
-            var userId = int.Parse(User.FindFirst("UserID").Value);
+            /*// Get current user
+            var userId = int.Parse(User.FindFirst("UserID").Value);*/
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if (hk == null)
+            {
+                Message = "Account not found!";
+                return NotFound(Message);
+            }
+
 
             // Get all slots for the booking
             var bookingSlots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(bookingId);
@@ -765,7 +773,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             // Optional: validate that current housekeeper owns this booking
             var booking = await _bookingService.GetBookingByIDAsync(bookingId);
-            if (booking == null || booking.HousekeeperID != userId)
+            if (booking == null || booking.HousekeeperID != hk.HousekeeperID)
                 return Unauthorized("You are not assigned to this booking.");
 
             // Mark check-in
@@ -777,7 +785,7 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok("Checked in successfully.");
         }
         [HttpPost("ConfirmSlotWorked")]
-        [Authorize(Roles = "Family")]
+        [Authorize(Policy = "Family")]
         public async Task<IActionResult> ConfirmSlotWorked(int bookingId, int slotId)
         {
             // Get all slots for the booking
@@ -812,16 +820,28 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("HousekeeperCompleteJob")]
-        [Authorize(Roles = "Housekeeper")]
-        public async Task<IActionResult> HousekeeperCompleteJob([FromQuery] int jobId)
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<IActionResult> HousekeeperCompleteJob([FromQuery] int jobId, int accountID)
         {
-            // Get current housekeeper's user ID from token
-            var userId = int.Parse(User.FindFirst("UserID").Value);
+
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if (hk == null)
+            {
+                Message = "Account not found!";
+                return NotFound(Message);
+            }
 
             // Get the job
             var job = await _jobService.GetJobByIDAsync(jobId);
             if (job == null)
                 return NotFound("Job not found.");
+
+            var fa = await _familyProfileService.GetFamilyByIDAsync(job.FamilyID);
+            if(fa == null)
+            {
+                Message = "Account not found!";
+                return NotFound(Message);
+            }
 
             if (job.Status != (int)JobStatus.Accepted)
                 return BadRequest("Job is not in a state that can be marked as completed.");
@@ -836,7 +856,7 @@ namespace HouseKeeperConnect_API.Controllers
             if (booking == null)
                 return NotFound("No valid (non-canceled) booking found for this job.");
 
-            if (booking.HousekeeperID != userId)
+            if (booking.HousekeeperID != hk.HousekeeperID)
                 return Unauthorized("You are not the assigned housekeeper for this booking.");
 
             // Update booking and job status to pending confirmation by family
@@ -849,8 +869,8 @@ namespace HouseKeeperConnect_API.Controllers
             // Send notification to family
             await _notificationService.AddNotificationAsync(new Notification
             {
-                AccountID = job.FamilyID,
-                Message = $"Housekeeper has marked job #{job.JobID} as completed. Please confirm.",
+                AccountID = fa.AccountID,
+                Message = $"Housekeeper đã báo công việc #{job.JobID} đã hoàn thành. Hãy xác nhận.",
                 RedirectUrl = $"/jobs/{job.JobID}",
                 CreatedDate = DateTime.Now
             });
@@ -859,18 +879,23 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("ConfirmJobCompletion")]
-        [Authorize(Roles = "Family")]
-        public async Task<IActionResult> ConfirmJobCompletion([FromQuery] int jobId)
+        [Authorize(Policy = "Family")]
+        public async Task<IActionResult> ConfirmJobCompletion([FromQuery] int jobId, int accountID)
         {
             // Get current family user ID from token
-            var userId = int.Parse(User.FindFirst("UserID").Value);
-
+            /*var userId = int.Parse(User.FindFirst("UserID").Value);*/
+            var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountID);
+            if (fa == null)
+            {
+                Message = "Account not found!";
+                return NotFound(Message);
+            }
             // Get the job
             var job = await _jobService.GetJobByIDAsync(jobId);
             if (job == null)
                 return NotFound("Job not found.");
 
-            if (job.FamilyID != userId)
+            if (job.FamilyID != fa.FamilyID)
                 return Unauthorized("You are not the owner of this job.");
 
             if (job.Status != (int)JobStatus.PendingFamilyConfirmation)
@@ -878,6 +903,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             // Get the booking for the job
             var bookings = await _bookingService.GetBookingsByJobIDAsync(jobId);
+
             if (bookings == null || !bookings.Any())
                 return NotFound("No bookings found for this job.");
 
@@ -891,6 +917,12 @@ namespace HouseKeeperConnect_API.Controllers
             // Update statuses to completed
             booking.Status = (int)BookingStatus.Completed;
             await _bookingService.UpdateBookingAsync(booking);
+            var hk = await _houseKeeperService.GetHousekeeperByIDAsync(booking.HousekeeperID);
+            if (hk == null)
+            {
+                Message = "Account not found!";
+                return NotFound(Message);
+            }
 
             job.Status = (int)JobStatus.Completed;
             await _jobService.UpdateJobAsync(job);
@@ -898,8 +930,8 @@ namespace HouseKeeperConnect_API.Controllers
             // Notify housekeeper
             await _notificationService.AddNotificationAsync(new Notification
             {
-                AccountID = booking.HousekeeperID,
-                Message = $"Family has confirmed completion for job #{job.JobID}. Well done!",
+                AccountID = hk.AccountID,
+                Message = $"Gia định đã chấp nhận hoàn thành công việc #{job.JobID}. Chúc mừng",
                 RedirectUrl = $"/jobs/{job.JobID}",
                 CreatedDate = DateTime.Now
             });

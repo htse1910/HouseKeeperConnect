@@ -63,13 +63,13 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Payment>> GetPaymentsByFamilyAsync(int familyID)
+        public async Task<List<Payment>> GetPaymentsByFamilyAsync(int familyID, int pageNumber, int pageSize)
         {
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    return await context.Payment.Where(r => r.FamilyID == familyID).ToListAsync();
+                    return await context.Payment.Where(r => r.FamilyID == familyID).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
