@@ -16,7 +16,6 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IApplicationService _applicationService;
         private readonly IAccountService _accountService;
         private readonly IHouseKeeperService _houseKeeperService;
-        private readonly IJobListing_ApplicationService _jobListingService;
         private readonly IJobService _jobService;
         private readonly INotificationService _notificationService;
         private readonly IJob_ServiceService _jobServiceService;
@@ -26,7 +25,7 @@ namespace HouseKeeperConnect_API.Controllers
         private string Message;
 
         public ApplicationController(IApplicationService applicationService, IAccountService accountService,
-            IHouseKeeperService houseKeeperService, IMapper mapper, IJobListing_ApplicationService jobListingService, 
+            IHouseKeeperService houseKeeperService, IMapper mapper, 
             IJobService jobService, INotificationService notificationService, IJob_ServiceService job_ServiceService,
             IJob_SlotsService job_SlotsService, IBooking_SlotsService bookingSlotsService)
         {
@@ -34,7 +33,6 @@ namespace HouseKeeperConnect_API.Controllers
             _accountService = accountService;
             _houseKeeperService = houseKeeperService;
             _mapper = mapper;
-            _jobListingService = jobListingService;
             _jobService = jobService;
             _notificationService = notificationService;
             _jobServiceService = job_ServiceService;
@@ -73,9 +71,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("ApplicationListByJob")]
         [Authorize]
-        public async Task<ActionResult<Application>> ApplicationListByJob(int jobID, int pageNumber, int pageSize)
+        public async Task<ActionResult<List<Application>>> ApplicationListByJob(int jobID, int pageNumber, int pageSize)
         {
-            var list = await _jobListingService.GetAllJob_ApplicationsByJobAsync(jobID, pageNumber, pageSize);
+            var list = await _applicationService.GetAllApplicationsByJobIDAsync(jobID, pageNumber, pageSize);
             if (list == null)
             {
                 Message = "No Records!";
@@ -88,12 +86,12 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 var display = new ApplicationDisplayDTO();
                 display.ApplicationID = item.ApplicationID;
-                display.LocalProfilePicture = item.Application.HouseKepper.Account.LocalProfilePicture;
-                display.GoogleProfilePicture = item.Application.HouseKepper.Account.GoogleProfilePicture;
-                display.AccountID = item.Application.HouseKepper.AccountID;
-                display.Nickname = item.Application.HouseKepper.Account.Nickname;
-                display.Status = item.Application.Status;
-                display.Rating = item.Application.HouseKepper.Rating.GetValueOrDefault();
+                display.LocalProfilePicture = item.HouseKepper.Account.LocalProfilePicture;
+                display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
+                display.AccountID = item.HouseKepper.AccountID;
+                display.Nickname = item.HouseKepper.Account.Nickname;
+                display.Status = item.Status;
+                display.Rating = item.HouseKepper.Rating.GetValueOrDefault();
                 lA.Add(display);
             }
 
@@ -146,12 +144,11 @@ namespace HouseKeeperConnect_API.Controllers
 
             foreach (var item in apps)
             {
-                
+
                 var display = new ApplicationDisplayDTO();
                 var services = new List<int>();
-                var job = await _jobListingService.GetJob_ApplicationByAppAsync(item.ApplicationID);
-                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
-                var serviceList = await _jobServiceService.GetJob_ServicesByJobIDAsync(job.JobID);
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(item.JobID);
+                var serviceList = await _jobServiceService.GetJob_ServicesByJobIDAsync(item.JobID);
 
                 foreach (var service in serviceList)
                 {
@@ -161,8 +158,8 @@ namespace HouseKeeperConnect_API.Controllers
                 display.LocalProfilePicture = item.HouseKepper.Account.LocalProfilePicture;
                 display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
                 display.AccountID = item.HouseKepper.AccountID;
-                display.FamilyID = job.Job.FamilyID;
-                display.JobID = job.JobID;
+                display.FamilyID = item.Job.FamilyID;
+                display.JobID = item.JobID;
                 display.StartDate = jobDetail.StartDate;
                 display.EndDate = jobDetail.EndDate;
                 display.Services = services;
@@ -236,15 +233,10 @@ namespace HouseKeeperConnect_API.Controllers
 
             var app = new Application();
             app.HouseKeeperID = hk.HousekeeperID;
+            app.JobID = job.JobID;
             app.Status = (int)ApplicationStatus.Pending;
 
             await _applicationService.AddApplicationAsync(app);
-
-            var jA = new JobListing_Application();
-            jA.ApplicationID = app.ApplicationID;
-            jA.JobID = jobID;
-
-            await _jobListingService.AddJob_ApplicationAsync(jA);
 
             var noti = new Notification();
             noti.AccountID = accountID;
@@ -273,7 +265,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            var job = await _jobListingService.GetJob_ApplicationByAppAsync(app.ApplicationID);
+            var job = await _jobService.GetJobByIDAsync(app.JobID);
             if (job == null)
             {
                 Message = "No job found!";
