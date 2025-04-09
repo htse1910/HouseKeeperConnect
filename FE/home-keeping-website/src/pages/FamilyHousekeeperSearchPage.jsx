@@ -6,7 +6,7 @@ import { FaSearch, FaMapMarkerAlt } from "react-icons/fa";
 
 import "../assets/styles/Search.css";
 import {
-  formatCurrency,
+  formatHourlyCurrency,
   formatWorkTypeClass,
   formatWorkTypeLabel,
   formatGender,
@@ -224,7 +224,7 @@ const FamilyHousekeeperSearchPage = () => {
               {h.salary > 0 && (
                 <p className="search-page-info">
                   <span className="salary-icon">💰</span>
-                  {formatCurrency(h.salary, t)} {t("job.jobPost.salaryUnit")}
+                  {formatHourlyCurrency(h.salary, t)} {t("job.jobPost.salaryUnit")}
                 </p>
               )}
 

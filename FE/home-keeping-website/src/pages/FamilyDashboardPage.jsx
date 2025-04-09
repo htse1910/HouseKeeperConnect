@@ -3,19 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import {
-  FaBriefcase,
-  FaUsers,
-  FaBell,
-  FaEnvelope,
-  FaUserCheck,
-  FaPlusSquare,
-  FaCalendarAlt
+  FaBriefcase, FaUsers, FaBell, FaPlusSquare, FaCalendarAlt
 } from "react-icons/fa";
-
 import "../assets/styles/Dashboard.css";
-import "../assets/styles/icon.css";
-import { shouldShowLoadingOrError } from "../utils/uiHelpers";
-import { formatCurrency, formatDate, formatPhone, formatGender } from "../utils/formatData";
+import { formatTotalCurrency, getTransactionFormatData } from "../utils/formatData";
 
 function FamilyDashboardPage() {
   const { t } = useTranslation();
@@ -37,54 +28,9 @@ function FamilyDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 1:
-        return t("transaction.transactionStatus.pending");
-      case 2:
-        return t("transaction.transactionStatus.completed");
-      case 3:
-        return t("transaction.transactionStatus.expired");
-      case 4:
-        return t("transaction.transactionStatus.cancelled");
-      default:
-        return t("transaction.transactionStatus.unknown");
-    }
-  };
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 1:
-        return "status-pending";
-      case 2:
-        return "status-approved";
-      case 3:
-        return "status-expired";
-      case 4:
-        return "status-cancelled";
-      default:
-        return "status-unknown";
-    }
-  };
-
-  const getTypeLabel = (type) => {
-    switch (type) {
-      case 1:
-        return t("transaction.transactionStatus.deposit");
-      case 2:
-        return t("transaction.transactionStatus.withdrawal");
-      case 3:
-        return t("transaction.transactionStatus.payment");
-      case 4:
-        return t("transaction.transactionStatus.payout");
-      default:
-        return t("transaction.transactionStatus.unknown");
-    }
-  };
-
   useEffect(() => {
     if (!authToken || !accountID) {
-      setError(t("error.error_auth"));
+      setError(t("auth.error_auth"));
       setLoading(false);
       return;
     }
@@ -92,32 +38,25 @@ function FamilyDashboardPage() {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const accRes = await axios.get(
-          `http://localhost:5280/api/Account/GetAccount?id=${accountID}`,
-          { headers }
-        );
+        const accRes = await axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers });
         const accData = accRes.data;
-        if (!accData?.accountID) throw new Error(t("error.error_auth"));
+        if (!accData?.accountID) throw new Error(t("auth.error_auth"));
         setUserName(accData.name || "...");
 
         try {
-          const walletRes = await axios.get(
-            `http://localhost:5280/api/wallet/getWallet?id=${accountID}`,
-            { headers }
-          );
-          setBalance(walletRes.data?.balance || 0);
+          const walletRes = await axios.get(`http://localhost:5280/api/wallet/getWallet?id=${accountID}`, { headers });
+          const walletData = walletRes.data;
+          setBalance(walletData?.balance || 0);
         } catch (walletErr) {
           console.warn("Lỗi khi gọi API ví:", walletErr);
         }
 
         try {
-          const jobsRes = await axios.get(
-            `http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`,
-            { headers }
-          );
+          const jobsRes = await axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
+          const jobsData = jobsRes.data;
           setJobStats({
-            activeJobs: jobsRes.data?.length || 0,
-            applicants: jobsRes.data?.totalApplicant || 0
+            activeJobs: jobsData.length || 0,
+            applicants: jobsData.totalApplicant || 0,
           });
         } catch (jobErr) {
           console.warn("Lỗi khi gọi API job:", jobErr);
@@ -149,7 +88,7 @@ function FamilyDashboardPage() {
         setError(null);
       } catch (err) {
         console.error("Lỗi xác thực:", err);
-        setError(t("error.error_auth"));
+        setError(t("auth.error_auth"));
       } finally {
         setLoading(false);
       }
@@ -158,8 +97,23 @@ function FamilyDashboardPage() {
     fetchDashboardData();
   }, []);
 
-  const feedback = shouldShowLoadingOrError(loading, error, t);
-  if (feedback) return feedback;
+  if (loading || error) {
+    return (
+      <div className="dashboard-container text-center py-5">
+        {loading && (
+          <>
+            <span className="icon-loading" />
+            <p>{t("misc.loading_data")}</p>
+          </>
+        )}
+        {error && (
+          <>
+            <p className="error">❌ {error}</p>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-container">
@@ -189,9 +143,9 @@ function FamilyDashboardPage() {
           <div className="stat-card">
             <div>
               <div className="stat-card-label">{t("dashboard.dashboard_balance")}</div>
-              <div className="stat-card-value">{formatCurrency(balance, t)}</div>
+              <div className="stat-card-value">{formatTotalCurrency(balance, t)}</div>
             </div>
-            <button className="btn-primary" onClick={() => navigate("/family/deposit")}>
+            <button className="deposit-button" onClick={() => navigate("/family/deposit")}>
               {t("dashboard.dashboard_deposit")}
             </button>
           </div>
@@ -221,7 +175,7 @@ function FamilyDashboardPage() {
           <h5 className="dashboard-box-title">{t("uncategorized.notifications")}</h5>
           <ul className="dashboard-notification-list">
             {notifications.length === 0 ? (
-              <li className="text-muted">{t("transaction.transactionStatus.no_notifications")}</li>
+              <li className="text-muted">{t("status.transactionStatus.no_notifications")}</li>
             ) : (
               notifications.map((noti) => (
                 <li key={noti.notificationsID} className="dashboard-notification-item">
@@ -229,7 +183,7 @@ function FamilyDashboardPage() {
                   <div>
                     <p className="dashboard-notification-text">{noti.message}</p>
                     <small className="dashboard-notification-time">
-                      {formatDate(noti.createdDate, t)}
+                      {new Date(noti.createdDate).toLocaleString("vi-VN")}
                     </small>
                   </div>
                 </li>
@@ -258,15 +212,18 @@ function FamilyDashboardPage() {
                   </td>
                 </tr>
               ) : (
-                transactions.map((tx, index) => (
-                  <tr key={index}>
-                    <td>{formatDate(tx.createdDate, t)}</td>
-                    <td>{getTypeLabel(tx.transactionType)}</td>
-                    <td>{tx.receiverName || ""}</td>
-                    <td>{formatCurrency(tx.amount, t)}</td>
-                    <td className={getStatusClass(tx.status)}>{getStatusLabel(tx.status)}</td>
-                  </tr>
-                ))
+                transactions.map((tx, index) => {
+                  const { statusLabel, statusClass, typeLabel } = getTransactionFormatData(tx.status, tx.transactionType, t);
+                  return (
+                    <tr key={index}>
+                      <td>{new Date(tx.createdDate).toLocaleDateString("vi-VN")}</td>
+                      <td>{typeLabel}</td>
+                      <td>{tx.receiverName || ""}</td>
+                      <td>{tx.amount.toLocaleString("vi-VN")} VNĐ</td>
+                      <td className={statusClass}>{statusLabel}</td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

@@ -19,14 +19,21 @@ export const formatDateTime = (dateString) => {
   return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 };
 
-export const formatCurrency = (amount, t) => {
+// Định dạng số tiền tổng cộng (ví dụ: 500.000 VNĐ)
+export const formatTotalCurrency = (amount, t) => {
   if (amount == null) return "";
-  return amount.toLocaleString("vi-VN") + " " + t("job.jobPost.salaryUnit");
+  return amount.toLocaleString("vi-VN") + " VNĐ";
+};
+
+// Định dạng số tiền theo giờ (ví dụ: 50.000 VNĐ / giờ)
+export const formatHourlyCurrency = (amount, t) => {
+  if (amount == null) return "";
+  return amount.toLocaleString("vi-VN") + " " + t("job.jobPost.salaryUnit"); // "VNĐ / giờ"
 };
 
 export const formatDateDaysAgo = (dateString, t) => {
   const days = Math.floor((Date.now() - new Date(dateString)) / 86400000);
-  return t("job.posted_days_ago", { days });
+  return t("job.job.posted_days_ago", { days });
 };
 
 export const formatVerificationStatus = (status, t) => {
@@ -134,4 +141,33 @@ export const renderWorkingTime = (workingDays, slotIDs, t) => {
 
 const arraysEqual = (a = [], b = []) => {
   return a.length === b.length && a.every((val, index) => val === b[index]);
+};
+
+export const getTransactionFormatData = (status, type, t) => {
+  const statusLabelMap = {
+    1: "pending",
+    2: "completed",
+    3: "expired",
+    4: "cancelled"
+  };
+
+  const typeLabelMap = {
+    1: "deposit",
+    2: "withdrawal",
+    3: "payment",
+    4: "payout"
+  };
+
+  const statusClassMap = {
+    1: "status-pending",
+    2: "status-approved",
+    3: "status-expired",
+    4: "status-cancelled"
+  };
+
+  return {
+    statusLabel: t(`status.transactionStatus.${statusLabelMap[status] || "unknown"}`),
+    statusClass: statusClassMap[status] || "status-unknown",
+    typeLabel: t(`status.transactionStatus.${typeLabelMap[type] || "unknown"}`)
+  };
 };

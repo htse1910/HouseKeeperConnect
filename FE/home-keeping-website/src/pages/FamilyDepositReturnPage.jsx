@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../assets/styles/Payment.css";
-import { formatCurrency } from "../utils/formatData";
+import { formatTotalCurrency } from "../utils/formatData";
 
 function FamilyDepositReturnPage() {
   const { t } = useTranslation();
@@ -96,7 +96,7 @@ function FamilyDepositReturnPage() {
           {amount && (
             <p>
               💰 <strong>{t("deposit.deposit_amount")}:</strong>{" "}
-              <span className="text-emphasis">{formatCurrency(amount, t)}</span>
+              <span className="text-emphasis">{formatTotalCurrency(amount, t)}</span>
             </p>
           )}
         </div>
