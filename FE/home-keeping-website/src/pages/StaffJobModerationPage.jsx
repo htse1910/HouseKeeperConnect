@@ -7,7 +7,6 @@ import "../assets/styles/Dashboard.css";
 const generateFakeJobs = () => {
     const titles = ["Dọn dẹp nhà", "Nấu ăn", "Trông trẻ", "Giặt đồ", "Chăm sóc người lớn tuổi"];
     const areas = ["Quận 1", "Quận 3", "Bình Thạnh", "Tân Bình", "Thủ Đức"];
-
     return Array.from({ length: 50 }, (_, i) => ({
         id: i + 1,
         title: titles[Math.floor(Math.random() * titles.length)],
@@ -27,24 +26,41 @@ const StaffJobModerationPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const shouldShowLoadingOrError = loading || error;
-
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const recordsPerPage = 10;
     const MAX_VISIBLE_PAGES = 15;
     const [inputPage, setInputPage] = useState("");
 
-    useEffect(() => {
+    const totalPages = Math.ceil(jobs.length / recordsPerPage);
+    const indexOfLast = currentPage * recordsPerPage;
+    const indexOfFirst = indexOfLast - recordsPerPage;
+    const currentRecords = jobs.slice(indexOfFirst, indexOfLast);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+    const getPaginationRange = () => {
+        if (totalPages <= MAX_VISIBLE_PAGES) return Array.from({ length: totalPages }, (_, i) => i + 1);
+        const range = [1];
+        const middleStart = Math.max(currentPage - 2, 2);
+        const middleEnd = Math.min(currentPage + 2, totalPages - 1);
+
+        if (middleStart > 2) range.push("...");
+        for (let i = middleStart; i <= middleEnd; i++) range.push(i);
+        if (middleEnd < totalPages - 1) range.push("...");
+        range.push(totalPages);
+        return range;
+    };
+
+    const fetchJobs = () => {
+        setLoading(true);
+        setError(null);
+
         if (isDemo) {
             setJobs(generateFakeJobs());
             setLoading(false);
-            setError(null);
             return;
         }
-
-        setLoading(true);
-        setError(null);
 
         const token = localStorage.getItem("authToken");
 
@@ -52,12 +68,16 @@ const StaffJobModerationPage = () => {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json"
+            },
+            params: {
+                pageNumber: 1,
+                pageSize: 100
             }
         })
             .then((response) => {
-                const mapped = response.data
-                    .filter(job => job.status === 1)
-                    .map((job) => ({
+                const filteredJobs = response.data
+                    .filter(job => job.status === 1) // Only jobs pending moderation
+                    .map(job => ({
                         id: job.jobID,
                         title: job.jobName,
                         familyName: `Gia đình #${job.familyID}`,
@@ -65,65 +85,34 @@ const StaffJobModerationPage = () => {
                         salary: job.price,
                         postedDate: job.createdAt
                     }));
-                setJobs(mapped);
+                setJobs(filteredJobs);
             })
             .catch((err) => {
                 console.error("Error fetching jobs:", err);
                 setError("Failed to load jobs.");
             })
-            .finally(() => {
-                setLoading(false);
-            });
+            .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        fetchJobs();
     }, [isDemo]);
 
     const handleApprove = (id) => {
-        setJobs((prev) => prev.filter((job) => job.id !== id));
+        // Here you'd also call the backend to approve
+        setJobs(prev => prev.filter(job => job.id !== id));
     };
 
     const handleReject = (id) => {
         const reason = prompt(t("enter_reject_reason"));
         if (!reason) return;
-        setJobs((prev) => prev.filter((job) => job.id !== id));
+        // You could POST `reason` to your API here
+        setJobs(prev => prev.filter(job => job.id !== id));
     };
-
-    const indexOfLast = currentPage * recordsPerPage;
-    const indexOfFirst = indexOfLast - recordsPerPage;
-    const currentRecords = jobs.slice(indexOfFirst, indexOfLast);
-    const totalPages = Math.ceil(jobs.length / recordsPerPage);
-
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-    const getPaginationRange = () => {
-        if (totalPages <= MAX_VISIBLE_PAGES) {
-            return Array.from({ length: totalPages }, (_, i) => i + 1);
-        }
-
-        const middleStart = Math.max(currentPage - 2, 2);
-        const middleEnd = Math.min(currentPage + 2, totalPages - 1);
-
-        const pages = [1];
-
-        if (middleStart > 2) {
-            pages.push("...");
-        }
-
-        for (let i = middleStart; i <= middleEnd; i++) {
-            pages.push(i);
-        }
-
-        if (middleEnd < totalPages - 1) {
-            pages.push("...");
-        }
-
-        pages.push(totalPages);
-        return pages;
-    };
-
-    const paginationRange = getPaginationRange();
 
     const handlePageInput = (event) => {
         const value = event.target.value;
-        if (/^\\d*$/.test(value)) {
+        if (/^\d*$/.test(value)) {
             setInputPage(value);
         }
     };
@@ -137,12 +126,12 @@ const StaffJobModerationPage = () => {
         setInputPage("");
     };
 
-    if (shouldShowLoadingOrError) {
+    if (loading || error) {
         return (
             <div className="dashboard-container">
                 {loading && (
                     <>
-                        <span className="icon-loading"></span>
+                        <span className="icon-loading" />
                         <p>{t("loading_data")}</p>
                     </>
                 )}
@@ -163,6 +152,9 @@ const StaffJobModerationPage = () => {
     return (
         <div className="dashboard-container">
             <h1>{t("job_moderation_title")} {isDemo ? "(Demo Mode)" : ""}</h1>
+            <button className="btn-secondary mb-2" onClick={fetchJobs}>
+                {t("refresh")}
+            </button>
 
             <table className="dashboard-table">
                 <thead>
@@ -187,10 +179,10 @@ const StaffJobModerationPage = () => {
                             <td>{new Date(job.postedDate).toLocaleDateString()}</td>
                             <td>
                                 <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(job.id)}>
-                                    Approve
+                                    {t("approve")}
                                 </button>
                                 <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(job.id)}>
-                                    Reject
+                                    {t("reject")}
                                 </button>
                             </td>
                         </tr>
@@ -205,7 +197,7 @@ const StaffJobModerationPage = () => {
                     </button>
                 )}
 
-                {paginationRange.map((page, index) =>
+                {getPaginationRange().map((page, index) =>
                     page === "..." ? (
                         <span key={index} className="dots">...</span>
                     ) : (
