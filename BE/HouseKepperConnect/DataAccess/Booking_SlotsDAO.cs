@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Google;
 using Microsoft.EntityFrameworkCore;
 
@@ -77,13 +78,15 @@ namespace DataAccess
             using var context = new PCHWFDBContext();
 
             return await context.Booking_Slots
-                .AnyAsync(b => b.Booking.HousekeeperID == housekeeperId &&
-                               b.SlotID == slotId &&
-                               b.DayOfWeek == dayOfWeek &&
-                               context.JobDetail
-                                   .Any(jd => jd.JobID == b.Booking.JobID &&
-                                              jd.StartDate <= endDate &&
-                                              jd.EndDate >= startDate));
+                .AnyAsync(b =>
+                    b.Booking.HousekeeperID == housekeeperId &&
+                    b.SlotID == slotId &&
+                    b.DayOfWeek == dayOfWeek &&
+                    b.Booking.Status != (int)BookingStatus.Canceled && // Exclude canceled bookings
+                    context.JobDetail.Any(jd =>
+                        jd.JobID == b.Booking.JobID &&
+                        jd.StartDate <= endDate &&
+                        jd.EndDate >= startDate));
         }
 
         public async Task<List<int>> GetBookedSlotsByHousekeeper(int housekeeperId, DateTime startDate, DateTime endDate)
