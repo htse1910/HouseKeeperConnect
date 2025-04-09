@@ -669,7 +669,19 @@ namespace HouseKeeperConnect_API.Controllers
             Message = status == (int)JobStatus.Verified
                 ? "Job verified successfully!"
                 : "Job marked as not permitted.";
-
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+            var housekeeper = await _houseKeeperService.GetHousekeeperByIDAsync(jobDetail.HousekeeperID.Value);
+            int housekeeperAccountId = housekeeper.AccountID;
+            await _notificationService.AddNotificationAsync(new Notification
+            {
+                AccountID = housekeeperAccountId,
+                Message = status == (int)JobStatus.Verified
+            ? "Một công việc bạn được đề xuất đã được xác minh. Vui lòng kiểm tra chi tiết công việc."
+            : "Một công việc bạn được đề xuất đã bị từ chối.",
+                RedirectUrl = null,
+                IsRead = false,
+                CreatedDate = DateTime.Now
+            });
             return Ok(Message);
         }
 
