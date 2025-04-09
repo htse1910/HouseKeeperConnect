@@ -2,10 +2,10 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import HousekeeperWelcomeCard from "../components/HousekeeperWelcomeCard";
 import SearchJobsCard from "../components/SearchJobsCard";
-import ScheduleManagementCard from "../components/ScheduleManagementCard";
 import RecentTransactionsCard from "../components/RecentTransactionsCard";
 import NotificationsCard from "../components/NotificationsCard";
 import ScrollToTopButton from "../components/ScrollToTopButton";
+import HouseKeeperPayoutCard from "../components/HouseKeeperPayoutCard";
 
 const HousekeeperDashboard = () => {
   return (
@@ -16,7 +16,7 @@ const HousekeeperDashboard = () => {
 
       <div className="row mt-4">
         <SearchJobsCard />
-        <ScheduleManagementCard />
+        <HouseKeeperPayoutCard />
       </div>
 
       <div className="row mt-4">

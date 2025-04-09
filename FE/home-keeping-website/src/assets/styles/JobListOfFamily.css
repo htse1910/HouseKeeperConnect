@@ -1,0 +1,35 @@
+.scrollable-job-list {
+    max-height: 600px; /* Adjust as needed */
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.job-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.job-item {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background-color: #fff;
+    transition: box-shadow 0.2s ease;
+}
+
+.job-item:hover {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+}
+
+.job-item p {
+    margin: 6px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+.job-item h4 {
+    margin-bottom: 10px;
+    color: #222;
+}
