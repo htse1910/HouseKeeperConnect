@@ -772,7 +772,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
         [HttpPost("CheckIn")]
-        [Authorize(Roles = "Housekeeper")]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> CheckIn([FromQuery] int bookingSlotId)
         {
             // Get the Booking_Slot by ID using service
@@ -797,7 +797,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("ConfirmSlotWorked")]
-        [Authorize(Roles = "Family")]
+        [Authorize(Policy = "Family")]
         public async Task<IActionResult> ConfirmSlotWorked([FromQuery] int bookingSlotId)
         {
             // Get the Booking_Slot by ID
