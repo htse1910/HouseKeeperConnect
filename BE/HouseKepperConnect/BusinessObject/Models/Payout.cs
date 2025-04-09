@@ -18,7 +18,7 @@ namespace BusinessObject.Models
         public int HousekeeperID { get; set; }
 
         public decimal Amount { get; set; }
-        public DateTime PayoutDate { get; set; } = DateTime.Now;
+        public DateTime? PayoutDate { get; set; }
         public int Status { get; set; }
 
         public virtual Housekeeper Housekeeper { get; set; }
