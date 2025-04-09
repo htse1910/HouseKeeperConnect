@@ -1,5 +1,6 @@
 ﻿using BusinessObject.Models;
 using BusinessObject.Models.Enum;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -12,15 +13,52 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly ITransactionService _transactionService;
         private readonly IWalletService _walletService;
         private readonly IPaymentService _paymentService;
+        private readonly IFamilyProfileService _familyProfileService;
         private readonly INotificationService _notificationService;
         private string Message;
 
-        public PaymentController(ITransactionService transactionService, IWalletService walletService, IPaymentService paymentService, INotificationService notificationService)
+        public PaymentController(ITransactionService transactionService, IWalletService walletService, IPaymentService paymentService, INotificationService notificationService, IFamilyProfileService familyProfileService)
         {
             _transactionService = transactionService;
             _walletService = walletService;
             _paymentService = paymentService;
             _notificationService = notificationService;
+            _familyProfileService = familyProfileService;
+        }
+
+
+        [HttpGet("GetPaymentList")]
+        [Authorize(Policy ="Admin")]
+        public async Task<ActionResult<List<Payment>>> GetPayments(int pageNumber, int pageSize)
+        {
+            var list =await _paymentService.GetAllPaymentsAsync(pageNumber, pageSize);
+            if (list == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+
+            return Ok(list);
+        }
+        
+        [HttpGet("GetPaymentsByFA")]
+        [Authorize(Policy ="Family")]
+        public async Task<ActionResult<List<Payment>>> GetPaymentsByFA([FromQuery]int accountID, int pageNumber, int pageSize)
+        {
+            var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountID);
+            if(fa == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+            var list =await _paymentService.GetPaymentsByFamilyAsync(fa.FamilyID, pageNumber, pageSize);
+            if (list == null)
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+
+            return Ok(list);
         }
 
         [HttpGet("success")]

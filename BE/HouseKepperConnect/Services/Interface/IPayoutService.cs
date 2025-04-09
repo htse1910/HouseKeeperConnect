@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessObject.Models;
 
-namespace Repositories.Interface
+namespace Services.Interface
 {
-    public interface IPayoutRepository
+    public interface IPayoutService
     {
         Task<List<Payout>> GetAllPayoutsAsync(int pageNumber, int pageSize);
         Task<Payout> GetPayoutByIDAsync(int rID);

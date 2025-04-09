@@ -62,6 +62,10 @@ public static class ServiceExtentions
         services.AddScoped<IApplicationService, ApplicationService>();
         services.AddScoped<IJobListing_ApplicationRepository, JobListing_ApplicationRepository>();
         services.AddScoped<IJobListing_ApplicationService, JobListing_ApplicationService>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IPayoutRepository, PayoutRepository>();
+        services.AddScoped<IPayoutService, PayoutService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

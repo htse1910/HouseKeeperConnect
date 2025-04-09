@@ -19,7 +19,7 @@ namespace Repositories
 
         public async Task<Payment> GetPaymentByIDAsync(int rID) => await PaymentDAO.Instance.GetPaymentByIDAsync(rID);
 
-        public async Task<List<Payment>> GetPaymentsByFamilyAsync(int familyID) => await PaymentDAO.Instance.GetPaymentsByFamilyAsync(familyID);
+        public async Task<List<Payment>> GetPaymentsByFamilyAsync(int familyID, int pageNumber, int pageSize) => await PaymentDAO.Instance.GetPaymentsByFamilyAsync(familyID, pageNumber, pageSize);
 
         public async Task UpdatePaymentAsync(Payment Payment) => await PaymentDAO.Instance.UpdatePaymentAsync(Payment);
     }

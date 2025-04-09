@@ -56,7 +56,7 @@ namespace BusinessObject.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().HasData(
-                new Role { RoleID = 1, RoleName = "HouseKeeper" },
+                new Role { RoleID = 1, RoleName = "Housekeeper" },
                 new Role { RoleID = 2, RoleName = "Family" },
                 new Role { RoleID = 3, RoleName = "Staff" },
                 new Role { RoleID = 4, RoleName = "Admin" }
