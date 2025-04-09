@@ -376,7 +376,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<TokenModel> LoginWithGoogleAsync(string googleToken)
+        public async Task<LoginInfoDTO> LoginWithGoogleAsync(string googleToken, int roleID)
         {
             var settings = new GoogleJsonWebSignature.ValidationSettings
             {
@@ -387,7 +387,7 @@ namespace DataAccess
 
             using (var db = new PCHWFDBContext())
             {
-                var account = await db.Account.FirstOrDefaultAsync(a => a.Email == payload.Email);
+                var account = await db.Account.Include(a => a.Role).FirstOrDefaultAsync(a => a.Email == payload.Email);
 
                 if (account == null)
                 {
@@ -398,7 +398,7 @@ namespace DataAccess
                         GoogleId = payload.Subject,
                         Provider = "Google",
                         GoogleProfilePicture = payload.Picture,
-                        RoleID = 1,
+                        RoleID = roleID,
                         Status = (int)AccountStatus.Active,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now
@@ -418,9 +418,25 @@ namespace DataAccess
                     await db.SaveChangesAsync();
                 }
 
-                var tokenizedData = _mapper.Map<TokenModel>(account);
+                var tokenModel = new TokenModel
+                {
+                    AccountID = account.AccountID,
+                    Name = account.Name,
+                    Email = account.Email,
+                    RoleID = account.RoleID,
+                    RoleName = account.Role?.RoleName ?? "Unknown"
+                };
+                var token = GenerateToken(tokenModel);
 
-                return tokenizedData;
+                return new LoginInfoDTO
+                {
+                    AccountID = tokenModel.AccountID,
+                    Name = tokenModel.Name,
+                    RoleID = tokenModel.RoleID,
+                    RoleName = tokenModel.RoleName,
+                    Token = token
+                };
+
             }
         }
 
