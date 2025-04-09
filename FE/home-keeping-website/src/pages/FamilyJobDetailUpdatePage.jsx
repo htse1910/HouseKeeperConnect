@@ -433,7 +433,7 @@ const FamilyJobDetailUpdatePage = () => {
 
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                        <label>{t("salary")}</label>
+                        <label>{t("misc.salary")}</label>
                         <div className="job-posting-price-wrapper">
                             <input
                                 ref={priceRef}

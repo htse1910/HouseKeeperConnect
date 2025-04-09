@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate, useParams, useLocation } from "react-rout
 import { useTranslation } from "react-i18next";
 import "../assets/styles/Job.css";
 import { FaClock, FaMapMarkerAlt, FaStar } from "react-icons/fa";
+import { renderWorkingTime } from "../utils/formatData";
 
 const renderJobStatus = (status) => {
     const statusMap = {
@@ -166,6 +167,36 @@ const FamilyJobDetailsPage = () => {
         fetchServiceDetails();
     }, [job]);
 
+    const handleAccept = (applicationID) => {
+        axios.put(`http://localhost:5280/api/Application/UpdateApplication`, null, {
+            params: { AppID: applicationID, status: 2 }, // 2 = Accepted
+            headers
+        })
+            .then(() => {
+                alert("Đã chấp nhận ứng viên.");
+                window.location.reload();
+            })
+            .catch((err) => {
+                console.error("Lỗi khi chấp nhận ứng viên:", err);
+                alert("Không thể chấp nhận ứng viên.");
+            });
+    };
+
+    const handleReject = (applicationID) => {
+        axios.put(`http://localhost:5280/api/Application/UpdateApplication`, null, {
+            params: { AppID: applicationID, status: 3 }, // 3 = Denied
+            headers
+        })
+            .then(() => {
+                alert("Đã từ chối ứng viên.");
+                window.location.reload();
+            })
+            .catch((err) => {
+                console.error("Lỗi khi từ chối ứng viên:", err);
+                alert("Không thể từ chối ứng viên.");
+            });
+    };
+
     const renderWorkingTime = () => {
         if (
             !Array.isArray(job.dayofWeek) || job.dayofWeek.length === 0 ||
@@ -276,17 +307,17 @@ const FamilyJobDetailsPage = () => {
 
                     <div className="job-detail-meta">
                         <span>
-                            <FaClock /> {t("created_at")}:{" "}
+                            <FaClock /> {t("misc.created_at")}:{" "}
                             {createdDate
                                 ? new Date(createdDate).toLocaleDateString("vi-VN")
-                                : t("not_available")}
+                                : t("misc.not_available")}
                         </span>
-                        <span><FaMapMarkerAlt /> {job.location || t("not_available")}</span>
+                        <span><FaMapMarkerAlt /> {job.location || t("misc.not_available")}</span>
                         <span>
-                            {t("salary")}:{" "}
+                            {t("misc.salary")}:{" "}
                             {job.price != null
                                 ? `${job.price.toLocaleString("vi-VN")} VND/giờ`
-                                : t("not_available")}
+                                : t("misc.not_available")}
                         </span>
                     </div>
                 </div>
@@ -342,18 +373,37 @@ const FamilyJobDetailsPage = () => {
                                     </div>
 
                                     <div className="job-detail-applicant-info">
-                                        <div className="job-detail-applicant-top-row">
+                                        <div className="job-detail-applicant-header-row">
                                             <h4 className="job-detail-applicant-name">{applicant.nickname}</h4>
-                                            <span className={`job-detail-application-status ${statusInfo.className}`}>
-                                                {statusInfo.text}
-                                            </span>
+
+                                            <div className="job-detail-applicant-status-and-actions">
+                                                <span className={`job-detail-application-status ${statusInfo.className}`}>
+                                                    {statusInfo.text}
+                                                </span>
+
+                                                {applicant.status === 1 && (
+                                                    <div className="job-detail-status-actions-inline">
+                                                        <button className="job-detail-btn-primary" onClick={() => handleAccept(applicant.applicationID)}>
+                                                            {t("verification.approve")}
+                                                        </button>
+                                                        <button className="job-detail-btn-cancel" onClick={() => handleReject(applicant.applicationID)}>
+                                                            {t("verification.reject")}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="job-detail-applicant-rating">
                                             <div className="job-detail-rating">
-                                                {[...Array(Math.floor(applicant.rating || 0))].map((_, i) => (
-                                                    <FaStar key={i} className="star-icon filled" />
+                                                {Array.from({ length: 5 }, (_, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className={`star-icon ${index < applicant.rating ? "filled" : ""}`}
+                                                    >
+                                                        ★
+                                                    </span>
                                                 ))}
-                                                <span>{applicant.rating?.toFixed(1) || "0.0"}</span>
+                                                {applicant.rating?.toFixed(1) || "5.0"}
                                             </div>
                                         </div>
 
@@ -366,12 +416,11 @@ const FamilyJobDetailsPage = () => {
                                         )}
 
                                         <div className="job-detail-actions">
-                                            <button className="job-detail-btn-primary">{t("view_profile")}</button>
-                                            <button
-                                                className="job-detail-btn-secondary"
-                                                onClick={() => navigate(`/family/messages?search=${applicant.nickname}`)}
-                                            >
-                                                {t("send_message")}
+                                            <button className="job-detail-btn-primary" onClick={() => navigate(`/family/housekeeper/profile/${applicant.accountID}`)}>
+                                                {t("misc.view_profile")}
+                                            </button>
+                                            <button className="job-detail-btn-secondary" onClick={() => navigate(`/family/messages?search=${applicant.nickname}`)}>
+                                                {t("misc.send_message")}
                                             </button>
                                         </div>
                                     </div>

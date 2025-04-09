@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { FaFilter } from "react-icons/fa";
@@ -26,6 +25,8 @@ const StaffUserVerificationPage = () => {
     useEffect(() => {
         const storedName = localStorage.getItem("userName") || t("staff");
         setUserName(storedName);
+
+        reloadPendingList();
     }, []);
 
     // View CCCD
@@ -68,166 +69,102 @@ const StaffUserVerificationPage = () => {
     const MAX_VISIBLE_PAGES = 15;
     const [inputPage, setInputPage] = useState("");
 
-    useEffect(() => {
+    const reloadPendingList = async () => {
         setLoading(true);
         setError(null);
 
         const token = localStorage.getItem("authToken");
         const accountID = localStorage.getItem("accountID");
 
-        if (!token) {
-            setError(t("error_auth"));
-            setLoading(false);
-            return;
-        }
-
-        if (!accountID) {
-            setError(t("error_account"));
-            setLoading(false);
-            return;
-        }
-
-        const headers = {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        };
-
-        // Bước 1: Xác minh tài khoản staff
-        axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-            .then((accountResponse) => {
-                const account = accountResponse.data;
-                if (!account || !account.accountID) throw new Error(t("error_auth"));
-                if (account.roleID != "3") throw new Error(t("error_auth") + " Role authen");
-                setAccountInfo(account);
-
-                // Bước 2: Lấy danh sách housekeeper đang chờ
-                return axios.get(`http://localhost:5280/api/HouseKeeper/ListHousekeeperIDPending`, {
-                    params: { pageNumber: 1, pageSize: 10 },
-                    headers
-                });
-            })
-            .then(async (res) => {
-                const baseList = res.data;
-
-                const isEmpty =
-                    !baseList ||
-                    (Array.isArray(baseList) && baseList.length === 0) ||
-                    (typeof baseList === "string" && baseList.includes("Housekeeper Pending list is empty!"));
-
-                if (isEmpty) {
-                    setHousekeepers([]);
-                    setEmptyMessage("Hiện giờ PCHWF platform chưa có Người giúp việc mới đăng ký.");
-                    return;
-                }
-
-                // Bước 3: enrich dữ liệu từng housekeeper
-                const enrichedList = await Promise.all(
-                    baseList.map(async (hk) => {
-                        try {
-                            const detailRes = await axios.get(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByID`, {
-                                params: { id: hk.housekeeperID },
-                                headers
-                            });
-                            const detail = detailRes.data;
-
-                            let accountData = {};
-                            if (detail.accountID) {
-                                try {
-                                    const accountRes = await axios.get(`http://localhost:5280/api/Account/GetAccount`, {
-                                        params: { id: detail.accountID },
-                                        headers
-                                    });
-                                    accountData = accountRes.data;
-                                } catch (err) {
-                                    console.warn(`Không lấy được account của housekeeperID ${hk.housekeeperID}`);
-                                }
-                            }
-
-                            return {
-                                ...hk,
-                                id: hk.housekeeperID,
-                                accountID: hk.accountID,
-                                taskID: hk.taskID,
-                                verifyID: detail.verifyID,
-                                status: "Pending",
-                                cccdFront: hk.frontPhoto,
-                                cccdBack: hk.backPhoto,
-                                cccdWithUser: hk.facePhoto,
-                                workType: detail.workType ?? null,
-
-                                // Thêm từ account:
-                                name: accountData.name || "",
-                                nickname: accountData.nickname || "",
-                                phone: accountData.phone || "",
-                                gender: accountData.gender || null,
-                                avatar: accountData.localProfilePicture || accountData.googleProfilePicture || ""
-                            };
-                        } catch (e) {
-                            console.warn(`Không lấy được detail của housekeeper ID ${hk.housekeeperID}`);
-                            return {
-                                ...hk,
-                                id: hk.housekeeperID,
-                                status: String(hk.status ?? "Pending"),
-                                cccdFront: hk.frontPhoto,
-                                cccdBack: hk.backPhoto,
-                                cccdWithUser: hk.facePhoto
-                            };
-                        }
-                    })
-                );
-
-                setHousekeepers(enrichedList);
-            })
-            .catch((err) => {
-                console.error("Lỗi khi tải dữ liệu:", err);
-                setError(t("error_loading"));
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, []);
-
-    const processVerification = async (verifyID, action = "Approve") => {
-        const token = localStorage.getItem("authToken");
         const headers = {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json"
         };
 
         try {
-            // B1: Tạo task
-            const createRes = await axios.post(
-                `http://localhost:5280/api/VerificationTasks/Create`,
-                null,
-                {
-                    params: { verifyID },
-                    headers,
-                }
+            const res = await axios.get(`http://localhost:5280/api/HouseKeeper/ListHousekeeperIDPending`, {
+                params: { pageNumber: 1, pageSize: 10 },
+                headers
+            });
+
+            const baseList = res.data;
+
+            const isEmpty =
+                !baseList ||
+                (Array.isArray(baseList) && baseList.length === 0) ||
+                (typeof baseList === "string" && baseList.includes("Housekeeper Pending list is empty!"));
+
+            if (isEmpty) {
+                setHousekeepers([]);
+                setEmptyMessage("Hiện giờ PCHWF platform chưa có Người giúp việc mới đăng ký.");
+                return;
+            }
+
+            const enrichedList = await Promise.all(
+                baseList.map(async (hk) => {
+                    try {
+                        const detailRes = await axios.get(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByID`, {
+                            params: { id: hk.housekeeperID },
+                            headers
+                        });
+                        const detail = detailRes.data;
+
+                        let accountData = {};
+                        if (detail.accountID) {
+                            try {
+                                const accountRes = await axios.get(`http://localhost:5280/api/Account/GetAccount`, {
+                                    params: { id: detail.accountID },
+                                    headers
+                                });
+                                accountData = accountRes.data;
+                            } catch (err) {
+                                console.warn(`Không lấy được account của housekeeperID ${hk.housekeeperID}`);
+                            }
+                        }
+
+                        return {
+                            ...hk,
+                            id: hk.housekeeperID,
+                            accountID: hk.accountID,
+                            taskID: hk.taskID,
+                            verifyID: detail.verifyID,
+                            status: "Pending",
+                            cccdFront: hk.frontPhoto,
+                            cccdBack: hk.backPhoto,
+                            cccdWithUser: hk.facePhoto,
+                            workType: detail.workType ?? null,
+                            name: accountData.name || "",
+                            nickname: accountData.nickname || "",
+                            phone: accountData.phone || "",
+                            gender: accountData.gender || null,
+                            avatar: accountData.localProfilePicture || accountData.googleProfilePicture || ""
+                        };
+                    } catch (e) {
+                        console.warn(`Không lấy được detail của housekeeper ID ${hk.housekeeperID}`);
+                        return {
+                            ...hk,
+                            id: hk.housekeeperID,
+                            status: String(hk.status ?? "Pending"),
+                            cccdFront: hk.frontPhoto,
+                            cccdBack: hk.backPhoto,
+                            cccdWithUser: hk.facePhoto
+                        };
+                    }
+                })
             );
 
-            // B2: Gửi hành động
-            const endpoint =
-                action === "Approve"
-                    ? "Approve"
-                    : action === "Reject"
-                        ? "Reject"
-                        : null;
-
-            if (!endpoint) throw new Error("Invalid action type");
-
-            await axios.post(
-                `http://localhost:5280/api/VerificationTasks/${endpoint}`,
-                null,
-                {
-                    params: { verifyID },
-                    headers,
-                }
-            );
-
-            return true;
+            setHousekeepers(enrichedList);
         } catch (err) {
-            console.error(`❌ Lỗi xử lý xác minh (${action}):`, err);
-            throw err;
+            console.error("Lỗi khi tải dữ liệu:", err);
+
+            if (err?.response?.status === 404) {
+                setHousekeepers([]);
+                setEmptyMessage("Platform hiện tại chưa có Người giúp việc đăng ký mới.");
+            } else {
+                setError(t("erorr.error_loading"));
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -239,7 +176,6 @@ const StaffUserVerificationPage = () => {
         };
 
         try {
-            // B2: Gọi VerificationTasks/Approve
             await axios.put(`http://localhost:5280/api/VerificationTasks/Approve`, null, {
                 params: {
                     taskId: housekeeper.taskID,
@@ -250,11 +186,7 @@ const StaffUserVerificationPage = () => {
             });
 
             toast.success('✅ Duyệt hồ sơ thành công!');
-            setHousekeepers((prev) =>
-                prev.map((item) =>
-                    item.id === housekeeper.id ? { ...item, status: "Approved" } : item
-                )
-            );
+            await reloadPendingList();
         } catch (err) {
             console.error(err);
             toast.error('❌ Lỗi khi duyệt hồ sơ.');
@@ -269,7 +201,6 @@ const StaffUserVerificationPage = () => {
         };
 
         try {
-            // B2: Gọi VerificationTasks/Reject
             await axios.put(`http://localhost:5280/api/VerificationTasks/Reject`, null, {
                 params: {
                     taskId: housekeeper.taskID,
@@ -280,11 +211,7 @@ const StaffUserVerificationPage = () => {
             });
 
             toast.success('✅ Đã từ chối hồ sơ!');
-            setHousekeepers((prev) =>
-                prev.map((item) =>
-                    item.id === housekeeper.id ? { ...item, status: "Rejected" } : item
-                )
-            );
+            await reloadPendingList();
         } catch (err) {
             console.error(err);
             toast.error('❌ Lỗi khi từ chối hồ sơ.');
@@ -398,144 +325,123 @@ const StaffUserVerificationPage = () => {
     return (
         <div className="dashboard-container">
             <h1>Housekeeper Management</h1>
-            {emptyMessage && (
+            {emptyMessage ? (
                 <div className="user-verification-empty-message">
                     <p>{emptyMessage}</p>
                 </div>
-            )}
+            ) : (
+                <>
 
-            {/* Ô tìm kiếm */}
-            <input
-                type="text"
-                placeholder="Search by name..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="housekeeper-search"
-            />
+                    {/* Ô tìm kiếm */}
+                    <input
+                        type="text"
+                        placeholder="Search by name..."
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        className="housekeeper-search"
+                    />
 
-            <table className="dashboard-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Nickname</th>
-                        <th>Work Type</th>
-                        <th>Phone</th>
-                        <th>Gender</th>
-                        <th>
-                            Status ({filterStatus} )
-                            <span className="filter-icon" onClick={() => setShowFilter(!showFilter)}>
-                                <FaFilter />
-                            </span>
-                            {showFilter && (
-                                <div className="filter-dropdown">
-                                    <button onClick={() => handleStatusChange("All")}>All</button>
-                                    <button onClick={() => handleStatusChange("Pending")}>Pending</button>
-                                    <button onClick={() => handleStatusChange("Approved")}>Approved</button>
-                                    <button onClick={() => handleStatusChange("Rejected")}>Rejected</button>
-                                </div>
-                            )}
-                        </th>
-                        <th>CCCD</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentRecords.map((hk) => (
-                        <tr key={hk.id}>
-                            <td>{hk.id}</td>
-                            <td>{hk.name}</td>
-                            <td>{hk.nickname}</td>
-                            <td>{hk.workType === 1 ? "Full-time" : hk.workType === 2 ? "Part-time" : "Unknown"}</td>
-                            <td>{hk.phone}</td>
-                            <td>{hk.gender === 1 ? "Nam" : hk.gender === 2 ? "Nữ" : "Khác"}</td>
-                            <td>
-                                <span className={`status-${String(hk.status || "").toLowerCase()}`}>
-                                    {hk.status}
-                                </span>
-                            </td>
-                            <td>
-                                <button className="view-cccd-btn" onClick={() => handleViewCCCD(hk)}>
-                                    View CCCD
+                    <table className="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Nickname</th>
+                                <th>Work Type</th>
+                                <th>Phone</th>
+                                <th>Gender</th>
+                                <th>
+                                    Status ({filterStatus} )
+                                    <span className="filter-icon" onClick={() => setShowFilter(!showFilter)}>
+                                        <FaFilter />
+                                    </span>
+                                    {showFilter && (
+                                        <div className="filter-dropdown">
+                                            <button onClick={() => handleStatusChange("All")}>All</button>
+                                            <button onClick={() => handleStatusChange("Pending")}>Pending</button>
+                                            <button onClick={() => handleStatusChange("Approved")}>Approved</button>
+                                            <button onClick={() => handleStatusChange("Rejected")}>Rejected</button>
+                                        </div>
+                                    )}
+                                </th>
+                                <th>CCCD</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {currentRecords.map((hk) => (
+                                <tr key={hk.id}>
+                                    <td>{hk.id}</td>
+                                    <td>{hk.name}</td>
+                                    <td>{hk.nickname}</td>
+                                    <td>{hk.workType === 1 ? "Full-time" : hk.workType === 2 ? "Part-time" : "Unknown"}</td>
+                                    <td>{hk.phone}</td>
+                                    <td>{hk.gender === 1 ? "Nam" : hk.gender === 2 ? "Nữ" : "Khác"}</td>
+                                    <td>
+                                        <span className={`status-${String(hk.status || "").toLowerCase()}`}>
+                                            {hk.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button className="view-cccd-btn" onClick={() => handleViewCCCD(hk)}>
+                                            View CCCD
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                    {/* Pagination Controls */}
+                    <div className="housekeeper-pagination">
+                        {totalPages > 15 && (
+                            <button
+                                onClick={() => paginate(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                &laquo;
+                            </button>
+                        )}
+
+                        {paginationRange.map((page, index) =>
+                            page === "..." ? (
+                                <span key={index} className="dots">...</span>
+                            ) : (
+                                <button
+                                    key={index}
+                                    onClick={() => paginate(page)}
+                                    className={currentPage === page ? "active-page" : ""}
+                                >
+                                    {page}
                                 </button>
-                            </td>
-                            <td>
-                                {hk.status === "Pending" && (
-                                    <>
-                                        <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(hk)}>
-                                            Approve
-                                        </button>
-                                        <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(hk)}>
-                                            Reject
-                                        </button>
-                                    </>
-                                )}
-                                {hk.status === "Approved" && (
-                                    <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(hk)}>
-                                        Reject
-                                    </button>
-                                )}
-                                {hk.status === "Rejected" && (
-                                    <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(hk)}>
-                                        Approve
-                                    </button>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                            )
+                        )}
 
-            {/* Pagination Controls */}
-            <div className="housekeeper-pagination">
-                {totalPages > 15 && (
-                    <button
-                        onClick={() => paginate(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
-                        &laquo;
-                    </button>
-                )}
+                        {totalPages > 15 && (
+                            <button
+                                onClick={() => paginate(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                &raquo;
+                            </button>
+                        )}
 
-                {paginationRange.map((page, index) =>
-                    page === "..." ? (
-                        <span key={index} className="dots">...</span>
-                    ) : (
-                        <button
-                            key={index}
-                            onClick={() => paginate(page)}
-                            className={currentPage === page ? "active-page" : ""}
-                        >
-                            {page}
-                        </button>
-                    )
-                )}
-
-                {totalPages > 15 && (
-                    <button
-                        onClick={() => paginate(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                        &raquo;
-                    </button>
-                )}
-
-                {/* Ô nhập số trang */}
-                {totalPages > 15 && (
-                    <form onSubmit={handlePageSubmit} className="pagination-input-form">
-                        <input
-                            type="text"
-                            className="pagination-input"
-                            value={inputPage}
-                            onChange={handlePageInput}
-                            placeholder="Go to..."
-                        />
-                        <button type="submit" className="pagination-go-btn">Go</button>
-                    </form>
-                )}
-            </div>
-
-            {/* Modal xem hình CCCD */}
+                        {/* Ô nhập số trang */}
+                        {totalPages > 15 && (
+                            <form onSubmit={handlePageSubmit} className="pagination-input-form">
+                                <input
+                                    type="text"
+                                    className="pagination-input"
+                                    value={inputPage}
+                                    onChange={handlePageInput}
+                                    placeholder="Go to..."
+                                />
+                                <button type="submit" className="pagination-go-btn">Go</button>
+                            </form>
+                        )}
+                    </div>
+                </>
+            )}
+            
             {selectedHousekeeper && (
                 <div className="modal">
                     <div className="modal-content">

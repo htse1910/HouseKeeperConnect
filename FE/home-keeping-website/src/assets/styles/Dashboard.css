@@ -344,16 +344,38 @@
 }
 
 .user-verification-empty-message {
-    text-align: center;
-    margin: 40px auto;
-    padding: 24px 16px;
-    background-color: #fff7e6;
-    color: #cc6600;
-    border: 1px solid #ffe0b2;
+    display: flex;
+    padding: 24px 32px;
+    max-width: 600px;
+    background-color: var(--accent-light, #fff7e6);
+    color: var(--main-dark, #cc6600);
+    border: 1px solid var(--secondary-light, #ffe0b2);
     border-radius: 12px;
     font-size: 1.15rem;
-    max-width: 600px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    line-height: 1.6;
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.3s ease;
+}
+
+.user-verification-empty-message p {
+    font-size: var(--font-size-label);
+}
+
+.dashboard-btn dashboard-btn-reject {
+    background-color: var(--error-color);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Thống kê thẻ tổng quan */

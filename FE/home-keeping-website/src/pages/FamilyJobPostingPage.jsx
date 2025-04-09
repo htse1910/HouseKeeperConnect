@@ -82,7 +82,7 @@ const FamilyJobPostingPage = () => {
             .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
             .then((res) => {
                 const account = res.data;
-                if (!account?.accountID) throw new Error(t("error_auth"));
+                if (!account?.accountID) throw new Error(t("error.error_auth"));
 
                 // Lấy danh sách dịch vụ
                 axios
@@ -109,7 +109,7 @@ const FamilyJobPostingPage = () => {
                     .catch((err) => console.error("Không thể lấy Family:", err));
             })
             .catch((err) => {
-                console.error(t("error_loading"), err);
+                console.error(t("error.error_loading"), err);
                 setServices([]);
                 setFamily([]);
             })
@@ -175,9 +175,6 @@ const FamilyJobPostingPage = () => {
         if (!data.Location.trim()) {
             return { msg: t("jobPost.locationRequired"), ref: locationRef };
         }
-        if (!data.Price || isNaN(data.Price) || data.Price <= 0) {
-            return { msg: t("jobPost.salaryInvalid"), ref: priceRef };
-        }
         if (!data.StartDate) {
             return { msg: t("jobPost.startDateRequired"), ref: startDateRef };
         }
@@ -210,7 +207,6 @@ const FamilyJobPostingPage = () => {
             JobName: formData.JobName,
             JobType: parseInt(formData.JobType),
             Location: formData.Location,
-            Price: parseFloat(formData.Price),
             StartDate: new Date(formData.StartDate).toISOString(),
             EndDate: new Date(formData.EndDate).toISOString(),
             Description: formData.Description,
@@ -254,7 +250,6 @@ const FamilyJobPostingPage = () => {
                 JobName: "",
                 JobType: "",
                 Location: "",
-                Price: "",
                 StartDate: defaultStart,
                 EndDate: defaultStart,
                 Description: "",
@@ -278,13 +273,54 @@ const FamilyJobPostingPage = () => {
         }
     };
 
+    const [calculatedPrice, setCalculatedPrice] = useState(0);
+
+    const calculatePrice = () => {
+        if (
+            !formData.JobType ||
+            !Array.isArray(formData.ServiceIDs) || formData.ServiceIDs.length === 0 ||
+            !Array.isArray(formData.SlotIDs) || formData.SlotIDs.length === 0 ||
+            !Array.isArray(formData.DayofWeek) || formData.DayofWeek.length === 0 ||
+            !formData.StartDate || !formData.EndDate
+        ) {
+            setCalculatedPrice(0);
+            return;
+        }
+
+        const selectedPrices = services
+            .filter(s => formData.ServiceIDs.includes(s.serviceID))
+            .map(s => s.price || 0);
+
+        const pricePerHour = selectedPrices.reduce((a, b) => a + b, 0);
+        const slotCount = formData.SlotIDs.length;
+        const dayCount = formData.DayofWeek.length;
+
+        const start = new Date(formData.StartDate);
+        const end = new Date(formData.EndDate);
+        const totalDays = (end - start) / (1000 * 60 * 60 * 24);
+        const weeks = Math.ceil(totalDays / 7);
+
+        const totalSlots = slotCount * dayCount * weeks;
+        const totalJobPrice = pricePerHour * totalSlots;
+
+        const chargeAmount = parseInt(formData.JobType) === 1
+            ? pricePerHour * slotCount * dayCount
+            : totalJobPrice;
+
+        setCalculatedPrice(chargeAmount);
+    };
+
+    useEffect(() => {
+        calculatePrice();
+    }, [formData, services]);
+
     if (shouldShowLoadingOrError) {
         return (
             <div className="job-container">
                 {loading && (
                     <>
                         <span className="icon-loading"></span>
-                        <p>{t("loading_data")}</p>
+                        <p>{t("error.loading_data")}</p>
                     </>
                 )}
                 {error && (
@@ -311,7 +347,7 @@ const FamilyJobPostingPage = () => {
                 {/* Tiêu đề & Địa điểm */}
                 <div className="job-posting-group">
                     <div className="job-posting-row">
-                        <label>{t("job_title")}</label>
+                        <label>{t("job.job_title")}</label>
                         <input
                             ref={jobNameRef}
                             type="text"
@@ -324,7 +360,7 @@ const FamilyJobPostingPage = () => {
                         />
                     </div>
                     <div className="job-posting-row">
-                        <label>{t("job_type")}</label>
+                        <label>{t("job.job_type")}</label>
                         <select
                             ref={jobTypeRef}
                             name="JobType"
@@ -339,7 +375,7 @@ const FamilyJobPostingPage = () => {
                         </select>
                     </div>
                     <div className="job-posting-row">
-                        <label>{t("location")}</label>
+                        <label>{t("misc.location")}</label>
                         <input
                             ref={locationRef}
                             type="text"
@@ -429,20 +465,21 @@ const FamilyJobPostingPage = () => {
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
                         <label>{t("salary")}</label>
-                        <div className="job-posting-price-wrapper">
-                            <input
-                                ref={priceRef}
-                                type="number"
-                                name="Price"
-                                className="job-posting-input"
-                                step="1000"
-                                min="0"
-                                value={formData.Price}
-                                onChange={handleChange}
-                                placeholder={t("jobPost.salaryPlaceholder")}
-                                required
-                            />
-                            <span className="job-posting-vnd-suffix">{t("jobPost.salaryUnit")}</span>
+                        <div className="job-posting-auto-price">
+                            <span>{calculatedPrice.toLocaleString()} {t("jobPost.salaryUnit")}</span>
+                            <p className="job-posting-note">{t("jobPost.priceAutoCalculationNote")}</p>
+                            {services.filter(s => formData.ServiceIDs.includes(s.serviceID)).length > 0 && (
+                                <ul className="job-posting-service-detail-list">
+                                    {services
+                                        .filter(s => formData.ServiceIDs.includes(s.serviceID))
+                                        .map(s => (
+                                            <li key={s.serviceID} className="job-posting-service-detail-item">
+                                                <span>{s.serviceName}</span>
+                                                <span style={{ float: "right" }}>{s.price.toLocaleString()} VNĐ/giờ</span>
+                                            </li>
+                                        ))}
+                                </ul>
+                            )}
                         </div>
                     </div>
                     <div className="job-posting-section job-posting-section-full">
