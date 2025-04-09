@@ -85,7 +85,8 @@ namespace HouseKeeperConnect_API.Controllers
                     JobDetail = jobDetail,
                     SlotIDs = jobSlots.Select(js => js.SlotID).Distinct().ToList(),
                     DayofWeek = jobSlots.Select(js => js.DayOfWeek).Distinct().ToList(),
-                    ServiceIDs = jobServices.Select(js => js.ServiceID).Distinct().ToList()
+                    ServiceIDs = jobServices.Select(js => js.ServiceID).Distinct().ToList(),
+                    booking.Status,
                 });
             }
 
