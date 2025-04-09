@@ -77,6 +77,20 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<Payout> GetPayoutByJobIDAsync(int jobID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Payout.Include(r => r.Booking.Job).FirstOrDefaultAsync(r => r.Booking.Job.JobID == jobID);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         public async Task AddPayoutAsync(Payout Payout)
         {

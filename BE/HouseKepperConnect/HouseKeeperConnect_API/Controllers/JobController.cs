@@ -27,11 +27,14 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IAccountService _accountService;
         private readonly ITransactionService _transactionService;
         private readonly IWalletService _walletService;
+        private readonly IPaymentService _paymentService;
+        private readonly IPayoutService _payoutService;
         private string Message;
         private readonly IMapper _mapper;
 
         public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService, IBooking_SlotsService bookingSlotsService, INotificationService notificationService,
-            IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService, IServiceService serviceService, IAccountService accountService, ITransactionService transactionService, IWalletService walletService)
+            IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService,
+            IServiceService serviceService, IAccountService accountService, ITransactionService transactionService, IWalletService walletService, IPaymentService paymentService, IPayoutService payoutService)
         {
             _jobService = jobService;
             _jobServiceService = job_ServiceService;
@@ -46,6 +49,8 @@ namespace HouseKeeperConnect_API.Controllers
             _accountService = accountService;
             _transactionService = transactionService;
             _walletService = walletService;
+            _paymentService = paymentService;
+            _payoutService = payoutService;
         }
 
         [HttpGet("JobList")]
@@ -442,37 +447,40 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _bookingService.AddBookingAsync(newBooking);
 
-                // 📆 Add Booking Slots with actual date
+                // 📆 Add Booking Slots with accurate calendar dates
                 DateTime currentDate = jobDetail.StartDate;
                 while (currentDate <= jobDetail.EndDate)
                 {
                     foreach (var slot in jobSlots)
                     {
-                        DateTime bookingDate = GetNextDayOfWeek(currentDate, slot.DayOfWeek);
-                        if (bookingDate > jobDetail.EndDate)
-                            continue;
-
-                        var bookingSlot = new Booking_Slots
+                        if ((int)currentDate.DayOfWeek == slot.DayOfWeek)
                         {
-                            BookingID = newBooking.BookingID,
-                            SlotID = slot.SlotID,
-                            DayOfWeek = slot.DayOfWeek,
-                            Date = bookingDate // 🆕 Assign correct calendar date
-                        };
+                            var bookingSlot = new Booking_Slots
+                            {
+                                BookingID = newBooking.BookingID,
+                                SlotID = slot.SlotID,
+                                DayOfWeek = slot.DayOfWeek,
+                                Date = currentDate
+                            };
 
-                        await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
+                            await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
+                        }
                     }
 
-                    currentDate = currentDate.AddDays(7);
+                    currentDate = currentDate.AddDays(1); // Check next day
                 }
+
+                // 🔔 Send notification
                 var notification = new Notification
                 {
-                    AccountID = job.FamilyID, // Or use job.AccountID depending on your model
+                    AccountID = job.FamilyID,
                     Message = $"Công việc của bạn '{job.JobName}' đã được chấp nhận bởi người giúp việc.",
                     CreatedDate = DateTime.Now,
                     IsRead = false
                 };
+
                 await _notificationService.AddNotificationAsync(notification);
+
                 return Ok("Job accepted, booking and booking slots created successfully.");
             }
             catch (Exception ex)
@@ -481,13 +489,6 @@ namespace HouseKeeperConnect_API.Controllers
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
-
-        private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
-        {
-            int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
-            return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
-        }
-
 
         [HttpPut("DenyJob")]
         [Authorize]
@@ -714,7 +715,7 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound("Family not found.");
 
                 bool isFamily = family.AccountID == accountId;
-                bool isHousekeeper = jobDetail.HousekeeperID == accountId;
+                bool isHousekeeper = jobDetail.Housekeeper.AccountID == accountId;
 
                 if (!isFamily && !isHousekeeper)
                     return Forbid("You are not authorized to cancel this job.");
@@ -858,6 +859,10 @@ namespace HouseKeeperConnect_API.Controllers
             var job = await _jobService.GetJobByIDAsync(jobId);
             if (job == null)
                 return NotFound("Job not found.");
+            
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+            if (jobDetail == null)
+                return NotFound("JobDetail not found.");
 
             var fa = await _familyProfileService.GetFamilyByIDAsync(job.FamilyID);
             if(fa == null)
@@ -881,7 +886,15 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (booking.HousekeeperID != hk.HousekeeperID)
                 return Unauthorized("You are not the assigned housekeeper for this booking.");
+            //Tạo đơn payout cho HK
+            var payout = new Payout();
+            payout.PayoutDate = null;
+            payout.Status = (int)PayoutStatus.Pending;
+            payout.BookingID = booking.BookingID;
+            payout.Amount = jobDetail.Price;
+            payout.HousekeeperID = hk.HousekeeperID;
 
+            await _payoutService.AddPayoutAsync(payout);
             // Update booking and job status to pending confirmation by family
             booking.Status = (int)BookingStatus.PendingFamilyConfirmation;
             await _bookingService.UpdateBookingAsync(booking);
@@ -918,6 +931,10 @@ namespace HouseKeeperConnect_API.Controllers
             if (job == null)
                 return NotFound("Job not found.");
 
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+            if (jobDetail == null)
+                return NotFound("JobDetail not found.");
+
             if (job.FamilyID != fa.FamilyID)
                 return Unauthorized("You are not the owner of this job.");
 
@@ -937,6 +954,29 @@ namespace HouseKeeperConnect_API.Controllers
             if (booking.Status != (int)BookingStatus.PendingFamilyConfirmation)
                 return BadRequest("Booking is not awaiting confirmation.");
 
+            //Tạo đơn payment cho FA
+            var payment = new Payment();
+            payment.FamilyID = fa.FamilyID;
+            payment.PaymentDate = DateTime.Now;
+            payment.Amount = jobDetail.Price;
+            payment.Commission = jobDetail.Price * 0.1m;
+            payment.JobID = job.JobID;
+            payment.Status = (int)PaymentStatus.Completed;
+
+            await _paymentService.AddPaymentAsync(payment);
+
+            //Update payout
+
+            var payout =await _payoutService.GetPayoutByJobIDAsync(job.JobID);
+            if (payout == null)
+            {
+                Message = "No payout found!";
+                return NotFound(Message);
+            }
+            payout.Status = (int)PaymentStatus.Completed;
+            payout.PayoutDate = DateTime.Now;
+
+            await _payoutService.UpdatePayoutAsync(payout);
             // Update statuses to completed
             booking.Status = (int)BookingStatus.Completed;
             await _bookingService.UpdateBookingAsync(booking);

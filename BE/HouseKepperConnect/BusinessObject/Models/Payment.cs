@@ -18,8 +18,8 @@ namespace BusinessObject.Models
 
         public decimal Amount { get; set; }
         public decimal Commission { get; set; }
-        public DateTime PaymentDate { get; set; }
-        public string Status { get; set; }
+        public DateTime PaymentDate { get; set; } = DateTime.Now;
+        public int Status { get; set; }
 
         public virtual Job Job { get; set; }
         public virtual Family Family { get; set; }

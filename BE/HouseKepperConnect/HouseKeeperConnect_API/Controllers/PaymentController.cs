@@ -1,7 +1,9 @@
-﻿using BusinessObject.Models;
+﻿using BusinessObject.DTO;
+using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -15,15 +17,23 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IPaymentService _paymentService;
         private readonly IFamilyProfileService _familyProfileService;
         private readonly INotificationService _notificationService;
+        private readonly IJobService _jobService;
+        private readonly IJob_ServiceService _job_service;
+        private readonly IHouseKeeperService _houseKeeperService;
         private string Message;
 
-        public PaymentController(ITransactionService transactionService, IWalletService walletService, IPaymentService paymentService, INotificationService notificationService, IFamilyProfileService familyProfileService)
+        public PaymentController(ITransactionService transactionService, IWalletService walletService,
+            IPaymentService paymentService, INotificationService notificationService,
+            IFamilyProfileService familyProfileService, IJobService jobService, IJob_ServiceService job_ServiceService, IHouseKeeperService houseKeeperService)
         {
             _transactionService = transactionService;
             _walletService = walletService;
             _paymentService = paymentService;
             _notificationService = notificationService;
             _familyProfileService = familyProfileService;
+            _jobService = jobService;
+            _job_service = job_ServiceService;
+            _houseKeeperService = houseKeeperService;
         }
 
 
@@ -57,8 +67,61 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No records!";
                 return NotFound(Message);
             }
+            var display = new List<PaymentIDisplayDTO>();
 
-            return Ok(list);
+            foreach (var item in list)
+            {
+
+                var job = await _jobService.GetJobByIDAsync(item.JobID);
+                if (job == null)
+                {
+                    Message = "No job found!";
+                    return NotFound(Message);
+                }
+
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+                if (jobDetail == null)
+                {
+                    Message = "No job detail found!";
+                    return NotFound(Message);
+                }
+
+                var hk = await _houseKeeperService.GetHousekeeperByIDAsync(jobDetail.HousekeeperID.GetValueOrDefault());
+                if(hk == null)
+                {
+                    Message = "No Housekeeper found!";
+                    return NotFound(Message);
+                }
+
+                var services = await _job_service.GetJob_ServicesByJobIDAsync(job.JobID);
+                if (services == null)
+                {
+                    Message = "No records!";
+                    return NotFound(Message);
+                }
+
+                var serList = new List<int>();
+                foreach (var service in services)
+                {
+                    serList.Add(service.ServiceID);
+                }
+
+                var dis = new PaymentIDisplayDTO();
+                dis.Services = serList;
+                dis.Status = (int)PaymentStatus.Completed;
+                dis.Amount = item.Amount;
+                dis.HousekeeperID = hk.HousekeeperID;
+                dis.Nickname = hk.Account.Nickname;
+                dis.PaymentID = item.PaymentID;
+                dis.JobID = job.JobID;
+                dis.JobName = job.JobName;
+                dis.PaymentDate = DateTime.Now;
+                dis.Commission = jobDetail.Price * 0.1m;
+
+                display.Add(dis);
+
+            }
+            return Ok(display);
         }
 
         [HttpGet("success")]
@@ -150,7 +213,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("CheckStatus")]
-        public async Task<IActionResult> PaymentStatus([FromQuery] int id)
+        public async Task<IActionResult> PaymentCheckStatus([FromQuery] int id)
         {
             var status = await _paymentService.GetPaymentStatus(id);
             if (status == null)

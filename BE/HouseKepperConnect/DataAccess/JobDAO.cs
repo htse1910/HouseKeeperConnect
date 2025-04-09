@@ -89,7 +89,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    job = await context.Job.Include(j => j.Family).SingleOrDefaultAsync(x => x.JobID == id);
+                    job = await context.Job.Include(j => j.Family.Account).SingleOrDefaultAsync(x => x.JobID == id);
                 }
             }
             catch (Exception ex)
@@ -150,7 +150,7 @@ namespace DataAccess
             try
             {
                 using (var context = new PCHWFDBContext())
-                    jobdetail = await context.JobDetail.SingleOrDefaultAsync(x => x.JobID == id);
+                    jobdetail = await context.JobDetail.Include(x => x.Housekeeper).SingleOrDefaultAsync(x => x.JobID == id);
             }
             catch (Exception ex)
             {

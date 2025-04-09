@@ -14,7 +14,7 @@ namespace BusinessObject.DTO
         public int PaymentID { get; set; }
         public int JobID { get; set; }
         public string JobName { get; set; }
-        public List<Service> Services { get; set; }
+        public List<int> Services { get; set; }
         public int HousekeeperID { get; set; }
         public string Avatar {  get; set; }
         public string Nickname { get; set; }
@@ -22,6 +22,6 @@ namespace BusinessObject.DTO
         public decimal Amount { get; set; }
         public decimal Commission { get; set; }
         public DateTime PaymentDate { get; set; }
-        public string Status { get; set; }
+        public int Status { get; set; }
     }
 }
