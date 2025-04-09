@@ -442,37 +442,40 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _bookingService.AddBookingAsync(newBooking);
 
-                // 📆 Add Booking Slots with actual date
+                // 📆 Add Booking Slots with accurate calendar dates
                 DateTime currentDate = jobDetail.StartDate;
                 while (currentDate <= jobDetail.EndDate)
                 {
                     foreach (var slot in jobSlots)
                     {
-                        DateTime bookingDate = GetNextDayOfWeek(currentDate, slot.DayOfWeek);
-                        if (bookingDate > jobDetail.EndDate)
-                            continue;
-
-                        var bookingSlot = new Booking_Slots
+                        if ((int)currentDate.DayOfWeek == slot.DayOfWeek)
                         {
-                            BookingID = newBooking.BookingID,
-                            SlotID = slot.SlotID,
-                            DayOfWeek = slot.DayOfWeek,
-                            Date = bookingDate // 🆕 Assign correct calendar date
-                        };
+                            var bookingSlot = new Booking_Slots
+                            {
+                                BookingID = newBooking.BookingID,
+                                SlotID = slot.SlotID,
+                                DayOfWeek = slot.DayOfWeek,
+                                Date = currentDate
+                            };
 
-                        await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
+                            await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
+                        }
                     }
 
-                    currentDate = currentDate.AddDays(7);
+                    currentDate = currentDate.AddDays(1); // Check next day
                 }
+
+                // 🔔 Send notification
                 var notification = new Notification
                 {
-                    AccountID = job.FamilyID, // Or use job.AccountID depending on your model
+                    AccountID = job.FamilyID,
                     Message = $"Công việc của bạn '{job.JobName}' đã được chấp nhận bởi người giúp việc.",
                     CreatedDate = DateTime.Now,
                     IsRead = false
                 };
+
                 await _notificationService.AddNotificationAsync(notification);
+
                 return Ok("Job accepted, booking and booking slots created successfully.");
             }
             catch (Exception ex)
@@ -481,13 +484,6 @@ namespace HouseKeeperConnect_API.Controllers
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
-
-        private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
-        {
-            int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
-            return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
-        }
-
 
         [HttpPut("DenyJob")]
         [Authorize]
