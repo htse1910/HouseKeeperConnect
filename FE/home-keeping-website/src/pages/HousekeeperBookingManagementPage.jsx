@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaMoneyBillWave,
-  FaMapMarkerAlt,
-  FaBriefcase,
-  FaUser,
-  FaCalendarAlt,
-  FaFileAlt,
-  FaClock
-} from "react-icons/fa";
+import BookingCard from "../components/BookingCard";
+import { Modal, Button } from "react-bootstrap";
 import { serviceMap } from "../utils/serviceMap";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import BookingDetailModal from "../components/BookingDetailModal";
 
 const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 const slotMap = {
@@ -24,8 +20,62 @@ const slotMap = {
 const HousekeeperBookingManagementPage = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedDay, setSelectedDay] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [matchedDate, setMatchedDate] = useState(null);
+  const [isToday, setIsToday] = useState(false);
+
   const housekeeperID = localStorage.getItem("housekeeperID");
   const authToken = localStorage.getItem("authToken");
+
+  const openDayModal = (booking, dayIndex) => {
+    const start = new Date(booking.startDate.split("/").reverse().join("-"));
+    const end = new Date(booking.endDate.split("/").reverse().join("-"));
+
+    const now = new Date();
+    const currentWeekDay = now.getDay();
+    const diff = dayIndex - currentWeekDay;
+    const matched = new Date(now);
+    matched.setDate(now.getDate() + diff);
+
+    if (matched >= start && matched <= end) {
+      const today = new Date();
+      const isSameDate = today.toDateString() === matched.toDateString();
+
+      setSelectedBooking(booking);
+      setSelectedDay(dayNames[dayIndex]);
+      setMatchedDate(matched);
+      setIsToday(isSameDate);
+      setShowModal(true);
+    } else {
+      alert("Ngày này không nằm trong phạm vi công việc.");
+    }
+  };
+
+  const handleCheckIn = async () => {
+    if (!selectedBooking) return;
+
+    try {
+      const res = await fetch(`http://localhost:5280/api/Job/CheckIn?bookingId=${selectedBooking.bookingID}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`
+        }
+      });
+
+      if (res.ok) {
+        toast.success("✅ Check-in thành công!");
+        setShowModal(false);
+      } else {
+        const errorMsg = await res.text();
+        toast.error(`❌ Check-in thất bại: ${errorMsg}`);
+      }
+    } catch (err) {
+      toast.error("🚫 Lỗi khi check-in.");
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,6 +113,7 @@ const HousekeeperBookingManagementPage = () => {
 
             return {
               bookingID: booking.bookingID,
+              jobID: jobDetail?.jobID, // ✅ add this line
               jobName: jobDetail?.jobName || "Đang cập nhật",
               familyName,
               location: jobDetail?.location || "Đang cập nhật",
@@ -70,15 +121,9 @@ const HousekeeperBookingManagementPage = () => {
               startDate: jobDetail?.startDate ? new Date(jobDetail.startDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
               endDate: jobDetail?.endDate ? new Date(jobDetail.endDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
               description: jobDetail?.description || "Đang cập nhật",
-              slot: Array.isArray(jobDetail?.slotIDs)
-                ? jobDetail.slotIDs.map(s => slotMap[s] || `Slot ${s}`)
-                : [],
-              days: Array.isArray(jobDetail?.dayofWeek)
-                ? jobDetail.dayofWeek.map(d => dayNames[d])
-                : [],
-              services: Array.isArray(jobDetail?.serviceIDs)
-                ? jobDetail.serviceIDs.map(id => serviceMap[id])
-                : []
+              slot: Array.isArray(jobDetail?.slotIDs) ? jobDetail.slotIDs.map(s => slotMap[s] || `Slot ${s}`) : [],
+              days: Array.isArray(jobDetail?.dayofWeek) ? jobDetail.dayofWeek.map(d => dayNames[d]) : [],
+              services: Array.isArray(jobDetail?.serviceIDs) ? jobDetail.serviceIDs.map(id => serviceMap[id]) : []
             };
           })
         );
@@ -96,6 +141,7 @@ const HousekeeperBookingManagementPage = () => {
 
   return (
     <div className="container py-4">
+      <ToastContainer />
       <h4 className="fw-bold mb-4 text-primary">📋 Danh sách đặt công việc</h4>
 
       {loading ? (
@@ -106,80 +152,22 @@ const HousekeeperBookingManagementPage = () => {
         <div className="row g-3">
           {rows.map((row, idx) => (
             <div className="col-12" key={idx}>
-              <div className="card shadow-sm border-0 rounded-3 p-2 mb-4">
-                <div className="d-flex justify-content-between align-items-center mb-1">
-                  <h6 className="fw-bold mb-0">
-                    <FaBriefcase className="me-2 text-warning" />
-                    {row.jobName}
-                  </h6>
-                  <span className="text-muted small">#{row.bookingID}</span>
-                </div>
-
-                <div className="mb-1 text-muted small d-flex align-items-center">
-                  <FaUser className="me-1" />
-                  <span className="me-1"><strong>Gia đình:</strong></span> {row.familyName}
-                </div>
-
-                <div className="d-flex flex-wrap mb-1">
-                  <div className="small me-3 d-flex align-items-center">
-                    <FaMapMarkerAlt className="me-1 text-danger" />
-                    <strong>Địa điểm:</strong> {row.location}
-                  </div>
-                  <div className="small d-flex align-items-center">
-                    <FaMoneyBillWave className="me-1 text-success" />
-                    <strong>Lương:</strong> {row.price}
-                  </div>
-                </div>
-
-                <div className="d-flex flex-wrap mb-1">
-                  <div className="small me-3 d-flex align-items-center">
-                    <FaCalendarAlt className="me-1 text-primary" />
-                    <strong>Bắt đầu:</strong> {row.startDate}
-                  </div>
-                  <div className="small d-flex align-items-center">
-                    <FaCalendarAlt className="me-1 text-danger" />
-                    <strong>Kết thúc:</strong> {row.endDate}
-                  </div>
-                </div>
-
-                <div className="mb-1 small d-flex align-items-center">
-                  <FaFileAlt className="me-1 text-secondary" />
-                  <strong>Mô tả:</strong> {row.description}
-                </div>
-
-                <div className="d-flex flex-wrap">
-                  <div className="col-12 col-md-4 small">
-                    <strong>
-                      <FaClock className="me-1 text-info" />Ca làm việc:
-                    </strong>
-                    <ul className="ps-3 mb-0">
-                      {row.slot.map((s, i) => (
-                        <li key={i} className="text-info">{s}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="col-12 col-md-4 small">
-                    <strong>📅 Thứ:</strong>
-                    <ul className="ps-3 mb-0">
-                      {row.days.map((d, i) => (
-                        <li key={i} className="text-warning">{d}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="col-12 col-md-4 small">
-                    <strong>🛎️ Dịch vụ:</strong>
-                    <ul className="ps-3 mb-0">
-                      {row.services.map((s, i) => (
-                        <li key={i} className="text-success">{s}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
+              <BookingCard row={row} onDayClick={openDayModal} />
             </div>
           ))}
         </div>
       )}
+
+      <BookingDetailModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        booking={selectedBooking}
+        selectedDay={selectedDay}
+        matchedDate={matchedDate}
+        isToday={isToday}
+        onCheckIn={handleCheckIn}
+      />
+
     </div>
   );
 };
