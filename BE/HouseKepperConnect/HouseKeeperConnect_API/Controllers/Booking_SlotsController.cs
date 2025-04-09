@@ -75,5 +75,19 @@ namespace HouseKeeperConnect_API.Controllers
             var availableSlots = await _bookingSlotsService.GetAvailableSlotsByHousekeeper(housekeeperId, startDate, endDate);
             return Ok(availableSlots);
         }
+        [HttpGet("GetBookingSlotsByDateAndBookingID")]
+        [Authorize]
+        public async Task<ActionResult<List<Booking_Slots>>> GetBookingSlotsByDateAndBookingID([FromQuery] int bookingId, [FromQuery] DateTime date)
+        {
+            if (bookingId <= 0)
+                return BadRequest("Invalid Booking ID.");
+
+            var slots = await _bookingSlotsService.GetBookingSlotsByDateAndBookingIDAsync(bookingId, date);
+            if (slots == null || !slots.Any())
+                return NotFound("No booking slots found for the specified booking ID and date.");
+
+            return Ok(slots);
+        }
+
     }
 }
