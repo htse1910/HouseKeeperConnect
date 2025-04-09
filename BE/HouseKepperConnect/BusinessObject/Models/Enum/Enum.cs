@@ -44,6 +44,7 @@
         Expired = 5,
         Canceled = 6,
         NotPermitted = 7,
+        PendingFamilyConfirmation = 8
     }
 
     public enum ReportStatus
@@ -59,6 +60,7 @@
         Accepted = 3,
         Completed = 4,
         Canceled = 5,
+        PendingFamilyConfirmation = 6
     }
 
     public enum WithdrawStatus
