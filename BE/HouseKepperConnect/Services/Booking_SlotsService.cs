@@ -58,5 +58,10 @@ namespace Services
         {
             await _bookingSlotsRepository.UpdateBooking_SlotAsync(bookingSlot);
         }
+        public async Task<List<Booking_Slots>> GetBookingSlotsByDateAndBookingIDAsync(int bookingId, DateTime date)
+        {
+            return await _bookingSlotsRepository.GetBookingSlotsByDateAndBookingIDAsync(bookingId, date);
+        }
+
     }
 }
