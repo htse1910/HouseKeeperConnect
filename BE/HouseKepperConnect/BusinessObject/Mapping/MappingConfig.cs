@@ -20,8 +20,6 @@ namespace BusinessObject.Mapping
             Map_Update_HouseKeeper();
             Map_Create_HouseKeeper();
             Map_Display_HouseKeeper();
-            Map_Create_Schedule();
-            Map_Update_Schedule();
             Map_Create_Job();
             Map_Update_Job();
             Map_Create_Booking();
@@ -29,9 +27,6 @@ namespace BusinessObject.Mapping
             Map_Chat();
             Map_List_Admin_Update_Account();
             Map_List_Pending_Housekeeper();
-            Map_List_Display_Report();
-            Map_Create_Report();
-            Map_Update_Report();
             Map_Update_Withdraw();
             Map_Create_Withdraw();
             Map_Display_Withdraw();
@@ -91,11 +86,6 @@ namespace BusinessObject.Mapping
             CreateMap<Account, AccountDisplayDTO>().ReverseMap();
         }
 
-        private void Map_List_Display_Report()
-        {
-            CreateMap<Report, ReportDisplayDTO>().ReverseMap();
-        }
-
         private void Map_Add_Family_Profile()
         {
             CreateMap<Family, AddFamilyProfileDTO>().ReverseMap();
@@ -113,11 +103,6 @@ namespace BusinessObject.Mapping
 
             CreateMap<FamilyUpdateDTO, Account>()
                 .ForMember(f => f.LocalProfilePicture, opt => opt.Ignore());
-        }
-
-        private void Map_Update_Report()
-        {
-            CreateMap<Report, ReportUpdateDTO>().ReverseMap();
         }
 
         private void Map_Update_HouseKeeper()
@@ -145,20 +130,6 @@ namespace BusinessObject.Mapping
             CreateMap<HouseKeeperCreateDTO, Housekeeper>();
         }
 
-        private void Map_Create_Schedule()
-        {
-            CreateMap<ScheduleCreateDTO, Housekeeper_Schedule>();
-        }
-
-        private void Map_Create_Report()
-        {
-            CreateMap<ReportCreateDTO, Report>();
-        }
-
-        private void Map_Update_Schedule()
-        {
-            CreateMap<ScheduleUpdateDTO, Housekeeper_Schedule>();
-        }
 
         private void Map_Create_Job()
         {

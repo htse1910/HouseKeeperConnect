@@ -907,6 +907,14 @@ namespace HouseKeeperConnect_API.Controllers
             payout.HousekeeperID = hk.HousekeeperID;
 
             await _payoutService.AddPayoutAsync(payout);
+
+            //Cập tiền vào ví OnHold
+
+            var wallet = await _walletService.GetWalletByIDAsync(hk.AccountID);
+            wallet.OnHold += jobDetail.Price;
+            wallet.UpdatedAt = DateTime.Now;
+
+            await _walletService.UpdateWalletAsync(wallet);
             // Update booking and job status to pending confirmation by family
             booking.Status = (int)BookingStatus.PendingFamilyConfirmation;
             await _bookingService.UpdateBookingAsync(booking);
@@ -976,6 +984,23 @@ namespace HouseKeeperConnect_API.Controllers
             payment.Status = (int)PaymentStatus.Completed;
 
             await _paymentService.AddPaymentAsync(payment);
+
+            //Cập nhật tiền vào balance ví HK
+
+            var wallet = await _walletService.GetWalletByIDAsync(jobDetail.HousekeeperID.GetValueOrDefault());
+            if(wallet  == null)
+            {
+                Message = "Wallet not found!";
+                return NotFound(Message);
+            }
+
+            if(wallet.OnHold == jobDetail.Price)
+            {
+                wallet.Balance += wallet.OnHold;
+                wallet.OnHold -= jobDetail.Price;
+            }
+            wallet.UpdatedAt = DateTime.Now;
+            await _walletService.UpdateWalletAsync(wallet);
 
             //Update payout
 

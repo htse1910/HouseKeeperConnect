@@ -22,8 +22,6 @@ public static class ServiceExtentions
         services.AddScoped<IHouseKeeperService, HouseKeeperService>();
         services.AddScoped<IFamilyProfileRepository, FamilyProfileRepository>();
         services.AddScoped<IFamilyProfileService, FamilyProfileService>();
-        services.AddScoped<IScheduleRepository, ScheduleRepository>();
-        services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<IIDVerificationService, IDVerificationService>();
         services.AddScoped<IIDVerificationRepository, IDVerificationRepository>();
         services.AddScoped<IJobRepository, JobRepository>();
@@ -32,8 +30,6 @@ public static class ServiceExtentions
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IBookingRepository, BookingRepository>();
-        services.AddScoped<IReportService, ReportService>();
-        services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<IWithdrawRepository, WithdrawRepository>();
         services.AddScoped<IWithdrawService, WithdrawService>();
         services.AddScoped<IServiceRepository, ServiceRepository>();
@@ -60,8 +56,6 @@ public static class ServiceExtentions
         services.AddScoped<IRatingService, RatingService>();
         services.AddScoped<IApplicationRepository, ApplicationRepository>();
         services.AddScoped<IApplicationService, ApplicationService>();
-        services.AddScoped<IJobListing_ApplicationRepository, JobListing_ApplicationRepository>();
-        services.AddScoped<IJobListing_ApplicationService, JobListing_ApplicationService>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IPayoutRepository, PayoutRepository>();
