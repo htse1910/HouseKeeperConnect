@@ -1271,3 +1271,26 @@
 .pagination-go-btn:hover {
     background: var(--main-color-darker);
 }
+
+.stat-card-wrapper {
+    position: relative;
+}
+
+.joblist-button-top-right {
+    position: absolute;
+    top: 199px;
+    right: 75px;
+    background-color: #ffa726;
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 10;
+    transition: background-color 0.2s ease;
+}
+
+.joblist-button-top-right:hover {
+    background-color: #fb8c00;
+}

@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import BookingCard from "../components/BookingCard";
-import { Modal, Button } from "react-bootstrap";
 import {
   FaMoneyBillWave,
   FaMapMarkerAlt,
@@ -14,9 +12,6 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { serviceMap } from "../utils/serviceMap";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import BookingDetailModal from "../components/BookingDetailModal";
 
 const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 const slotMap = {
@@ -32,12 +27,6 @@ const slotMap = {
 const HousekeeperBookingManagementPage = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedBooking, setSelectedBooking] = useState(null);
-  const [selectedDay, setSelectedDay] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [matchedDate, setMatchedDate] = useState(null);
-  const [isToday, setIsToday] = useState(false);
-
   const housekeeperID = localStorage.getItem("housekeeperID");
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
@@ -115,7 +104,6 @@ const HousekeeperBookingManagementPage = () => {
             return {
               jobID: booking.jobID,
               bookingID: booking.bookingID,
-              jobID: jobDetail?.jobID, // ✅ add this line
               jobName: jobDetail?.jobName || "Đang cập nhật",
               familyName,
               status: booking.status,
@@ -209,17 +197,6 @@ const HousekeeperBookingManagementPage = () => {
           ))}
         </div>
       )}
-
-      <BookingDetailModal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        booking={selectedBooking}
-        selectedDay={selectedDay}
-        matchedDate={matchedDate}
-        isToday={isToday}
-        onCheckIn={handleCheckIn}
-      />
-
     </div>
   );
 };

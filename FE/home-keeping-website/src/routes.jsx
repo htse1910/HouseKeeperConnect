@@ -48,6 +48,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminAccountPage from './pages/AdminAccountPage';
 import AdminServicesPage from './pages/AdminServicesPage';
 import AdminTransactionPage from './pages/AdminTransactionPage';
+import JobListOfFamily from './pages/JobListOfFamily.jsx';
 
 function AppRoutes() {
   return (
@@ -103,6 +104,7 @@ function AppRoutes() {
         <Route path="/family/deposit/return" element={<FamilyDepositReturnPage />} />
         <Route path="/family/transactions" element={<FamilyTransactionPage />} />
         <Route path="/family/messages" element={<FamilyMessagesPage />} />
+        <Route path="/family/jobs" element={<JobListOfFamily />} />
 
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
