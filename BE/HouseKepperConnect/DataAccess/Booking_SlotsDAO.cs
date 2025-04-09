@@ -118,5 +118,13 @@ namespace DataAccess
                 await context.SaveChangesAsync();
             }
         }
+        public async Task<List<Booking_Slots>> GetBookingSlotsByDateAndBookingIDAsync(int bookingId, DateTime date)
+        {
+            using var context = new PCHWFDBContext();
+            return await context.Booking_Slots
+                .Where(bs => bs.BookingID == bookingId && bs.Date == date.Date)
+                .ToListAsync();
+        }
+
     }
 }
