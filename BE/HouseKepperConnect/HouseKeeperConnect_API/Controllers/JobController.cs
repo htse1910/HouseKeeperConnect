@@ -810,6 +810,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok("Slot confirmed successfully.");
         }
+
         [HttpPost("HousekeeperCompleteJob")]
         [Authorize(Roles = "Housekeeper")]
         public async Task<IActionResult> HousekeeperCompleteJob([FromQuery] int jobId)
@@ -844,12 +845,66 @@ namespace HouseKeeperConnect_API.Controllers
 
             job.Status = (int)JobStatus.PendingFamilyConfirmation;
             await _jobService.UpdateJobAsync(job);
+            
+            // Send notification to family
+            await _notificationService.AddNotificationAsync(new Notification
+            {
+                AccountID = job.FamilyID,
+                Message = $"Housekeeper has marked job #{job.JobID} as completed. Please confirm.",
+                RedirectUrl = $"/jobs/{job.JobID}",
+                CreatedDate = DateTime.Now
+            });
 
             return Ok("Job marked as completed, awaiting family confirmation.");
         }
 
+        [HttpPost("ConfirmJobCompletion")]
+        [Authorize(Roles = "Family")]
+        public async Task<IActionResult> ConfirmJobCompletion([FromQuery] int jobId)
+        {
+            // Get current family user ID from token
+            var userId = int.Parse(User.FindFirst("UserID").Value);
 
+            // Get the job
+            var job = await _jobService.GetJobByIDAsync(jobId);
+            if (job == null)
+                return NotFound("Job not found.");
 
+            if (job.FamilyID != userId)
+                return Unauthorized("You are not the owner of this job.");
 
+            if (job.Status != (int)JobStatus.PendingFamilyConfirmation)
+                return BadRequest("Job is not awaiting confirmation.");
+
+            // Get the booking for the job
+            var bookings = await _bookingService.GetBookingsByJobIDAsync(jobId);
+            if (bookings == null || !bookings.Any())
+                return NotFound("No bookings found for this job.");
+
+            var booking = bookings.FirstOrDefault(b => b.Status != (int)BookingStatus.Canceled);
+            if (booking == null)
+                return NotFound("No valid (non-canceled) booking found.");
+
+            if (booking.Status != (int)BookingStatus.PendingFamilyConfirmation)
+                return BadRequest("Booking is not awaiting confirmation.");
+
+            // Update statuses to completed
+            booking.Status = (int)BookingStatus.Completed;
+            await _bookingService.UpdateBookingAsync(booking);
+
+            job.Status = (int)JobStatus.Completed;
+            await _jobService.UpdateJobAsync(job);
+
+            // Notify housekeeper
+            await _notificationService.AddNotificationAsync(new Notification
+            {
+                AccountID = booking.HousekeeperID,
+                Message = $"Family has confirmed completion for job #{job.JobID}. Well done!",
+                RedirectUrl = $"/jobs/{job.JobID}",
+                CreatedDate = DateTime.Now
+            });
+
+            return Ok("Job and booking successfully marked as completed.");
+        }
     }
 }
