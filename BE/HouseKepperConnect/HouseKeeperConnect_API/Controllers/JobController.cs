@@ -375,25 +375,22 @@ namespace HouseKeeperConnect_API.Controllers
             try
             {
                 var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
-
                 if (hk == null)
                 {
                     return NotFound("Housekeeper not found.");
                 }
-                // Retrieve the job details
+
                 var job = await _jobService.GetJobByIDAsync(jobId);
                 if (job == null)
                 {
                     return NotFound("Job not found.");
                 }
 
-                // If the job has already been accepted, return an error
                 if (job.Status == 3)
                 {
                     return BadRequest("Job has already been accepted.");
                 }
 
-                // Retrieve job details for booking slots (JobDetail)
                 var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
                 if (jobDetail == null)
                 {
@@ -404,12 +401,24 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     jobDetail.HousekeeperID = hk.HousekeeperID;
                 }
-                var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
 
-                // Ensure there are no conflicting bookings for the given slots
+                var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
+                if (jobSlots == null || !jobSlots.Any())
+                {
+                    return BadRequest("No slots found for the job.");
+                }
+
+                // 🔒 Check for conflicting bookings
                 foreach (var slot in jobSlots)
                 {
-                    bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(jobDetail.HousekeeperID.Value, slot.SlotID, slot.DayOfWeek, jobDetail.StartDate, jobDetail.EndDate);
+                    bool isSlotBooked = await _bookingSlotsService.IsSlotBooked(
+                        jobDetail.HousekeeperID.Value,
+                        slot.SlotID,
+                        slot.DayOfWeek,
+                        jobDetail.StartDate,
+                        jobDetail.EndDate
+                    );
+
                     if (isSlotBooked)
                     {
                         job.Status = 2;
@@ -417,12 +426,12 @@ namespace HouseKeeperConnect_API.Controllers
                         return Conflict($"Slot {slot.SlotID} on day {slot.DayOfWeek} is already booked.");
                     }
                 }
-                job.Status = 3;
-                // Set job status to Accepted
 
+                // ✅ Accept job
+                job.Status = 3;
                 await _jobService.UpdateJobAsync(job);
 
-                // Create the booking
+                // 📅 Create Booking
                 var newBooking = new Booking
                 {
                     JobID = jobId,
@@ -433,17 +442,28 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _bookingService.AddBookingAsync(newBooking);
 
-                // Create the booking slots
-                foreach (var slot in jobSlots)
+                // 📆 Add Booking Slots with actual date
+                DateTime currentDate = jobDetail.StartDate;
+                while (currentDate <= jobDetail.EndDate)
                 {
-                    var bookingSlot = new Booking_Slots
+                    foreach (var slot in jobSlots)
                     {
-                        BookingID = newBooking.BookingID,
-                        SlotID = slot.SlotID,
-                        DayOfWeek = slot.DayOfWeek
-                    };
+                        DateTime bookingDate = GetNextDayOfWeek(currentDate, slot.DayOfWeek);
+                        if (bookingDate > jobDetail.EndDate)
+                            continue;
 
-                    await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
+                        var bookingSlot = new Booking_Slots
+                        {
+                            BookingID = newBooking.BookingID,
+                            SlotID = slot.SlotID,
+                            DayOfWeek = slot.DayOfWeek,
+                            Date = bookingDate // 🆕 Assign correct calendar date
+                        };
+
+                        await _bookingSlotsService.AddBooking_SlotsAsync(bookingSlot);
+                    }
+
+                    currentDate = currentDate.AddDays(7);
                 }
 
                 return Ok("Job accepted, booking and booking slots created successfully.");
@@ -454,6 +474,13 @@ namespace HouseKeeperConnect_API.Controllers
                 return StatusCode(500, "An internal server error occurred.");
             }
         }
+
+        private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
+        {
+            int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
+            return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
+        }
+
 
         [HttpPut("DenyJob")]
         [Authorize]
@@ -745,75 +772,55 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
         [HttpPost("CheckIn")]
-        [Authorize(Policy = "Housekeeper")]
-        public async Task<ActionResult> CheckIn([FromQuery] int bookingId, [FromQuery] int slotId, int accountID)
+        [Authorize(Roles = "Housekeeper")]
+        public async Task<ActionResult> CheckIn([FromQuery] int bookingSlotId)
         {
-            /*// Get current user
-            var userId = int.Parse(User.FindFirst("UserID").Value);*/
-            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
-            if (hk == null)
-            {
-                Message = "Account not found!";
-                return NotFound(Message);
-            }
+            // Get the Booking_Slot by ID using service
+            var bookingSlot = await _bookingSlotsService.GetBooking_SlotsByIDAsync(bookingSlotId);
+            if (bookingSlot == null)
+                return NotFound("Booking slot not found.");
 
+            // Check if the slot's date is today
+            if (bookingSlot.Date != DateTime.Today)
+                return BadRequest("You can only check in on the correct date.");
 
-            // Get all slots for the booking
-            var bookingSlots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(bookingId);
-            if (bookingSlots == null || !bookingSlots.Any())
-                return NotFound("No slots found for this booking.");
-
-            // Find the specific slot
-            var targetSlot = bookingSlots.FirstOrDefault(bs => bs.SlotID == slotId);
-            if (targetSlot == null)
-                return NotFound("Slot not found for this booking.");
-
-            if (targetSlot.IsCheckedIn)
+            if (bookingSlot.IsCheckedIn)
                 return BadRequest("Already checked in for this slot.");
 
-            // Optional: validate that current housekeeper owns this booking
-            var booking = await _bookingService.GetBookingByIDAsync(bookingId);
-            if (booking == null || booking.HousekeeperID != hk.HousekeeperID)
-                return Unauthorized("You are not assigned to this booking.");
-
             // Mark check-in
-            targetSlot.IsCheckedIn = true;
-            targetSlot.CheckInTime = DateTime.Now;
+            bookingSlot.IsCheckedIn = true;
+            bookingSlot.CheckInTime = DateTime.Now;
 
-            await _bookingSlotsService.UpdateBooking_SlotAsync(targetSlot);
+            await _bookingSlotsService.UpdateBooking_SlotAsync(bookingSlot);
 
             return Ok("Checked in successfully.");
         }
+
         [HttpPost("ConfirmSlotWorked")]
-        [Authorize(Policy = "Family")]
-        public async Task<IActionResult> ConfirmSlotWorked(int bookingId, int slotId)
+        [Authorize(Roles = "Family")]
+        public async Task<IActionResult> ConfirmSlotWorked([FromQuery] int bookingSlotId)
         {
-            // Get all slots for the booking
-            var bookingSlots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(bookingId);
-            if (bookingSlots == null || !bookingSlots.Any())
-            {
-                return NotFound("No slots found for this booking.");
-            }
-
-            // Find the specific slot by slotId
-            var bookingSlot = bookingSlots.FirstOrDefault(bs => bs.SlotID == slotId);
+            // Get the Booking_Slot by ID
+            var bookingSlot = await _bookingSlotsService.GetBooking_SlotsByIDAsync(bookingSlotId);
             if (bookingSlot == null)
-            {
                 return NotFound("Booking slot not found.");
-            }
 
+            // Check if the slot date is today
+            if (bookingSlot.Date != DateTime.Today)
+                return BadRequest("You can only confirm the slot on the correct date.");
+
+            // Check if housekeeper checked in
             if (!bookingSlot.IsCheckedIn)
-            {
                 return BadRequest("Housekeeper did not check in for this slot.");
-            }
 
+            // Check if already confirmed
             if (bookingSlot.IsConfirmedByFamily)
-            {
                 return BadRequest("Slot already confirmed.");
-            }
 
+            // Confirm it
             bookingSlot.IsConfirmedByFamily = true;
             bookingSlot.ConfirmedAt = DateTime.Now;
+
             await _bookingSlotsService.UpdateBooking_SlotAsync(bookingSlot);
 
             return Ok("Slot confirmed successfully.");

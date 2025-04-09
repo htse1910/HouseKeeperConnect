@@ -3,6 +3,7 @@ using BusinessObject.DTO;
 using BusinessObject.DTOs;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
+using DataAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -180,6 +181,7 @@ namespace HouseKeeperConnect_API.Controllers
                             BookingID = newBooking.BookingID,
                             SlotID = slot.SlotID,
                             DayOfWeek = slot.DayOfWeek,
+                            Date = bookingDate,
                         };
 
                         await _bookingSlotsService.AddBooking_SlotsAsync(newBookingSlot);
