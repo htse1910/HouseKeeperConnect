@@ -30,7 +30,6 @@ import FamilyHousekeeperSearchPage from './pages/FamilyHousekeeperSearchPage';
 import FamilyHousekeeperViewPage from './pages/FamilyHousekeeperViewPage';
 import FamilyInvitationPage from './pages/FamilyInvitationPage';
 import FamilyTransactionPage from './pages/FamilyTransactionPage';
-import HousekeeperScheduleManagement from './pages/HousekeeperScheduleManagement';
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
 import FamilyJobDetailsPage from './pages/FamilyJobDetailsPage';
 import FamilyDepositPage from "./pages/FamilyDepositPage";
@@ -49,6 +48,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminAccountPage from './pages/AdminAccountPage';
 import AdminServicesPage from './pages/AdminServicesPage';
 import AdminTransactionPage from './pages/AdminTransactionPage';
+import JobListOfFamily from './pages/JobListOfFamily.jsx';
 
 function AppRoutes() {
   return (
@@ -78,7 +78,6 @@ function AppRoutes() {
         <Route path="/my-jobs" element={<HouseKeeperManagePage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/housekeeper/profile/update/:id" element={<UpdateHousekeeperAccountPage />} />
-        <Route path="/housekeeper/schedule" element={<HousekeeperScheduleManagement />} />
         <Route path="/housekeeper/upload-id" element={<IDVerificationCreatePage />} />
         <Route path="/housekeeper/update-verification" element={<UpdateVerificationPage />} />
         <Route path="/housekeeper/wallet" element={<HousekeeperWalletPage />} /> {/* ✅ New route */}
@@ -105,6 +104,7 @@ function AppRoutes() {
         <Route path="/family/deposit/return" element={<FamilyDepositReturnPage />} />
         <Route path="/family/transactions" element={<FamilyTransactionPage />} />
         <Route path="/family/messages" element={<FamilyMessagesPage />} />
+        <Route path="/family/jobs" element={<JobListOfFamily />} />
 
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />

@@ -7,7 +7,7 @@ import {
   FaCalendarAlt,
   FaFileAlt,
   FaClock,
-  FaCheckCircle,
+  FaCheckCircle
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,8 +27,8 @@ const slotMap = {
 const HousekeeperBookingManagementPage = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const housekeeperID = localStorage.getItem("housekeeperID");
   const accountID = localStorage.getItem("accountID");
+  const housekeeperID = localStorage.getItem("housekeeperID");
   const authToken = localStorage.getItem("authToken");
 
   const handleMarkComplete = async (jobID) => {
@@ -112,9 +112,15 @@ const HousekeeperBookingManagementPage = () => {
               startDate: jobDetail?.startDate ? new Date(jobDetail.startDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
               endDate: jobDetail?.endDate ? new Date(jobDetail.endDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
               description: jobDetail?.description || "Đang cập nhật",
-              slot: Array.isArray(jobDetail?.slotIDs) ? jobDetail.slotIDs.map(s => slotMap[s] || `Slot ${s}`) : [],
-              days: Array.isArray(jobDetail?.dayofWeek) ? jobDetail.dayofWeek.map(d => dayNames[d]) : [],
-              services: Array.isArray(jobDetail?.serviceIDs) ? jobDetail.serviceIDs.map(id => serviceMap[id]) : []
+              slot: Array.isArray(jobDetail?.slotIDs)
+                ? jobDetail.slotIDs.map(s => slotMap[s] || `Slot ${s}`)
+                : [],
+              days: Array.isArray(jobDetail?.dayofWeek)
+                ? jobDetail.dayofWeek.map(d => dayNames[d])
+                : [],
+              services: Array.isArray(jobDetail?.serviceIDs)
+                ? jobDetail.serviceIDs.map(id => serviceMap[id])
+                : []
             };
           })
         );
@@ -132,7 +138,7 @@ const HousekeeperBookingManagementPage = () => {
 
   return (
     <div className="container py-4">
-      <ToastContainer position="top-center" autoClose={3000} />
+      <ToastContainer/>
       <h4 className="fw-bold mb-4 text-primary">📋 Danh sách đặt công việc</h4>
 
       {loading ? (
@@ -143,8 +149,8 @@ const HousekeeperBookingManagementPage = () => {
         <div className="row g-3">
           {rows.map((row, idx) => (
             <div className="col-12" key={idx}>
-              <div className="card shadow-sm border-0 rounded-3 p-3 mb-4">
-                <div className="d-flex justify-content-between align-items-center mb-2">
+              <div className="card shadow-sm border-0 rounded-3 p-2 mb-4">
+                <div className="d-flex justify-content-between align-items-center mb-1">
                   <h6 className="fw-bold mb-0">
                     <FaBriefcase className="me-2 text-warning" />
                     {row.jobName}
@@ -152,25 +158,68 @@ const HousekeeperBookingManagementPage = () => {
                   <span className="text-muted small">#{row.bookingID}</span>
                 </div>
 
-                <div className="text-muted small mb-2"><FaUser className="me-1" /><strong>Gia đình:</strong> {row.familyName}</div>
-                <div className="small d-flex flex-wrap mb-1">
-                  <div className="me-3"><FaMapMarkerAlt className="me-1 text-danger" /><strong>Địa điểm:</strong> {row.location}</div>
-                  <div><FaMoneyBillWave className="me-1 text-success" /><strong>Lương:</strong> {row.price}</div>
-                </div>
-                <div className="small d-flex flex-wrap mb-1">
-                  <div className="me-3"><FaCalendarAlt className="me-1 text-primary" /><strong>Bắt đầu:</strong> {row.startDate}</div>
-                  <div><FaCalendarAlt className="me-1 text-danger" /><strong>Kết thúc:</strong> {row.endDate}</div>
-                </div>
-                <div className="small mb-2"><FaFileAlt className="me-1 text-secondary" /><strong>Mô tả:</strong> {row.description}</div>
-
-                <div className="row small mb-3">
-                  <div className="col-md-4"><strong><FaClock className="me-1 text-info" />Ca làm việc:</strong><ul className="ps-3 mb-0">{row.slot.map((s, i) => <li key={i} className="text-info">{s}</li>)}</ul></div>
-                  <div className="col-md-4"><strong>📅 Thứ:</strong><ul className="ps-3 mb-0">{row.days.map((d, i) => <li key={i} className="text-warning">{d}</li>)}</ul></div>
-                  <div className="col-md-4"><strong>🛎️ Dịch vụ:</strong><ul className="ps-3 mb-0">{row.services.map((s, i) => <li key={i} className="text-success">{s}</li>)}</ul></div>
+                <div className="mb-1 text-muted small d-flex align-items-center">
+                  <FaUser className="me-1" />
+                  <span className="me-1"><strong>Gia đình:</strong></span> {row.familyName}
                 </div>
 
+                <div className="d-flex flex-wrap mb-1">
+                  <div className="small me-3 d-flex align-items-center">
+                    <FaMapMarkerAlt className="me-1 text-danger" />
+                    <strong>Địa điểm:</strong> {row.location}
+                  </div>
+                  <div className="small d-flex align-items-center">
+                    <FaMoneyBillWave className="me-1 text-success" />
+                    <strong>Lương:</strong> {row.price}
+                  </div>
+                </div>
+
+                <div className="d-flex flex-wrap mb-1">
+                  <div className="small me-3 d-flex align-items-center">
+                    <FaCalendarAlt className="me-1 text-primary" />
+                    <strong>Bắt đầu:</strong> {row.startDate}
+                  </div>
+                  <div className="small d-flex align-items-center">
+                    <FaCalendarAlt className="me-1 text-danger" />
+                    <strong>Kết thúc:</strong> {row.endDate}
+                  </div>
+                </div>
+
+                <div className="mb-1 small d-flex align-items-center">
+                  <FaFileAlt className="me-1 text-secondary" />
+                  <strong>Mô tả:</strong> {row.description}
+                </div>
+
+                <div className="d-flex flex-wrap">
+                  <div className="col-12 col-md-4 small">
+                    <strong>
+                      <FaClock className="me-1 text-info" />Ca làm việc:
+                    </strong>
+                    <ul className="ps-3 mb-0">
+                      {row.slot.map((s, i) => (
+                        <li key={i} className="text-info">{s}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="col-12 col-md-4 small">
+                    <strong>📅 Thứ:</strong>
+                    <ul className="ps-3 mb-0">
+                      {row.days.map((d, i) => (
+                        <li key={i} className="text-warning">{d}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="col-12 col-md-4 small">
+                    <strong>🛎️ Dịch vụ:</strong>
+                    <ul className="ps-3 mb-0">
+                      {row.services.map((s, i) => (
+                        <li key={i} className="text-success">{s}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
                 <div className="text-end">
-                  {row.status === 3 ? (
+                  {row.status === 1 ? (
                     <button
                       className="btn btn-sm btn-success rounded-pill fw-bold"
                       onClick={() => handleMarkComplete(row.jobID)}
