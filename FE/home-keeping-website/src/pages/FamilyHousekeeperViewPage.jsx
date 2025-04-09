@@ -3,8 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../assets/styles/Profile.css";
 import "../assets/styles/icon.css";
-import { formatDate } from "../utils/formatData";
+import {
+    formatDate,
+    formatGender
+} from "../utils/formatData";
 import { useTranslation } from "react-i18next";
+import { shouldShowLoadingOrError } from "../utils/uiHelpers";
 
 const FamilyHousekeeperViewPage = () => {
     const { t } = useTranslation();
@@ -29,7 +33,7 @@ const FamilyHousekeeperViewPage = () => {
     useEffect(() => {
         const verifyAndLoad = async () => {
             if (!accountID || !token) {
-                setMainError(t("error_auth"));
+                setMainError(t("error.error_auth"));
                 setLoading(false);
                 return;
             }
@@ -37,7 +41,7 @@ const FamilyHousekeeperViewPage = () => {
             try {
                 const accRes = await axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers });
                 if (accRes.data.roleID !== 2) {
-                    setMainError(t("error_auth"));
+                    setMainError(t("error.error_auth"));
                     setLoading(false);
                     return;
                 }
@@ -45,7 +49,7 @@ const FamilyHousekeeperViewPage = () => {
                 const famRes = await axios.get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers });
                 setFamilyID(famRes.data.familyID);
             } catch {
-                setMainError(t("error_auth"));
+                setMainError(t("error.error_auth"));
                 setLoading(false);
                 return;
             }
@@ -54,7 +58,7 @@ const FamilyHousekeeperViewPage = () => {
                 const hkRes = await axios.get(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${housekeeperAccountID}`, { headers });
                 setHousekeeper(hkRes.data);
             } catch {
-                setMainError(t("error_account"));
+                setMainError(t("error.error_account"));
                 setLoading(false);
                 return;
             }
@@ -85,7 +89,7 @@ const FamilyHousekeeperViewPage = () => {
 
                 setSkills(skillCodes.filter(Boolean));
             } catch {
-                setSkillError(t("error_skill"));
+                setSkillError(t("error.error_skill"));
             }
 
             try {
@@ -103,12 +107,12 @@ const FamilyHousekeeperViewPage = () => {
                             date: r.createAt
                         };
                     } catch {
-                        return { ...r, reviewerName: t("anonymous") };
+                        return { ...r, reviewerName: t("misc.anonymous") };
                     }
                 }));
                 setReviews(enriched);
             } catch {
-                setReviewError(t("error_review"));
+                setReviewError(t("error.error_review"));
             }
 
             setLoading(false);
@@ -120,30 +124,26 @@ const FamilyHousekeeperViewPage = () => {
     const totalPages = Math.ceil(reviews.length / reviewsPerPage);
     const currentReviews = reviews.slice(currentPage * reviewsPerPage, (currentPage + 1) * reviewsPerPage);
 
-    if (loading || mainError) {
-        return (
-            <div className="profile-container">
-                {loading && (
-                    <div className="view-housekeeper-loading">
-                        <span className="icon-loading" />
-                        <p>{t("loading_data")}</p>
-                    </div>
-                )}
-                {mainError && (
-                    <div className="view-housekeeper-error">
-                        <p>❌ {mainError}</p>
-                        <button className="btn-secondary" onClick={() => navigate(-1)}>
-                            ← {t("back_to_top")}
-                        </button>
-                    </div>
-                )}
-            </div>
-        );
-    }
+    const feedback = shouldShowLoadingOrError(loading, mainError, t, (
+        <button className="btn-secondary" onClick={() => navigate(-1)}>
+            ← {t("misc.back_to_top")}
+        </button>
+    ));
+    if (feedback) return feedback;
 
     return (
         <div className="profile-container view-housekeeper-container">
-            <button className="btn-secondary mb-3" onClick={() => navigate(-1)}>← {t("back_to_search_housekeeper_page")}</button>
+            <div className="view-housekeeper-header-action">
+                <button className="btn-secondary" onClick={() => navigate(-1)}>
+                    ← {t("misc.back_to_search_housekeeper_page")}
+                </button>
+                <button
+                    className="btn-invite"
+                    onClick={() => navigate("/family/invite", { state: { housekeepers: [housekeeper] } })}
+                >
+                    🤝 {t("misc.invite_to_work")}
+                </button>
+            </div>
 
             <div className="profile-header">
                 <div className="profile-avatar-section">
@@ -153,7 +153,7 @@ const FamilyHousekeeperViewPage = () => {
                     <h2 className="profile-name">{housekeeper.name}</h2>
                 </div>
                 <div className="profile-details">
-                    <h1 className="profile-title">{t("personal_info")}</h1>
+                    <h1 className="profile-title">{t("misc.personal_info")}</h1>
                     {housekeeper.rating && (
                         <div className="profile-rating">
                             {Array.from({ length: 5 }).map((_, index) => (
@@ -162,45 +162,54 @@ const FamilyHousekeeperViewPage = () => {
                             <span className="rating-score">({housekeeper.rating.toFixed(1)})</span>
                         </div>
                     )}
-                    <p className="profile-label"><strong>{t("gender")}:</strong> {housekeeper.gender === 1 ? t("male") : t("female")}</p>
-                    <p className="profile-label"><strong>{t("address")}:</strong> {housekeeper.address}</p>
+                    <p className="profile-label"><strong>{t("user.gender")}:</strong> {formatGender(housekeeper.gender, t)}</p>
+                    <p className="profile-label"><strong>{t("user.address")}:</strong> {housekeeper.address}</p>
                     <p className="profile-label"><strong>Email:</strong> {housekeeper.email}</p>
-                    <p className="profile-label"><strong>{t("phone")}:</strong> {housekeeper.phone}</p>
+                    <p className="profile-label"><strong>{t("user.phone")}:</strong> {housekeeper.phone}</p>
                 </div>
             </div>
 
             <div className="profile-content-housekeeper">
                 <div className="profile-left">
                     <div className="profile-section">
-                        <h2 className="section-title">{t("introduction")}</h2>
-                        <p className="profile-introduction">{housekeeper.introduction || t("no_intro")}</p>
+                        <h2 className="section-title">{t("misc.introduction")}</h2>
+                        <p className="profile-introduction">{housekeeper.introduction || t("misc.no_intro")}</p>
                     </div>
 
                     <div className="profile-section">
-                        <h2 className="section-title">{t("skills")}</h2>
+                        <h2 className="section-title">{t("misc.skills")}</h2>
                         {skillError ? (
                             <p className="text-muted">{skillError}</p>
                         ) : skills.length > 0 ? (
                             <div className="skills-list">
                                 {skills.map((skill, i) => (
                                     <span key={i} className="skill-item">
-                                        {t(`houseKeeperSkillName.${skill}`, skill)}
+                                        {t(`skills.housekeeperSkillName.${skill}`, skill)}
                                     </span>
                                 ))}
                             </div>
                         ) : (
-                            <p>{t("no_skill")}</p>
+                            <p>{t("misc.no_skill")}</p>
                         )}
                     </div>
                 </div>
 
                 <div className="profile-right">
                     <div className="profile-section">
-                        <h2 className="section-title">{t("reviews")}</h2>
+                        <h2 className="section-title">{t("job.jobDetail.workingSchedule")}</h2>
+                        <div className="schedule-box">
+                            {housekeeper.workingDays && housekeeper.slotIDs
+                                ? renderWorkingTime(housekeeper.workingDays, housekeeper.slotIDs, t)
+                                : t("job.jobDetail.noSchedule")}
+                        </div>
+                    </div>
+
+                    <div className="profile-section">
+                        <h2 className="section-title">{t("uncategorized.reviews")}</h2>
                         {reviewError ? (
                             <p className="text-muted">{reviewError}</p>
                         ) : reviews.length === 0 ? (
-                            <p>{t("no_review")}</p>
+                            <p>{t("misc.no_review")}</p>
                         ) : (
                             <>
                                 {currentReviews.map((r, i) => (
@@ -220,12 +229,12 @@ const FamilyHousekeeperViewPage = () => {
                                 <div className="view-housekeeper-pagination">
                                     {currentPage > 0 && (
                                         <button className="btn-secondary" onClick={() => setCurrentPage(p => p - 1)}>
-                                            ⬅ {t("previous")}
+                                            ⬅ {t("pagination.previous")}
                                         </button>
                                     )}
                                     {currentPage < totalPages - 1 && (
                                         <button className="btn-primary" onClick={() => setCurrentPage(p => p + 1)}>
-                                            {t("next")} ➡
+                                            {t("pagination.next")} ➡
                                         </button>
                                     )}
                                 </div>

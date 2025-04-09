@@ -5,7 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../assets/styles/Transaction.css";
 import { useTranslation } from "react-i18next";
-import { formatDate, formatCurrency } from "../utils/formatData";
+import { formatDate, formatTotalCurrency } from "../utils/formatData";
 
 const FamilyWalletPage = () => {
     const { t } = useTranslation();
@@ -26,7 +26,7 @@ const FamilyWalletPage = () => {
             const data = await res.json();
             setWallet(data);
         } catch {
-            toast.error(t("error_loading"));
+            toast.error(t("error.error_loading"));
         }
     };
 
@@ -39,7 +39,7 @@ const FamilyWalletPage = () => {
             const data = await res.json();
             setTransactions(data?.slice(0, 5) || []);
         } catch {
-            toast.error(t("error_loading"));
+            toast.error(t("error.error_loading"));
         } finally {
             setLoading(false);
         }
@@ -48,7 +48,7 @@ const FamilyWalletPage = () => {
     const handleWithdraw = async () => {
         const amount = parseFloat(withdrawAmount);
         if (!amount || amount < 10000) {
-            toast.warning(t("deposit_placeholder") + " >= 10,000 VNĐ");
+            toast.warning(t("deposit.deposit_placeholder") + " >= 10,000 VNĐ");
             return;
         }
 
@@ -67,16 +67,16 @@ const FamilyWalletPage = () => {
             const message = await res.text();
 
             if (res.ok) {
-                toast.success(message || t("deposit_return_success"));
+                toast.success(message || t("deposit.deposit_return_success"));
                 setShowModal(false);
                 setWithdrawAmount("");
                 fetchWallet();
                 fetchTransactions();
             } else {
-                toast.error(message || t("deposit_return_fail"));
+                toast.error(message || t("deposit.deposit_return_fail"));
             }
         } catch {
-            toast.error(t("deposit_failed"));
+            toast.error(t("deposit.deposit_failed"));
         }
     };
 
@@ -92,63 +92,70 @@ const FamilyWalletPage = () => {
             <ScrollToTopButton />
             <ToastContainer position="top-center" autoClose={3000} />
 
-            <h1 className="wallet-title">{t("wallet")}</h1>
+            <h1 className="wallet-title">{t("uncategorized.wallet")}</h1>
 
             <div className="wallet-grid">
                 <div className="wallet-left">
                     <div className="wallet-box">
                         {wallet ? (
                             <>
-                                <p className="wallet-label">{t("current_balance")}</p>
+                                <p className="wallet-label">{t("misc.current_balance")}</p>
                                 <p className="wallet-balance">
-                                    {formatCurrency(wallet.balance)}
+                                    {formatTotalCurrency(wallet.balance)}
                                 </p>
                                 <p className="wallet-meta">
-                                    <strong>{t("dashboard_payment.pending")}:</strong> {formatCurrency(wallet.onHold)}
+                                    <strong>{t("dashboard.dashboard_payment.pending")}:</strong>{" "}
+                                    {formatTotalCurrency(wallet.onHold)}
                                 </p>
                                 <p className="wallet-meta">
-                                    <strong>{t("created_date")}:</strong> {formatDate(wallet.updatedAt)}
+                                    <strong>{t("misc.created_date")}:</strong>{" "}
+                                    {formatDate(wallet.updatedAt)}
                                 </p>
                                 <div className="wallet-btn-group">
-                                    <button className="btn-secondary wallet-btn" onClick={() => window.location.href = "/family/deposit"}>
-                                        {t("dashboard_deposit")}
+                                    <button
+                                        className="btn-secondary wallet-btn"
+                                        onClick={() => (window.location.href = "/family/deposit")}
+                                    >
+                                        {t("dashboard.dashboard_deposit")}
                                     </button>
-                                    <button className="btn-primary wallet-btn" onClick={() => setShowModal(true)}>
-                                        {t("dashboard_payment.withdraw")}
+                                    <button
+                                        className="btn-primary wallet-btn"
+                                        onClick={() => setShowModal(true)}
+                                    >
+                                        {t("dashboard.dashboard_payment.withdraw")}
                                     </button>
                                 </div>
                             </>
                         ) : (
-                            <p className="wallet-meta">{t("loading_data")}</p>
+                            <p className="wallet-meta">{t("misc.loading_data")}</p>
                         )}
                     </div>
                 </div>
 
-                {/* Right: Transaction Preview */}
                 <div className="wallet-right">
                     <div className="wallet-box">
-                        <p className="wallet-label">{t("dashboard_recent_transactions")}</p>
+                        <p className="wallet-label">{t("dashboard.dashboard_recent_transactions")}</p>
                         {loading ? (
-                            <p className="wallet-meta">{t("loading_data")}</p>
+                            <p className="wallet-meta">{t("misc.loading_data")}</p>
                         ) : transactions.length === 0 ? (
-                            <p className="wallet-meta">{t("no_transactions")}</p>
+                            <p className="wallet-meta">{t("misc.no_transactions")}</p>
                         ) : (
                             <table className="wallet-table">
                                 <thead>
                                     <tr>
-                                        <th>{t("transaction_id")}</th>
-                                        <th>{t("description")}</th>
-                                        <th>{t("amount")}</th>
-                                        <th>{t("date")}</th>
+                                        <th>{t("transaction.transaction_id")}</th>
+                                        <th>{t("misc.description")}</th>
+                                        <th>{t("misc.amount")}</th>
+                                        <th>{t("misc.date")}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {transactions.map((tx, index) => (
                                         <tr key={index}>
                                             <td>{tx.transactionID || "—"}</td>
-                                            <td>{tx.description || t("transaction_unknown")}</td>
+                                            <td>{tx.description || t("transaction.transaction_unknown")}</td>
                                             <td className={`wallet-amount wallet-status-${tx.status}`}>
-                                                {formatCurrency(tx.amount)}
+                                                {formatTotalCurrency(tx.amount)}
                                             </td>
                                             <td>{formatDate(tx.createdDate)}</td>
                                         </tr>
@@ -158,7 +165,7 @@ const FamilyWalletPage = () => {
                         )}
                         <div className="wallet-link-wrap">
                             <Link to="/family/transactions" className="wallet-link">
-                                {t("view_all_transactions")} →
+                                {t("uncategorized.view_all_transactions")} →
                             </Link>
                         </div>
                     </div>
@@ -169,16 +176,16 @@ const FamilyWalletPage = () => {
                 <div className="wallet-modal-overlay">
                     <div className="wallet-modal-box">
                         <div className="wallet-modal-header-row">
-                            <label className="wallet-modal-title">{t("dashboard_payment.withdraw")}</label>
+                            <label className="wallet-modal-title">{t("dashboard.dashboard_payment.withdraw")}</label>
                             <span className="wallet-modal-close" onClick={() => setShowModal(false)}>✖</span>
                         </div>
                         <div className="wallet-modal-body">
-                            <label className="wallet-label">{t("deposit_placeholder")}</label>
+                            <label className="wallet-label">{t("deposit.deposit_placeholder")}</label>
                             <input
                                 type="number"
                                 min={10000}
                                 step={10000}
-                                placeholder="Nhập số tiền (VNĐ)"
+                                placeholder={t("deposit.deposit_placeholder")}
                                 value={withdrawAmount}
                                 onChange={(e) => {
                                     const value = e.target.value;
@@ -190,10 +197,10 @@ const FamilyWalletPage = () => {
                         </div>
                         <div className="wallet-modal-footer">
                             <button className="btn-secondary" onClick={() => setShowModal(false)}>
-                                {t("cancel")}
+                                {t("misc.cancel")}
                             </button>
                             <button className="btn-primary" onClick={handleWithdraw}>
-                                {t("confirm")}
+                                {t("misc.confirm")}
                             </button>
                         </div>
                     </div>

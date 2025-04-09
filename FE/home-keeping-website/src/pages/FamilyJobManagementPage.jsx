@@ -1,29 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaMoneyBillWave, FaCalendarCheck } from "react-icons/fa";
 import axios from "axios";
 import useFamilyJobs from "../hooks/useFamilyJobs";
 import "../assets/styles/Job.css";
+import { useBackToTop, renderBackToTopButton } from "../utils/uiHelpers";
+import { getPagination } from "../utils/uiHelpers";
+import Pagination from "../components/Pagination";
 
 const FamilyJobManagementPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const isDemo = searchParams.get("demo") === "true";
 
     const accountID = localStorage.getItem("accountID");
     const authToken = localStorage.getItem("authToken");
 
     const {
         jobs,
+        services,
         housekeepers,
         loading,
         error,
         isNoProfile,
         isNoJob,
         setJobs
-    } = useFamilyJobs({ isDemo, accountID, authToken, t });
+    } = useFamilyJobs({ accountID, authToken, t });
 
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -35,32 +37,32 @@ const FamilyJobManagementPage = () => {
         start_date: ""
     });
 
+    const showBackToTop = useBackToTop();
     const [jobToDelete, setJobToDelete] = useState(null);
-    const [showBackToTop, setShowBackToTop] = useState(false);
 
     const text = {
-        jobsPosted: t("job.posted"),
-        jobsCompleted: t("job.completed"),
-        jobType: t("job.type"),
-        all: t("filter.all"),
-        allJobTypes: t("filter.all_job_types"),
-        noJobsYet: t("no_jobs_yet"),
-        noJobsFound: t("no_jobs_found"),
-        noProfile: t("no_family_profile"),
-        confirmDeleteTitle: t("popup.confirm_delete_title"),
-        confirmDeleteText: (title) => t("popup.confirm_delete_text", { title }),
-        backToTop: t("back_to_top"),
-        viewApplicants: t("job.view_applicants"),
-        viewDetail: t("job.view_detail"),
+        jobsPosted: t("job.job.posted"),
+        jobsCompleted: t("job.job.completed"),
+        jobType: t("job.job.type"),
+        all: t("filter.filter.all"),
+        allJobTypes: t("filter.filter.all_job_types"),
+        noJobsYet: t("job.no_jobs_yet"),
+        noJobsFound: t("misc.no_jobs_found"),
+        noProfile: t("job.no_family_profile"),
+        confirmDeleteTitle: t("popup.popup.confirm_delete_title"),
+        confirmDeleteText: (title) => t("popup.popup.confirm_delete_text", { title }),
+        backToTop: t("misc.back_to_top"),
+        viewApplicants: t("job.job.view_applicants"),
+        viewDetail: t("job.job.view_detail"),
     };
 
     const jobStatusMap = React.useMemo(() => ({
-        1: t("job_pending"),
-        2: t("job_verified"),
-        3: t("job_accepted"),
-        4: t("job_completed"),
-        5: t("job_expired"),
-        6: t("job_canceled"),
+        1: t("job.job_pending"),
+        2: t("job.job_verified"),
+        3: t("job.job_accepted"),
+        4: t("job.job_completed"),
+        5: t("job.job_expired"),
+        6: t("job.job_canceled"),
     }), [t]);
 
     const serviceList = [
@@ -147,6 +149,7 @@ const FamilyJobManagementPage = () => {
         return true;
     });
 
+
     const handleViewDetail = (job) => {
         navigate(`/family/job/detail/${job.jobID}`, {
             state: {
@@ -179,15 +182,19 @@ const FamilyJobManagementPage = () => {
 
     const cancelDelete = () => setJobToDelete(null);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            const scrollY = window.scrollY;
-            setShowBackToTop(scrollY > 150);
-        };
+    const [currentPage, setCurrentPage] = useState(1);
+    const [inputPage, setInputPage] = useState("");
+    const pageSize = 6;
 
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    const {
+        paginatedData,
+        pageRange,
+        totalPages
+    } = getPagination(filteredJobs, currentPage, pageSize);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filter]);
 
     if (shouldShowLoadingOrError) {
         return (
@@ -195,17 +202,7 @@ const FamilyJobManagementPage = () => {
                 {loading && (
                     <>
                         <span className="icon-loading"></span>
-                        <p>{t("loading_data")}</p>
-                    </>
-                )}
-                {error && (
-                    <>
-                        <p className="error">❌ {error}</p>
-                        {!isDemo && (
-                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                                {t("view_demo")}
-                            </button>
-                        )}
+                        <p>{t("misc.loading_data")}</p>
                     </>
                 )}
             </div>
@@ -234,11 +231,11 @@ const FamilyJobManagementPage = () => {
                     </div>
                 </div>
                 <div className="job-management-stat">
-                    <p className="title">{t("housekeepers_waiting")}</p>
+                    <p className="title">{t("misc.housekeepers_waiting")}</p>
                     <div className="value">
                         {housekeepers}{" "}
                         <button className="btn-primary-small" onClick={() => navigate("/family/post-job")}>
-                            {t("post_now")}
+                            {t("misc.post_now")}
                         </button>
                     </div>
                 </div>
@@ -247,7 +244,7 @@ const FamilyJobManagementPage = () => {
             {/* BỐ CỤC TRÁI-PHẢI */}
             <div className="job-management-layout">
                 <div className="job-management-filters">
-                    <label>{t("status")}</label>
+                    <label>{t("status.status")}</label>
                     <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
                         <option value="all">{text.all}</option>
                         {Object.entries(jobStatusMap).map(([value, label]) => (
@@ -268,7 +265,7 @@ const FamilyJobManagementPage = () => {
                         ))}
                     </select>
 
-                    <label>{t("filter.start_date")}</label>
+                    <label>{t("filter.filter.start_date")}</label>
                     <input
                         type="date"
                         value={filter.start_date}
@@ -293,7 +290,7 @@ const FamilyJobManagementPage = () => {
                         </>
                     ) : (
                         <div className="job-management-list">
-                            {filteredJobs.map((job) => (
+                            {paginatedData.map((job) => (
                                 <div key={job.jobID} className="job-management-card">
                                     <div className="job-management-card-top">
                                         <div className="job-management-left">
@@ -301,12 +298,15 @@ const FamilyJobManagementPage = () => {
                                             <div className="job-management-info">
                                                 <span>
                                                     <FaCalendarCheck />{" "}
-                                                    {t("job.posted_days_ago", { days: Math.floor((Date.now() - new Date(job.createdDate)) / 86400000) })}
+                                                    {t("job.job.posted_days_ago", { days: Math.floor((Date.now() - new Date(job.createdDate)) / 86400000) })}
                                                 </span>
-                                                <span><FaMapMarkerAlt />{" "} {job.location}</span>
+                                                <span>
+                                                    <FaMapMarkerAlt />{" "}
+                                                    {job.location}
+                                                </span>
                                                 <span>
                                                     <FaMoneyBillWave />{" "}
-                                                    {job.salary != null ? job.salary.toLocaleString("vi-VN") : t("job.not_sure")} VNĐ/giờ
+                                                    {job.salary != null ? job.salary.toLocaleString("vi-VN") : t("job.job.not_sure")} VNĐ/giờ
                                                 </span>
                                             </div>
                                         </div>
@@ -317,8 +317,8 @@ const FamilyJobManagementPage = () => {
                                     </div>
 
                                     <div className="job-management-actions">
-                                        <button className="btn-secondary" onClick={() => navigate(`/family/job/update/${job.jobID}`)}>{t("job.edit")}</button>
-                                        <button className="btn-cancel" onClick={() => handleDeleteClick(job)}>{t("job.delete")}</button>
+                                        <button className="btn-secondary" onClick={() => navigate(`/family/job/update/${job.jobID}`)}>{t("job.job.edit")}</button>
+                                        <button className="btn-cancel" onClick={() => handleDeleteClick(job)}>{t("job.job.delete")}</button>
                                         <button className="btn-primary" onClick={() => handleViewDetail(job)}>
                                             {job.status === 2 ? text.viewApplicants : text.viewDetail}
                                         </button>
@@ -327,6 +327,22 @@ const FamilyJobManagementPage = () => {
                             ))}
                         </div>
                     )}
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        pageRange={pageRange}
+                        inputPage={inputPage}
+                        onPageChange={(page) => setCurrentPage(page)}
+                        onPageInput={(e) => setInputPage(e.target.value)}
+                        onPageSubmit={(e) => {
+                            e.preventDefault();
+                            const page = parseInt(inputPage);
+                            if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                                setCurrentPage(page);
+                                setInputPage("");
+                            }
+                        }}
+                    />
                 </div>
             </div>
 
@@ -343,14 +359,7 @@ const FamilyJobManagementPage = () => {
                 </div>
             )}
 
-            {showBackToTop && (
-                <button
-                    className={`btn-back-to-top show`}
-                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                >
-                    <i className="fa-solid fa-arrow-up" /> {text.backToTop}
-                </button>
-            )}
+            {showBackToTop && renderBackToTopButton(t)}
         </div>
     );
 

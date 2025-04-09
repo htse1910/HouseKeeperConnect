@@ -751,9 +751,13 @@
 }
 
 .job-detail-candidate img {
-    width: 48px;
-    height: 48px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
+}
+
+.job-detail-candidate div {
+    margin-left: 20px;
 }
 
 .job-detail-rating {
@@ -995,6 +999,38 @@
     margin-top: 8px;
 }
 
+.job-detail-applicant-status-and-actions {
+    width: fit-content;
+}
+
+.job-detail-status-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.job-detail-applicant-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.job-detail-status-actions-inline {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.job-detail-status-actions-inline button {
+    margin-top: 5px;
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
 .job-management-status-badge {
     font-size: 14px;
     padding: 4px 10px;
@@ -1108,4 +1144,108 @@
     display: flex;
     justify-content: center;
     gap: 16px;
+}
+
+.job-invite-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-light);
+    border: 2px solid var(--main-color);
+}
+
+.housekeeper-job-wrapper {
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.housekeeper-job-container {
+    max-width: 800px;
+    width: 100%;
+    background-color: var(--bg-color);
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+}
+
+.housekeeper-job-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--main-color);
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.housekeeper-job-submit-btn {
+    background-color: var(--main-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 16px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.housekeeper-job-submit-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.housekeeper-job-feedback {
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.housekeeper-job-feedback.loading {
+    background-color: var(--light-gray);
+    color: var(--text-muted);
+}
+
+.housekeeper-job-feedback.error {
+    background-color: var(--bg-tag-error);
+    color: var(--error-color);
+}
+
+.housekeeper-job-feedback.success {
+    background-color: var(--bg-tag-success);
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+.housekeeper-job-payout {
+    margin-top: 12px;
+}
+
+.housekeeper-job-payout-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--success-color);
+    margin-top: 4px;
+}
+
+.housekeeper-job-details {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.housekeeper-job-item {
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+}
+
+.housekeeper-job-item label {
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 2px;
 }

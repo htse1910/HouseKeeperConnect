@@ -691,6 +691,38 @@
     transform: scale(1.1);
 }
 
+.view-housekeeper-header-action {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.btn-invite {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: var(--padding-button);
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    transition: var(--transition-default);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-invite:hover {
+    background-color: var(--success-dark);
+}
+
+.schedule-box {
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 16px;
+    font-size: 14px;
+    color: var(--text-alt-color);
+    white-space: pre-line;
+}
+
 @media (max-width: 768px) {
     .family-message-page-container {
         flex-direction: column;
