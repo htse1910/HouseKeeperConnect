@@ -10,6 +10,7 @@ import {
   FaCheckCircle
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
+import { Modal } from "react-bootstrap";
 import "react-toastify/dist/ReactToastify.css";
 import { serviceMap } from "../utils/serviceMap";
 
@@ -31,6 +32,12 @@ const HousekeeperBookingManagementPage = () => {
   const housekeeperID = localStorage.getItem("housekeeperID");
   const authToken = localStorage.getItem("authToken");
 
+  const [showModal, setShowModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedDay, setSelectedDay] = useState("");
+  const [matchedDate, setMatchedDate] = useState(null);
+  const [isToday, setIsToday] = useState(false);
+
   const handleMarkComplete = async (jobID) => {
     if (!authToken || !accountID) {
       toast.error("Vui lòng đăng nhập lại.");
@@ -49,12 +56,9 @@ const HousekeeperBookingManagementPage = () => {
       const msg = await res.text();
       if (res.ok) {
         toast.success(msg || "✅ Đã báo hoàn thành công việc!");
-
         setRows(prev =>
           prev.map(row =>
-            row.jobID === jobID
-              ? { ...row, status: 6 }
-              : row
+            row.jobID === jobID ? { ...row, status: 6 } : row
           )
         );
       } else {
@@ -63,6 +67,56 @@ const HousekeeperBookingManagementPage = () => {
     } catch (err) {
       toast.error("Lỗi khi gọi API.");
       console.error(err);
+    }
+  };
+
+  const handleCheckIn = async () => {
+    if (!selectedBooking) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5280/api/Job/CheckIn?bookingId=${selectedBooking.bookingID}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${authToken}` }
+        }
+      );
+
+      const msg = await res.text();
+
+      if (res.ok) {
+        toast.success(msg || "✅ Check-in thành công!");
+        setShowModal(false);
+      } else {
+        toast.error(msg || "❌ Không thể check-in.");
+      }
+    } catch (err) {
+      toast.error("Lỗi khi check-in.");
+      console.error(err);
+    }
+  };
+
+  const openDayModal = (booking, dayIndex) => {
+    const start = new Date(booking.startDate.split("/").reverse().join("-"));
+    const end = new Date(booking.endDate.split("/").reverse().join("-"));
+
+    const now = new Date();
+    const currentWeekDay = now.getDay();
+    const diff = dayIndex - currentWeekDay;
+    const matched = new Date(now);
+    matched.setDate(now.getDate() + diff);
+
+    if (matched >= start && matched <= end) {
+      const today = new Date();
+      const isSameDate = today.toDateString() === matched.toDateString();
+
+      setSelectedBooking(booking);
+      setSelectedDay(dayNames[dayIndex]);
+      setMatchedDate(matched);
+      setIsToday(isSameDate);
+      setShowModal(true);
+    } else {
+      alert("Ngày này không nằm trong phạm vi công việc.");
     }
   };
 
@@ -79,7 +133,6 @@ const HousekeeperBookingManagementPage = () => {
             let jobDetail = null;
             let familyName = "Đang cập nhật";
 
-            console.log(booking);
             try {
               const jobRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${booking.jobID}`, {
                 headers: { Authorization: `Bearer ${authToken}` }
@@ -112,15 +165,9 @@ const HousekeeperBookingManagementPage = () => {
               startDate: jobDetail?.startDate ? new Date(jobDetail.startDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
               endDate: jobDetail?.endDate ? new Date(jobDetail.endDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
               description: jobDetail?.description || "Đang cập nhật",
-              slot: Array.isArray(jobDetail?.slotIDs)
-                ? jobDetail.slotIDs.map(s => slotMap[s] || `Slot ${s}`)
-                : [],
-              days: Array.isArray(jobDetail?.dayofWeek)
-                ? jobDetail.dayofWeek.map(d => dayNames[d])
-                : [],
-              services: Array.isArray(jobDetail?.serviceIDs)
-                ? jobDetail.serviceIDs.map(id => serviceMap[id])
-                : []
+              slot: Array.isArray(jobDetail?.slotIDs) ? jobDetail.slotIDs.map(s => slotMap[s] || `Slot ${s}`) : [],
+              days: Array.isArray(jobDetail?.dayofWeek) ? jobDetail.dayofWeek.map(d => dayNames[d]) : [],
+              services: Array.isArray(jobDetail?.serviceIDs) ? jobDetail.serviceIDs.map(id => serviceMap[id]) : []
             };
           })
         );
@@ -138,7 +185,7 @@ const HousekeeperBookingManagementPage = () => {
 
   return (
     <div className="container py-4">
-      <ToastContainer/>
+      <ToastContainer />
       <h4 className="fw-bold mb-4 text-primary">📋 Danh sách đặt công việc</h4>
 
       {loading ? (
@@ -204,9 +251,19 @@ const HousekeeperBookingManagementPage = () => {
                   <div className="col-12 col-md-4 small">
                     <strong>📅 Thứ:</strong>
                     <ul className="ps-3 mb-0">
-                      {row.days.map((d, i) => (
-                        <li key={i} className="text-warning">{d}</li>
-                      ))}
+                      {row.days.map((d, i) => {
+                        const dayIndex = dayNames.indexOf(d);
+                        return (
+                          <li
+                            key={i}
+                            className="text-warning"
+                            style={{ cursor: "pointer", textDecoration: "underline" }}
+                            onClick={() => openDayModal(row, dayIndex)}
+                          >
+                            {d}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                   <div className="col-12 col-md-4 small">
@@ -218,7 +275,8 @@ const HousekeeperBookingManagementPage = () => {
                     </ul>
                   </div>
                 </div>
-                <div className="text-end">
+
+                <div className="text-end mt-2">
                   {row.status === 1 ? (
                     <button
                       className="btn btn-sm btn-success rounded-pill fw-bold"
@@ -245,6 +303,33 @@ const HousekeeperBookingManagementPage = () => {
             </div>
           ))}
         </div>
+      )}
+
+      {selectedBooking && (
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Thông tin ca làm việc</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p><strong>Công việc:</strong> {selectedBooking.jobName}</p>
+            <p><strong>Gia đình:</strong> {selectedBooking.familyName}</p>
+            <p><strong>Bắt đầu:</strong> {selectedBooking.startDate}</p>
+            <p><strong>Kết thúc:</strong> {selectedBooking.endDate}</p>
+            <p><strong>Thứ:</strong> {selectedDay}</p>
+            <p><strong>Ngày trong tuần này:</strong> {matchedDate?.toLocaleDateString("vi-VN")}</p>
+
+            {isToday && (
+              <div className="text-center mt-3">
+                <button className="btn btn-success" onClick={handleCheckIn}>
+                  ✅ Check In
+                </button>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
+          </Modal.Footer>
+        </Modal>
       )}
     </div>
   );
