@@ -21,5 +21,7 @@ namespace Repositories
         public async Task<List<Housekeeper>> GetPendingHousekeepersAsync(int pageNumber, int pageSize) => await HousekeeperDAO.Instance.GetPendingHousekeepersAsync(pageNumber, pageSize);
 
         public async Task UpdateIsVerifiedAsync(int verifyId, bool isVerified) => await HousekeeperDAO.Instance.UpdateIsVerifiedAsync(verifyId, isVerified);
+
+        public async Task<Housekeeper> GetHousekeepersByIDVerifyAsync(int ID) => await HousekeeperDAO.Instance.GetHousekeepersByIDVerifyAsync(ID);
     }
 }

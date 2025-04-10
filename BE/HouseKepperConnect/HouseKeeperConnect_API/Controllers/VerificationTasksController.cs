@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -103,6 +104,12 @@ namespace HouseKeeperConnect_API.Controllers
                     return Unauthorized("You do not have permission to approve verification.");
                 }
 
+                var hk = await _housekeeperService.GetHousekeepersByIDVerifyAsync(task.VerifyID);
+                if(hk == null)
+                {
+                    return NotFound("Housekeeper not found!");
+                }
+
                 task.AccountID = request.AccountID;
                 task.Status = 2;
                 task.CompletedDate = DateTime.Now;
@@ -110,7 +117,7 @@ namespace HouseKeeperConnect_API.Controllers
                 task.IDVerification.Status = 2;
 
                 var noti = new Notification();
-                noti.AccountID = request.AccountID;
+                noti.AccountID = hk.AccountID;
                 noti.Message = "CCCD/CMND của bạn đã được duyệt!";
 
                 await _notificationService.AddNotificationAsync(noti);
@@ -143,17 +150,23 @@ namespace HouseKeeperConnect_API.Controllers
                     return Unauthorized("You do not have permission to reject verification.");
                 }
 
+                var hk = await _housekeeperService.GetHousekeepersByIDVerifyAsync(task.VerifyID);
+                if (hk == null)
+                {
+                    return NotFound("Housekeeper not found!");
+                }
+
                 task.AccountID = request.AccountID;
-                task.Status = 2;
+                task.Status = (int)VerificationStatus.Denied;
                 task.CompletedDate = DateTime.Now;
                 task.Notes = request.Notes;
-                task.IDVerification.Status = 3;
+                task.IDVerification.Status = (int)VerificationStatus.Denied;
 
                 await _verificationTaskService.UpdateVerificationTaskAsync(task);
 
                 var noti = new Notification();
-                noti.AccountID = request.AccountID;
-                noti.Message = "CCCD/CMND của bạn không được phê duyệt!\n Lí do: "+request.Notes;
+                noti.AccountID = hk.AccountID;
+                noti.Message = "CCCD/CMND của bạn không được phê duyệt!\nLí do: "+request.Notes;
 
                 await _notificationService.AddNotificationAsync(noti);
 

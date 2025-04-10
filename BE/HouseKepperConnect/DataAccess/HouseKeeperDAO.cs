@@ -76,6 +76,23 @@ namespace DataAccess
             }
             return trans;
         }
+        
+        public async Task<Housekeeper> GetHousekeepersByIDVerifyAsync(int ID)
+        {
+            var trans = new Housekeeper();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    trans = await context.Housekeeper.SingleOrDefaultAsync(x => x.VerifyID==ID);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return trans;
+        }
 
         public async Task AddHousekeeperAsync(Housekeeper trans)
         {
