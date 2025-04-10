@@ -175,37 +175,37 @@ const FamilyJobDetailUpdatePage = () => {
 
     const validateForm = (data) => {
         if (!family?.familyID) {
-            return { msg: t("jobPost.familyRequired"), ref: null };
+            return { msg: t("job.jobPost.familyRequired"), ref: null };
         }
         if (!data.JobName.trim()) {
-            return { msg: t("jobPost.jobTitleRequired"), ref: jobNameRef };
+            return { msg: t("job.jobPost.jobTitleRequired"), ref: jobNameRef };
         }
         if (!data.JobType || isNaN(data.JobType)) {
-            return { msg: t("jobPost.jobTypeRequired"), ref: jobTypeRef };
+            return { msg: t("job.jobPost.jobTypeRequired"), ref: jobTypeRef };
         }
         if (!data.Location.trim()) {
-            return { msg: t("jobPost.locationRequired"), ref: locationRef };
+            return { msg: t("job.jobPost.locationRequired"), ref: locationRef };
         }
         if (!data.Price || isNaN(data.Price) || data.Price <= 0) {
-            return { msg: t("jobPost.salaryInvalid"), ref: priceRef };
+            return { msg: t("job.jobPost.salaryInvalid"), ref: priceRef };
         }
         if (!data.StartDate) {
-            return { msg: t("jobPost.startDateRequired"), ref: startDateRef };
+            return { msg: t("job.jobPost.startDateRequired"), ref: startDateRef };
         }
         if (!data.EndDate) {
-            return { msg: t("jobPost.endDateRequired"), ref: endDateRef };
+            return { msg: t("job.jobPost.endDateRequired"), ref: endDateRef };
         }
         if (new Date(data.StartDate) > new Date(data.EndDate)) {
-            return { msg: t("jobPost.dateInvalid"), ref: startDateRef };
+            return { msg: t("job.jobPost.dateInvalid"), ref: startDateRef };
         }
         if (!Array.isArray(data.ServiceIDs) || data.ServiceIDs.length === 0) {
-            return { msg: t("jobPost.serviceRequired"), ref: serviceRef };
+            return { msg: t("job.jobPost.serviceRequired"), ref: serviceRef };
         }
         if (!Array.isArray(data.DayofWeek) || data.DayofWeek.length === 0) {
-            return { msg: t("jobPost.workingDaysRequired"), ref: dayRef };
+            return { msg: t("job.jobPost.workingDaysRequired"), ref: dayRef };
         }
         if (!Array.isArray(data.SlotIDs) || data.SlotIDs.length === 0) {
-            return { msg: t("jobPost.slotRequired"), ref: slotRef };
+            return { msg: t("job.jobPost.slotRequired"), ref: slotRef };
         }
 
         return null;
@@ -257,7 +257,7 @@ const FamilyJobDetailUpdatePage = () => {
 
             console.log("Data Submited", dataToSubmit);
             console.log("Job created:", response.data);
-            setMessage(t("jobPost.updateSuccess"));
+            setMessage(t("job.jobPost.updateSuccess"));
             window.scrollTo({ top: 0, behavior: "smooth" });
 
             setFormData({
@@ -295,7 +295,7 @@ const FamilyJobDetailUpdatePage = () => {
                 {loading && (
                     <>
                         <span className="icon-loading"></span>
-                        <p>{t("loading_data")}</p>
+                        <p>{t("error.loading_data")}</p>
                     </>
                 )}
                 {error && (
@@ -312,15 +312,15 @@ const FamilyJobDetailUpdatePage = () => {
 
     return (
         <div className="job-posting-container">
-            <h1 className="job-posting-title">{t("update_job")}</h1>
+            <h1 className="job-posting-title">{t("navigation.update_job")}</h1>
 
-            {message && <p className="job-posting-alert job-posting-success">{t("jobPost.updateSuccess")}</p>}
+            {message && <p className="job-posting-alert job-posting-success">{t("job.jobPost.updateSuccess")}</p>}
             {error && <p className="job-posting-alert job-posting-error">{error}</p>}
 
             <form onSubmit={handleSubmit} className="job-posting-form-grid">
                 <div className="job-posting-group">
                     <div className="job-posting-row">
-                        <label>{t("job_title")}</label>
+                        <label>{t("job.job_title")}</label>
                         <input
                             ref={jobNameRef}
                             type="text"
@@ -333,7 +333,7 @@ const FamilyJobDetailUpdatePage = () => {
                     </div>
 
                     <div className="job-posting-row">
-                        <label>{t("job_type")}</label>
+                        <label>{t("job.job_type")}</label>
                         <select
                             ref={jobTypeRef}
                             name="JobType"
@@ -342,14 +342,14 @@ const FamilyJobDetailUpdatePage = () => {
                             onChange={handleChange}
                             required
                         >
-                            <option value="">{t("jobPost.jobTypePlaceholder")}</option>
-                            <option value="1">{t("jobPost.fullTime")}</option>
-                            <option value="2">{t("jobPost.partTime")}</option>
+                            <option value="">{t("job.jobPost.jobTypePlaceholder")}</option>
+                            <option value="1">{t("job.jobPost.fullTime")}</option>
+                            <option value="2">{t("job.jobPost.partTime")}</option>
                         </select>
                     </div>
 
                     <div className="job-posting-row">
-                        <label>{t("location")}</label>
+                        <label>{t("misc.location")}</label>
                         <input
                             ref={locationRef}
                             type="text"
@@ -364,7 +364,7 @@ const FamilyJobDetailUpdatePage = () => {
 
                 {/* Dịch vụ */}
                 <div className="job-posting-section job-posting-section-full">
-                    <label>{t("jobPost.serviceTypeLabel")}</label>
+                    <label>{t("job.jobPost.serviceTypeLabel")}</label>
                     <div className="job-posting-service-group">
                         {Object.entries(
                             services.reduce((acc, service) => {
@@ -401,7 +401,7 @@ const FamilyJobDetailUpdatePage = () => {
 
                 {/* Lịch làm việc */}
                 <div className="job-posting-section job-posting-section-full">
-                    <label>{t("jobPost.workingDaysLabel")}</label>
+                    <label>{t("job.jobPost.workingDaysLabel")}</label>
                     <div className="job-posting-day-preset">
                         {dayPresets.map((preset) => (
                             <label key={preset.label} className="job-posting-checkbox-slot">
@@ -425,7 +425,7 @@ const FamilyJobDetailUpdatePage = () => {
                                     checked={formData.DayofWeek.includes(d)}
                                     onChange={handleChange}
                                 />
-                                <span>{t(`workingDays.${["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][d]}`)}</span>
+                                <span>{t(`service.workingDays.${["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][d]}`)}</span>
                             </label>
                         ))}
                     </div>
@@ -449,7 +449,7 @@ const FamilyJobDetailUpdatePage = () => {
                     </div>
 
                     <div className="job-posting-section job-posting-section-full">
-                        <label>{t("jobPost.workingTimeLabel")}</label>
+                        <label>{t("job.jobPost.workingTimeLabel")}</label>
                         <div ref={slotRef} className="job-posting-slot-checkboxes">
                             {slotList.map((slot) => (
                                 <label key={slot.slotID} className="job-posting-checkbox-slot">
@@ -469,7 +469,7 @@ const FamilyJobDetailUpdatePage = () => {
 
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                        <label>{t("filter.start_date")}</label>
+                        <label>{t("filter.filter.start_date")}</label>
                         <input
                             ref={startDateRef}
                             type="date"
@@ -481,7 +481,7 @@ const FamilyJobDetailUpdatePage = () => {
                         />
                     </div>
                     <div className="job-posting-pair">
-                        <label>{t("jobPost.endDate")}</label>
+                        <label>{t("job.jobPost.endDate")}</label>
                         <input
                             ref={endDateRef}
                             type="date"
@@ -496,7 +496,7 @@ const FamilyJobDetailUpdatePage = () => {
 
                 {/* Mô tả và yêu cầu đặc biệt */}
                 <div className="job-posting-section job-posting-section-full">
-                    <label>{t("Description")}</label>
+                    <label>{t("misc.description")}</label>
                     <textarea
                         name="Description"
                         className="job-posting-textarea"
@@ -508,7 +508,7 @@ const FamilyJobDetailUpdatePage = () => {
 
                 <div style={{ textAlign: "center" }}>
                     <button type="submit" className="job-posting-submit-btn btn-primary" disabled={submitting}>
-                        {submitting ? t("jobPost.updating") : t("save_changes")}
+                        {submitting ? t("job.jobPost.updating") : t("misc.save_changes")}
                     </button>
                 </div>
             </form>

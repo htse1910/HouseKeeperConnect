@@ -317,7 +317,13 @@
     "note": "Ghi chú",
     "note_placeholder": "Ghi chú cho người giúp việc...",
     "send_invite": "Gửi lời mời",
-    "create_new_job": "Tạo công việc mới"
+    "create_new_job": "Tạo công việc mới",
+    "filter": {
+      "location": "Địa điểm",
+      "skills": "Kỹ năng",
+      "gender": "Giới tính",
+      "salary": "Mức lương"
+    }
   },
   "service": {
     "serviceTypeName": {
