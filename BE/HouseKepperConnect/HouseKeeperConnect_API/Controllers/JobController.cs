@@ -330,6 +330,17 @@ namespace HouseKeeperConnect_API.Controllers
             jobDetail.PricePerHour = pricePerHour;
             await _jobService.AddJobDetailAsync(jobDetail);
 
+            //Tạo đơn payment cho FA
+            var payment = new Payment();
+            payment.FamilyID = acc.FamilyID;
+            payment.PaymentDate = DateTime.Now;
+            payment.Amount = housekeeperEarnings;
+            payment.Commission = platformFee;
+            payment.JobID = job.JobID;
+            payment.Status = (int)PaymentStatus.Pending;
+
+            await _paymentService.AddPaymentAsync(payment);
+
             // Add job services
             foreach (var serviceID in jobCreateDTO.ServiceIDs)
             {
@@ -974,16 +985,7 @@ namespace HouseKeeperConnect_API.Controllers
             if (booking.Status != (int)BookingStatus.PendingFamilyConfirmation)
                 return BadRequest("Booking is not awaiting confirmation.");
 
-            //Tạo đơn payment cho FA
-            var payment = new Payment();
-            payment.FamilyID = fa.FamilyID;
-            payment.PaymentDate = DateTime.Now;
-            payment.Amount = jobDetail.Price;
-            payment.Commission = jobDetail.Price * 0.1m;
-            payment.JobID = job.JobID;
-            payment.Status = (int)PaymentStatus.Completed;
-
-            await _paymentService.AddPaymentAsync(payment);
+           
 
             //Cập nhật tiền vào balance ví HK
 
