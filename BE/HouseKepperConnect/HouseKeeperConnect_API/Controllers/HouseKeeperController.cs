@@ -352,6 +352,9 @@ namespace HouseKeeperConnect_API.Controllers
                 var pendingListDTO = new HousekeeperPendingDTO()
                 {
                     HousekeeperID = hk.HousekeeperID,
+                    Name = hk.Account.Name,
+                    Nickname = hk.Account.Nickname,
+                    Gender = hk.Account.Gender.GetValueOrDefault(),
                     VerifyID = hk.IDVerification.VerifyID,
                     TaskID = task?.TaskID,
                     FrontPhoto = hk.IDVerification.FrontPhoto,
