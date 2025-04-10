@@ -13,15 +13,17 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IVerificationTaskService _verificationTaskService;
         private readonly IAccountService _accountService;
         private readonly IHouseKeeperService _housekeeperService;
+        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
 
         public VerificationTasksController(IVerificationTaskService verificationTaskService, IMapper mapper,
-                                          IAccountService accountService, IHouseKeeperService housekeeperService)
+                                          IAccountService accountService, IHouseKeeperService housekeeperService, INotificationService notificationService)
         {
             _verificationTaskService = verificationTaskService;
             _mapper = mapper;
             _accountService = accountService;
             _housekeeperService = housekeeperService;
+            _notificationService = notificationService;
         }
 
         /*[HttpGet("VerificationTaskPending")]
@@ -106,6 +108,12 @@ namespace HouseKeeperConnect_API.Controllers
                 task.CompletedDate = DateTime.Now;
                 task.Notes = request.Notes;
                 task.IDVerification.Status = 2;
+
+                var noti = new Notification();
+                noti.AccountID = request.AccountID;
+                noti.Message = "CCCD/CMND của bạn đã được duyệt!";
+
+                await _notificationService.AddNotificationAsync(noti);
                 await _verificationTaskService.UpdateVerificationTaskAsync(task);
 
                 await _housekeeperService.UpdateIsVerifiedAsync(task.IDVerification.VerifyID, true);
@@ -142,6 +150,12 @@ namespace HouseKeeperConnect_API.Controllers
                 task.IDVerification.Status = 3;
 
                 await _verificationTaskService.UpdateVerificationTaskAsync(task);
+
+                var noti = new Notification();
+                noti.AccountID = request.AccountID;
+                noti.Message = "CCCD/CMND của bạn không được phê duyệt!\n Lí do: "+request.Notes;
+
+                await _notificationService.AddNotificationAsync(noti);
 
                 return Ok("Verification task rejected successfully.");
             }
