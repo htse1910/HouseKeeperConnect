@@ -4,365 +4,211 @@ import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaMoneyBillWave, FaCalendarCheck } from "react-icons/fa";
 import axios from "axios";
 import useFamilyJobs from "../hooks/useFamilyJobs";
-import "../assets/styles/Job.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import { useBackToTop, renderBackToTopButton } from "../utils/uiHelpers";
 import { getPagination } from "../utils/uiHelpers";
 import Pagination from "../components/Pagination";
 
 const FamilyJobManagementPage = () => {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-    const accountID = localStorage.getItem("accountID");
-    const authToken = localStorage.getItem("authToken");
+  const accountID = localStorage.getItem("accountID");
+  const authToken = localStorage.getItem("authToken");
 
-    const {
-        jobs,
-        services,
-        housekeepers,
-        loading,
-        error,
-        isNoProfile,
-        isNoJob,
-        setJobs
-    } = useFamilyJobs({ accountID, authToken, t });
+  const {
+    jobs,
+    services,
+    housekeepers,
+    loading,
+    error,
+    isNoProfile,
+    isNoJob,
+    setJobs
+  } = useFamilyJobs({ accountID, authToken, t });
 
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const defaultDate = tomorrow.toISOString().split("T")[0];
+  const shouldShowLoadingOrError = loading || error;
 
-    const [filter, setFilter] = useState({
-        status: "all",
-        serviceType: "all",
-        start_date: ""
-    });
+  const [filter, setFilter] = useState({ status: "all", serviceType: "all", start_date: "" });
+  const showBackToTop = useBackToTop();
+  const [jobToDelete, setJobToDelete] = useState(null);
 
-    const showBackToTop = useBackToTop();
-    const [jobToDelete, setJobToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [inputPage, setInputPage] = useState("");
+  const pageSize = 6;
 
-    const text = {
-        jobsPosted: t("job.job.posted"),
-        jobsCompleted: t("job.job.completed"),
-        jobType: t("job.job.type"),
-        all: t("filter.filter.all"),
-        allJobTypes: t("filter.filter.all_job_types"),
-        noJobsYet: t("job.no_jobs_yet"),
-        noJobsFound: t("misc.no_jobs_found"),
-        noProfile: t("job.no_family_profile"),
-        confirmDeleteTitle: t("popup.popup.confirm_delete_title"),
-        confirmDeleteText: (title) => t("popup.popup.confirm_delete_text", { title }),
-        backToTop: t("misc.back_to_top"),
-        viewApplicants: t("job.job.view_applicants"),
-        viewDetail: t("job.job.view_detail"),
-    };
+  const jobStatusMap = useMemo(() => ({
+    1: t("job.job_pending"),
+    2: t("job.job_verified"),
+    3: t("job.job_accepted"),
+    4: t("job.job_completed"),
+    5: t("job.job_expired"),
+    6: t("job.job_canceled"),
+    8: t("job.job_pending_family_confirmation")
+  }), [t]);
 
-    const jobStatusMap = React.useMemo(() => ({
-        1: t("job.job_pending"),
-        2: t("job.job_verified"),
-        3: t("job.job_accepted"),
-        4: t("job.job_completed"),
-        5: t("job.job_expired"),
-        6: t("job.job_canceled"),
-    }), [t]);
+  const serviceTypes = useMemo(() => Array.from(new Set(jobs.flatMap(job => job.serviceTypes || []))), [jobs]);
 
-    const serviceList = [
-        { serviceID: 1, key: "RoomCleaning", serviceType: "Cleaning" },
-        { serviceID: 2, key: "BathroomSanitization", serviceType: "Cleaning" },
-        { serviceID: 3, key: "WindowCleaning", serviceType: "Cleaning" },
-        { serviceID: 4, key: "DustRemoval", serviceType: "Cleaning" },
-        { serviceID: 5, key: "MoppingFloor", serviceType: "Cleaning" },
+  const filteredJobs = jobs.filter(job => {
+    const { status, serviceType, start_date } = filter;
+    if (status !== "all" && job.status !== parseInt(status)) return false;
+    if (serviceType !== "all" && (!Array.isArray(job.serviceTypes) || !job.serviceTypes.includes(serviceType))) return false;
+    if (start_date && new Date(job.createdDate).setHours(0, 0, 0, 0) < new Date(start_date).setHours(0, 0, 0, 0)) return false;
+    return true;
+  });
 
-        { serviceID: 6, key: "WashAndFold", serviceType: "Laundry" },
-        { serviceID: 7, key: "IroningClothes", serviceType: "Laundry" },
-        { serviceID: 8, key: "DryCleaning", serviceType: "Laundry" },
-        { serviceID: 9, key: "CurtainCleaning", serviceType: "Laundry" },
-        { serviceID: 10, key: "BeddingCleaning", serviceType: "Laundry" },
+  const { paginatedData, pageRange, totalPages } = getPagination(filteredJobs, currentPage, pageSize);
 
-        { serviceID: 11, key: "DailyMealPrep", serviceType: "Cooking" },
-        { serviceID: 12, key: "VegetarianCooking", serviceType: "Cooking" },
-        { serviceID: 13, key: "BabyFoodPrep", serviceType: "Cooking" },
-        { serviceID: 14, key: "SpecialDietCooking", serviceType: "Cooking" },
-        { serviceID: 15, key: "PartyCooking", serviceType: "Cooking" },
+  useEffect(() => { setCurrentPage(1); }, [filter]);
 
-        { serviceID: 16, key: "InfantCare", serviceType: "Childcare" },
-        { serviceID: 17, key: "HomeworkHelp", serviceType: "Childcare" },
-        { serviceID: 18, key: "SchoolPickup", serviceType: "Childcare" },
-        { serviceID: 19, key: "PlaytimeSupervision", serviceType: "Childcare" },
-        { serviceID: 20, key: "BedtimeRoutine", serviceType: "Childcare" },
-
-        { serviceID: 21, key: "MedicationReminder", serviceType: "ElderlyCare" },
-        { serviceID: 22, key: "Companionship", serviceType: "ElderlyCare" },
-        { serviceID: 23, key: "MobilityAssistance", serviceType: "ElderlyCare" },
-        { serviceID: 24, key: "MealFeeding", serviceType: "ElderlyCare" },
-        { serviceID: 25, key: "PersonalHygiene", serviceType: "ElderlyCare" },
-
-        { serviceID: 26, key: "LawnMowing", serviceType: "Gardening" },
-        { serviceID: 27, key: "WeedRemoval", serviceType: "Gardening" },
-        { serviceID: 28, key: "PlantWatering", serviceType: "Gardening" },
-        { serviceID: 29, key: "GardenCleanup", serviceType: "Gardening" },
-        { serviceID: 30, key: "TreePruning", serviceType: "Gardening" },
-
-        { serviceID: 31, key: "DogWalking", serviceType: "PetCare" },
-        { serviceID: 32, key: "PetFeeding", serviceType: "PetCare" },
-        { serviceID: 33, key: "PetBathing", serviceType: "PetCare" },
-        { serviceID: 34, key: "LitterCleaning", serviceType: "PetCare" },
-        { serviceID: 35, key: "PetSitting", serviceType: "PetCare" },
-
-        { serviceID: 36, key: "WeeklyGroceries", serviceType: "GroceryShopping" },
-        { serviceID: 37, key: "UrgentPurchase", serviceType: "GroceryShopping" },
-        { serviceID: 38, key: "PrescriptionPickup", serviceType: "GroceryShopping" },
-        { serviceID: 39, key: "MarketShopping", serviceType: "GroceryShopping" },
-        { serviceID: 40, key: "SupermarketRun", serviceType: "GroceryShopping" },
-
-        { serviceID: 41, key: "DailyDishwashing", serviceType: "Dishwashing" },
-        { serviceID: 42, key: "EventCleanup", serviceType: "Dishwashing" },
-        { serviceID: 43, key: "DeepSinkCleaning", serviceType: "Dishwashing" },
-        { serviceID: 44, key: "UtensilSterilization", serviceType: "Dishwashing" },
-        { serviceID: 45, key: "KitchenCleaning", serviceType: "Dishwashing" },
-
-        { serviceID: 46, key: "ExteriorWash", serviceType: "CarWash" },
-        { serviceID: 47, key: "InteriorVacuum", serviceType: "CarWash" },
-        { serviceID: 48, key: "FullCarWash", serviceType: "CarWash" },
-        { serviceID: 49, key: "WaxPolishing", serviceType: "CarWash" },
-        { serviceID: 50, key: "TireShine", serviceType: "CarWash" }
-    ];
-
-    const shouldShowLoadingOrError = loading || error;
-
-    const filteredJobs = jobs.filter(job => {
-        const { status, serviceType, start_date } = filter;
-
-        if (status !== "all" && job.status !== parseInt(status)) return false;
-
-        if (
-            serviceType !== "all" &&
-            (!Array.isArray(job.serviceTypes) ||
-                !job.serviceTypes.includes(serviceType))
-        ) return false;
-
-        if (start_date) {
-            const jobDate = new Date(job.createdDate).setHours(0, 0, 0, 0);
-            const filterDate = new Date(start_date).setHours(0, 0, 0, 0);
-            if (jobDate < filterDate) return false;
-        }
-
-        return true;
-    });
-
-
-    const handleViewDetail = (job) => {
-        navigate(`/family/job/detail/${job.jobID}`, {
-            state: {
-                createdDate: job.createdDate
-            }
-        });
-    };
-
-    const handleDeleteClick = (job) => setJobToDelete(job);
-
-    const confirmDelete = async () => {
-        if (!jobToDelete) return;
-
-        try {
-            await axios.delete(`http://localhost:5280/api/Job/DeleteJob`, {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    "Content-Type": "application/json"
-                },
-                params: { id: jobToDelete.jobID }
-            });
-
-            setJobs((prev) => prev.filter((j) => j.jobID !== jobToDelete.jobID));
-            setJobToDelete(null);
-        } catch (err) {
-            console.error("Lỗi xoá công việc:", err);
-            alert(t("job.delete_failed"));
-        }
-    };
-
-    const cancelDelete = () => setJobToDelete(null);
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const [inputPage, setInputPage] = useState("");
-    const pageSize = 6;
-
-    const {
-        paginatedData,
-        pageRange,
-        totalPages
-    } = getPagination(filteredJobs, currentPage, pageSize);
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [filter]);
-
-    if (shouldShowLoadingOrError) {
-        return (
-            <div className="job-container">
-                {loading && (
-                    <>
-                        <span className="icon-loading"></span>
-                        <p>{t("misc.loading_data")}</p>
-                    </>
-                )}
-            </div>
-        );
+  const confirmDelete = async () => {
+    if (!jobToDelete) return;
+    try {
+      await axios.delete(`http://localhost:5280/api/Job/DeleteJob`, {
+        headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
+        params: { id: jobToDelete.jobID }
+      });
+      setJobs(prev => prev.filter(j => j.jobID !== jobToDelete.jobID));
+      setJobToDelete(null);
+    } catch (err) {
+      console.error("Lỗi xoá công việc:", err);
+      alert(t("job.delete_failed"));
     }
+  };
 
-    const status4Jobs = jobs.filter((job) => job.status === 4).length;
+  const status4Jobs = jobs.filter((job) => job.status === 4).length;
 
-    console.log("SERVICE TYPE FILTER:", filter.serviceType);
-    console.log("JOB SERVICE TYPES:", jobs.map(j => ({ id: j.jobID, serviceTypes: j.serviceTypes })));
-
-    return (
-        <div className="job-management-page">
-            {/* HEADER THỐNG KÊ */}
-            <div className="job-management-header">
-                <div className="job-management-stat">
-                    <p className="title">{text.jobsPosted}</p>
-                    <div className="value">
-                        {jobs.length} <i className="fa-solid fa-briefcase icon" />
-                    </div>
-                </div>
-                <div className="job-management-stat">
-                    <p className="title">{text.jobsCompleted}</p>
-                    <div className="value">
-                        {status4Jobs} <i className="fa-solid fa-check-circle icon" />
-                    </div>
-                </div>
-                <div className="job-management-stat">
-                    <p className="title">{t("misc.housekeepers_waiting")}</p>
-                    <div className="value">
-                        {housekeepers}{" "}
-                        <button className="btn-primary-small" onClick={() => navigate("/family/post-job")}>
-                            {t("misc.post_now")}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* BỐ CỤC TRÁI-PHẢI */}
-            <div className="job-management-layout">
-                <div className="job-management-filters">
-                    <label>{t("status.status")}</label>
-                    <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
-                        <option value="all">{text.all}</option>
-                        {Object.entries(jobStatusMap).map(([value, label]) => (
-                            <option key={value} value={value}>{label}</option>
-                        ))}
-                    </select>
-
-                    <label>{text.jobType}</label>
-                    <select
-                        value={filter.serviceType}
-                        onChange={(e) => setFilter({ ...filter, serviceType: e.target.value })}
-                    >
-                        <option value="all">{text.allJobTypes}</option>
-                        {[...new Set(serviceList.map(s => s.serviceType))].map(type => (
-                            <option key={type} value={type}>
-                                {t(`serviceTypeName.${type}`, type)}
-                            </option>
-                        ))}
-                    </select>
-
-                    <label>{t("filter.filter.start_date")}</label>
-                    <input
-                        type="date"
-                        value={filter.start_date}
-                        onChange={(e) => setFilter({ ...filter, start_date: e.target.value })}
-                    />
-                </div>
-
-                <div className="job-management-content">
-                    <div className="job-management-tabs">
-                        <span className="active-tab">{text.jobsPosted}</span>
-                    </div>
-
-                    {filteredJobs.length === 0 ? (
-                        <>
-                            {isNoProfile ? (
-                                <p>{text.noProfile}</p>
-                            ) : isNoJob ? (
-                                <p>{text.noJobsYet}</p>
-                            ) : (
-                                <p>{text.noJobsFound}</p>
-                            )}
-                        </>
-                    ) : (
-                        <div className="job-management-list">
-                            {paginatedData.map((job) => (
-                                <div key={job.jobID} className="job-management-card">
-                                    <div className="job-management-card-top">
-                                        <div className="job-management-left">
-                                            <h3 className="job-management-title">{job.jobName}</h3>
-                                            <div className="job-management-info">
-                                                <span>
-                                                    <FaCalendarCheck />{" "}
-                                                    {t("job.job.posted_days_ago", { days: Math.floor((Date.now() - new Date(job.createdDate)) / 86400000) })}
-                                                </span>
-                                                <span>
-                                                    <FaMapMarkerAlt />{" "}
-                                                    {job.location}
-                                                </span>
-                                                <span>
-                                                    <FaMoneyBillWave />{" "}
-                                                    {job.salary != null ? job.salary.toLocaleString("vi-VN") : t("job.job.not_sure")} VNĐ/giờ
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className={`job-management-status-badge status-${job.status}`}>
-                                            {jobStatusMap[job.status]}
-                                        </div>
-                                    </div>
-
-                                    <div className="job-management-actions">
-                                        <button className="btn-secondary" onClick={() => navigate(`/family/job/update/${job.jobID}`)}>{t("job.job.edit")}</button>
-                                        <button className="btn-cancel" onClick={() => handleDeleteClick(job)}>{t("job.job.delete")}</button>
-                                        <button className="btn-primary" onClick={() => handleViewDetail(job)}>
-                                            {job.status === 2 ? text.viewApplicants : text.viewDetail}
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        pageRange={pageRange}
-                        inputPage={inputPage}
-                        onPageChange={(page) => setCurrentPage(page)}
-                        onPageInput={(e) => setInputPage(e.target.value)}
-                        onPageSubmit={(e) => {
-                            e.preventDefault();
-                            const page = parseInt(inputPage);
-                            if (!isNaN(page) && page >= 1 && page <= totalPages) {
-                                setCurrentPage(page);
-                                setInputPage("");
-                            }
-                        }}
-                    />
-                </div>
-            </div>
-
-            {jobToDelete && (
-                <div className="popup-overlay">
-                    <div className="popup-box">
-                        <h4>{text.confirmDeleteTitle}</h4>
-                        <p>{text.confirmDeleteText(jobToDelete.jobName)}</p>
-                        <div className="popup-actions">
-                            <button onClick={confirmDelete} className="btn-cancel">{t("confirm")}</button>
-                            <button onClick={cancelDelete} className="btn-secondary">{t("cancel")}</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showBackToTop && renderBackToTopButton(t)}
+  return (
+    <div className="container my-4">
+      <div className="mb-4 row text-center">
+        <div className="col-md-4">
+          <div className="p-3 bg-light rounded shadow-sm">
+            <h6 className="text-muted">{t("job.job.posted")}</h6>
+            <h4 className="fw-bold">{jobs.length}</h4>
+          </div>
         </div>
-    );
+        <div className="col-md-4">
+          <div className="p-3 bg-light rounded shadow-sm">
+            <h6 className="text-muted">{t("job.job.completed")}</h6>
+            <h4 className="fw-bold">{status4Jobs}</h4>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <div className="p-3 bg-light rounded shadow-sm">
+            <h6 className="text-muted">{t("misc.housekeepers_waiting")}</h6>
+            <h4 className="fw-bold">{housekeepers}</h4>
+            <button className="btn btn-sm btn-primary mt-2" onClick={() => navigate("/family/post-job")}>{t("misc.post_now")}</button>
+          </div>
+        </div>
+      </div>
 
+      <div className="row">
+        {/* Filter Section */}
+        <div className="col-md-4 mb-4">
+          <div className="p-3 border rounded shadow-sm">
+            <label className="form-label">{t("status.status")}</label>
+            <select className="form-select mb-3" value={filter.status} onChange={e => setFilter({ ...filter, status: e.target.value })}>
+              <option value="all">{t("filter.filter.all")}</option>
+              {Object.entries(jobStatusMap).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+
+            <label className="form-label">{t("job.job.type")}</label>
+            <select className="form-select mb-3" value={filter.serviceType} onChange={e => setFilter({ ...filter, serviceType: e.target.value })}>
+              <option value="all">{t("filter.filter.all_job_types")}</option>
+              {serviceTypes.map(type => (
+                <option key={type} value={type}>{t(`serviceTypeName.${type}`, type)}</option>
+              ))}
+            </select>
+
+            <label className="form-label">{t("filter.filter.start_date")}</label>
+            <input
+              type="date"
+              className="form-control"
+              value={filter.start_date}
+              onChange={(e) => setFilter({ ...filter, start_date: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Job List */}
+        <div className="col-md-8">
+          {shouldShowLoadingOrError ? (
+            <div className="alert alert-info">{t("misc.loading_data")}</div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="alert alert-warning">
+              {isNoProfile ? t("job.no_family_profile") : isNoJob ? t("job.no_jobs_yet") : t("misc.no_jobs_found")}
+            </div>
+          ) : (
+            <div className="d-flex flex-column gap-3">
+              {paginatedData.map(job => (
+                <div key={job.jobID} className="border rounded shadow-sm p-3">
+                  <div className="d-flex justify-content-between align-items-start">
+                    <div>
+                      <h5 className="fw-bold mb-2">{job.jobName}</h5>
+                      <div className="text-muted small d-flex flex-wrap gap-3">
+                        <span><FaCalendarCheck className="me-1" /> {t("job.job.posted_days_ago", { days: Math.floor((Date.now() - new Date(job.createdDate)) / 86400000) })}</span>
+                        <span><FaMapMarkerAlt className="me-1" /> {job.location}</span>
+                        <span><FaMoneyBillWave className="me-1" /> {job.salary?.toLocaleString("vi-VN") || t("job.job.not_sure")} VNĐ/giờ</span>
+                      </div>
+                    </div>
+                    <span className={`badge ${job.status === 8 ? "bg-info text-dark" : "bg-secondary"}`}>{jobStatusMap[job.status]}</span>
+                  </div>
+                  <div className="mt-3 d-flex gap-2">
+                    <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate(`/family/job/update/${job.jobID}`)}>{t("job.job.edit")}</button>
+                    <button className="btn btn-outline-danger btn-sm" onClick={() => setJobToDelete(job)}>{t("job.job.delete")}</button>
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate(`/family/job/detail/${job.jobID}`, { state: { createdDate: job.createdDate } })}>
+                      {job.status === 2 ? t("job.job.view_applicants") : t("job.job.view_detail")}
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageRange={pageRange}
+                inputPage={inputPage}
+                onPageChange={(page) => setCurrentPage(page)}
+                onPageInput={(e) => setInputPage(e.target.value)}
+                onPageSubmit={(e) => {
+                  e.preventDefault();
+                  const page = parseInt(inputPage);
+                  if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                    setCurrentPage(page);
+                    setInputPage("");
+                  }
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {jobToDelete && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{t("popup.popup.confirm_delete_title")}</h5>
+                <button type="button" className="btn-close" onClick={() => setJobToDelete(null)}></button>
+              </div>
+              <div className="modal-body">
+                <p>{t("popup.popup.confirm_delete_text", { title: jobToDelete.jobName })}</p>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-danger" onClick={confirmDelete}>{t("confirm")}</button>
+                <button className="btn btn-secondary" onClick={() => setJobToDelete(null)}>{t("cancel")}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showBackToTop && renderBackToTopButton(t)}
+    </div>
+  );
 };
 
 export default FamilyJobManagementPage;

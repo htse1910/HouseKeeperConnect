@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-import "../assets/styles/Dashboard.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const StaffJobModerationPage = () => {
   const { t } = useTranslation();
@@ -152,107 +152,93 @@ const StaffJobModerationPage = () => {
     setInputPage("");
   };
 
-  if (loading || error) {
-    return (
-      <div className="dashboard-container">
-        {loading && (
-          <>
-            <span className="icon-loading" />
-            <p>{t("loading_data")}</p>
-          </>
-        )}
-        {error && <p className="error">❌ {error}</p>}
-      </div>
-    );
-  }
-
   return (
-    <div className="dashboard-container">
-      <h1>{t("job.job_moderation_title")}</h1>
+    <div className="container my-4">
+      <div className="card shadow-sm border-0 p-4">
+        <h4 className="fw-bold mb-4">🧾 Danh sách công việc cần kiểm duyệt</h4>
 
-      {emptyMessage ? (
-        <div className="user-verification-empty-message">
-          <p>{emptyMessage}</p>
-        </div>
-      ) : (
-        <>
-          <table className="dashboard-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>{t("job.job_title")}</th>
-                <th>{t("misc.family_name")}</th>
-                <th>{t("misc.location")}</th>
-                <th>{t("misc.salary")}</th>
-                <th>{t("misc.posted_date")}</th>
-                <th>{t("misc.actions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentRecords.map((job) => (
-                <tr key={job.id}>
-                  <td>{job.id}</td>
-                  <td>{job.title}</td>
-                  <td>{job.familyName}</td>
-                  <td>{job.location}</td>
-                  <td>{job.salary.toLocaleString()} VNĐ</td>
-                  <td>{new Date(job.postedDate).toLocaleDateString()}</td>
-                  <td>
-                    <button className="dashboard-btn dashboard-btn-approve" onClick={() => handleApprove(job.id)}>
-                      {t("verification.approve")}
-                    </button>
-                    <button className="dashboard-btn dashboard-btn-reject" onClick={() => handleReject(job.id)}>
-                      {t("verification.reject")}
-                    </button>
-                  </td>
+        {loading ? (
+          <div className="alert alert-info">Đang tải dữ liệu...</div>
+        ) : error ? (
+          <div className="alert alert-danger">{error}</div>
+        ) : emptyMessage ? (
+          <div className="alert alert-warning">{emptyMessage}</div>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-striped align-middle">
+              <thead className="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>{t("job.job_title")}</th>
+                  <th>{t("misc.family_name")}</th>
+                  <th>{t("misc.location")}</th>
+                  <th>{t("misc.salary")}</th>
+                  <th>{t("misc.posted_date")}</th>
+                  <th>{t("misc.actions")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentRecords.map((job) => (
+                  <tr key={job.id}>
+                    <td>{job.id}</td>
+                    <td>{job.title}</td>
+                    <td>{job.familyName}</td>
+                    <td>{job.location}</td>
+                    <td>{job.salary.toLocaleString()} VNĐ</td>
+                    <td>{new Date(job.postedDate).toLocaleDateString()}</td>
+                    <td>
+                      <div className="d-flex gap-2">
+                        <button className="btn btn-success btn-sm" onClick={() => handleApprove(job.id)}>
+                          {t("verification.approve")}
+                        </button>
+                        <button className="btn btn-danger btn-sm" onClick={() => handleReject(job.id)}>
+                          {t("verification.reject")}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-          <div className="housekeeper-pagination">
-            {totalPages > 15 && (
-              <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                &laquo;
-              </button>
-            )}
-
-            {getPaginationRange().map((page, index) =>
-              page === "..." ? (
-                <span key={index} className="dots">...</span>
-              ) : (
-                <button
-                  key={index}
-                  onClick={() => paginate(page)}
-                  className={currentPage === page ? "active-page" : ""}
-                >
-                  {page}
-                </button>
-              )
-            )}
-
-            {totalPages > 15 && (
-              <>
-                <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                  &raquo;
-                </button>
-                <form onSubmit={handlePageSubmit} className="pagination-input-form">
+            {/* Pagination */}
+            <div className="d-flex flex-wrap justify-content-between align-items-center mt-3">
+              <div>
+                {totalPages > 1 && getPaginationRange().map((page, index) => (
+                  page === "..." ? (
+                    <span key={index} className="mx-1">...</span>
+                  ) : (
+                    <button
+                      key={index}
+                      className={`btn btn-sm mx-1 ${currentPage === page ? "btn-primary" : "btn-outline-secondary"}`}
+                      onClick={() => paginate(page)}
+                    >
+                      {page}
+                    </button>
+                  )
+                ))}
+              </div>
+              {totalPages > 15 && (
+                <form onSubmit={handlePageSubmit} className="d-flex align-items-center gap-2">
                   <input
                     type="text"
-                    className="pagination-input"
+                    className="form-control form-control-sm"
+                    style={{ width: "100px" }}
                     value={inputPage}
                     onChange={handlePageInput}
                     placeholder={t("pagination.go_to_placeholder")}
                   />
-                  <button type="submit" className="pagination-go-btn">{t("pagination.go")}</button>
+                  <button type="submit" className="btn btn-sm btn-outline-primary">
+                    {t("pagination.go")}
+                  </button>
                 </form>
-              </>
-            )}
+              )}
+            </div>
           </div>
-        </>
-      )}
+        )}
 
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      </div>
     </div>
   );
 };
