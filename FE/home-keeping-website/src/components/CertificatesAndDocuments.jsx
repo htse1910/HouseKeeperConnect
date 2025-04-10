@@ -2,54 +2,34 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaIdCard,
-  FaUser,
-  FaCalendarAlt,
   FaCheckCircle,
   FaClock,
 } from "react-icons/fa";
 
 const CertificatesAndDocuments = () => {
-  const [realName, setRealName] = useState(null);
-  const [idNumber, setIdNumber] = useState(null);
-  const [dateOfBirth, setDateOfBirth] = useState(null);
+  const [createdAt, setCreatedAt] = useState(null);
+  const [updatedAt, setUpdatedAt] = useState(null);
   const [verifyStatus, setVerifyStatus] = useState("...");
-  const [verifyID, setVerifyID] = useState(null);
-
-  const accountID = localStorage.getItem("accountID");
-  const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
-    if (!accountID || !authToken) return;
+    const verifyID = localStorage.getItem("verifyID");
+    const token = localStorage.getItem("authToken");
 
-    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByID?id=${accountID}`, {
+    if (!verifyID || !token) return;
+
+    fetch(`http://localhost:5280/api/IDVerifications/GetIDVerificationByID?id=${verifyID}`, {
       headers: {
-        Authorization: `Bearer ${authToken}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => res.json())
-      .then((data) => {
-        if (data.verifyID) {
-          setVerifyID(data.verifyID);
-          localStorage.setItem("verifyID", data.verifyID);
-
-          return fetch(`http://localhost:5280/api/IDVerifications/GetIDVerificationByID?id=${data.verifyID}`, {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          });
-        }
-      })
-      .then((res) => res?.json())
       .then((verification) => {
         if (verification) {
-          if (verification.realName && verification.realName !== "Chưa có") {
-            setRealName(verification.realName);
+          if (verification.createdAt) {
+            setCreatedAt(new Date(verification.createdAt).toLocaleString("vi-VN"));
           }
-          if (verification.idNumber && verification.idNumber !== "Chưa có") {
-            setIdNumber(verification.idNumber);
-          }
-          if (verification.dateOfBirth) {
-            setDateOfBirth(new Date(verification.dateOfBirth).toLocaleDateString("vi-VN"));
+          if (verification.updatedAt) {
+            setUpdatedAt(new Date(verification.updatedAt).toLocaleString("vi-VN"));
           }
 
           switch (verification.status) {
@@ -65,7 +45,7 @@ const CertificatesAndDocuments = () => {
         }
       })
       .catch((err) => console.error("Lỗi khi lấy thông tin giấy tờ:", err));
-  }, [accountID, authToken]);
+  }, []);
 
   return (
     <div className="col-md-6 d-flex">
@@ -84,21 +64,15 @@ const CertificatesAndDocuments = () => {
         {/* 2-Column Info */}
         <div className="row g-3">
           <div className="col-sm-6">
-            <div className="text-muted small">Họ tên</div>
+            <div className="text-muted small">Ngày tạo hồ sơ</div>
             <div className="fw-bold hover-gold">
-              {realName || "Chưa cập nhật"}
+              {createdAt || "Chưa có"}
             </div>
           </div>
           <div className="col-sm-6">
-            <div className="text-muted small">Ngày sinh</div>
+            <div className="text-muted small">Cập nhật gần nhất</div>
             <div className="fw-bold hover-gold">
-              {dateOfBirth || "Chưa cập nhật"}
-            </div>
-          </div>
-          <div className="col-sm-6">
-            <div className="text-muted small">Số CMND/CCCD</div>
-            <div className="fw-bold hover-gold">
-              {idNumber || "Chưa cập nhật"}
+              {updatedAt || "Chưa có"}
             </div>
           </div>
           <div className="col-sm-6">

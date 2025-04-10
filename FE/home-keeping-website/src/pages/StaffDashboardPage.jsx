@@ -2,270 +2,246 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-    FaUserTie, FaUsers, FaBriefcase, FaMoneyBillWave, FaLifeRing,
-    FaStar, FaExclamationTriangle, FaBook
+  FaUserTie, FaUsers, FaBriefcase, FaMoneyBillWave, FaLifeRing,
+  FaStar, FaExclamationTriangle, FaBook
 } from "react-icons/fa";
-import "../assets/styles/Dashboard.css";
 import axios from "axios";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid
+} from "recharts";
 
 const StaffDashboardPage = () => {
-    const { t } = useTranslation();
-    const [searchParams] = useSearchParams();
-    const isDemo = searchParams.get("demo") === "true";
+  const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const isDemo = searchParams.get("demo") === "true";
 
-    const [accountInfo, setAccountInfo] = useState(null);
-    const [statsData, setStatsData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [userName, setUserName] = useState("");
+  const [accountInfo, setAccountInfo] = useState(null);
+  const [statsData, setStatsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [userName, setUserName] = useState("");
 
-    const shouldShowLoadingOrError = loading || error;
+  useEffect(() => {
+    const storedName = localStorage.getItem("userName") || t("staff", "Staff");
+    setUserName(storedName);
+  }, [t]);
 
-    useEffect(() => {
-        const storedName = localStorage.getItem("userName") || t("staff");
-        setUserName(storedName);
-    }, []);
-
-    const menuItems = [
-        { name: t("user.account_verification"), icon: <FaUserTie />, path: "/dashboard/users" },
-        { name: t("uncategorized.jobs"), icon: <FaBriefcase />, path: "/dashboard/jobs" },
-        { name: t("transaction.transactions"), icon: <FaMoneyBillWave />, path: "/dashboard/transactions" },
-        { name: t("uncategorized.staff_support"), icon: <FaLifeRing />, path: "/dashboard/support" },
-        { name: t("uncategorized.reviews"), icon: <FaStar />, path: "/dashboard/reviews" },
-        { name: t("uncategorized.disputes"), icon: <FaExclamationTriangle />, path: "/dashboard/disputes" },
-        { name: t("uncategorized.faqs_policies"), icon: <FaBook />, path: "/dashboard/faqs-policies" },
-    ];
-
-    useEffect(() => {
-        if (isDemo) {
-            setStatsData({
-                totalHousekeepers: 120,
-                totalFamilies: 85,
-                newAccounts7Days: 11,
-                totalJobs: 200,
-                completedJobs: 155,
-                completedJobs7Days: 29,
-                successfulTransactions: 540,
-                successfulTransactions7Days: 25,
-            });
-
-            setLoading(false);
-            setError(null);
-            return;
-        }
-
-        setLoading(true);
-        setError(null);
-
-        const token = localStorage.getItem("authToken");
-        const accountID = localStorage.getItem("accountID");
-
-        if (!token) {
-            setError(t("error_auth"));
-            setLoading(false);
-            return;
-        }
-
-        if (!accountID) {
-            setError(t("error_account"));
-            setLoading(false);
-            return;
-        }
-
-        const headers = {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        };
-
-        // Gọi API để lấy thông tin tài khoản
-        axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
-            .then((accountResponse) => {
-                const account = accountResponse.data;
-                if (!account || !account.accountID) throw new Error(t("error_auth"));
-                if (account.roleID != "3") throw new Error(t("error_auth") + " Role authen");
-                setAccountInfo(account);
-
-                // Gọi API đúng để lấy dữ liệu thống kê
-                return Promise.all([
-                    axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers }), // API thống kê tài khoản
-                    axios.get(`http://localhost:5280/api/Account/NewAccounts`, { headers }),
-                    //axios.get(`http://localhost:5280/api/Job/Stats`, { headers }), // API thống kê công việc
-                    axios.get(`http://localhost:5280/api/Transaction/GetTotalTransactions`, { headers }), // API thống kê giao dịch
-                    axios.get(`http://localhost:5280/api/Transaction/TransactionInPastWeek`, { headers }),
-                    
-                ]);
-            })
-            .then(([accountsRes, newAccountRes/*, jobRes*/, transactionsRes, pastWeekTransactions]) => {
-                const accountsData = accountsRes.data;
-                const newAccountsData = newAccountRes.data;
-                //const jobData = jobRes.data;
-                const totalTransactions = transactionsRes.data;
-                const lastWeekTransactions = pastWeekTransactions.data;
-
-                if (!accountsData || !newAccountsData /*|| !jobData || !transactionData*/) {
-                    throw new Error(t("error_loading"));
-                }
-                setStatsData({
-                    totalHousekeepers: accountsData.totalHousekeepers || 0,
-                    totalFamilies: accountsData.totalFamilies || 0,
-                    newAccounts7Days: newAccountsData.newAccounts7Days || 0,
-                    totalTransactions: totalTransactions || 0,
-                    pastTransactions: lastWeekTransactions.length || 0,
-                    /*totalJobs: jobData.totalJobs || 0,
-                    completedJobs: jobData.completedJobs || 0,
-                    completedJobs7Days: jobData.completedJobs7Days || 0,
-                    successfulTransactions: transactionData.successfulTransactions || 0,
-                    successfulTransactions7Days: transactionData.successfulTransactions7Days || 0,*/
-                });
-            })
-            .catch((err) => {
-                console.error("API Error:", err.message || err);
-                setError(t("error_loading"));
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, [isDemo]);
-
-    const CustomTooltip = ({ active, payload }) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="staff-tooltip">
-                    {payload.map((item, index) => (
-                        <p key={index} style={{ color: item.color }}>
-                            {item.name}: <strong>{item.value}</strong>
-                        </p>
-                    ))}
-                </div>
-            );
-        }
-        return null;
-    };
-
-    if (shouldShowLoadingOrError) {
-        return (
-            <div className="dashboard-container">
-                {loading && (
-                    <>
-                        <span className="icon-loading"></span>
-                        <p>{t("loading_data")}</p>
-                    </>
-                )}
-                {error && (
-                    <>
-                        <p className="error">❌ {error}</p>
-                        {!isDemo && (
-                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                                {t("view_demo")}
-                            </button>
-                        )}
-                    </>
-                )}
-            </div>
-        );
+  useEffect(() => {
+    if (isDemo) {
+      setStatsData({
+        totalHousekeepers: 120,
+        totalFamilies: 85,
+        newAccounts7Days: 11,
+        totalJobs: 200,
+        completedJobs: 155,
+        completedJobs7Days: 29,
+        successfulTransactions: 540,
+        successfulTransactions7Days: 25,
+      });
+      setLoading(false);
+      return;
     }
 
+    const token = localStorage.getItem("authToken");
+    const accountID = localStorage.getItem("accountID");
+
+    if (!token || !accountID) {
+      setError(t("error_auth", "Authentication error."));
+      setLoading(false);
+      return;
+    }
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+
+    axios
+      .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+      .then((accountRes) => {
+        const account = accountRes.data;
+        if (!account) throw new Error(t("error_auth", "Unauthorized"));
+
+        console.log("Logged in account:", account);
+        setAccountInfo(account);
+
+        // Proceed even if role is not 3 (staff), just skip sensitive fetch if needed
+        if (account.roleID !== "3") {
+          console.warn("Accessed staff dashboard with non-staff role:", account.roleID);
+        }
+
+        return Promise.allSettled([
+          axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers }),
+          axios.get(`http://localhost:5280/api/Account/NewAccounts`, { headers }),
+          axios.get(`http://localhost:5280/api/Transaction/GetTotalTransactions`, { headers }),
+          axios.get(`http://localhost:5280/api/Transaction/TransactionInPastWeek`, { headers }),
+        ]);
+      })
+      .then((results) => {
+        const [accStats, newAccs, txTotal, txWeek] = results;
+
+        const totalHousekeepers = accStats.status === "fulfilled" ? accStats.value.data.totalHousekeepers : 0;
+        const totalFamilies = accStats.status === "fulfilled" ? accStats.value.data.totalFamilies : 0;
+        const newAccounts7Days = newAccs.status === "fulfilled" ? newAccs.value.data.newAccounts7Days : 0;
+        const successfulTransactions = txTotal.status === "fulfilled" ? txTotal.value.data : 0;
+        const successfulTransactions7Days = txWeek.status === "fulfilled" ? txWeek.value.data.length : 0;
+
+        setStatsData({
+          totalHousekeepers,
+          totalFamilies,
+          newAccounts7Days,
+          totalJobs: 0,
+          completedJobs: 0,
+          completedJobs7Days: 0,
+          successfulTransactions,
+          successfulTransactions7Days,
+        });
+      })
+      .catch(() => setError(t("error_loading", "Failed to load data.")))
+      .finally(() => setLoading(false));
+  }, [isDemo, t]);
+
+  const CustomTooltip = ({ active, payload }) =>
+    active && payload?.length ? (
+      <div className="bg-white p-2 border rounded shadow-sm">
+        {payload.map((item, index) => (
+          <p key={index} style={{ color: item.color, margin: 0 }}>
+            {item.name}: <strong>{item.value}</strong>
+          </p>
+        ))}
+      </div>
+    ) : null;
+
+  if (loading || error) {
     return (
-        <div className="dashboard-container">
-            <div className="staff-dashboard-layout">
-                {/* Sidebar */}
-                <div className="dashboard-sidebar staff-sidebar">
-                    <h2 className="dashboard-title">{t("navigation.dashboard")}</h2>
-                    <nav>
-                        {menuItems.map((item, index) => (
-                            <NavLink
-                                key={index}
-                                to={item.path}
-                                className={({ isActive }) =>
-                                    `dashboard-menu-item ${isActive ? "active" : ""}`
-                                }
-                            >
-                                {item.icon}
-                                <span>{item.name}</span>
-                            </NavLink>
-                        ))}
-                    </nav>
-                </div>
-
-                {/* Stats Content */}
-                <div className="dashboard-content staff-dashboard-stats-content">
-                    <div className="staff-dashboard-stats">
-                        <div className="staff-dashboard-stat-card">
-                            <FaUserTie className="staff-dashboard-stat-icon" />
-                            <p className="staff-dashboard-stat-number">{statsData.totalHousekeepers}</p>
-                            <p className="staff-dashboard-stat-label">{t("misc.total_housekeepers")}</p>
-                        </div>
-                        <div className="staff-dashboard-stat-card">
-                            <FaUsers className="staff-dashboard-stat-icon" />
-                            <p className="staff-dashboard-stat-number">{statsData.totalFamilies}</p>
-                            <p className="staff-dashboard-stat-label">{t("misc.total_families")}</p>
-                        </div>
-                        <div className="staff-dashboard-stat-card">
-                            <FaBriefcase className="staff-dashboard-stat-icon" />
-                            <p className="staff-dashboard-stat-number">{statsData.totalJobs}</p>
-                            <p className="staff-dashboard-stat-label">{t("misc.total_jobs")}</p>
-                        </div>
-                        <div className="staff-dashboard-stat-card">
-                            <FaMoneyBillWave className="staff-dashboard-stat-icon" />
-                            <p className="staff-dashboard-stat-number">{statsData.successfulTransactions}</p>
-                            <p className="staff-dashboard-stat-label">{t("misc.total_transactions")}</p>
-                        </div>
-                    </div>
-
-                    <div className="staff-stats-container">
-                        {/* Biểu đồ Người Dùng */}
-                        <div className="staff-stats-chart">
-                            <h2>{t("misc.stats_title")}</h2>
-                            <BarChart width={250} height={150} data={[statsData]}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" hide />
-                                <YAxis />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Bar dataKey="totalHousekeepers" fill="#0074D9" name={t("misc.total_housekeepers")} />
-                                <Bar dataKey="totalFamilies" fill="#2ECC40" name={t("misc.total_families")} />
-                                <Bar dataKey="newAccounts7Days" fill="#FBAE17" name={t("misc.created_date") + " (7 " + t("misc.date") + ")"} />
-                            </BarChart>
-                        </div>
-
-                        {/* Biểu đồ Công Việc */}
-                        <div className="staff-stats-chart">
-                            <h2>{t("misc.total_jobs")}</h2>
-                            <BarChart width={250} height={150} data={[statsData]}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" hide />
-                                <YAxis />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Bar dataKey="totalJobs" fill="#0074D9" name={t("misc.total_jobs")} />
-                                <Bar dataKey="completedJobs" fill="#FF9500" name={t("misc.completed")} />
-                                <Bar dataKey="completedJobs7Days" fill="#FF4136" name={`${t("misc.completed")} (7 ${t("misc.date")})`} />
-                            </BarChart>
-                        </div>
-
-                        {/* Biểu đồ Giao Dịch */}
-                        <div className="staff-stats-chart">
-                            <h2>{t("transaction.transaction_payment")}</h2>
-                            <BarChart width={250} height={150} data={[statsData]}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" hide />
-                                <YAxis />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Bar dataKey="successfulTransactions" fill="#2ECC40" name={t("transaction.transactionStatus.completed")} />
-                                <Bar dataKey="successfulTransactions7Days" fill="#FFC107" name={`${t("transaction.transactionStatus.completed")} (7 ${t("misc.date")})`} />
-                            </BarChart>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="dashboard-content staff-dashboard-content">
-                <h1 className="dashboard-heading">{t("dashboard.dashboard_welcome_message", { name: userName || "..." })}</h1>
-                <p className="dashboard-text">{t("misc.select_category")}</p>
-            </div>
-        </div>
+      <div className="container py-5 text-center">
+        {loading && (
+          <>
+            <div className="spinner-border text-primary mb-3" role="status" />
+            <p>{t("loading_data", "Loading data, please wait...")}</p>
+          </>
+        )}
+        {error && (
+          <>
+            <p className="text-danger fs-5">❌ {error}</p>
+            {!isDemo && (
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => (window.location.search = "?demo=true")}
+              >
+                {t("view_demo", "View Demo")}
+              </button>
+            )}
+          </>
+        )}
+      </div>
     );
+  }
+
+  const menuItems = [
+    { name: t("user.account_verification", "Account Verification"), icon: <FaUserTie />, path: "/dashboard/users" },
+    { name: t("uncategorized.jobs", "Jobs"), icon: <FaBriefcase />, path: "/dashboard/jobs" },
+    { name: t("transaction.transactions", "Transactions"), icon: <FaMoneyBillWave />, path: "/dashboard/transactions" },
+    { name: t("uncategorized.staff_support", "Staff Support"), icon: <FaLifeRing />, path: "/dashboard/support" },
+    { name: t("uncategorized.reviews", "Reviews"), icon: <FaStar />, path: "/dashboard/reviews" },
+    { name: t("uncategorized.disputes", "Disputes"), icon: <FaExclamationTriangle />, path: "/dashboard/disputes" },
+    { name: t("uncategorized.faqs_policies", "FAQs & Policies"), icon: <FaBook />, path: "/dashboard/faqs-policies" },
+  ];
+
+  return (
+    <div className="container-fluid py-4">
+      <div className="row">
+        {/* Sidebar */}
+        <div className="col-md-3 mb-4">
+          <div className="card shadow-sm p-3">
+            <h5 className="fw-bold mb-3">{t("navigation.dashboard", "Dashboard")}</h5>
+            <ul className="nav flex-column">
+              {menuItems.map((item, idx) => (
+                <li className="nav-item mb-2" key={idx}>
+                  <NavLink className="nav-link d-flex align-items-center gap-2" to={item.path}>
+                    {item.icon}
+                    {item.name}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div className="col-md-9">
+          <div className="mb-4">
+            <h3>{t("dashboard.dashboard_welcome_message", { name: userName }) || `Welcome back, ${userName}`}</h3>
+            <p className="text-muted">{t("misc.select_category", "Choose a category to manage")}</p>
+          </div>
+
+          {/* Stats cards */}
+          <div className="row g-3">
+            <StatCard icon={<FaUserTie />} value={statsData.totalHousekeepers} label={t("misc.total_housekeepers", "Total Housekeepers")} />
+            <StatCard icon={<FaUsers />} value={statsData.totalFamilies} label={t("misc.total_families", "Total Families")} />
+            <StatCard icon={<FaBriefcase />} value={statsData.totalJobs} label={t("misc.total_jobs", "Total Jobs")} />
+            <StatCard icon={<FaMoneyBillWave />} value={statsData.successfulTransactions} label={t("misc.total_transactions", "Total Transactions")} />
+          </div>
+
+          {/* Charts */}
+          <div className="row mt-4">
+            <ChartSection title={t("misc.stats_title", "Account Stats")} data={statsData} bars={[
+              { key: "totalHousekeepers", fill: "#0074D9", name: t("misc.total_housekeepers", "Total Housekeepers") },
+              { key: "totalFamilies", fill: "#2ECC40", name: t("misc.total_families", "Total Families") },
+              { key: "newAccounts7Days", fill: "#FBAE17", name: `${t("misc.created_date", "Created")} (7 ${t("misc.date", "days")})` },
+            ]} />
+            <ChartSection title={t("misc.total_jobs", "Job Stats")} data={statsData} bars={[
+              { key: "totalJobs", fill: "#0074D9", name: t("misc.total_jobs", "Total Jobs") },
+              { key: "completedJobs", fill: "#FF9500", name: t("misc.completed", "Completed") },
+              { key: "completedJobs7Days", fill: "#FF4136", name: `${t("misc.completed", "Completed")} (7 ${t("misc.date", "days")})` },
+            ]} />
+            <ChartSection title={t("transaction.transaction_payment", "Transactions")} data={statsData} bars={[
+              { key: "successfulTransactions", fill: "#2ECC40", name: t("transaction.transactionStatus.completed", "Completed") },
+              { key: "successfulTransactions7Days", fill: "#FFC107", name: `${t("transaction.transactionStatus.completed", "Completed")} (7 ${t("misc.date", "days")})` },
+            ]} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
+
+const StatCard = ({ icon, value, label }) => (
+  <div className="col-sm-6 col-lg-3">
+    <div className="card text-center p-3 shadow-sm h-100">
+      <div className="fs-4 mb-2">{icon}</div>
+      <h5 className="mb-0">{value}</h5>
+      <small className="text-muted">{label}</small>
+    </div>
+  </div>
+);
+
+const ChartSection = ({ title, data, bars }) => (
+  <div className="col-md-4 mb-4">
+    <div className="card p-3 shadow-sm h-100">
+      <h6 className="mb-3 fw-semibold">{title}</h6>
+      <BarChart width={250} height={150} data={[data]}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" hide />
+        <YAxis />
+        <Tooltip content={<CustomTooltip />} />
+        {bars.map((bar, idx) => (
+          <Bar key={idx} dataKey={bar.key} fill={bar.fill} name={bar.name} />
+        ))}
+      </BarChart>
+    </div>
+  </div>
+);
+
+const CustomTooltip = ({ active, payload }) =>
+  active && payload?.length ? (
+    <div className="bg-white p-2 border rounded shadow-sm">
+      {payload.map((item, index) => (
+        <p key={index} style={{ color: item.color, margin: 0 }}>
+          {item.name}: <strong>{item.value}</strong>
+        </p>
+      ))}
+    </div>
+  ) : null;
 
 export default StaffDashboardPage;
