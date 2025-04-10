@@ -123,19 +123,8 @@ function FamilyDashboardPage() {
         </h2>
         <p className="dashboard-subtext">{t("dashboard.dashboard_family_subtext")}</p>
 
-                {/* Thẻ thống kê */}
-                <div className="stat-card-container">
-                    <button className="joblist-button-top-right" onClick={() => navigate("/family/jobs")}>
-                        Lấy Danh Sách Công Việc của Family
-                    </button>
-                    <div className="stat-card">
-                        <div>
-                            <div className="stat-card-label">{t("dashboard_active_jobs")}</div>
-                            <div className="stat-card-value">{jobStats.activeJobs}</div>
-                        </div>
-                        <FaBriefcase className="stat-card-icon" />
-                    </div>
-
+        {/* Thẻ thống kê */}
+        <div className="stat-card-container">
           <div className="stat-card">
             <div>
               <div className="stat-card-label">{t("dashboard.dashboard_applicants")}</div>
