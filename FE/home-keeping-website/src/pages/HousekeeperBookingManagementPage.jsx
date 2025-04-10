@@ -277,7 +277,7 @@ const HousekeeperBookingManagementPage = () => {
                 </div>
 
                 <div className="text-end mt-2">
-                  {row.status === 1 ? (
+                  {row.status === 1 && new Date(row.endDate.split("/").reverse().join("-")) < new Date() ? (
                     <button
                       className="btn btn-sm btn-success rounded-pill fw-bold"
                       onClick={() => handleMarkComplete(row.jobID)}
