@@ -240,9 +240,15 @@ namespace HouseKeeperConnect_API.Controllers
 
             var noti = new Notification();
             noti.AccountID = accountID;
-            noti.Message = "Bạn đã nộp đơn ứng tuyển cho công việc " + jobID;
+            noti.Message = "Bạn đã nộp đơn ứng tuyển cho công việc #" + jobID +" - "+job.JobName+"!";
 
             await _notificationService.AddNotificationAsync(noti);
+
+            var notF = new Notification();
+            notF.AccountID = job.Family.AccountID;
+            notF.Message = "Công việc #" + job.JobID + " - " + job.JobName + " đã có đơn ứng tuyển!";
+
+            await _notificationService.AddNotificationAsync(notF);
 
             Message = ("Application Added!");
             return Ok(Message);
