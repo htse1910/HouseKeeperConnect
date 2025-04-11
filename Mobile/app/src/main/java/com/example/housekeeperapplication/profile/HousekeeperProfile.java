@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.housekeeperapplication.Adapter.ProfileOptionAdapter;
+import com.example.housekeeperapplication.HomeHousekeeperActivity;
 import com.example.housekeeperapplication.NotificationActivity;
 import com.example.housekeeperapplication.ProfileOption;
 import com.example.housekeeperapplication.R;
@@ -46,27 +47,27 @@ public class HousekeeperProfile extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
 
-        /*BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.nav_profile); // Đánh dấu tab đang chọn
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-
-            *//*if (itemId == R.id.nav_home) {
-                startActivity(new Intent(this, HomeActivity.class));
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(this, HomeHousekeeperActivity.class));
                 return true;
-            } else if (itemId == R.id.nav_activity) {
+            /*} else if (itemId == R.id.nav_activity) {
                 startActivity(new Intent(this, ActivityActivity.class));
-                return true;
-            } else*//* if (itemId == R.id.nav_notification) {
+                return true;*/
+            } else if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
-                return true;
-            *//*} else if (itemId == R.id.nav_chat) {
+                return true; // Đang ở trang thông báo
+            /*} else if (itemId == R.id.nav_chat) {
                 startActivity(new Intent(this, ChatActivity.class));
-                return true;*//*
+                return true;*/
             } else if (itemId == R.id.nav_profile) {
-                return true; // Đang ở trang Profile
+                return true;
             }
-
             return false;
-        });*/
+        });
     }
 }

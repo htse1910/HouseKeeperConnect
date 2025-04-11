@@ -45,28 +45,28 @@ public class FamilyProfile extends AppCompatActivity {
         });
         recyclerView.setAdapter(adapter);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        /*BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
-            /*if (itemId == R.id.nav_home) {
+            *//*if (itemId == R.id.nav_home) {
                 startActivity(new Intent(this, HomeActivity.class));
                 return true;
             } else if (itemId == R.id.nav_activity) {
                 startActivity(new Intent(this, ActivityActivity.class));
                 return true;
-            } else*/ if (itemId == R.id.nav_notification) {
+            } else*//* if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
                 return true;
-            /*} else if (itemId == R.id.nav_chat) {
+            *//*} else if (itemId == R.id.nav_chat) {
                 startActivity(new Intent(this, ChatActivity.class));
-                return true;*/
+                return true;*//*
             } else if (itemId == R.id.nav_profile) {
                 return true; // Đang ở trang Profile
             }
 
             return false;
-        });
+        });*/
 
     }
 }
