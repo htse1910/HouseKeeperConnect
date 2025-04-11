@@ -295,7 +295,7 @@ const HousekeeperBookingManagementPage = () => {
                     </span>
                   ) : row.status === 6 ? null : (
                     <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
-                      Trạng thái không xác định
+                      Chưa tới ngày xác nhận
                     </span>
                   )}
                 </div>
