@@ -157,6 +157,8 @@
       "lunchBreak": "Được nghỉ trưa 1 tiếng, từ {{start}} đến {{end}}"
     },
     "jobPost": {
+      "once": "Một lần duy nhất",
+      "period": "Lặp lại nhiều lần",
       "success": "🎉 Công việc đã được đăng thành công!",
       "offer_success": "🎉 Bạn đã mời người giúp việc thành công!",
       "jobTitlePlaceholder": "Nhập tiêu đề công việc, ví dụ: Giúp việc buổi sáng",

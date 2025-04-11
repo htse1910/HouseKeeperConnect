@@ -65,9 +65,10 @@ export const formatWorkTypeClass = (type) => {
 
 export const formatWorkTypeLabel = (type, t) => {
   if (!type) return "";
-  return t(
-    type === "Full-time" ? "job.jobPost.fullTime" : "job.jobPost.partTime"
-  );
+  const normalized = type.toLowerCase();
+  if (normalized === "once") return t("job.jobPost.once");
+  if (normalized === "period") return t("job.jobPost.period");
+  return t("job.jobPost.jobTypePlaceholder");
 };
 
 export const formatSkillName = (skill, t) => {
