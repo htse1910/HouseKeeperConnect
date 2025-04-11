@@ -619,10 +619,10 @@ const FamilyJobPostingPage = () => {
 
                         <div className="payment-modal-footer">
                             <button className="btn-secondary" onClick={() => setShowPaymentModal(false)}>
-                                {t("misc.cancelBillModel")}
+                                {t("job.jobPost.cancelBillModel")}
                             </button>
                             <button className="btn-primary" onClick={() => navigate("/family/my-posts")}>
-                                {t("misc.backToManagementPage")}
+                                {t("job.jobPost.backToManagementPage")}
                             </button>
                         </div>
                     </div>
