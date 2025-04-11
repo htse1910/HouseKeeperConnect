@@ -67,6 +67,26 @@ namespace DataAccess
             }
             return booking;
         }
+        
+        public async Task<Booking> GetBookingByJobIDAsync(int jobID)
+        {
+            Booking booking = new Booking();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    booking = await context.Booking
+                        .Include(b => b.Job)
+                        .Include(b => b.Housekeeper)
+                        .SingleOrDefaultAsync(b => b.JobID == jobID);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return booking;
+        }
 
         /*        public async Task<List<Booking>> GetBookingsByFamilyIDAsync(int familyId)
                 {

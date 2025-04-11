@@ -13,18 +13,20 @@ namespace Repositories
             _bookingDAO = BookingDAO.Instance;
         }
 
-        public Task AddBookingAsync(Booking booking) => _bookingDAO.AddBookingAsync(booking);
+        public async Task AddBookingAsync(Booking booking) =>await _bookingDAO.AddBookingAsync(booking);
 
-        public Task DeleteBookingAsync(int id) => _bookingDAO.DeleteBookingAsync(id);
+        public async Task DeleteBookingAsync(int id) => await _bookingDAO.DeleteBookingAsync(id);
 
-        public Task<List<Booking>> GetAllBookingsAsync() => _bookingDAO.GetAllBookingsAsync();
+        public async Task<List<Booking>> GetAllBookingsAsync() => await _bookingDAO.GetAllBookingsAsync();
 
-        public Task<Booking> GetBookingByIDAsync(int id) => _bookingDAO.GetBookingByIDAsync(id);
+        public async Task<Booking> GetBookingByIDAsync(int id) => await _bookingDAO.GetBookingByIDAsync(id);
 
-        public Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId) => _bookingDAO.GetBookingsByHousekeeperIDAsync(housekeeperId);
+        public async Task<Booking> GetBookingByJobIDAsync(int jobID) => await _bookingDAO.GetBookingByJobIDAsync(jobID);
 
-        public Task<List<Booking>> GetBookingsByJobIDAsync(int jobId) => _bookingDAO.GetBookingsByJobIDAsync(jobId);
+        public async Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId) => await _bookingDAO.GetBookingsByHousekeeperIDAsync(housekeeperId);
 
-        public Task UpdateBookingAsync(Booking booking) => _bookingDAO.UpdateBookingAsync(booking);
+        public async Task<List<Booking>> GetBookingsByJobIDAsync(int jobId) => await _bookingDAO.GetBookingsByJobIDAsync(jobId);
+
+        public async Task UpdateBookingAsync(Booking booking) => await _bookingDAO.UpdateBookingAsync(booking);
     }
 }
