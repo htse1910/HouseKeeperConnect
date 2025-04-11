@@ -691,18 +691,27 @@ namespace HouseKeeperConnect_API.Controllers
                 ? "Job verified successfully!"
                 : "Job marked as not permitted.";
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
-            var housekeeper = await _houseKeeperService.GetHousekeeperByIDAsync(jobDetail.HousekeeperID.Value);
-            int housekeeperAccountId = housekeeper.AccountID;
-            await _notificationService.AddNotificationAsync(new Notification
+            var housekeeper = await _houseKeeperService.GetHousekeeperByIDAsync(jobDetail.HousekeeperID.GetValueOrDefault());
+            if(housekeeper != null)
             {
-                AccountID = housekeeperAccountId,
-                Message = status == (int)JobStatus.Verified
+                await _notificationService.AddNotificationAsync(new Notification
+                {
+                    AccountID = housekeeper.AccountID,
+                    Message = status == (int)JobStatus.Verified
             ? "Một công việc bạn được đề xuất đã được xác minh. Vui lòng kiểm tra chi tiết công việc."
             : "Một công việc bạn được đề xuất đã bị từ chối.",
-                RedirectUrl = null,
-                IsRead = false,
-                CreatedDate = DateTime.Now
-            });
+                    RedirectUrl = null,
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                });
+            }
+
+            var noti = new Notification();
+            noti.Message = "Công việc #" + job.JobID + " - " + job.JobName + " đã được phê duyệt!";
+            noti.AccountID = job.Family.AccountID;
+
+            await _notificationService.AddNotificationAsync(noti);
+            
             return Ok(Message);
         }
 
