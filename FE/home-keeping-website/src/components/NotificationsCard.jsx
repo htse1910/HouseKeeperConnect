@@ -17,11 +17,11 @@ const NotificationsCard = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5280/api/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=5`,
+        `http://localhost:5280/api/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=1000`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
-            Accept: "text/plain",
+            Accept: "application/json",
           },
         }
       );
@@ -30,11 +30,19 @@ const NotificationsCard = () => {
 
       const data = await response.json();
 
-      const sortedData = (data || []).sort(
+      // Sort and deduplicate by message
+      const sorted = (data || []).sort(
         (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
       );
 
-      setNotifications(sortedData);
+      const seenMessages = new Set();
+      const deduplicated = sorted.filter(noti => {
+        if (seenMessages.has(noti.message)) return false;
+        seenMessages.add(noti.message);
+        return true;
+      });
+
+      setNotifications(deduplicated);
     } catch (error) {
       console.error("Lỗi khi lấy thông báo:", error);
     } finally {
