@@ -141,15 +141,31 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetHousekeeperByID")]
         [Authorize]
-        public async Task<ActionResult<Housekeeper>> getHKByID([FromQuery] int id)
+        public async Task<ActionResult<HouseKeeperDisplayDTO>> getHKByID([FromQuery] int id)
         {
             var hk = await _housekeeperService.GetHousekeeperByIDAsync(id);
             if (hk == null)
             {
-                Message = "No Records!";
+                Message = "No housekeeper found!";
                 return NotFound(Message);
             }
-            return Ok(hk);
+            var acc = await _accountService.GetAccountByIDAsync(hk.AccountID);
+            if (acc == null)
+            {
+                Message = "No account found!";
+                return NotFound(Message);
+            }
+            var veri = new IDVerification();
+
+            if (hk.VerifyID.HasValue)
+            {
+                veri = await _verificationService.GetIDVerifyByIDAsync(hk.VerifyID.Value);
+            }
+            var display = new HouseKeeperDisplayDTO();
+            _mapper.Map(acc, display);
+            _mapper.Map(hk, display);
+            _mapper.Map(veri, display);
+            return Ok(display);
         }
 
         [HttpGet("GetHousekeeperByAccountID")]
