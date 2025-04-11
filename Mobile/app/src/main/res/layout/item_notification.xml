@@ -27,10 +27,10 @@
         android:id="@+id/btnRead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Read"
+        android:text="Đã đọc"
         android:textSize="12sp"
         android:layout_marginTop="8dp"
-        android:backgroundTint="#666666"
+        android:backgroundTint="#FBD074"
         android:textColor="@android:color/white" />
 
 </LinearLayout>

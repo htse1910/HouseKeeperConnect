@@ -5,51 +5,49 @@ import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.housekeeperapplication.Adapter.NotificationAdapter;
-import com.example.housekeeperapplication.Model.Notification;
-import com.example.housekeeperapplication.profile.FamilyProfile;
+import com.example.housekeeperapplication.Adapter.JobAdapter;
+import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.profile.HousekeeperProfile;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class NotificationActivity extends AppCompatActivity {
+public class HomeHousekeeperActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerViewNotifications;
-    private NotificationAdapter notificationAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_notification);
+        setContentView(R.layout.activity_home_housekeeper);
+        RecyclerView recyclerJobs = findViewById(R.id.recyclerJobs);
+        List<Job> jobs = new ArrayList<>();
+        jobs.add(new Job("Dọn dẹp dịp lễ 30/4", "Gia đình Nguyễn Văn A", "TP.HCM", "75000", "Full-time"));
+        jobs.add(new Job("Nấu ăn", "Gia đình Trần Văn B", "Hà Nội", "90000", "Part-time"));
 
-        recyclerViewNotifications = findViewById(R.id.recyclerViewNotifications);
-        recyclerViewNotifications.setLayoutManager(new LinearLayoutManager(this));
 
-        // Tạo danh sách thông báo mẫu
-        ArrayList<Notification> notificationList = new ArrayList<>();
-        notificationList.add(new Notification("Bạn đã nộp đơn ứng tuyển cho công việc 2", "00:38:00 8/4/2025"));
-        notificationList.add(new Notification("Đã có cập nhật mới về đơn ứng tuyển của bạn", "08:30:00 8/4/2025"));
+        JobAdapter adapter = new JobAdapter(jobs);
+        recyclerJobs.setLayoutManager(new LinearLayoutManager(this));
+        recyclerJobs.setAdapter(adapter);
 
-        // Gán adapter
-        notificationAdapter = new NotificationAdapter(notificationList);
-        recyclerViewNotifications.setAdapter(notificationAdapter);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setSelectedItemId(R.id.nav_notification); // Đánh dấu tab đang chọn
-
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                startActivity(new Intent(this, HomeHousekeeperActivity.class));
                 return true;
             /*} else if (itemId == R.id.nav_activity) {
                 startActivity(new Intent(this, ActivityActivity.class));
                 return true;*/
             } else if (itemId == R.id.nav_notification) {
+                startActivity(new Intent(this, NotificationActivity.class));
                 return true; // Đang ở trang thông báo
             /*} else if (itemId == R.id.nav_chat) {
                 startActivity(new Intent(this, ChatActivity.class));
