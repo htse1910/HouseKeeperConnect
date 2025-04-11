@@ -23,6 +23,7 @@ import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 import StaffDashboardPage from './pages/StaffDashboardPage';
 import StaffUserVerificationPage from './pages/StaffUserVerificationPage';
 import StaffJobModerationPage from './pages/StaffJobModerationPage';
+import StaffPayoutApprovalPage from './pages/StaffPayoutApprovalPage';
 import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage'; // ✅ Import new page
 import FamilyDashboardPage from './pages/FamilyDashboardPage';
 import FamilyWalletPage from './pages/FamilyWalletPage';
@@ -88,6 +89,7 @@ function AppRoutes() {
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
         <Route path="/dashboard/users" element={<StaffUserVerificationPage />} />
         <Route path="/dashboard/jobs" element={<StaffJobModerationPage />} />
+        <Route path="/dashboard/payouts" element={<StaffPayoutApprovalPage />} />
 
         {/* Family Pages */}
         <Route path="/family/dashboard" element={<FamilyDashboardPage />} />

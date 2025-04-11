@@ -143,3 +143,22 @@
   gap: var(--gap-sm);
   margin-top: var(--spacing-md);
 }
+
+.payout-status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-tiny);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.payout-status-pending {
+  background-color: var(--bg-tag-warning);
+  color: var(--text-warning);
+}
+
+.payout-status-completed {
+  background-color: var(--bg-tag-success);
+  color: var(--text-success);
+}
