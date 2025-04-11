@@ -66,6 +66,11 @@ const FamilyJobDetailsPage = () => {
     const [applicants, setApplicants] = useState([]);
     const [services, setServices] = useState([]);
 
+    const [showRatingModal, setShowRatingModal] = useState(false);
+    const [ratingScore, setRatingScore] = useState(5);
+    const [ratingComment, setRatingComment] = useState("");
+
+
     useEffect(() => {
         if (!authToken || !accountID || !jobID) return;
         axios.get(`http://localhost:5280/api/Application/ApplicationListByJob?jobID=${jobID}&pageNumber=1&pageSize=5`, { headers })
@@ -178,11 +183,11 @@ const FamilyJobDetailsPage = () => {
             headers
         })
             .then(() => {
-                alert("Xác nhận hoàn thành công việc thành công.");
-                window.location.reload();
+                toast.success("🎉 Công việc đã được xác nhận hoàn thành!");
+                setShowRatingModal(true);
             })
             .catch(() => {
-                alert("Xác nhận không thành công.");
+                toast.error("❌ Không thể xác nhận hoàn thành công việc.");
             });
     };
 
@@ -210,6 +215,37 @@ const FamilyJobDetailsPage = () => {
             </div>
         );
     }
+
+    const submitRating = async () => {
+        if (!ratingScore || ratingScore < 1 || ratingScore > 5) {
+            toast.error("Vui lòng chọn điểm từ 1 đến 5.");
+            return;
+        }
+
+        try {
+            const housekeeperID = job.housekeeperID;
+            const hkRes = await axios.get(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByID?id=${housekeeperID}`, { headers });
+            const revieweeAccountID = hkRes.data.accountID;
+
+            await axios.post("http://localhost:5280/api/Rating/AddRating", null, {
+                params: {
+                    Reviewer: parseInt(accountID),
+                    Reviewee: revieweeAccountID,
+                    Score: ratingScore,
+                    Content: ratingComment
+                },
+                headers
+            });
+
+            toast.success("✅ Gửi đánh giá thành công!");
+            setShowRatingModal(false);
+            window.location.reload();
+
+        } catch (error) {
+            console.error("Rating failed", error);
+            toast.error("❌ Không thể gửi đánh giá.");
+        }
+    };
 
     return (
         <div className="container my-4">
@@ -371,6 +407,38 @@ const FamilyJobDetailsPage = () => {
 
                 <Modal.Footer>
                     <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showRatingModal} onHide={() => setShowRatingModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Đánh giá người giúp việc</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="mb-3">
+                        <label className="form-label">Điểm đánh giá (1 - 5):</label>
+                        <input
+                            type="number"
+                            min="1"
+                            max="5"
+                            value={ratingScore}
+                            onChange={(e) => setRatingScore(Number(e.target.value))}
+                            className="form-control"
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label className="form-label">Nội dung đánh giá (tùy chọn):</label>
+                        <textarea
+                            className="form-control"
+                            rows="3"
+                            value={ratingComment}
+                            onChange={(e) => setRatingComment(e.target.value)}
+                            placeholder="Nhập nhận xét của bạn..."
+                        />
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <button className="btn btn-secondary" onClick={() => setShowRatingModal(false)}>Hủy</button>
+                    <button className="btn btn-primary" onClick={submitRating}>Gửi đánh giá</button>
                 </Modal.Footer>
             </Modal>
             <ToastContainer position="bottom-right" />
