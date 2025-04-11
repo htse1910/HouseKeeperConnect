@@ -32,7 +32,7 @@ const FamilyInvitationPage = () => {
         axios
             .get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountID=${accountID}&pageNumber=1&pageSize=10`, { headers })
             .then((res) => {
-                const list = res.data?.filter((j) => !j.isOffered && j.status === 1) || [];
+                const list = res.data?.filter((j) => !j.isOffered && j.status === 2) || [];
                 setJobs(list);
             })
             .catch(() => setError(t("error.error_loading")))
