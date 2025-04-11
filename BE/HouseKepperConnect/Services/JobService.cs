@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using Repositories;
 using Repositories.Interface;
 using Services.Interface;
 
@@ -13,15 +14,9 @@ namespace Services
             _jobRepository = jobRepository;
         }
 
-        public async Task AddJobAsync(Job job)
-        {
-            await _jobRepository.AddJobAsync(job);
-        }
+        public async Task AddJobAsync(Job job) => await _jobRepository.AddJobAsync(job);
 
-        public async Task AddJobDetailAsync(JobDetail jobDetail)
-        {
-            await _jobRepository.AddJobDetailAsync(jobDetail);
-        }
+        public async Task AddJobDetailAsync(JobDetail jobDetail) => await _jobRepository.AddJobDetailAsync(jobDetail);
 
         public async Task DeleteJobAsync(int id) => await _jobRepository.DeleteJobAsync(id);
 
@@ -43,5 +38,7 @@ namespace Services
         public async Task<List<JobDetail>> GetAllDetailJobsAsync(int pageNumber, int pageSize) => await _jobRepository.GetAllDetailJobsAsync(pageNumber, pageSize);
 
         public async Task<List<JobDetail>> SearchJobsAsync(string name, int pageNumber, int pageSize) => await _jobRepository.SearchJobsAsync(name, pageNumber, pageSize);
+
+        public async Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize) => await _jobRepository.GetJobsOfferedByHKAsync(hktId, pageNumber, pageSize);
     }
 }
