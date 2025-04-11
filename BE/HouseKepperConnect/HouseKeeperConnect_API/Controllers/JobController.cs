@@ -1031,7 +1031,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No payout found!";
                 return NotFound(Message);
             }
-            payout.Status = (int)PaymentStatus.Completed;
+            payout.Status = (int)PayoutStatus.Completed;
             payout.PayoutDate = DateTime.Now;
 
             await _payoutService.UpdatePayoutAsync(payout);
@@ -1047,6 +1047,12 @@ namespace HouseKeeperConnect_API.Controllers
 
             job.Status = (int)JobStatus.Completed;
             await _jobService.UpdateJobAsync(job);
+
+            //Update JobCompleted count for HK
+
+            hk.JobCompleted++;
+
+            await _houseKeeperService.UpdateHousekeeperAsync(hk);
 
             // Notify housekeeper
             await _notificationService.AddNotificationAsync(new Notification
