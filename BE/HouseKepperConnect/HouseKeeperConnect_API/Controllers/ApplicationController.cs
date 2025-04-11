@@ -238,6 +238,11 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _applicationService.AddApplicationAsync(app);
 
+            //Update HK JobApplied count
+            hk.JobsApplied++;
+
+            await _houseKeeperService.UpdateHousekeeperAsync(hk);
+
             var noti = new Notification();
             noti.AccountID = accountID;
             noti.Message = "Bạn đã nộp đơn ứng tuyển cho công việc #" + jobID +" - "+job.JobName+"!";
