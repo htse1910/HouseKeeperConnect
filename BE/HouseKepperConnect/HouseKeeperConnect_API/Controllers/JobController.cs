@@ -116,6 +116,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No records!";
                 return NotFound(Message);
             }
+
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
             if (jobDetail == null)
             {
@@ -145,8 +146,17 @@ namespace HouseKeeperConnect_API.Controllers
 
             _mapper.Map(job, displayDTO);
             _mapper.Map(jobDetail, displayDTO);
+            var booking = await _bookingService.GetBookingByJobIDAsync(job.JobID);
+            if (booking == null)
+            {
+                displayDTO.BookingID = null;
+            }
+            else
+            {
+                displayDTO.BookingID = booking.BookingID;
+            }
 
-            displayDTO.SlotIDs = JobSlotDay.Select(slot => slot.SlotID).Distinct().ToList();
+                displayDTO.SlotIDs = JobSlotDay.Select(slot => slot.SlotID).Distinct().ToList();
             displayDTO.DayofWeek = JobSlotDay.Select(slot => slot.DayOfWeek).Distinct().ToList();
             displayDTO.ServiceIDs = JobService.Select(service => service.ServiceID).Distinct().ToList();
 
