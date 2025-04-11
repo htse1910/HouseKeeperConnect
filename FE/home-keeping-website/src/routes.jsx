@@ -23,6 +23,7 @@ import HouseKeeperManagePage from './pages/HouseKeeperManagePage';
 import StaffDashboardPage from './pages/StaffDashboardPage';
 import StaffUserVerificationPage from './pages/StaffUserVerificationPage';
 import StaffJobModerationPage from './pages/StaffJobModerationPage';
+import StaffPayoutApprovalPage from './pages/StaffPayoutApprovalPage';
 import UpdateHousekeeperAccountPage from './pages/UpdateHousekeeperAccountPage'; // ✅ Import new page
 import FamilyDashboardPage from './pages/FamilyDashboardPage';
 import FamilyWalletPage from './pages/FamilyWalletPage';
@@ -31,6 +32,7 @@ import FamilyHousekeeperViewPage from './pages/FamilyHousekeeperViewPage';
 import FamilyInvitationPage from './pages/FamilyInvitationPage';
 import FamilyTransactionPage from './pages/FamilyTransactionPage';
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
+import FamilyJobPaymentResultPage from './pages/FamilyJobPaymentResultPage.jsx';
 import FamilyJobDetailsPage from './pages/FamilyJobDetailsPage';
 import FamilyDepositPage from "./pages/FamilyDepositPage";
 import FamilyDepositReturnPage from "./pages/FamilyDepositReturnPage";
@@ -87,6 +89,7 @@ function AppRoutes() {
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
         <Route path="/dashboard/users" element={<StaffUserVerificationPage />} />
         <Route path="/dashboard/jobs" element={<StaffJobModerationPage />} />
+        <Route path="/dashboard/payouts" element={<StaffPayoutApprovalPage />} />
 
         {/* Family Pages */}
         <Route path="/family/dashboard" element={<FamilyDashboardPage />} />
@@ -97,6 +100,7 @@ function AppRoutes() {
         <Route path="/family/housekeeper/profile/:accountID" element={<FamilyHousekeeperViewPage />} />
         <Route path="/family/invite" element={<FamilyInvitationPage />} />
         <Route path="/family/post-job" element={<FamilyJobPostingPage />} />
+        <Route path="/family/job/payment" element={<FamilyJobPaymentResultPage />} />
         <Route path="/family/my-posts" element={<FamilyJobManagementPage />} />
         <Route path="/family/job/update/:id" element={<FamilyJobDetailUpdatePage />} />
         <Route path="/family/job/detail/:id" element={<FamilyJobDetailsPage />} />

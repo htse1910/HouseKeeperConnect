@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import axios from "axios";
 import "../assets/styles/Job.css";
+import "../assets/styles/Payment.css";
+import { formatDateTime, formatTotalCurrency } from "../utils/formatData";
 
 const FamilyJobPostingPage = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
+
+    const [wallet, setWallet] = useState(null);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentInfo, setPaymentInfo] = useState(null);
 
     const today = new Date();
     const defaultStart = today.toISOString().split("T")[0];
@@ -99,6 +107,13 @@ const FamilyJobPostingPage = () => {
                     .then((res) => {
                         const fam = res.data || null;
                         setFamily(fam);
+                        axios
+                            .get(`http://localhost:5280/api/Wallet/getWallet?id=${accountID}`, { headers })
+                            .then((res) => setWallet(res.data))
+                            .catch((err) => {
+                                console.error("Không thể lấy Wallet:", err);
+                                setWallet(null);
+                            });
                         if (fam?.address) {
                             setFormData((prev) => ({
                                 ...prev,
@@ -263,6 +278,19 @@ const FamilyJobPostingPage = () => {
             document.querySelectorAll("details").forEach((d) => {
                 d.open = false;
             });
+
+            setPaymentInfo({
+                jobID: response?.data?.jobID || null,
+                jobName: formData.JobName,
+                amount: calculatedPrice,
+                fee: calculatedPrice * 0.1,
+                housekeeperEarnings: calculatedPrice * 0.9,
+                createdAt: new Date().toISOString(),
+                currentBalance: wallet?.balance - calculatedPrice,
+                topUpNeeded: 0,
+            });
+            setShowPaymentModal(true);
+
         } catch (err) {
             console.error("❌ Lỗi khi gọi AddJob:", err);
             const serverMsg =
@@ -274,6 +302,8 @@ const FamilyJobPostingPage = () => {
     };
 
     const [calculatedPrice, setCalculatedPrice] = useState(0);
+    const platformFee = Math.round(calculatedPrice * 0.1);
+    const baseAmount = calculatedPrice - platformFee;
 
     const calculatePrice = () => {
         if (
@@ -339,7 +369,7 @@ const FamilyJobPostingPage = () => {
         <div className="job-posting-container">
             <h1 className="job-posting-title">{t("navigation.post_job")}</h1>
 
-            {message && <p className="job-posting-alert job-posting-success">{t("jobPost.postingSuccess")}</p>}
+            {message && <p className="job-posting-alert job-posting-success">{t("job.jobPost.postingSuccess")}</p>}
             {error && <p className="job-posting-alert job-posting-error">{error}</p>}
 
             <form onSubmit={handleSubmit} className="job-posting-form-grid">
@@ -429,6 +459,36 @@ const FamilyJobPostingPage = () => {
                     </div>
                 </div>
 
+                {/* Ngày bắt đầu / kết thúc */}
+                <div className="job-posting-section">
+                    <div className="job-posting-pair">
+                        <label>{t("filter.filter.start_date")}</label>
+                        <input
+                            ref={startDateRef}
+                            type="date"
+                            name="StartDate"
+                            className="job-posting-input"
+                            value={formData.StartDate}
+                            onChange={handleChange}
+                            placeholder={t("job.jobPost.startDatePlaceholder")}
+                            required
+                        />
+                    </div>
+                    <div className="job-posting-pair">
+                        <label>{t("job.jobPost.endDate")}</label>
+                        <input
+                            ref={endDateRef}
+                            type="date"
+                            name="EndDate"
+                            className="job-posting-input"
+                            value={formData.EndDate}
+                            onChange={handleChange}
+                            placeholder={t("job.jobPost.endDatePlaceholder")}
+                            required
+                        />
+                    </div>
+                </div>
+
                 {/* Ngày làm việc */}
                 <div className="job-posting-section job-posting-section-full">
                     <label>{t("job.jobPost.workingDaysLabel")}</label>
@@ -466,20 +526,34 @@ const FamilyJobPostingPage = () => {
                     <div className="job-posting-pair">
                         <label>{t("misc.salary")}</label>
                         <div className="job-posting-auto-price">
-                            <span>{calculatedPrice.toLocaleString()} {t("job.jobPost.salaryUnit")}</span>
+                            <span>{formatTotalCurrency(calculatedPrice, t)}</span>
                             <p className="job-posting-note">{t("job.jobPost.priceAutoCalculationNote")}</p>
-                            {services.filter(s => formData.ServiceIDs.includes(s.serviceID)).length > 0 && (
-                                <ul className="job-posting-service-detail-list">
-                                    {services
-                                        .filter(s => formData.ServiceIDs.includes(s.serviceID))
-                                        .map(s => (
-                                            <li key={s.serviceID} className="job-posting-service-detail-item">
-                                                <span>{s.serviceName}</span>
-                                                <span style={{ float: "right" }}>{s.price.toLocaleString()} VNĐ/giờ</span>
-                                            </li>
-                                        ))}
-                                </ul>
-                            )}
+
+                            <ul className="job-posting-service-detail-list">
+                                {/* Dịch vụ */}
+                                {services
+                                    .filter(s => formData.ServiceIDs.includes(s.serviceID))
+                                    .map(s => (
+                                        <li key={s.serviceID} className="job-posting-service-detail-item">
+                                            <span>{s.serviceName}</span>
+                                            <span style={{ float: "right" }}>
+                                                {formatTotalCurrency(s.price, t)} / {t("job.jobPost.salaryUnitPerHour")}
+                                            </span>
+                                        </li>
+                                    ))}
+
+                                {/* Tổng lương trước phí */}
+                                <li className="job-posting-service-detail-item">
+                                    <span>{t("job.jobPost.baseSalary")}</span>
+                                    <span style={{ float: "right" }}>{formatTotalCurrency(baseAmount, t)}</span>
+                                </li>
+
+                                {/* Phí nền tảng */}
+                                <li className="job-posting-service-detail-item">
+                                    <span>{t("job.jobPost.platformFee")}</span>
+                                    <span style={{ float: "right" }}>{formatTotalCurrency(platformFee, t)}</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <div className="job-posting-section job-posting-section-full">
@@ -498,36 +572,6 @@ const FamilyJobPostingPage = () => {
                                 </label>
                             ))}
                         </div>
-                    </div>
-                </div>
-
-                {/* Ngày bắt đầu / kết thúc */}
-                <div className="job-posting-section">
-                    <div className="job-posting-pair">
-                        <label>{t("filter.filter.start_date")}</label>
-                        <input
-                            ref={startDateRef}
-                            type="date"
-                            name="StartDate"
-                            className="job-posting-input"
-                            value={formData.StartDate}
-                            onChange={handleChange}
-                            placeholder={t("job.jobPost.startDatePlaceholder")}
-                            required
-                        />
-                    </div>
-                    <div className="job-posting-pair">
-                        <label>{t("job.jobPost.endDate")}</label>
-                        <input
-                            ref={endDateRef}
-                            type="date"
-                            name="EndDate"
-                            className="job-posting-input"
-                            value={formData.EndDate}
-                            onChange={handleChange}
-                            placeholder={t("job.jobPost.endDatePlaceholder")}
-                            required
-                        />
                     </div>
                 </div>
 
@@ -555,6 +599,35 @@ const FamilyJobPostingPage = () => {
                     </button>
                 </div>
             </form>
+
+            {showPaymentModal && paymentInfo && (
+                <div className="payment-modal-overlay">
+                    <div className="payment-modal-box">
+                        <h2 className="payment-modal-title">{t("job.jobPost.success")}</h2>
+                        <p className="payment-modal-message">{t("deposit.deposit_return_note_success")}</p>
+
+                        <div className="payment-modal-info">
+                            <p><strong>{t("job.job_title")}:</strong> {paymentInfo.jobName || `#${paymentInfo.jobID}`}</p>
+                            <p><strong>{t("misc.date")}:</strong> {formatDateTime(paymentInfo.createdAt)}</p>
+                            <p><strong>{t("misc.amount")}:</strong> {formatTotalCurrency(paymentInfo.amount, t)}</p>
+                            <p><strong>{t("job.jobPost.platformFee")}:</strong> {formatTotalCurrency(paymentInfo.fee, t)}</p>
+                            <p><strong>{t("transaction.transactionStatus.payout")}:</strong> {formatTotalCurrency(paymentInfo.housekeeperEarnings, t)}</p>
+                            <p className="payment-balance">
+                                {t("misc.current_balance")}: {formatTotalCurrency(paymentInfo.currentBalance, t)}
+                            </p>
+                        </div>
+
+                        <div className="payment-modal-footer">
+                            <button className="btn-secondary" onClick={() => setShowPaymentModal(false)}>
+                                {t("misc.cancelBillModel")}
+                            </button>
+                            <button className="btn-primary" onClick={() => navigate("/family/my-posts")}>
+                                {t("misc.backToManagementPage")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
