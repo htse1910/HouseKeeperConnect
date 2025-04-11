@@ -155,22 +155,22 @@ const FamilyJobDetailsPage = () => {
         }
     };
 
-    const handleConfirmSlot = (slotID) => {
+    const handleConfirmSlot = () => {
         if (!job?.bookingID) return toast.error("Thiếu thông tin bookingID.");
         axios.post("http://localhost:5280/api/Job/ConfirmSlotWorked", null, {
             params: {
                 bookingId: job.bookingID,
-                slotId: slotID,
                 dayOfWeek: selectedDayIndex
             },
             headers
         })
             .then(() => {
-                toast.success(`✅ Đã xác nhận slot ${slotMap[slotID]}`);
-                setConfirmedSlots(prev => ({ ...prev, [slotID]: true }));
+                toast.success("✅ Đã check-in cho ngày hôm nay!");
+                setConfirmedSlots(prev => ({ ...prev, [selectedDayIndex]: true }));
             })
-            .catch(() => toast.error("❌ Không thể xác nhận slot."));
+            .catch(() => toast.error("❌ Không thể xác nhận ca làm."));
     };
+
 
     const handleConfirmJobCompletion = () => {
         axios.post(`http://localhost:5280/api/Job/ConfirmJobCompletion`, null, {
@@ -341,24 +341,29 @@ const FamilyJobDetailsPage = () => {
                     <p><strong>Ca làm:</strong></p>
 
                     {daySlots.length > 0 ? (
-                        <ul className="list-unstyled">
-                            {daySlots.map((slotID, i) => (
-                                <li key={i} className="d-flex justify-content-between align-items-center mb-2">
-                                    <span>{slotMap[slotID] || `Slot ${slotID}`}</span>
-                                    {isToday ? (
-                                        <button
-                                            className="btn btn-sm btn-outline-success"
-                                            onClick={() => handleConfirmSlot(slotID)}
-                                            disabled={confirmedSlots[slotID]}
-                                        >
-                                            {confirmedSlots[slotID] ? "Đã xác nhận" : "Xác nhận"}
-                                        </button>
-                                    ) : (
-                                        <span className="badge bg-light text-muted">Chỉ xác nhận trong ngày</span>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
+                        <>
+                            <ul className="list-unstyled">
+                                {daySlots.map((slotID, i) => (
+                                    <li key={i} className="d-flex justify-content-between align-items-center mb-2">
+                                        <span>{slotMap[slotID] || `Slot ${slotID}`}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            {isToday && (
+                                <div className="text-center mt-4">
+                                    <button className="btn btn-success" onClick={() => handleConfirmSlot()}>
+                                        ✅ Check-in
+                                    </button>
+                                </div>
+                            )}
+
+                            {!isToday && (
+                                <div className="text-center mt-4">
+                                    <span className="badge bg-light text-muted">Chỉ xác nhận trong ngày</span>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <p>Không có ca làm nào cho ngày này.</p>
                     )}
@@ -368,7 +373,6 @@ const FamilyJobDetailsPage = () => {
                     <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
                 </Modal.Footer>
             </Modal>
-
             <ToastContainer position="bottom-right" />
         </div>
     );
