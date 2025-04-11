@@ -163,8 +163,9 @@ const FamilyHousekeeperSearchPage = () => {
               onChange={(e) => setSelectedWorkType(e.target.value)}
             >
               <option value="">{t("job.job_type")}</option>
-              <option value="Full-time">{t("job.jobPost.fullTime")}</option>
-              <option value="Part-time">{t("job.jobPost.partTime")}</option>
+              <option value="Once">{t("job.jobPost.once")}</option>
+              <option value="Period">{t("job.jobPost.period")}</option>
+
             </select>
 
             <button className="search-page-btn">{t("misc.search")}</button>
