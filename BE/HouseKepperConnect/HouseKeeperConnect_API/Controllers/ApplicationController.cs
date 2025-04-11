@@ -297,13 +297,13 @@ namespace HouseKeeperConnect_API.Controllers
             if (status == (int)ApplicationStatus.Accepted)
             {
                 Message = "Application Accepted!";
-                noti.Message = "Đơn ứng tuyển của bạn cho công việc" + job.JobID + " đã được chấp thuận!";
+                noti.Message = "Đơn ứng tuyển của bạn cho công việc #" + job.JobID +" - "+job.JobName+ " đã được chấp thuận!";
                 jobDetail.HousekeeperID = app.HouseKeeperID;
             }
             if (status == (int)ApplicationStatus.Denied)
             {
                 Message = "Đơn của bạn đã bị từ chối!";
-                noti.Message = "Đơn ứng tuyển của bạn cho công việc " + job.JobID + " đã bị từ chối!";
+                noti.Message = "Đơn ứng tuyển của bạn cho công việc #" + job.JobID + " - " + job.JobName + " đã bị từ chối!";
             }
 
             await _jobService.UpdateJobDetailAsync(jobDetail);
