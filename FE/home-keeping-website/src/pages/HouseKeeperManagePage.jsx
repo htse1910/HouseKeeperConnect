@@ -10,6 +10,7 @@ import JobName from "../components/JobName";
 import JobDetailModal from "../components/JobDetailModal";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 function HouseKeeperManagePage() {
   const [activeTab, setActiveTab] = useState("all");
@@ -18,6 +19,7 @@ function HouseKeeperManagePage() {
   const [loading, setLoading] = useState(true);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const fetchApplications = async () => {
     const authToken = localStorage.getItem("authToken");
@@ -164,6 +166,15 @@ function HouseKeeperManagePage() {
               </div>
             </div>
           ))}
+        </div>
+        {/* Action Button */}
+        <div className="d-flex justify-content-end mb-3">
+          <button
+            className="btn btn-outline-primary fw-semibold"
+            onClick={() => navigate("/housekeeper/jobs-offered")}
+          >
+            📄 Xem danh sách công việc được mời bởi gia đình
+          </button>
         </div>
 
         {/* Filter Tabs */}
