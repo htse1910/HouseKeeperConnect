@@ -163,7 +163,42 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(displayDTO);
         }
 
-        [HttpGet("GetJobsByAccountID")]
+        [HttpGet("GetJobsOfferedByHK")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsOfferedByHK([FromQuery] int accountId, int pageNumber, int pageSize)
+        {
+
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountId);
+            if (hk == null)
+            {
+                Message = "No housekeeper found";
+                return NotFound(Message);
+            }
+            var jobs = await _jobService.GetJobsOfferedByHKAsync(hk.HousekeeperID, pageNumber, pageSize);
+            if (jobs == null || !jobs.Any())
+            {
+                Message = "No records!";
+                return NotFound(Message);
+            }
+
+            var display = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                var d = new JobDisplayDTO();
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(j.JobID);
+                d.JobName = j.JobName;
+                d.FamilyID = j.FamilyID;
+                d.Location = jobDetail.Location;
+                d.Price = jobDetail.Price;
+                d.CreatedAt = j.CreatedDate;
+                d.Status = j.Status;
+                d.JobID = j.JobID;
+                d.JobType = j.JobType;
+                display.Add(d);
+            }
+
+            return Ok(display);
+        }[HttpGet("GetJobsByAccountID")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsByAccountID([FromQuery] int accountId, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
@@ -650,6 +685,20 @@ namespace HouseKeeperConnect_API.Controllers
             // No conflicts — offer the job
             jobDetail.HousekeeperID = housekeeperId;
             jobDetail.IsOffered = true;
+
+            //Send notification to HK
+            var hk = await _houseKeeperService.GetHousekeeperByIDAsync(housekeeperId);
+            if (hk == null)
+            {
+                Message = "No housekeeper found!";
+                return NotFound();
+            }
+
+            var noti = new Notification();
+            noti.Message = "Công việc #" + job.JobID + " - " + job.JobName + " đã được offer cho bạn!";
+            noti.AccountID = hk.AccountID;
+
+           await _notificationService.AddNotificationAsync(noti);
 
             await _jobService.UpdateJobDetailAsync(jobDetail);
 

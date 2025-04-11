@@ -164,6 +164,11 @@ namespace DataAccess
             using var context = new PCHWFDBContext();
             return await context.Job.Where(j => j.FamilyID == accountId).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
+        public async Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize)
+        {
+            using var context = new PCHWFDBContext();
+            return await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.HousekeeperID==hktId && j.JobDetail.IsOffered==true).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        }
 
         public async Task<List<Job>> GetJobsPastWeekAsync(int pageNumber, int pageSize)
         {
