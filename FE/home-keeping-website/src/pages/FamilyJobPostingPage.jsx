@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import axios from "axios";
 import "../assets/styles/Job.css";
+import "../assets/styles/Payment.css";
+import { formatDateTime, formatTotalCurrency } from "../utils/formatData";
 
 const FamilyJobPostingPage = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
+
+    const [wallet, setWallet] = useState(null);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentInfo, setPaymentInfo] = useState(null);
 
     const today = new Date();
     const defaultStart = today.toISOString().split("T")[0];
@@ -99,6 +107,13 @@ const FamilyJobPostingPage = () => {
                     .then((res) => {
                         const fam = res.data || null;
                         setFamily(fam);
+                        axios
+                            .get(`http://localhost:5280/api/Wallet/getWallet?id=${accountID}`, { headers })
+                            .then((res) => setWallet(res.data))
+                            .catch((err) => {
+                                console.error("Không thể lấy Wallet:", err);
+                                setWallet(null);
+                            });
                         if (fam?.address) {
                             setFormData((prev) => ({
                                 ...prev,
@@ -263,6 +278,19 @@ const FamilyJobPostingPage = () => {
             document.querySelectorAll("details").forEach((d) => {
                 d.open = false;
             });
+
+            setPaymentInfo({
+                jobID: response?.data?.jobID || null,
+                jobName: formData.JobName,
+                amount: calculatedPrice,
+                fee: calculatedPrice * 0.1,
+                housekeeperEarnings: calculatedPrice * 0.9,
+                createdAt: new Date().toISOString(),
+                currentBalance: wallet?.balance - calculatedPrice,
+                topUpNeeded: 0,
+            });
+            setShowPaymentModal(true);
+
         } catch (err) {
             console.error("❌ Lỗi khi gọi AddJob:", err);
             const serverMsg =
@@ -339,7 +367,7 @@ const FamilyJobPostingPage = () => {
         <div className="job-posting-container">
             <h1 className="job-posting-title">{t("navigation.post_job")}</h1>
 
-            {message && <p className="job-posting-alert job-posting-success">{t("jobPost.postingSuccess")}</p>}
+            {message && <p className="job-posting-alert job-posting-success">{t("job.jobPost.postingSuccess")}</p>}
             {error && <p className="job-posting-alert job-posting-error">{error}</p>}
 
             <form onSubmit={handleSubmit} className="job-posting-form-grid">
@@ -555,6 +583,35 @@ const FamilyJobPostingPage = () => {
                     </button>
                 </div>
             </form>
+            
+            {showPaymentModal && paymentInfo && (
+                <div className="payment-modal-overlay">
+                    <div className="payment-modal-box">
+                        <h2 className="payment-modal-title">{t("job.jobPost.success")}</h2>
+                        <p className="payment-modal-message">{t("deposit.deposit_return_note_success")}</p>
+
+                        <div className="payment-modal-info">
+                            <p><strong>{t("job.job_title")}:</strong> {paymentInfo.jobName || `#${paymentInfo.jobID}`}</p>
+                            <p><strong>{t("misc.date")}:</strong> {formatDateTime(paymentInfo.createdAt)}</p>
+                            <p><strong>{t("misc.amount")}:</strong> {formatTotalCurrency(paymentInfo.amount, t)}</p>
+                            <p><strong>{t("misc.fee")}:</strong> {formatTotalCurrency(paymentInfo.fee, t)}</p>
+                            <p><strong>{t("transaction.transactionStatus.payout")}:</strong> {formatTotalCurrency(paymentInfo.housekeeperEarnings, t)}</p>
+                            <p className="payment-balance">
+                                {t("misc.current_balance")}: {formatTotalCurrency(paymentInfo.currentBalance, t)}
+                            </p>
+                        </div>
+
+                        <div className="payment-modal-footer">
+                            <button className="btn-secondary" onClick={() => setShowPaymentModal(false)}>
+                                {t("misc.cancelBillModel")}
+                            </button>
+                            <button className="btn-primary" onClick={() => navigate("/family/my-posts")}>
+                                {t("misc.backToManagementPage")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

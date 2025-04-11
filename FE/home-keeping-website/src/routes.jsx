@@ -31,6 +31,7 @@ import FamilyHousekeeperViewPage from './pages/FamilyHousekeeperViewPage';
 import FamilyInvitationPage from './pages/FamilyInvitationPage';
 import FamilyTransactionPage from './pages/FamilyTransactionPage';
 import FamilyJobPostingPage from './pages/FamilyJobPostingPage';
+import FamilyJobPaymentResultPage from './pages/FamilyJobPaymentResultPage.jsx';
 import FamilyJobDetailsPage from './pages/FamilyJobDetailsPage';
 import FamilyDepositPage from "./pages/FamilyDepositPage";
 import FamilyDepositReturnPage from "./pages/FamilyDepositReturnPage";
@@ -97,6 +98,7 @@ function AppRoutes() {
         <Route path="/family/housekeeper/profile/:accountID" element={<FamilyHousekeeperViewPage />} />
         <Route path="/family/invite" element={<FamilyInvitationPage />} />
         <Route path="/family/post-job" element={<FamilyJobPostingPage />} />
+        <Route path="/family/job/payment" element={<FamilyJobPaymentResultPage />} />
         <Route path="/family/my-posts" element={<FamilyJobManagementPage />} />
         <Route path="/family/job/update/:id" element={<FamilyJobDetailUpdatePage />} />
         <Route path="/family/job/detail/:id" element={<FamilyJobDetailsPage />} />

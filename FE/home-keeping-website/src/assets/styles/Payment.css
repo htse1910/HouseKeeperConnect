@@ -97,3 +97,49 @@
   border: none;
   cursor: pointer;
 }
+
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.payment-modal-box {
+  background: var(--bg-color);
+  border-radius: var(--radius-lg);
+  padding: var(--padding-card);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-strong);
+  animation: fadeIn 0.3s ease;
+}
+
+.payment-modal-title {
+  font-size: var(--font-size-heading);
+  color: var(--text-heading);
+  margin-bottom: var(--spacing-sm);
+}
+
+.payment-modal-message {
+  color: var(--text-body);
+  margin-bottom: var(--spacing-md);
+}
+
+.payment-modal-info p {
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-small);
+}
+
+.payment-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-sm);
+  margin-top: var(--spacing-md);
+}
