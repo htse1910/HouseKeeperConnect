@@ -338,14 +338,14 @@ namespace HouseKeeperConnect_API.Controllers
                 Amount = chargeAmount,
                 Fee = platformFee,
                 CreatedDate = DateTime.Now,
-                Description = "Payment for job creation",
+                Description = "Thanh toán cho tạo công việc",
                 UpdatedDate = DateTime.Now,
                 TransactionType = (int)TransactionType.Payment,
                 Status = (int)TransactionStatus.Completed,
             });
 
             // (Optional) Add transaction: earnings to housekeeper
-            if (jobCreateDTO.HousekeeperID.HasValue)
+            /*if (jobCreateDTO.HousekeeperID.HasValue)
             {
                 var hkwallet = await _walletService.GetWalletByUserAsync(jobCreateDTO.HousekeeperID.Value);
                 await _transactionService.AddTransactionAsync(new Transaction
@@ -361,7 +361,7 @@ namespace HouseKeeperConnect_API.Controllers
                     TransactionType = (int)TransactionType.Payout,
                     Status = (int)TransactionStatus.Pending
                 });
-            }
+            }*/
 
             // Create job (no Price or PricePerHour in Job)
             var job = _mapper.Map<Job>(jobCreateDTO);
@@ -994,6 +994,7 @@ namespace HouseKeeperConnect_API.Controllers
             wallet.UpdatedAt = DateTime.Now;
 
             await _walletService.UpdateWalletAsync(wallet);
+
             // Update booking and job status to pending confirmation by family
             booking.Status = (int)BookingStatus.PendingFamilyConfirmation;
             await _bookingService.UpdateBookingAsync(booking);
@@ -1053,11 +1054,17 @@ namespace HouseKeeperConnect_API.Controllers
             if (booking.Status != (int)BookingStatus.PendingFamilyConfirmation)
                 return BadRequest("Booking is not awaiting confirmation.");
 
-           
+
+            var hk = await _houseKeeperService.GetHousekeeperByIDAsync(booking.HousekeeperID);
+            if (hk == null)
+            {
+                Message = "Account not found!";
+                return NotFound(Message);
+            }
 
             //Cập nhật tiền vào balance ví HK
 
-            var wallet = await _walletService.GetWalletByIDAsync(jobDetail.HousekeeperID.GetValueOrDefault());
+            var wallet = await _walletService.GetWalletByUserAsync(hk.AccountID);
             if(wallet  == null)
             {
                 Message = "Wallet not found!";
@@ -1084,15 +1091,29 @@ namespace HouseKeeperConnect_API.Controllers
             payout.PayoutDate = DateTime.Now;
 
             await _payoutService.UpdatePayoutAsync(payout);
+
+            //Tạo transaction chio Payout HK
+            var transactionId = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+
+            var trans = new Transaction();
+
+            trans.TransactionID = transactionId;
+            trans.TransactionType = (int)TransactionType.Payout;
+            trans.AccountID = hk.AccountID;
+            trans.Status = (int)TransactionStatus.Completed;
+            trans.CreatedDate = DateTime.Now;
+            trans.UpdatedDate = DateTime.Now;
+            trans.Fee = 0;
+            trans.Amount = jobDetail.Price;
+            trans.Description = "Tiền lương công việc.";
+            trans.WalletID = wallet.WalletID;
+            
+            await _transactionService.AddTransactionAsync(trans);
+
+
             // Update statuses to completed
             booking.Status = (int)BookingStatus.Completed;
             await _bookingService.UpdateBookingAsync(booking);
-            var hk = await _houseKeeperService.GetHousekeeperByIDAsync(booking.HousekeeperID);
-            if (hk == null)
-            {
-                Message = "Account not found!";
-                return NotFound(Message);
-            }
 
             job.Status = (int)JobStatus.Completed;
             await _jobService.UpdateJobAsync(job);
