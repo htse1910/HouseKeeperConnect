@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import "../assets/styles/Transaction.css";
+import { formatTotalCurrency, formatDate, formatDateTime, getTransactionFormatData } from "../utils/formatData";
 
 const generateFakeTransactions = () => {
     const transactionTypes = [1, 2, 3, 4]; // enum hợp lệ
@@ -39,13 +40,14 @@ const FamilyTransactionPage = () => {
 
     const shouldShowLoadingOrError = loading || error;
 
+
     // Pagination state (reused structure)
     const [currentPage, setCurrentPage] = useState(1);
     const recordsPerPage = 10;
     const MAX_VISIBLE_PAGES = 15;
     const [inputPage, setInputPage] = useState("");
 
-    const filteredTransactions = transactions.filter(txn => [1, 2, 4].includes(txn.status));
+    const filteredTransactions = transactions;
     const indexOfLastRecord = currentPage * recordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
     const currentRecords = filteredTransactions.slice(indexOfFirstRecord, indexOfLastRecord);
@@ -101,13 +103,13 @@ const FamilyTransactionPage = () => {
         setError(null);
 
         if (!authToken) {
-            setError(t("error_auth"));
+            setError(t("error.error_auth"));
             setLoading(false);
             return;
         }
 
         if (!accountID) {
-            setError(t("error_account"));
+            setError(t("error.error_account"));
             setLoading(false);
             return;
         }
@@ -136,28 +138,6 @@ const FamilyTransactionPage = () => {
             });
     }, [isDemo]);
 
-    const getTransactionTypeLabel = (type) => {
-        switch (type) {
-            case 1: return t("transactionStatus.deposit");
-            case 2: return t("transactionStatus.withdrawal");
-            case 3: return t("transactionStatus.payment");
-            case 4: return t("transactionStatus.payout");
-            default: return t("transaction_unknown");
-        }
-    };
-
-    const getStatusLabel = (status) => {
-        switch (status) {
-            case 1: return t("transactionStatus.pending");
-            case 2: return t("transactionStatus.completed");
-            case 3: return t("transactionStatus.expired");
-            case 4: return t("transactionStatus.cancelled");
-            default: return t("transactionStatus.unknown");
-        }
-    };
-
-    const getStatusClass = (status) => `transaction-family-status-${status}`;
-
     if (shouldShowLoadingOrError) {
         return (
             <div className="transaction-family-container">
@@ -184,43 +164,44 @@ const FamilyTransactionPage = () => {
     return (
         <div className="transaction-family-container">
             <h1 className="transaction-family-title">
-                {t("transaction_history")} {isDemo && "(Demo Mode)"}
+                {t("transaction.transaction_history")} {isDemo && "(Demo Mode)"}
             </h1>
 
             {filteredTransactions.length === 0 ? (
-                <p>{t("no_transactions")}</p>
+                <p>{t("misc.no_transactions")}</p>
             ) : (
                 <>
                     <table className="transaction-family-table">
                         <thead>
                             <tr>
-                                <th>{t("transaction_id")}</th>
-                                <th>{t("transaction_type")}</th>
-                                <th>{t("amount")}</th>
-                                <th>{t("fee")}</th>
-                                <th>{t("status")}</th>
-                                <th>{t("created_date")}</th>
-                                <th>{t("details")}</th>
+                                <th>{t("transaction.transaction_id")}</th>
+                                <th>{t("transaction.transaction_type")}</th>
+                                <th>{t("misc.amount")}</th>
+                                <th>{t("misc.fee")}</th>
+                                <th>{t("status.status")}</th>
+                                <th>{t("misc.created_date")}</th>
+                                <th>{t("job.job.view_detail")}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {currentRecords.map((txn) => (
-                                <tr key={txn.transactionID}>
-                                    <td>{txn.transactionID}</td>
-                                    <td>{getTransactionTypeLabel(txn.transactionType)}</td>
-                                    <td>{txn.amount.toLocaleString("vi-VN")} VND</td>
-                                    <td>{txn.fee.toLocaleString("vi-VN")} VND</td>
-                                    <td className={getStatusClass(txn.status)}>
-                                        {getStatusLabel(txn.status)}
-                                    </td>
-                                    <td>{new Date(txn.createdDate).toLocaleDateString("vi-VN")}</td>
-                                    <td>
-                                        <button className="btn-secondary" onClick={() => setSelectedTransaction(txn)}>
-                                            {t("job.view_detail")}
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {currentRecords.map((txn) => {
+                                const { statusLabel, statusClass, typeLabel } = getTransactionFormatData(txn.status, txn.transactionType, t);
+                                return (
+                                    <tr key={txn.transactionID}>
+                                        <td>{txn.transactionID}</td>
+                                        <td>{typeLabel}</td>
+                                        <td>{formatTotalCurrency(txn.amount, t)}</td>
+                                        <td>{formatTotalCurrency(txn.fee, t)}</td>
+                                        <td className={statusClass}>{statusLabel}</td>
+                                        <td>{formatDate(txn.createdDate)}</td>
+                                        <td>
+                                            <button className="btn-secondary" onClick={() => setSelectedTransaction(txn)}>
+                                                {t("job.job.view_detail")}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
 
@@ -263,21 +244,29 @@ const FamilyTransactionPage = () => {
                 </>
             )}
 
-            {selectedTransaction && (
-                <div className="transaction-family-modal">
-                    <div className="transaction-family-modal-content">
-                        <span className="close" onClick={() => setSelectedTransaction(null)}>&times;</span>
-                        <h2>{t("transaction_detail")}</h2>
-                        <p><strong>{t("transaction_id")}:</strong> {selectedTransaction.transactionID}</p>
-                        <p><strong>{t("transaction_type")}:</strong> {getTransactionTypeLabel(selectedTransaction.transactionType)}</p>
-                        <p><strong>{t("amount")}:</strong> {selectedTransaction.amount.toLocaleString("vi-VN")} VND</p>
-                        <p><strong>{t("fee")}:</strong> {selectedTransaction.fee.toLocaleString("vi-VN")} VND</p>
-                        <p><strong>{t("status")}:</strong> {getStatusLabel(selectedTransaction.status)}</p>
-                        <p><strong>{t("created_date")}:</strong> {new Date(selectedTransaction.createdDate).toLocaleString("vi-VN")}</p>
-                        <p><strong>{t("description")}:</strong> {selectedTransaction.description || t("no_description")}</p>
+            {selectedTransaction && (() => {
+                const { statusLabel, typeLabel } = getTransactionFormatData(
+                    selectedTransaction.status,
+                    selectedTransaction.transactionType,
+                    t
+                );
+
+                return (
+                    <div className="transaction-family-modal">
+                        <div className="transaction-family-modal-content">
+                            <span className="close" onClick={() => setSelectedTransaction(null)}>&times;</span>
+                            <h2>{t("transaction.transaction_detail")}</h2>
+                            <p><strong>{t("transaction.transaction_id")}:</strong> {selectedTransaction.transactionID}</p>
+                            <p><strong>{t("transaction.transaction_type")}:</strong> {typeLabel}</p>
+                            <p><strong>{t("misc.amount")}:</strong> {formatTotalCurrency(selectedTransaction.amount, t)}</p>
+                            <p><strong>{t("misc.fee")}:</strong> {formatTotalCurrency(selectedTransaction.fee, t)}</p>
+                            <p><strong>{t("status.status")}:</strong> {statusLabel}</p>
+                            <p><strong>{t("misc.created_date")}:</strong> {formatDateTime(selectedTransaction.createdDate)}</p>
+                            <p><strong>{t("misc.description")}:</strong> {selectedTransaction.description || t("misc.no_description")}</p>
+                        </div>
                     </div>
-                </div>
-            )}
+                );
+            })()}
         </div>
     );
 };
