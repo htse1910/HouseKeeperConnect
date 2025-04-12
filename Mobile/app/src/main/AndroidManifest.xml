@@ -13,6 +13,9 @@
         android:theme="@style/Theme.HouseKeeperApplication"
         tools:targetApi="31">
         <activity
+            android:name=".JobDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".HomeHousekeeperActivity"
             android:exported="false" />
         <activity

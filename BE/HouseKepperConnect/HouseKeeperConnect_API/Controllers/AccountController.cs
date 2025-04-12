@@ -304,9 +304,31 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return Unauthorized("Invalid Google Token.");
             }
-            if (loginInfo.RoleID != googleLoginDTO.RoleID)
+            var existingAccount = await _accountService.GetAccountByEmailAsync(loginInfo.Email);
+            if (existingAccount != null && existingAccount.RoleID != googleLoginDTO.RoleID)
             {
-                return BadRequest ("This account is already registered with another role.");
+                return BadRequest("This account is already registered with another role.");
+            }
+
+            if (existingAccount == null)
+            {
+                if (googleLoginDTO.RoleID == 1) 
+                {
+                    var housekeeper = new Housekeeper
+                    {
+                        AccountID = loginInfo.AccountID,
+                        VerifyID = null, 
+                    };
+                    await _houseKeeperService.AddHousekeeperAsync(housekeeper);
+                }
+                else if (googleLoginDTO.RoleID == 2) 
+                {
+                    var family = new Family
+                    {
+                        AccountID = loginInfo.AccountID,
+                    };
+                    await _familyProfileService.AddFamilyAsync(family);
+                }
             }
             return Ok(loginInfo);
         }
