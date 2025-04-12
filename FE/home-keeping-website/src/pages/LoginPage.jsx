@@ -5,21 +5,22 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
-import { UserRoleContext } from "../components/UserRoleProvider"; // Import Context
+import { UserRoleContext } from "../components/UserRoleProvider";
 
 const GOOGLE_CLIENT_ID = "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com";
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [googleToken, setGoogleToken] = useState(null);
+  const [showRoleModal, setShowRoleModal] = useState(false);
   const navigate = useNavigate();
-  const { setUserRole } = useContext(UserRoleContext); // Lấy hàm cập nhật role từ Context
+  const { setUserRole } = useContext(UserRoleContext);
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // ✅ Sửa hàm login để cập nhật `setUserRole()`
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -36,8 +37,7 @@ function LoginPage() {
         localStorage.setItem('userRole', loginData.roleName);
         localStorage.setItem('accountID', loginData.accountID);
 
-        setUserRole(loginData.roleName); // 🔥 Cập nhật Context ngay lập tức
-
+        setUserRole(loginData.roleName);
         toast.success(`Welcome ${loginData.name}!`, { position: 'top-center', autoClose: 3000 });
 
         redirectUser(loginData.roleID);
@@ -47,13 +47,16 @@ function LoginPage() {
     }
   };
 
-  // ✅ Sửa hàm login bằng Google để cập nhật `setUserRole()`
-  const handleGoogleLoginSuccess = async (googleToken) => {
-    console.log("Google Token received:", googleToken);
+  const handleGoogleLoginSuccess = (credential) => {
+    setGoogleToken(credential);
+    setShowRoleModal(true);
+  };
 
+  const confirmGoogleLoginWithRole = async (roleID) => {
+    setShowRoleModal(false);
     try {
       const response = await axios.post(
-        `http://localhost:5280/api/Account/LoginWithGoogle?GoogleToken=${encodeURIComponent(googleToken)}`,
+        `http://localhost:5280/api/Account/LoginWithGoogle?GoogleToken=${encodeURIComponent(googleToken)}&RoleID=${roleID}`,
         null,
         { headers: { 'Accept': 'application/json' } }
       );
@@ -71,9 +74,31 @@ function LoginPage() {
           localStorage.setItem('userProfilePicture', userData.profilePicture);
         }
 
-        setUserRole(userData.roleName); // 🔥 Cập nhật Context ngay lập tức
-
+        setUserRole(userData.roleName);
         toast.success(`Welcome ${userData.name}!`, { position: "top-center", autoClose: 3000 });
+
+        // 👉 Attempt profile creation if new
+        const accountID = userData.accountID;
+        const token = userData.token;
+        const headers = { Authorization: `Bearer ${token}` };
+
+        try {
+          if (roleID === 1) {
+            await axios.post(
+              `http://localhost:5280/api/HouseKeeper/AddHousekeeper?AccountID=${accountID}`,
+              null,
+              { headers }
+            );
+          } else if (roleID === 2) {
+            await axios.post(
+              `http://localhost:5280/api/Families/AddFamilyProfile?AccountID=${accountID}`,
+              null,
+              { headers }
+            );
+          }
+        } catch (err) {
+          // Do nothing if already added (usually 400 or 409 conflict)
+        }
 
         redirectUser(userData.roleID);
       }
@@ -87,7 +112,7 @@ function LoginPage() {
       case 1: navigate("/housekeeper/dashboard"); break;
       case 2: navigate("/family-dashboard"); break;
       case 3: navigate("/staff-dashboard"); break;
-      case 4: navigate("/admin/dashboard"); break; // ✅ Redirect Admin Role (roleID 4)
+      case 4: navigate("/admin/dashboard"); break;
       default: toast.error("Invalid role. Please contact support.");
     }
   };
@@ -115,7 +140,7 @@ function LoginPage() {
                 <input id="password" type="password" value={formData.password} onChange={handleInputChange} className="form-control border-start-0" required />
               </div>
             </div>
-            
+
             <div className="text-end mb-3">
               <button
                 type="button"
@@ -142,6 +167,26 @@ function LoginPage() {
             />
           </form>
         </div>
+
+        {/* Role selection modal */}
+        {showRoleModal && (
+          <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Chọn vai trò</h5>
+                </div>
+                <div className="modal-body text-center">
+                  <p>Bạn muốn đăng nhập với vai trò nào?</p>
+                  <div className="d-flex justify-content-around">
+                    <button onClick={() => confirmGoogleLoginWithRole(1)} className="btn btn-outline-primary">Người giúp việc</button>
+                    <button onClick={() => confirmGoogleLoginWithRole(2)} className="btn btn-outline-success">Gia đình</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </GoogleOAuthProvider>
   );

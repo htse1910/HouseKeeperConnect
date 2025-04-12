@@ -52,6 +52,7 @@ import AdminServicesPage from './pages/AdminServicesPage';
 import AdminTransactionPage from './pages/AdminTransactionPage';
 import JobListOfFamily from './pages/JobListOfFamily.jsx';
 import JobsOfferedToMePage from './pages/JobsOfferedToMePage.jsx';
+import HouseKeeperPayoutsPage from './pages/HouseKeeperPayoutsPage.jsx';
 
 function AppRoutes() {
   return (
@@ -86,6 +87,8 @@ function AppRoutes() {
         <Route path="/housekeeper/wallet" element={<HousekeeperWalletPage />} /> {/* ✅ New route */}
         <Route path="/housekeeper/bookings" element={<HousekeeperBookingManagementPage />} />
         <Route path="/housekeeper/jobs-offered" element={<JobsOfferedToMePage />} />
+        <Route path="/housekeeper/payouts" element={<HouseKeeperPayoutsPage />} />
+
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
         <Route path="/dashboard/users" element={<StaffUserVerificationPage />} />
