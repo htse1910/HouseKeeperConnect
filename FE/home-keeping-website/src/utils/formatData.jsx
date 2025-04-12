@@ -161,7 +161,7 @@ export const getTransactionFormatData = (status, type, t) => {
 
   const statusClassMap = {
     1: "status-pending",
-    2: "status-approved",
+    2: "status-success",
     3: "status-expired",
     4: "status-cancelled"
   };
