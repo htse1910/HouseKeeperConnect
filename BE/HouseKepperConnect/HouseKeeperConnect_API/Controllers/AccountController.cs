@@ -295,43 +295,24 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<IActionResult> LoginWithGoogle([FromQuery] GoogleLoginDTO googleLoginDTO)
         {
             if (string.IsNullOrEmpty(googleLoginDTO.GoogleToken))
-            {
                 return BadRequest("Google Token is required.");
-            }
 
-            var loginInfo = await _accountService.LoginWithGoogleAsync(googleLoginDTO.GoogleToken, googleLoginDTO.RoleID);
-            if (loginInfo == null)
+            try
             {
-                return Unauthorized("Invalid Google Token.");
-            }
-            var existingAccount = await _accountService.GetAccountByEmailAsync(loginInfo.Email);
-            if (existingAccount != null && existingAccount.RoleID != googleLoginDTO.RoleID)
-            {
-                return BadRequest("This account is already registered with another role.");
-            }
+                var loginInfo = await _accountService.LoginWithGoogleAsync(googleLoginDTO.GoogleToken, googleLoginDTO.RoleID);
 
-            if (existingAccount == null)
-            {
-                if (googleLoginDTO.RoleID == 1) 
-                {
-                    var housekeeper = new Housekeeper
-                    {
-                        AccountID = loginInfo.AccountID,
-                        VerifyID = null, 
-                    };
-                    await _houseKeeperService.AddHousekeeperAsync(housekeeper);
-                }
-                else if (googleLoginDTO.RoleID == 2) 
-                {
-                    var family = new Family
-                    {
-                        AccountID = loginInfo.AccountID,
-                    };
-                    await _familyProfileService.AddFamilyAsync(family);
-                }
+                if (loginInfo == null)
+                    return Unauthorized("Invalid Google Token or authentication failed.");
+
+                return Ok(loginInfo);
             }
-            return Ok(loginInfo);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
+
 
         [HttpGet("TotalAccount")]
         [Authorize]

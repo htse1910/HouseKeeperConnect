@@ -32,7 +32,15 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
         jobs.add(new Job("Nấu ăn", "Gia đình Trần Văn B", "Hà Nội", "90000", "Part-time"));
 
 
-        JobAdapter adapter = new JobAdapter(jobs);
+        JobAdapter adapter = new JobAdapter(jobs, job -> {
+            Intent intent = new Intent(HomeHousekeeperActivity.this, JobDetailActivity.class);
+            intent.putExtra("jobName", job.getJobName());
+            intent.putExtra("familyName", job.getFamilyName());
+            intent.putExtra("location", job.getLocation());
+            intent.putExtra("salary", job.getSalary());
+            intent.putExtra("type", job.getType());
+            startActivity(intent);
+        });
         recyclerJobs.setLayoutManager(new LinearLayoutManager(this));
         recyclerJobs.setAdapter(adapter);
 
