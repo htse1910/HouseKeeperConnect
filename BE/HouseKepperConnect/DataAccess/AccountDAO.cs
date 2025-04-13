@@ -388,9 +388,9 @@ namespace DataAccess
             using (var db = new PCHWFDBContext())
             {
                 var account = await db.Account.Include(a => a.Role).FirstOrDefaultAsync(a => a.Email == payload.Email);
-
+                bool isNewAccount = false;
                 if (account == null)
-                {
+                {   //new accout
                     account = new Account
                     {
                         Name = payload.Name,
@@ -406,18 +406,45 @@ namespace DataAccess
 
                     db.Account.Add(account);
                     await db.SaveChangesAsync();
-                    var createdAccount = await db.Account.Include(a => a.Role).FirstOrDefaultAsync(a => a.Email == payload.Email);
+
+                    account = await db.Account.Include(a => a.Role).FirstOrDefaultAsync(a => a.Email == payload.Email); 
                     var wallet = new Wallet
                     {
-                        AccountID = createdAccount.AccountID,
+                        AccountID = account.AccountID,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         Status = 1
                     };
                     db.Wallet.Add(wallet);
                     await db.SaveChangesAsync();
+                    isNewAccount = true;
                 }
-
+                else if (account.RoleID != roleID)
+                {
+                    throw new Exception("This account is already registered with another role.");
+                }
+                if (isNewAccount)
+                {
+                    if (roleID == 1) // Housekeeper
+                    {
+                        var housekeeper = new Housekeeper
+                        {
+                            AccountID = account.AccountID,
+                            VerifyID = null
+                        };
+                        db.Housekeeper.Add(housekeeper);
+                        await db.SaveChangesAsync();
+                    }
+                    else if (roleID == 2) // Family
+                    {
+                        var family = new Family
+                        {
+                            AccountID = account.AccountID
+                        };
+                        db.Family.Add(family);
+                        await db.SaveChangesAsync();
+                    }
+                }
                 var tokenModel = new TokenModel
                 {
                     AccountID = account.AccountID,

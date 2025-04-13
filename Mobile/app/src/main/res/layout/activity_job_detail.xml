@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:layout_marginStart="8dp"
     android:background="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -257,7 +258,8 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="Nhắn tin cho Gia đình"/>
+                android:backgroundTint="#898483"
+                android:text="Nhắn tin "/>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

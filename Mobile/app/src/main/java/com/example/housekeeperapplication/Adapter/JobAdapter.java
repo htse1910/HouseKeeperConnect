@@ -16,9 +16,15 @@ import java.util.List;
 public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     private List<Job> jobList;
+    private OnItemClickListener listener;
 
-    public JobAdapter(List<Job> jobList) {
+    public interface OnItemClickListener {
+        void onItemClick(Job job);
+    }
+
+    public JobAdapter(List<Job> jobList, OnItemClickListener listener) {
         this.jobList = jobList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -36,6 +42,12 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
         holder.tvLocation.setText(job.getLocation());
         holder.tvSalary.setText(job.getSalary());
         holder.tvType.setText(job.getType());
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(job);
+            }
+        });
     }
 
     @Override
