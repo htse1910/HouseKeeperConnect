@@ -11,8 +11,8 @@ const GOOGLE_CLIENT_ID = "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.goo
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [googleToken, setGoogleToken] = useState(null);
-  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [selectedRoleID, setSelectedRoleID] = useState(null);
+  const [googleCredential, setGoogleCredential] = useState(null);
   const navigate = useNavigate();
   const { setUserRole } = useContext(UserRoleContext);
 
@@ -47,65 +47,53 @@ function LoginPage() {
     }
   };
 
-  const handleGoogleLoginSuccess = (credential) => {
-    setGoogleToken(credential);
-    setShowRoleModal(true);
+  const startGoogleLogin = (roleID) => {
+    setSelectedRoleID(roleID);
   };
 
-  const confirmGoogleLoginWithRole = async (roleID) => {
-    setShowRoleModal(false);
+  const handleGoogleLoginSuccess = async (credential) => {
+    if (!credential || !selectedRoleID) {
+      toast.error("Please select a role before logging in with Google.", { position: "top-center" });
+      return;
+    }
+  
     try {
       const response = await axios.post(
-        `http://localhost:5280/api/Account/LoginWithGoogle?GoogleToken=${encodeURIComponent(googleToken)}&RoleID=${roleID}`,
+        'http://localhost:5280/api/Account/LoginWithGoogle',
         null,
-        { headers: { 'Accept': 'application/json' } }
+        {
+          params: {
+            GoogleToken: credential,
+            RoleID: selectedRoleID
+          },
+          headers: { 'Accept': 'application/json' }
+        }
       );
-
+  
       if (response.status === 200) {
         const userData = response.data;
-
+  
         localStorage.setItem('authToken', userData.token);
         localStorage.setItem('userRoleID', userData.roleID);
         localStorage.setItem('userName', userData.name);
         localStorage.setItem('userRole', userData.roleName);
         localStorage.setItem('accountID', userData.accountID);
-
+  
         if (userData.profilePicture) {
           localStorage.setItem('userProfilePicture', userData.profilePicture);
         }
-
+  
         setUserRole(userData.roleName);
         toast.success(`Welcome ${userData.name}!`, { position: "top-center", autoClose: 3000 });
-
-        // 👉 Attempt profile creation if new
-        const accountID = userData.accountID;
-        const token = userData.token;
-        const headers = { Authorization: `Bearer ${token}` };
-
-        try {
-          if (roleID === 1) {
-            await axios.post(
-              `http://localhost:5280/api/HouseKeeper/AddHousekeeper?AccountID=${accountID}`,
-              null,
-              { headers }
-            );
-          } else if (roleID === 2) {
-            await axios.post(
-              `http://localhost:5280/api/Families/AddFamilyProfile?AccountID=${accountID}`,
-              null,
-              { headers }
-            );
-          }
-        } catch (err) {
-          // Do nothing if already added (usually 400 or 409 conflict)
-        }
-
-        redirectUser(userData.roleID);
+  
+        redirectUser(userData.roleID); // FE always trusts BE roleID
       }
     } catch (error) {
-      toast.error(error.response?.data || "Google login failed.", { position: "top-center" });
+      const message = error.response?.data || "Google login failed.";
+      toast.error(message, { position: "top-center", autoClose: 3000 });
     }
   };
+  
 
   const redirectUser = (roleID) => {
     switch (roleID) {
@@ -152,41 +140,33 @@ function LoginPage() {
             </div>
 
             <button type="submit" className="btn btn-warning text-white fw-bold w-100 mb-3">Đăng nhập</button>
-
-            <div className="text-center text-muted mb-3">Hoặc đăng nhập với</div>
-
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                if (!credentialResponse.credential) {
-                  toast.error("Google login failed: No token received.", { position: "top-center" });
-                  return;
-                }
-                handleGoogleLoginSuccess(credentialResponse.credential);
-              }}
-              onError={() => toast.error("Google login failed.", { position: "top-center" })}
-            />
           </form>
-        </div>
 
-        {/* Role selection modal */}
-        {showRoleModal && (
-          <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Chọn vai trò</h5>
-                </div>
-                <div className="modal-body text-center">
-                  <p>Bạn muốn đăng nhập với vai trò nào?</p>
-                  <div className="d-flex justify-content-around">
-                    <button onClick={() => confirmGoogleLoginWithRole(1)} className="btn btn-outline-primary">Người giúp việc</button>
-                    <button onClick={() => confirmGoogleLoginWithRole(2)} className="btn btn-outline-success">Gia đình</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="text-center text-muted mb-2">Hoặc đăng nhập với</div>
+
+          <div className="d-flex justify-content-around mb-3">
+            <button
+              onClick={() => startGoogleLogin(1)}
+              className={`btn ${selectedRoleID === 1 ? 'btn-primary' : 'btn-outline-primary'} btn-sm`}
+            >
+              Người giúp việc
+            </button>
+            <button
+              onClick={() => startGoogleLogin(2)}
+              className={`btn ${selectedRoleID === 2 ? 'btn-success' : 'btn-outline-success'} btn-sm`}
+            >
+              Gia đình
+            </button>
           </div>
-        )}
+
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              const credential = credentialResponse?.credential;
+              handleGoogleLoginSuccess(credential);
+            }}
+            onError={() => toast.error("Google login failed.", { position: "top-center" })}
+          />
+        </div>
       </div>
     </GoogleOAuthProvider>
   );

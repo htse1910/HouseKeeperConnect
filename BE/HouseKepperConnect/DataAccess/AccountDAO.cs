@@ -406,7 +406,7 @@ namespace DataAccess
 
                     db.Account.Add(account);
                     await db.SaveChangesAsync();
-                    var createdAccount = await db.Account.FirstOrDefaultAsync(a => a.Email == payload.Email);
+                    var createdAccount = await db.Account.Include(a => a.Role).FirstOrDefaultAsync(a => a.Email == payload.Email);
                     var wallet = new Wallet
                     {
                         AccountID = createdAccount.AccountID,
