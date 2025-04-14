@@ -44,35 +44,43 @@ const FamilyHousekeeperSearchPage = () => {
     }
 
     setLoading(true);
+
     axios
-      .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+      .get("http://localhost:5280/api/HouseKeeper/HousekeeperDisplay", {
         headers,
+        params: { pageNumber: 1, pageSize: 100 }
       })
-      .then((res) => {
-        if (!res.data?.accountID) throw new Error();
-        return axios.get(
-          "http://localhost:5280/api/HouseKeeper/HousekeeperDisplay",
-          {
-            headers,
-            params: { pageNumber: 1, pageSize: 20 },
-          }
+      .then(async (res) => {
+        const displayList = res.data;
+
+        // For each housekeeper, get their account to check roleID
+        const enrichedList = await Promise.all(
+          displayList.map(async (hk) => {
+            try {
+              const accRes = await axios.get("http://localhost:5280/api/Account/GetAccount", {
+                params: { id: hk.accountID },
+                headers
+              });
+
+              // Only include HouseKeeper (roleID === 1)
+              if (accRes.data?.roleID === 1) {
+                return {
+                  ...hk,
+                  name: accRes.data.name, // override if needed
+                  avatar: hk.localProfilePicture || hk.googleProfilePicture,
+                  rating: hk.rating || 0
+                };
+              }
+
+              return null;
+            } catch {
+              return null;
+            }
+          })
         );
-      })
-      .then((res) => {
-        const transformed = res.data.map((hk) => ({
-          accountID: hk.accountID,
-          name: hk.name,
-          address: hk.address,
-          phone: hk.phone,
-          email: hk.email,
-          gender: hk.gender,
-          workType: hk.workType,
-          salary: hk.salary || 0,
-          skills: hk.skills || [],
-          rating: hk.rating || 5,
-          avatar: hk.localProfilePicture,
-        }));
-        setHousekeepers(transformed);
+
+        const filteredHK = enrichedList.filter(Boolean); // remove nulls
+        setHousekeepers(filteredHK);
       })
       .catch(() => setError(t("error.error_loading")))
       .finally(() => setLoading(false));
@@ -239,12 +247,13 @@ const FamilyHousekeeperSearchPage = () => {
 
               <div className="search-page-card-actions">
                 <button
-                  className="btn-primary"
-                  onClick={() =>
-                    navigate("/family/invite", {
-                      state: { housekeepers: [h] },
-                    })
-                  }
+                  className="btn btn-outline-secondary"
+                  onClick={() => {
+                    if (h.name) {
+                      window.location.href = `/messages?search=${encodeURIComponent(h.name)}`;
+                    }
+                  }}
+                  disabled={!h.name}
                 >
                   {t("misc.send_message")}
                 </button>

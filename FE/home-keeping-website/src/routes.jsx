@@ -53,6 +53,7 @@ import AdminTransactionPage from './pages/AdminTransactionPage';
 import JobListOfFamily from './pages/JobListOfFamily.jsx';
 import JobsOfferedToMePage from './pages/JobsOfferedToMePage.jsx';
 import HouseKeeperPayoutsPage from './pages/HouseKeeperPayoutsPage.jsx';
+import StaffWithdrawalVerificationPage from './pages/StaffWithdrawalVerificationPage.jsx';
 
 function AppRoutes() {
   return (
@@ -94,6 +95,7 @@ function AppRoutes() {
         <Route path="/dashboard/users" element={<StaffUserVerificationPage />} />
         <Route path="/dashboard/jobs" element={<StaffJobModerationPage />} />
         <Route path="/dashboard/payouts" element={<StaffPayoutApprovalPage />} />
+        <Route path="/dashboard/withdrawals" element={<StaffWithdrawalVerificationPage />} />
 
         {/* Family Pages */}
         <Route path="/family/dashboard" element={<FamilyDashboardPage />} />
