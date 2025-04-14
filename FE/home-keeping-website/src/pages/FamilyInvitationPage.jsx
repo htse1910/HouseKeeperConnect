@@ -76,7 +76,7 @@ const FamilyInvitationPage = () => {
         if (!confirmed) return;
 
         try {
-            await axios.put("${API_BASE_URL}/Job/OfferJob", null, {
+            await axios.put(`${API_BASE_URL}/Job/OfferJob`, null, {
                 headers,
                 params: {
                     jobId: jobID,

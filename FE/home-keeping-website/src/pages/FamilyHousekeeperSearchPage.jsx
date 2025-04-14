@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { FaSearch, FaMapMarkerAlt } from "react-icons/fa";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 import "../assets/styles/Search.css";
 import {
@@ -46,7 +47,7 @@ const FamilyHousekeeperSearchPage = () => {
     setLoading(true);
 
     axios
-      .get("${API_BASE_URL}/HouseKeeper/HousekeeperDisplay", {
+      .get(`${API_BASE_URL}/HouseKeeper/HousekeeperDisplay`, {
         headers,
         params: { pageNumber: 1, pageSize: 100 }
       })
@@ -57,17 +58,25 @@ const FamilyHousekeeperSearchPage = () => {
         const enrichedList = await Promise.all(
           displayList.map(async (hk) => {
             try {
-              const accRes = await axios.get("${API_BASE_URL}/Account/GetAccount", {
+              const accRes = await axios.get(`${API_BASE_URL}/Account/GetAccount`, {
                 params: { id: hk.accountID },
                 headers
               });
+
+              // ✅ Log properly here
+              console.log("Account", hk.accountID, "=> roleID:", accRes.data?.roleID);
+              console.log("User", hk.accountID, hk.localProfilePicture, hk.googleProfilePicture);
 
               // Only include HouseKeeper (roleID === 1)
               if (accRes.data?.roleID === 1) {
                 return {
                   ...hk,
                   name: accRes.data.name, // override if needed
-                  avatar: hk.localProfilePicture || hk.googleProfilePicture,
+                  avatar:
+                    hk.localProfilePicture && hk.localProfilePicture.trim() !== ""
+                      ? hk.localProfilePicture
+                      : hk.googleProfilePicture
+                  ,
                   rating: hk.rating || 0
                 };
               }
@@ -93,7 +102,7 @@ const FamilyHousekeeperSearchPage = () => {
     .filter(
       (h) =>
         h.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) &&
-        h.address?.toLowerCase().includes(location.trim().toLowerCase()) &&
+        (h.address ?? "").toLowerCase().includes(location.trim().toLowerCase()) &&
         (selectedSkill === "" || h.skills?.includes(selectedSkill)) &&
         (selectedGender === "" || String(h.gender) === selectedGender) &&
         (selectedWorkType === "" || h.workType === selectedWorkType)

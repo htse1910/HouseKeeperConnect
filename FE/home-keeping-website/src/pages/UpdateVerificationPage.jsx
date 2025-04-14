@@ -57,7 +57,7 @@ const UpdateVerificationPage = () => {
     if (facePhoto) formData.append("FacePhoto", facePhoto);
 
     try {
-      const res = await fetch("${API_BASE_URL}/IDVerifications/UpdateIDVerification", {
+      const res = await fetch(`${API_BASE_URL}/IDVerifications/UpdateIDVerification`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${authToken}`,

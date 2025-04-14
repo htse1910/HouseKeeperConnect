@@ -60,7 +60,7 @@ function UpdateHousekeeperPage() {
     if (localProfilePicture) formData.append("LocalProfilePicture", localProfilePicture);
 
     try {
-      const response = await fetch("${API_BASE_URL}/HouseKeeper/UpdateHousekeeper", {
+      const response = await fetch(`${API_BASE_URL}/HouseKeeper/UpdateHousekeeper`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${authToken}`,
