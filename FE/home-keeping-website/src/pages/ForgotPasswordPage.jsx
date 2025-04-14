@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -9,7 +10,7 @@ function ForgotPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5280/api/Account/Request-forgot-password', email, {
+      await axios.post(`${API_BASE_URL}/Account/Request-forgot-password`, email, {
         headers: { 'Content-Type': 'application/json' }
       });
       toast.success("Email đặt lại mật khẩu đã được gửi.", { position: "top-center" });

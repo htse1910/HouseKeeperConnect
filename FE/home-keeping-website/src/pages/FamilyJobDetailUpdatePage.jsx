@@ -3,6 +3,7 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import "../assets/styles/Job.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyJobDetailUpdatePage = () => {
     const { t } = useTranslation();
@@ -84,14 +85,14 @@ const FamilyJobDetailUpdatePage = () => {
         setLoading(true);
 
         axios
-            .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+            .get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers })
             .then((res) => {
                 const account = res.data;
                 if (!account?.accountID) throw new Error(t("error_auth"));
 
                 // Lấy danh sách dịch vụ
                 axios
-                    .get(`http://localhost:5280/api/Service/ServiceList`, { headers })
+                    .get(`${API_BASE_URL}/Service/ServiceList`, { headers })
                     .then((res) => setServices(res.data || []))
                     .catch((err) => {
                         console.error("Không thể tải dịch vụ:", err);
@@ -100,7 +101,7 @@ const FamilyJobDetailUpdatePage = () => {
 
                 // Lấy thông tin Job Detail
                 axios
-                    .get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${jobID}`, { headers })
+                    .get(`${API_BASE_URL}/Job/GetJobDetailByID?id=${jobID}`, { headers })
                     .then((res) => {
                         const data = res.data;
                         setJob(data);
@@ -246,7 +247,7 @@ const FamilyJobDetailUpdatePage = () => {
 
         try {
             const response = await axios.put(
-                "http://localhost:5280/api/Job/UpdateJob",
+                "${API_BASE_URL}/Job/UpdateJob",
                 null,
                 {
                     headers,

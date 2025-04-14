@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function AddIdentificationPicturePage() {
   const accountID = localStorage.getItem("accountID");
@@ -34,7 +35,7 @@ function AddIdentificationPicturePage() {
     formData.append("FacePhoto", facePhoto);
 
     try {
-      const response = await fetch(`http://localhost:5280/api/HouseKeeper/AddHousekeeper?AccountID=${accountID}`, {
+      const response = await fetch(`${API_BASE_URL}/api/HouseKeeper/AddHousekeeper?AccountID=${accountID}`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${authToken}`, // Send authorization token if required

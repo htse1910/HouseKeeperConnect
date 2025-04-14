@@ -3,6 +3,7 @@ import { Modal, Button, Badge } from "react-bootstrap";
 import { FaMapMarkerAlt, FaCalendarAlt, FaClock, FaUser, FaInfoCircle } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const slotMap = {
     1: "8H - 9H", 2: "9H - 10H", 3: "10H - 11H", 4: "11H - 12H",
@@ -31,18 +32,18 @@ export default function JobOfferedDetailModal({ jobID, familyID, onClose }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const jobRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${jobID}`, {
+                const jobRes = await fetch(`${API_BASE_URL}/Job/GetJobDetailByID?id=${jobID}`, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 const jobData = await jobRes.json();
                 setJob(jobData);
 
-                const famRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${familyID}`, {
+                const famRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${familyID}`, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 const famData = await famRes.json();
 
-                const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${famData.accountID}`, {
+                const accRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${famData.accountID}`, {
                     headers: { Authorization: `Bearer ${authToken}` },
                 });
                 const accData = await accRes.json();
@@ -58,7 +59,7 @@ export default function JobOfferedDetailModal({ jobID, familyID, onClose }) {
     const handleAccept = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:5280/api/Job/AcceptJob?jobId=${jobID}&accountID=${accountID}`, {
+            const res = await fetch(`${API_BASE_URL}/Job/AcceptJob?jobId=${jobID}&accountID=${accountID}`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${authToken}` },
             });
@@ -77,7 +78,7 @@ export default function JobOfferedDetailModal({ jobID, familyID, onClose }) {
     const handleDeny = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:5280/api/Job/DenyJob?jobId=${jobID}&accountID=${accountID}`, {
+            const res = await fetch(`${API_BASE_URL}/Job/DenyJob?jobId=${jobID}&accountID=${accountID}`, {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${authToken}` },
             });

@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "../assets/styles/FindJobsPage.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function FindJobsPage() {
   const [jobs, setJobs] = useState([]);
@@ -36,7 +37,7 @@ function FindJobsPage() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5280/api/Job/JobList?pageNumber=${page}&pageSize=${jobsPerPage}`, {
+      const res = await fetch(`${API_BASE_URL}/Job/JobList?pageNumber=${page}&pageSize=${jobsPerPage}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       const data = await res.json();
@@ -44,20 +45,20 @@ function FindJobsPage() {
 
       const detailedJobs = await Promise.all(
         verifiedJobs.map(async (job) => {
-          const detailRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, {
+          const detailRes = await fetch(`${API_BASE_URL}/Job/GetJobDetailByID?id=${job.jobID}`, {
             headers: { Authorization: `Bearer ${authToken}` },
           });
           const jobDetail = await detailRes.json();
 
           let familyName = "Không rõ";
           try {
-            const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
+            const familyRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
               headers: { Authorization: `Bearer ${authToken}` },
             });
             const family = await familyRes.json();
 
             if (family?.accountID) {
-              const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${family.accountID}`, {
+              const accRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${family.accountID}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
               });
               const account = await accRes.json();

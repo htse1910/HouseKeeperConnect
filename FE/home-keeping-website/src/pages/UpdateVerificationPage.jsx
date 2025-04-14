@@ -10,6 +10,7 @@ import {
   FaUpload,
 } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const UpdateVerificationPage = () => {
   const [realName, setRealName] = useState("");
@@ -26,7 +27,7 @@ const UpdateVerificationPage = () => {
   useEffect(() => {
     if (!verifyID || !authToken) return;
 
-    fetch(`http://localhost:5280/api/IDVerifications/GetIDVerificationByID?id=${verifyID}`, {
+    fetch(`${API_BASE_URL}/IDVerifications/GetIDVerificationByID?id=${verifyID}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
@@ -56,7 +57,7 @@ const UpdateVerificationPage = () => {
     if (facePhoto) formData.append("FacePhoto", facePhoto);
 
     try {
-      const res = await fetch("http://localhost:5280/api/IDVerifications/UpdateIDVerification", {
+      const res = await fetch("${API_BASE_URL}/IDVerifications/UpdateIDVerification", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${authToken}`,

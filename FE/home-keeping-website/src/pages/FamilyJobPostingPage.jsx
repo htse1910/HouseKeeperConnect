@@ -5,6 +5,7 @@ import axios from "axios";
 import "../assets/styles/Job.css";
 import "../assets/styles/Payment.css";
 import { formatDateTime, formatTotalCurrency } from "../utils/formatData";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyJobPostingPage = () => {
     const { t } = useTranslation();
@@ -87,14 +88,14 @@ const FamilyJobPostingPage = () => {
         setLoading(true);
 
         axios
-            .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+            .get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers })
             .then((res) => {
                 const account = res.data;
                 if (!account?.accountID) throw new Error(t("error.error_auth"));
 
                 // Lấy danh sách dịch vụ
                 axios
-                    .get(`http://localhost:5280/api/Service/ServiceList`, { headers })
+                    .get(`${API_BASE_URL}/Service/ServiceList`, { headers })
                     .then((res) => setServices(res.data || []))
                     .catch((err) => {
                         console.error("Không thể tải dịch vụ:", err);
@@ -103,12 +104,12 @@ const FamilyJobPostingPage = () => {
 
                 // Lấy thông tin Family
                 axios
-                    .get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers })
+                    .get(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${accountID}`, { headers })
                     .then((res) => {
                         const fam = res.data || null;
                         setFamily(fam);
                         axios
-                            .get(`http://localhost:5280/api/Wallet/getWallet?id=${accountID}`, { headers })
+                            .get(`${API_BASE_URL}/Wallet/getWallet?id=${accountID}`, { headers })
                             .then((res) => setWallet(res.data))
                             .catch((err) => {
                                 console.error("Không thể lấy Wallet:", err);
@@ -245,7 +246,7 @@ const FamilyJobPostingPage = () => {
 
         try {
             const response = await axios.post(
-                "http://localhost:5280/api/Job/AddJob",
+                "${API_BASE_URL}/Job/AddJob",
                 null,
                 {
                     headers,

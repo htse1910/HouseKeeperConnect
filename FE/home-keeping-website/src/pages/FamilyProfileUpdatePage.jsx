@@ -3,6 +3,7 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import "../assets/styles/Profile.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyProfileUpdatePage = () => {
     const { t } = useTranslation();
@@ -37,7 +38,7 @@ const FamilyProfileUpdatePage = () => {
             return;
         }
 
-        axios.get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers })
+        axios.get(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${accountID}`, { headers })
             .then((res) => {
                 const f = res.data;
                 const initial = {
@@ -79,7 +80,7 @@ const FamilyProfileUpdatePage = () => {
 
         setLoading(true);
 
-        axios.put(`http://localhost:5280/api/Families/UpdateFamily`, {
+        axios.put(`${API_BASE_URL}/Families/UpdateFamily`, {
             ...formData,
             accountID: parseInt(accountID)
         }, { headers })

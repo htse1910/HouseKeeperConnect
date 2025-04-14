@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ScrollToTopButton from "../components/ScrollToTopButton";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function UpdateHousekeeperPage() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ function UpdateHousekeeperPage() {
       return;
     }
 
-    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountId}`, {
+    fetch(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByAccountID?id=${accountId}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
@@ -59,7 +60,7 @@ function UpdateHousekeeperPage() {
     if (localProfilePicture) formData.append("LocalProfilePicture", localProfilePicture);
 
     try {
-      const response = await fetch("http://localhost:5280/api/HouseKeeper/UpdateHousekeeper", {
+      const response = await fetch("${API_BASE_URL}/HouseKeeper/UpdateHousekeeper", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${authToken}`,

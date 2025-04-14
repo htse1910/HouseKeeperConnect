@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaStar, FaEdit, FaCamera } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "../assets/styles/ProfileCard.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const ProfileCard = () => {
   const [name, setName] = useState("Chưa có");
@@ -19,7 +20,7 @@ const ProfileCard = () => {
 
     if (!accountID || !authToken || !housekeeperID) return;
 
-    fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+    fetch(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
@@ -28,7 +29,7 @@ const ProfileCard = () => {
       })
       .catch((err) => console.error("Lỗi khi lấy nickname:", err));
 
-    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
+    fetch(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
@@ -47,7 +48,7 @@ const ProfileCard = () => {
       })
       .catch((err) => console.error("Lỗi khi lấy thông tin housekeeper:", err));
 
-    fetch(`http://localhost:5280/api/Rating/GetRatingListByHK?id=${housekeeperID}&pageNumber=1&pageSize=100`, {
+    fetch(`${API_BASE_URL}/Rating/GetRatingListByHK?id=${housekeeperID}&pageNumber=1&pageSize=100`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())

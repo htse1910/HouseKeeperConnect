@@ -4,6 +4,7 @@ import axios from "axios";
 import "../assets/styles/Dashboard.css";
 import "../assets/styles/Payment.css";
 import { shouldShowLoadingOrError } from "../utils/uiHelpers";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyDepositPage = () => {
   const { t } = useTranslation();
@@ -37,7 +38,7 @@ const FamilyDepositPage = () => {
     }
 
     axios
-      .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+      .get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers })
       .then((res) => {
         setAccountInfo(res.data);
         setError(null);
@@ -56,7 +57,7 @@ const FamilyDepositPage = () => {
     setError(null);
 
     axios
-      .put(`http://localhost:5280/api/Wallet/Deposit`, null, {
+      .put(`${API_BASE_URL}/Wallet/Deposit`, null, {
         params: {
           id: Number(accountID),
           balance: Number(amount),

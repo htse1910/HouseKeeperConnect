@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const StaffWithdrawalVerificationPage = () => {
   const [withdrawals, setWithdrawals] = useState([]);
@@ -14,14 +15,14 @@ const StaffWithdrawalVerificationPage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5280/api/Withdraw/WithdrawList?pageNumber=1&pageSize=100", { headers })
+      .get(`${API_BASE_URL}/Withdraw/WithdrawList?pageNumber=1&pageSize=100`, { headers })
       .then(async (res) => {
         const pendingList = res.data.filter(w => w.status === 1); // Only Pending
 
         const enriched = await Promise.all(
           pendingList.map(async (w) => {
             try {
-              const acc = await axios.get(`http://localhost:5280/api/Account/GetAccount?id=${w.accountID}`, { headers });
+              const acc = await axios.get(`${API_BASE_URL}/Account/GetAccount?id=${w.accountID}`, { headers });
               return { ...w, account: acc.data };
             } catch {
               return { ...w, account: { name: "Unknown" } };
@@ -35,7 +36,7 @@ const StaffWithdrawalVerificationPage = () => {
   }, []);
 
   const handleUpdateStatus = async (withdrawID, newStatus) => {
-    await axios.put(`http://localhost:5280/api/Withdraw/UpdateWithdraw`, null, {
+    await axios.put(`${API_BASE_URL}/Withdraw/UpdateWithdraw`, null, {
       headers,
       params: { WithdrawID: withdrawID, Status: newStatus }
     });

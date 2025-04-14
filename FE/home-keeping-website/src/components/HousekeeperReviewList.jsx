@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../assets/styles/HousekeeperReviewList.css";
-
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 const HousekeeperReviewList = () => {
   const [reviews, setReviews] = useState([]);
   const housekeeperID = localStorage.getItem("housekeeperID");
@@ -10,7 +10,7 @@ const HousekeeperReviewList = () => {
     const fetchReviews = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5280/api/Rating/GetRatingListByHK?id=${housekeeperID}&pageNumber=1&pageSize=100`,
+          `${API_BASE_URL}/Rating/GetRatingListByHK?id=${housekeeperID}&pageNumber=1&pageSize=100`,
           {
             headers: { Authorization: `Bearer ${authToken}` },
           }
@@ -21,7 +21,7 @@ const HousekeeperReviewList = () => {
           ratingList.map(async (r) => {
             try {
               const familyRes = await fetch(
-                `http://localhost:5280/api/Families/GetFamilyByID?id=${r.familyID}`,
+                `${API_BASE_URL}/Families/GetFamilyByID?id=${r.familyID}`,
                 {
                   headers: { Authorization: `Bearer ${authToken}` },
                 }
@@ -29,7 +29,7 @@ const HousekeeperReviewList = () => {
               const family = await familyRes.json();
 
               const accRes = await fetch(
-                `http://localhost:5280/api/Account/GetAccount?id=${family.accountID}`,
+                `${API_BASE_URL}/Account/GetAccount?id=${family.accountID}`,
                 {
                   headers: { Authorization: `Bearer ${authToken}` },
                 }

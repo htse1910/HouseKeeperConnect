@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("accounts");
@@ -27,7 +28,7 @@ function AdminDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:5280/api/Account/AccountList", {
+      const response = await fetch(`${API_BASE_URL}/Account/AccountList`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +49,7 @@ function AdminDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:5280/api/HouseKeeper/HousekeeperList", {
+      const response = await fetch(`${API_BASE_URL}/HouseKeeper/HousekeeperList`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import "../assets/styles/Job.css";
 import { renderWorkingTime, formatGender } from "../utils/formatData";
 import { shouldShowLoadingOrError } from "../utils/uiHelpers";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyInvitationPage = () => {
     const { t } = useTranslation();
@@ -30,7 +31,7 @@ const FamilyInvitationPage = () => {
 
     useEffect(() => {
         axios
-            .get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountID=${accountID}&pageNumber=1&pageSize=10`, { headers })
+            .get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountID=${accountID}&pageNumber=1&pageSize=10`, { headers })
             .then((res) => {
                 const list = res.data?.filter((j) => !j.isOffered && j.status === 2) || [];
                 setJobs(list);
@@ -47,14 +48,14 @@ const FamilyInvitationPage = () => {
         }
 
         axios
-            .get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${jobID}`, { headers })
+            .get(`${API_BASE_URL}/Job/GetJobDetailByID?id=${jobID}`, { headers })
             .then((res) => {
                 const job = res.data;
                 setJobDetail(job);
 
                 const fetchServices = job.serviceIDs.map((id) =>
                     axios
-                        .get(`http://localhost:5280/api/Service/GetServiceByID?id=${id}`, { headers })
+                        .get(`${API_BASE_URL}/Service/GetServiceByID?id=${id}`, { headers })
                         .then((res) => res.data)
                         .catch(() => null)
                 );
@@ -75,7 +76,7 @@ const FamilyInvitationPage = () => {
         if (!confirmed) return;
 
         try {
-            await axios.put("http://localhost:5280/api/Job/OfferJob", null, {
+            await axios.put("${API_BASE_URL}/Job/OfferJob", null, {
                 headers,
                 params: {
                     jobId: jobID,

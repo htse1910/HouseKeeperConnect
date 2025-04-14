@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaUser } from "react-icons/fa";
-
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 function FamilyNickname({ familyID }) {
   const [nickname, setNickname] = useState(`Gia đình ${familyID}`);
 
@@ -14,7 +14,7 @@ function FamilyNickname({ familyID }) {
       }
 
       try {
-        const response = await fetch(`http://localhost:5280/api/Families/GetFamily?id=${familyID}`, {
+        const response = await fetch(`${API_BASE_URL}/api/Families/GetFamily?id=${familyID}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

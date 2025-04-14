@@ -72,7 +72,7 @@ const FamilyTransactionPage = () => {
         }
 
         setLoading(true);
-        axios.get("http://localhost:5280/api/Transaction/TransactionList", { headers })
+        axios.get("${API_BASE_URL}/Transaction/TransactionList", { headers })
             .then((res) => {
                 const filtered = res.data.filter(txn => txn.account?.accountID === parseInt(accountID));
                 const mapped = filtered.map(txn => ({

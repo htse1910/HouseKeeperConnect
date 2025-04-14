@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaToolbox, FaSearch, FaPlus } from "react-icons/fa";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const AdminServicesPage = () => {
   const authToken = localStorage.getItem("authToken");
@@ -18,7 +19,7 @@ const AdminServicesPage = () => {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5280/api/Service/ServiceList", {
+      const res = await fetch("${API_BASE_URL}/Service/ServiceList", {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       const data = await res.json();
@@ -35,7 +36,7 @@ const AdminServicesPage = () => {
     setLoading(true);
     setSearchMode(true);
     try {
-      const res = await fetch(`http://localhost:5280/api/Service/GetServiceByID?id=${searchID}`, {
+      const res = await fetch(`${API_BASE_URL}/Service/GetServiceByID?id=${searchID}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       const data = await res.json();
@@ -64,7 +65,7 @@ const AdminServicesPage = () => {
         Description: formData.description,
       });
 
-      const res = await fetch(`http://localhost:5280/api/Service/AddService?${params}`, {
+      const res = await fetch(`${API_BASE_URL}/Service/AddService?${params}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${authToken}` },
       });

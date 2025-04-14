@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import PayoutDetailModal from "../components/PayoutDetailModal";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const HouseKeeperPayoutsPage = () => {
   const [payouts, setPayouts] = useState([]);
@@ -24,7 +25,7 @@ const HouseKeeperPayoutsPage = () => {
 
       try {
         const res = await axios.get(
-          `http://localhost:5280/api/Payout/GetPayoutsByHK?accountID=${accountID}&pageNumber=1&pageSize=100`,
+          `${API_BASE_URL}/Payout/GetPayoutsByHK?accountID=${accountID}&pageNumber=1&pageSize=100`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -33,14 +34,14 @@ const HouseKeeperPayoutsPage = () => {
         const detailed = await Promise.all(
           res.data.map(async (payout) => {
             const familyRes = await axios.get(
-              `http://localhost:5280/api/Families/GetFamilyByID?id=${payout.familyID}`,
+              `${API_BASE_URL}/Families/GetFamilyByID?id=${payout.familyID}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
               }
             );
 
             const accountRes = await axios.get(
-              `http://localhost:5280/api/Account/GetAccount?id=${familyRes.data.accountID}`,
+              `${API_BASE_URL}/Account/GetAccount?id=${familyRes.data.accountID}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
               }

@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useBackToTop, renderBackToTopButton } from "../utils/uiHelpers";
 import { getPagination } from "../utils/uiHelpers";
 import Pagination from "../components/Pagination";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyJobManagementPage = () => {
   const { t } = useTranslation();
@@ -64,7 +65,7 @@ const FamilyJobManagementPage = () => {
   const confirmDelete = async () => {
     if (!jobToDelete) return;
     try {
-      await axios.delete(`http://localhost:5280/api/Job/DeleteJob`, {
+      await axios.delete(`${API_BASE_URL}/Job/DeleteJob`, {
         headers: { Authorization: `Bearer ${authToken}`, "Content-Type": "application/json" },
         params: { id: jobToDelete.jobID }
       });

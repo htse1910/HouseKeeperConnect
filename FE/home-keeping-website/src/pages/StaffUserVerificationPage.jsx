@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaUniversity, FaUser, FaCheck, FaTimes, FaIdCard } from "react-icons/fa";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const StaffUserVerificationPage = () => {
   const [housekeepers, setHousekeepers] = useState([]);
@@ -22,7 +23,7 @@ const StaffUserVerificationPage = () => {
     const token = localStorage.getItem("authToken");
 
     try {
-      const res = await axios.get("http://localhost:5280/api/HouseKeeper/ListHousekeeperIDPending", {
+      const res = await axios.get(`${API_BASE_URL}/HouseKeeper/ListHousekeeperIDPending`, {
         params: { pageNumber: 1, pageSize: 100 },
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -32,7 +33,7 @@ const StaffUserVerificationPage = () => {
       const detailedList = await Promise.all(
         pendingList.map(async (hk) => {
           try {
-            const detailRes = await axios.get("http://localhost:5280/api/HouseKeeper/GetHousekeeperByID", {
+            const detailRes = await axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByID`, {
               params: { id: hk.housekeeperID },
               headers: { Authorization: `Bearer ${token}` }
             });
@@ -66,7 +67,7 @@ const StaffUserVerificationPage = () => {
     const accountID = localStorage.getItem("accountID");
 
     try {
-      await axios.put(`http://localhost:5280/api/VerificationTasks/Approve`, null, {
+      await axios.put(`${API_BASE_URL}/VerificationTasks/Approve`, null, {
         params: { taskId, accountID, notes: note },
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -84,7 +85,7 @@ const StaffUserVerificationPage = () => {
     const accountID = localStorage.getItem("accountID");
 
     try {
-      await axios.put(`http://localhost:5280/api/VerificationTasks/Reject`, null, {
+      await axios.put(`${API_BASE_URL}/VerificationTasks/Reject`, null, {
         params: { taskId, accountID, notes: note },
         headers: { Authorization: `Bearer ${token}` }
       });

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const getEnumLabel = (type, value) => {
   const enums = {
@@ -34,7 +35,7 @@ const AccountTable = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5280/api/Account/AccountList?pageNumber=${page}&pageSize=${pageSize}`,
+        `${API_BASE_URL}/Account/AccountList?pageNumber=${page}&pageSize=${pageSize}`,
         {
           headers: { Authorization: `Bearer ${authToken}` },
         }
@@ -56,7 +57,7 @@ const AccountTable = () => {
     setSearchMode(true);
     try {
       const res = await fetch(
-        `http://localhost:5280/api/Account/SearchAccount?name=${encodeURIComponent(searchName)}`,
+        `${API_BASE_URL}/api/Account/SearchAccount?name=${encodeURIComponent(searchName)}`,
         {
           headers: { Authorization: `Bearer ${authToken}` },
         }
@@ -77,7 +78,7 @@ const AccountTable = () => {
     setSearchMode(true);
     try {
       const res = await fetch(
-        `http://localhost:5280/api/Account/GetAccount?id=${searchID}`,
+        `${API_BASE_URL}/api/Account/GetAccount?id=${searchID}`,
         {
           headers: { Authorization: `Bearer ${authToken}` },
         }
@@ -104,7 +105,7 @@ const AccountTable = () => {
     setUpdatingID(id);
     setStatusMessage("");
     try {
-      const res = await fetch(`http://localhost:5280/api/Account/ChangeStatus?id=${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/Account/ChangeStatus?id=${id}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${authToken}` },
       });

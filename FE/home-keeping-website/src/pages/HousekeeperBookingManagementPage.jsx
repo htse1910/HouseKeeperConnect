@@ -13,6 +13,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { Modal } from "react-bootstrap";
 import "react-toastify/dist/ReactToastify.css";
 import { serviceMap } from "../utils/serviceMap";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 const slotMap = {
@@ -45,7 +46,7 @@ const HousekeeperBookingManagementPage = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:5280/api/Job/HousekeeperCompleteJob?jobId=${jobID}&accountID=${accountID}`, {
+      const res = await fetch(`${API_BASE_URL}/Job/HousekeeperCompleteJob?jobId=${jobID}&accountID=${accountID}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -75,7 +76,7 @@ const HousekeeperBookingManagementPage = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:5280/api/Job/CheckIn?bookingId=${selectedBooking.bookingID}`,
+        `${API_BASE_URL}/Job/CheckIn?bookingId=${selectedBooking.bookingID}`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${authToken}` }
@@ -123,7 +124,7 @@ const HousekeeperBookingManagementPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:5280/api/Booking/GetBookingByHousekeeperID?housekeeperId=${housekeeperID}`, {
+        const res = await fetch(`${API_BASE_URL}/Booking/GetBookingByHousekeeperID?housekeeperId=${housekeeperID}`, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         const bookingData = await res.json();
@@ -134,17 +135,17 @@ const HousekeeperBookingManagementPage = () => {
             let familyName = "Đang cập nhật";
 
             try {
-              const jobRes = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${booking.jobID}`, {
+              const jobRes = await fetch(`${API_BASE_URL}/Job/GetJobDetailByID?id=${booking.jobID}`, {
                 headers: { Authorization: `Bearer ${authToken}` }
               });
               jobDetail = await jobRes.json();
 
-              const familyRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
+              const familyRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
                 headers: { Authorization: `Bearer ${authToken}` }
               });
               const familyData = await familyRes.json();
 
-              const accountRes = await fetch(`http://localhost:5280/api/Account/GetAccount?id=${familyData.accountID}`, {
+              const accountRes = await fetch(`${API_BASE_URL}/Account/GetAccount?id=${familyData.accountID}`, {
                 headers: { Authorization: `Bearer ${authToken}` }
               });
               const accountData = await accountRes.json();

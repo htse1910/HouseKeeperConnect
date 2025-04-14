@@ -4,6 +4,7 @@ import { FaSearch, FaPaperPlane, FaUserCircle } from "react-icons/fa";
 import "../assets/styles/Profile.css";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function FamilyMessagesPage() {
     const authToken = localStorage.getItem("authToken");
@@ -22,7 +23,7 @@ function FamilyMessagesPage() {
 
     const handleSearch = () => {
         if (!searchQuery.trim()) return setMatchedUser(null);
-        fetch(`http://localhost:5280/api/Account/SearchAccount?name=${encodeURIComponent(searchQuery)}`, {
+        fetch(`${API_BASE_URL}/Account/SearchAccount?name=${encodeURIComponent(searchQuery)}`, {
             headers: { Authorization: `Bearer ${authToken}` },
         })
             .then(res => res.json())
@@ -37,7 +38,7 @@ function FamilyMessagesPage() {
     useEffect(() => { if (searchQuery) handleSearch(); }, []);
     useEffect(() => {
         if (!selectedUser) return;
-        fetch(`http://localhost:5280/api/Chat/GetChat?fromAccountId=${accountID}&toAccountId=${selectedUser.accountID}`, {
+        fetch(`${API_BASE_URL}/Chat/GetChat?fromAccountId=${accountID}&toAccountId=${selectedUser.accountID}`, {
             headers: { Authorization: `Bearer ${authToken}` },
         })
             .then(res => res.json())
@@ -74,7 +75,7 @@ function FamilyMessagesPage() {
 
         try {
             await fetch(
-                `http://localhost:5280/api/Chat/send?FromAccountId=${accountID}&ToAccountId=${selectedUser.accountID}&Message=${encodeURIComponent(inputMessage)}`,
+                `${API_BASE_URL}/Chat/send?FromAccountId=${accountID}&ToAccountId=${selectedUser.accountID}&Message=${encodeURIComponent(inputMessage)}`,
                 {
                     method: "POST",
                     headers: {

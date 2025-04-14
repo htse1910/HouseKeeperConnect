@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaBell, FaClock } from "react-icons/fa";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const NotificationsCard = () => {
   const [notifications, setNotifications] = useState([]);
@@ -17,7 +18,7 @@ const NotificationsCard = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5280/api/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=1000`,
+        `${API_BASE_URL}/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=1000`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -53,7 +54,7 @@ const NotificationsCard = () => {
   const markAsRead = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5280/api/Notification/IsRead?id=${id}`,
+        `${API_BASE_URL}/Notification/IsRead?id=${id}`,
         {
           method: "PUT",
           headers: {

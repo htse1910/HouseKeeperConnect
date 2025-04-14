@@ -46,7 +46,7 @@ const FamilyHousekeeperSearchPage = () => {
     setLoading(true);
 
     axios
-      .get("http://localhost:5280/api/HouseKeeper/HousekeeperDisplay", {
+      .get("${API_BASE_URL}/HouseKeeper/HousekeeperDisplay", {
         headers,
         params: { pageNumber: 1, pageSize: 100 }
       })
@@ -57,7 +57,7 @@ const FamilyHousekeeperSearchPage = () => {
         const enrichedList = await Promise.all(
           displayList.map(async (hk) => {
             try {
-              const accRes = await axios.get("http://localhost:5280/api/Account/GetAccount", {
+              const accRes = await axios.get("${API_BASE_URL}/Account/GetAccount", {
                 params: { id: hk.accountID },
                 headers
               });

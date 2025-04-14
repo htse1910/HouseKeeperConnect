@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { serviceMap } from "../utils/serviceMap";
 import { toast } from "react-toastify";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const slotMap = {
   1: "8H - 9H",
@@ -26,7 +27,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
-        const res = await fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${jobID}`, {
+        const res = await fetch(`${API_BASE_URL}/Job/GetJobDetailByID?id=${jobID}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
@@ -50,7 +51,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
   const handleAcceptJob = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5280/api/Job/AcceptJob?jobId=${jobID}&accountID=${accountID}`,
+        `${API_BASE_URL}/Job/AcceptJob?jobId=${jobID}&accountID=${accountID}`,
         {
           method: "POST",
           headers: {
@@ -77,7 +78,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
   const handleRejectJob = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5280/api/Job/DenyJob?jobId=${jobID}&accountID=${accountID}`,
+        `${API_BASE_URL}/Job/DenyJob?jobId=${jobID}&accountID=${accountID}`,
         {
           method: "PUT",
           headers: {

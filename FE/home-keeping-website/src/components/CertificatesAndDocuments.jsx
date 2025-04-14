@@ -5,6 +5,7 @@ import {
   FaCheckCircle,
   FaClock,
 } from "react-icons/fa";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const CertificatesAndDocuments = () => {
   const [createdAt, setCreatedAt] = useState(null);
@@ -17,7 +18,7 @@ const CertificatesAndDocuments = () => {
 
     if (!verifyID || !token) return;
 
-    fetch(`http://localhost:5280/api/IDVerifications/GetIDVerificationByID?id=${verifyID}`, {
+    fetch(`${API_BASE_URL}/IDVerifications/GetIDVerificationByID?id=${verifyID}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
