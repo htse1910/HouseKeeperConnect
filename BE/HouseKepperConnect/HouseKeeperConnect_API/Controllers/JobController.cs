@@ -267,7 +267,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            // Calculate price per hour based on selected services
+            // Calculate the total price of selected services
             decimal totalServicePrice = 0;
             foreach (var serviceID in jobCreateDTO.ServiceIDs)
             {
@@ -277,22 +277,25 @@ namespace HouseKeeperConnect_API.Controllers
                 totalServicePrice += service.Price;
             }
 
-            decimal pricePerHour = totalServicePrice;
+            // ✅ Calculate the average price per hour
+            decimal pricePerHour = totalServicePrice / jobCreateDTO.ServiceIDs.Count;
 
+            // Calculate total number of weeks and slots
             TimeSpan dateRange = jobCreateDTO.EndDate.Date - jobCreateDTO.StartDate.Date;
             int numberOfWeeks = (int)Math.Ceiling(dateRange.TotalDays / 7.0);
             int slotsPerWeek = jobCreateDTO.SlotIDs.Count * jobCreateDTO.DayofWeek.Count;
             int totalSlots = slotsPerWeek * numberOfWeeks;
 
+            // ✅ Calculate the total job price
             decimal totalJobPrice = pricePerHour * totalSlots;
 
-            // Determine charge amount based on job type
+            // ✅ Determine the charge amount based on job type
             decimal chargeAmount = 0;
-            if (jobCreateDTO.JobType == 1) // Subscription (charge for 1st week)
+            if (jobCreateDTO.JobType == 1) // Subscription (charge for the first week only)
             {
                 chargeAmount = pricePerHour * jobCreateDTO.SlotIDs.Count * jobCreateDTO.DayofWeek.Count;
             }
-            else if (jobCreateDTO.JobType == 2) // One-time
+            else if (jobCreateDTO.JobType == 2) // One-time job
             {
                 chargeAmount = totalJobPrice;
             }
@@ -373,13 +376,14 @@ namespace HouseKeeperConnect_API.Controllers
             jobDetail.JobID = job.JobID;
             jobDetail.Price = totalJobPrice;
             jobDetail.PricePerHour = pricePerHour;
+            jobDetail.HKPrice = housekeeperEarnings;
             await _jobService.AddJobDetailAsync(jobDetail);
 
             //Tạo đơn payment cho FA
             var payment = new Payment();
             payment.FamilyID = acc.FamilyID;
             payment.PaymentDate = DateTime.Now;
-            payment.Amount = housekeeperEarnings;
+            payment.Amount = chargeAmount;
             payment.Commission = platformFee;
             payment.JobID = job.JobID;
             payment.Status = (int)PaymentStatus.Pending;
@@ -982,7 +986,7 @@ namespace HouseKeeperConnect_API.Controllers
             payout.PayoutDate = null;
             payout.Status = (int)PayoutStatus.Pending;
             payout.BookingID = booking.BookingID;
-            payout.Amount = jobDetail.Price;
+            payout.Amount = jobDetail.HKPrice;
             payout.HousekeeperID = hk.HousekeeperID;
 
             await _payoutService.AddPayoutAsync(payout);
@@ -1104,7 +1108,7 @@ namespace HouseKeeperConnect_API.Controllers
             trans.CreatedDate = DateTime.Now;
             trans.UpdatedDate = DateTime.Now;
             trans.Fee = 0;
-            trans.Amount = jobDetail.Price;
+            trans.Amount = jobDetail.HKPrice;
             trans.Description = "Tiền lương công việc.";
             trans.WalletID = wallet.WalletID;
             

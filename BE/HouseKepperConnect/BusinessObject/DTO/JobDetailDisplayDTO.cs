@@ -31,6 +31,10 @@ namespace BusinessObject.DTO
         [Required]
         public DateTime EndDate { get; set; }
 
+        [Required]
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal HKPrice { get; set; }
+
         [StringLength(500)]
         public string Description { get; set; }
 
