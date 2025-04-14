@@ -146,6 +146,7 @@ const StaffDashboardPage = () => {
     { name: t("uncategorized.reviews", "Reviews"), icon: <FaStar />, path: "/dashboard/reviews" },
     { name: t("uncategorized.disputes", "Disputes"), icon: <FaExclamationTriangle />, path: "/dashboard/disputes" },
     { name: t("uncategorized.faqs_policies", "FAQs & Policies"), icon: <FaBook />, path: "/dashboard/faqs-policies" },
+    { name: t("uncategorized.withdrawal_verification", "Withdrawal Verification"), icon: <FaMoneyBillWave />, path: "/dashboard/withdrawals" },
   ];
 
   return (
