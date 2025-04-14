@@ -9,6 +9,7 @@ import axios from "axios";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const StaffDashboardPage = () => {
   const { t } = useTranslation();
@@ -57,7 +58,7 @@ const StaffDashboardPage = () => {
     };
 
     axios
-      .get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+      .get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers })
       .then((accountRes) => {
         const account = accountRes.data;
         if (!account) throw new Error(t("error_auth", "Unauthorized"));
@@ -71,10 +72,10 @@ const StaffDashboardPage = () => {
         }
 
         return Promise.allSettled([
-          axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers }),
-          axios.get(`http://localhost:5280/api/Account/NewAccounts`, { headers }),
-          axios.get(`http://localhost:5280/api/Transaction/GetTotalTransactions`, { headers }),
-          axios.get(`http://localhost:5280/api/Transaction/TransactionInPastWeek`, { headers }),
+          axios.get(`${API_BASE_URL}/Account/TotalAccount`, { headers }),
+          axios.get(`${API_BASE_URL}/Account/NewAccounts`, { headers }),
+          axios.get(`${API_BASE_URL}/Transaction/GetTotalTransactions`, { headers }),
+          axios.get(`${API_BASE_URL}/Transaction/TransactionInPastWeek`, { headers }),
         ]);
       })
       .then((results) => {

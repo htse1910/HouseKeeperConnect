@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import "../assets/styles/Transaction.css";
 import { formatTotalCurrency, formatDate, formatDateTime, getTransactionFormatData } from "../utils/formatData";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const generateFakeTransactions = () => {
     const transactionTypes = [1, 2, 3, 4]; // enum hợp lệ
@@ -114,12 +115,12 @@ const FamilyTransactionPage = () => {
             return;
         }
 
-        axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+        axios.get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers })
             .then((res) => {
                 const acc = res.data;
                 if (!acc || !acc.accountID) throw new Error(t("error_auth"));
 
-                return axios.get(`http://localhost:5280/api/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=100`, { headers });
+                return axios.get(`${API_BASE_URL}/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=100`, { headers });
             })
             .then((txnRes) => {
                 const txnData = txnRes.data || [];

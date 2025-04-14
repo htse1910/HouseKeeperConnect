@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function JobName({ jobID }) {
   const [jobName, setJobName] = useState(`Công việc ${jobID}`);
@@ -13,7 +14,7 @@ function JobName({ jobID }) {
       }
 
       try {
-        const response = await fetch(`http://localhost:5280/api/Job/GetJobByID?id=${jobID}`, {
+        const response = await fetch(`${API_BASE_URL}/Job/GetJobByID?id=${jobID}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

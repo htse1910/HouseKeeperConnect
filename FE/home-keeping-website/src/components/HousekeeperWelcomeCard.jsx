@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaBriefcase, FaCheckCircle, FaClock, FaRocket } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "../assets/styles/HousekeeperWelcomeCard.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const HousekeeperWelcomeCard = () => {
   const [fullName, setFullName] = useState("...");
@@ -15,7 +16,7 @@ const HousekeeperWelcomeCard = () => {
     if (!accountID || !authToken) return;
 
     // Fetch account name
-    fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+    fetch(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
@@ -28,7 +29,7 @@ const HousekeeperWelcomeCard = () => {
       .catch(error => console.error("Lỗi khi lấy dữ liệu tài khoản:", error));
 
     // Fetch housekeeper info + application stats
-    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
+    fetch(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
@@ -41,7 +42,7 @@ const HousekeeperWelcomeCard = () => {
 
         // Get applications
         const resApp = await fetch(
-          `http://localhost:5280/api/Application/GetApplicationsByAccountID?uid=${data.housekeeperID}&pageNumber=1&pageSize=1000`,
+          `${API_BASE_URL}/Application/GetApplicationsByAccountID?uid=${data.housekeeperID}&pageNumber=1&pageSize=1000`,
           {
             headers: {
               Authorization: `Bearer ${authToken}`,

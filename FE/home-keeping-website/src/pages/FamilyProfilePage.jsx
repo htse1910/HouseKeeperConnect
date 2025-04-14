@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import "../assets/styles/Profile.css";
 import defaultAvatar from "../assets/images/avatar0.png";
 import axios from "axios";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyProfilePage = () => {
     const { t } = useTranslation();
@@ -89,20 +90,20 @@ const FamilyProfilePage = () => {
         }
 
         // Gọi API để lấy thông tin tài khoản
-        axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers })
+        axios.get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers })
             .then((accountResponse) => {
                 const account = accountResponse.data;
                 if (!account || !account.accountID) throw new Error(t("error_auth"));
                 setAccountInfo(account);
 
-                return axios.get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers });
+                return axios.get(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${accountID}`, { headers });
             })
             .then((familyResponse) => {
                 const familyData = familyResponse.data;
                 if (!familyData) throw new Error(t("error_loading"));
                 setFamily(familyData);
 
-                return axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
+                return axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
             })
             .then((jobResponse) => {
                 const jobList = jobResponse.data;
@@ -113,7 +114,7 @@ const FamilyProfilePage = () => {
                 }
 
                 const jobDetailPromises = jobList.map(job =>
-                    axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
+                    axios.get(`${API_BASE_URL}/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
                         .then(response => response.data)
                         .catch(err => {
                             console.warn(`Không thể lấy chi tiết job ID ${job.jobID}`, err);

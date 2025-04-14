@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import RegisterForm from '../components/RegisterForm';
 import RegisterInfo from '../components/RegisterInfo';
 import axios from 'axios';
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -65,7 +66,7 @@ function RegisterPage() {
         console.log(`${pair[0]}: ${pair[1]}`);
       }      
       const registerResponse = await axios.post(
-        `http://localhost:5280/api/Account/Register`,
+        `${API_BASE_URL}/Account/Register`,
         formDataToSend,
         {
           headers: {
@@ -92,7 +93,7 @@ function RegisterPage() {
   const autoLoginAfterRegister = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5280/api/Account/Login?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}`
+        `${API_BASE_URL}/Account/Login?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}`
       );
 
       if (response.status === 200) {

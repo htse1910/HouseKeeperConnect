@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ScrollToTopButton from "../components/ScrollToTopButton";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function UpdateHousekeeperAccountPage() {
     const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ function UpdateHousekeeperAccountPage() {
         }
 
         // Fetch existing housekeeper data
-        fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+        fetch(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -65,7 +66,7 @@ function UpdateHousekeeperAccountPage() {
 
         try {
             const response = await fetch(
-                `http://localhost:5280/api/Account/UpdateAccount?AccountID=${accountID}&Name=${formData.name}&Password=${formData.password}&Phone=${formData.phone}&BankAccountNumber=${formData.bankAccountNumber}`,
+                `${API_BASE_URL}/Account/UpdateAccount?AccountID=${accountID}&Name=${formData.name}&Password=${formData.password}&Phone=${formData.phone}&BankAccountNumber=${formData.bankAccountNumber}`,
                 {
                     method: "PUT",
                     headers: {

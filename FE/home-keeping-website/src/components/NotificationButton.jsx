@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaBell } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const NotificationButton = () => {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -14,7 +15,7 @@ const NotificationButton = () => {
   const fetchNotifications = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5280/api/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=10`,
+        `${API_BASE_URL}/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=10`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -53,7 +54,7 @@ const NotificationButton = () => {
   const markAsRead = async (id) => {
     try {
       await fetch(
-        `http://localhost:5280/api/Notification/IsRead?id=${id}`,
+        `${API_BASE_URL}/Notification/IsRead?id=${id}`,
         {
           method: "PUT",
           headers: {

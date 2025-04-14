@@ -11,7 +11,7 @@ import {
 import { Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 import BookingDetailItem from "./BookingDetailItem";
-
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 
 const BookingCard = ({ row, onDayClick }) => {
@@ -21,7 +21,7 @@ const BookingCard = ({ row, onDayClick }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:5280/api/Job/HousekeeperCompleteJob?jobId=${row.bookingID}&accountID=${accountID}`,
+        `${API_BASE_URL}/Job/HousekeeperCompleteJob?jobId=${row.bookingID}&accountID=${accountID}`,
         {
           method: "POST",
           headers: {

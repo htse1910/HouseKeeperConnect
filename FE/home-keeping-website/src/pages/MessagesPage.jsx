@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FaSearch, FaPaperPlane, FaUserCircle } from "react-icons/fa";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function MessagesPage() {
   const authToken = localStorage.getItem("authToken");
@@ -23,7 +24,7 @@ function MessagesPage() {
   const fetchMessages = () => {
     if (!selectedUser) return;
 
-    fetch(`http://localhost:5280/api/Chat/GetChat?fromAccountId=${accountID}&toAccountId=${selectedUser.accountID}`, {
+    fetch(`${API_BASE_URL}/Chat/GetChat?fromAccountId=${accountID}&toAccountId=${selectedUser.accountID}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
@@ -46,7 +47,7 @@ function MessagesPage() {
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return setMatchedUser(null);
-    fetch(`http://localhost:5280/api/Account/SearchAccount?name=${encodeURIComponent(searchQuery)}`, {
+    fetch(`${API_BASE_URL}/Account/SearchAccount?name=${encodeURIComponent(searchQuery)}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
@@ -72,7 +73,7 @@ function MessagesPage() {
     scrollToBottom();
 
     await fetch(
-      `http://localhost:5280/api/Chat/send?FromAccountId=${accountID}&ToAccountId=${selectedUser.accountID}&Message=${encodeURIComponent(inputMessage)}`,
+      `${API_BASE_URL}/Chat/send?FromAccountId=${accountID}&ToAccountId=${selectedUser.accountID}&Message=${encodeURIComponent(inputMessage)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
@@ -89,7 +90,7 @@ function MessagesPage() {
 
     fetchMessages(); // Initial load
 
-    fetch(`http://localhost:5280/api/Account/GetAccount?id=${selectedUser.accountID}`, {
+    fetch(`${API_BASE_URL}/Account/GetAccount?id=${selectedUser.accountID}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
@@ -103,7 +104,7 @@ function MessagesPage() {
   }, [selectedUser]);
 
   useEffect(() => {
-    fetch(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+    fetch(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())

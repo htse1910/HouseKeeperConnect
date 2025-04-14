@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import "../assets/styles/Dashboard.css";
 import { formatTotalCurrency, getTransactionFormatData } from "../utils/formatData";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function FamilyDashboardPage() {
   const { t } = useTranslation();
@@ -38,13 +39,13 @@ function FamilyDashboardPage() {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const accRes = await axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers });
+        const accRes = await axios.get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers });
         const accData = accRes.data;
         if (!accData?.accountID) throw new Error(t("auth.error_auth"));
         setUserName(accData.name || "...");
 
         try {
-          const walletRes = await axios.get(`http://localhost:5280/api/wallet/getWallet?id=${accountID}`, { headers });
+          const walletRes = await axios.get(`${API_BASE_URL}/wallet/getWallet?id=${accountID}`, { headers });
           const walletData = walletRes.data;
           setBalance(walletData?.balance || 0);
         } catch (walletErr) {
@@ -52,7 +53,7 @@ function FamilyDashboardPage() {
         }
 
         try {
-          const jobsRes = await axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
+          const jobsRes = await axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
           const jobsData = jobsRes.data;
           setJobStats({
             activeJobs: jobsData.length || 0,
@@ -64,7 +65,7 @@ function FamilyDashboardPage() {
 
         try {
           const notiRes = await axios.get(
-            `http://localhost:5280/api/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=5`,
+            `${API_BASE_URL}/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=5`,
             { headers }
           );
           const sortedNotis = (notiRes.data || []).sort(
@@ -77,7 +78,7 @@ function FamilyDashboardPage() {
 
         try {
           const txRes = await axios.get(
-            `http://localhost:5280/api/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=5`,
+            `${API_BASE_URL}/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=5`,
             { headers }
           );
           setTransactions(txRes.data || []);

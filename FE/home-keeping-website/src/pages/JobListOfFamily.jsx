@@ -6,6 +6,7 @@ import {
   FaCalendarAlt,
   FaClipboardList
 } from "react-icons/fa";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const JobStatusMap = {
   1: { label: "Chờ duyệt", color: "secondary" },
@@ -48,7 +49,7 @@ function JobListOfFamily() {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=1&pageSize=100`,
+        `${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=1&pageSize=100`,
         {
           headers: { Authorization: `Bearer ${authToken}` }
         }
@@ -64,7 +65,7 @@ function JobListOfFamily() {
   const confirmJobCompletion = async (jobId) => {
     try {
       await axios.post(
-        `http://localhost:5280/api/Job/ConfirmJobCompletion`,
+        `${API_BASE_URL}/Job/ConfirmJobCompletion`,
         null,
         {
           params: { jobId, accountID },

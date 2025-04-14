@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useSearchParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -37,7 +38,7 @@ function ResetPasswordPage() {
     console.log("🔍 Sending payload:", payload); // 🔍 Debug log
 
     try {
-      await axios.post('http://localhost:5280/api/Account/Reset-password', payload, {
+      await axios.post(`${API_BASE_URL}/Account/Reset-password`, payload, {
         headers: { 'Content-Type': 'application/json' }
       });
       toast.success("Mật khẩu đã được đặt lại thành công.", { position: "top-center" });

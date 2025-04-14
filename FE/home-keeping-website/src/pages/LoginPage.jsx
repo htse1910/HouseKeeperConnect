@@ -6,6 +6,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import { UserRoleContext } from "../components/UserRoleProvider";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const GOOGLE_CLIENT_ID = "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com";
 
@@ -25,7 +26,7 @@ function LoginPage() {
     e.preventDefault();
     try {
       const response = await axios.get(
-        `http://localhost:5280/api/Account/Login?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}`
+        `${API_BASE_URL}/Account/Login?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}`
       );
 
       if (response.status === 200) {
@@ -59,7 +60,7 @@ function LoginPage() {
   
     try {
       const response = await axios.post(
-        'http://localhost:5280/api/Account/LoginWithGoogle',
+        '${API_BASE_URL}/Account/LoginWithGoogle',
         null,
         {
           params: {

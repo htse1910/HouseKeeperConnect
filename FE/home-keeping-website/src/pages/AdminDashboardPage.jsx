@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaUsers, FaConciergeBell, FaExchangeAlt } from "react-icons/fa";
 import ScrollToTopButton from "../components/ScrollToTopButton";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const AdminDashboardPage = () => {
   const [userCount, setUserCount] = useState(0);
@@ -16,7 +17,7 @@ const AdminDashboardPage = () => {
     setLoadingUsers(true);
     try {
       const res = await fetch(
-        "http://localhost:5280/api/Account/AccountList?pageNumber=1&pageSize=99999",
+        `${API_BASE_URL}/Account/AccountList?pageNumber=1&pageSize=99999`,
         {
           headers: { Authorization: `Bearer ${authToken}` },
         }
@@ -34,7 +35,7 @@ const AdminDashboardPage = () => {
   const fetchServiceCount = async () => {
     setLoadingServices(true);
     try {
-      const res = await fetch("http://localhost:5280/api/Service/ServiceList", {
+      const res = await fetch(`${API_BASE_URL}/Service/ServiceList`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       const data = await res.json();
@@ -51,7 +52,7 @@ const AdminDashboardPage = () => {
     setLoadingTransactions(true);
     try {
       const res = await fetch(
-        "http://localhost:5280/api/Transaction/TransactionList?pageNumber=1&pageSize=1000",
+        `${API_BASE_URL}/Transaction/TransactionList?pageNumber=1&pageSize=1000`,
         {
           headers: { Authorization: `Bearer ${authToken}` },
         }

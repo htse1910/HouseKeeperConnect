@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { FaMapMarkerAlt, FaUser, FaClock } from "react-icons/fa";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 // Slot and day maps
 const slotMap = {
@@ -50,7 +51,7 @@ function JobDetailsPage() {
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
 
-    fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${id}`, {
+    fetch(`${API_BASE_URL}/Job/GetJobDetailByID?id=${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -64,7 +65,7 @@ function JobDetailsPage() {
 
         // Fetch family name using familyID -> accountID -> name
         if (data.familyID) {
-          fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${data.familyID}`, {
+          fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${data.familyID}`, {
             method: "GET",
             headers: { Authorization: `Bearer ${authToken}` },
           })
@@ -72,7 +73,7 @@ function JobDetailsPage() {
             .then((family) => {
               if (family?.accountID) {
                 setFamilyAccountID(family.accountID);
-                fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${family.accountID}`, {
+                fetch(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${family.accountID}`, {
                   method: "GET",
                   headers: { Authorization: `Bearer ${authToken}` },
                 })
@@ -101,7 +102,7 @@ function JobDetailsPage() {
 
     try {
       const response = await fetch(
-        `http://localhost:5280/api/Application/AddApplication?accountID=${accountID}&jobID=${job.jobID}`,
+        `${API_BASE_URL}/Application/AddApplication?accountID=${accountID}&jobID=${job.jobID}`,
         {
           method: "POST",
           headers: {

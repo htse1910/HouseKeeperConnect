@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaPhone, FaEnvelope, FaCreditCard } from "react-icons/fa";
-
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 const ContactInfo = () => {
   const [phone, setPhone] = useState("Chưa cập nhật");
   const [email, setEmail] = useState("Chưa cập nhật");
@@ -12,7 +12,7 @@ const ContactInfo = () => {
   useEffect(() => {
     if (!accountID || !authToken) return;
 
-    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
+    fetch(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${authToken}`,

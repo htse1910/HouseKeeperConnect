@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaBell, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ScrollToTopButton from "../components/ScrollToTopButton";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const UserNotifications = () => {
     const accountID = localStorage.getItem("accountID");
@@ -17,7 +18,7 @@ const UserNotifications = () => {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:5280/api/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=${page}&pageSize=${pageSize}`,
+                `${API_BASE_URL}/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=${page}&pageSize=${pageSize}`,
                 {
                     headers: { Authorization: `Bearer ${authToken}` },
                 }
@@ -43,7 +44,7 @@ const UserNotifications = () => {
 
     const markAsRead = async (id) => {
         try {
-            await fetch(`http://localhost:5280/api/Notification/IsRead?id=${id}`, {
+            await fetch(`${API_BASE_URL}/Notification/IsRead?id=${id}`, {
                 method: "PUT",
                 headers: { Authorization: `Bearer ${authToken}` },
             });

@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const StaffJobModerationPage = () => {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ const StaffJobModerationPage = () => {
     const token = localStorage.getItem("authToken");
 
     try {
-      const res = await axios.get("http://localhost:5280/api/Job/JobList", {
+      const res = await axios.get(`${API_BASE_URL}/Job/JobList`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -69,7 +70,7 @@ const StaffJobModerationPage = () => {
     const token = localStorage.getItem("authToken");
 
     try {
-      await axios.put(`http://localhost:5280/api/Job/VerifyJob`, null, {
+      await axios.put(`${API_BASE_URL}/Job/VerifyJob`, null, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -105,7 +106,7 @@ const StaffJobModerationPage = () => {
     const token = localStorage.getItem("authToken");
 
     try {
-      await axios.put(`http://localhost:5280/api/Job/VerifyJob`, null, {
+      await axios.put(`${API_BASE_URL}/Job/VerifyJob`, null, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"

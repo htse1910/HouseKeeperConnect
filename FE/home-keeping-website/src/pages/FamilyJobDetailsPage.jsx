@@ -7,6 +7,7 @@ import { FaClock, FaMapMarkerAlt, FaStar } from "react-icons/fa";
 import { Modal } from "react-bootstrap";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 const slotMap = {
@@ -73,7 +74,7 @@ const FamilyJobDetailsPage = () => {
 
     useEffect(() => {
         if (!authToken || !accountID || !jobID) return;
-        axios.get(`http://localhost:5280/api/Application/ApplicationListByJob?jobID=${jobID}&pageNumber=1&pageSize=5`, { headers })
+        axios.get(`${API_BASE_URL}/Application/ApplicationListByJob?jobID=${jobID}&pageNumber=1&pageSize=5`, { headers })
             .then(res => setApplicants(res.data || []))
             .catch(err => console.error("Ứng tuyển error:", err));
     }, [jobID]);
@@ -104,7 +105,7 @@ const FamilyJobDetailsPage = () => {
             return;
         }
 
-        axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${jobID}`, { headers })
+        axios.get(`${API_BASE_URL}/Job/GetJobDetailByID?id=${jobID}`, { headers })
             .then(res => {
                 const jobData = res.data;
 
@@ -128,7 +129,7 @@ const FamilyJobDetailsPage = () => {
         const fetchServiceDetails = async () => {
             const results = await Promise.all(
                 job.serviceIDs.map(id =>
-                    axios.get(`http://localhost:5280/api/Service/GetServiceByID?id=${id}`, { headers })
+                    axios.get(`${API_BASE_URL}/Service/GetServiceByID?id=${id}`, { headers })
                         .then(res => res.data)
                         .catch(() => null)
                 )
@@ -162,7 +163,7 @@ const FamilyJobDetailsPage = () => {
 
     const handleConfirmSlot = () => {
         if (!job?.bookingID) return toast.error("Thiếu thông tin bookingID.");
-        axios.post("http://localhost:5280/api/Job/ConfirmSlotWorked", null, {
+        axios.post("${API_BASE_URL}/Job/ConfirmSlotWorked", null, {
             params: {
                 bookingId: job.bookingID,
                 dayOfWeek: selectedDayIndex
@@ -178,7 +179,7 @@ const FamilyJobDetailsPage = () => {
 
 
     const handleConfirmJobCompletion = () => {
-        axios.post(`http://localhost:5280/api/Job/ConfirmJobCompletion`, null, {
+        axios.post(`${API_BASE_URL}/Job/ConfirmJobCompletion`, null, {
             params: { jobId: jobID, accountID },
             headers
         })
@@ -192,7 +193,7 @@ const FamilyJobDetailsPage = () => {
     };
 
     const handleAccept = (applicationID) => {
-        axios.put(`http://localhost:5280/api/Application/UpdateApplication`, null, {
+        axios.put(`${API_BASE_URL}/Application/UpdateApplication`, null, {
             params: { AppID: applicationID, status: 2 }, headers
         })
             .then(() => window.location.reload())
@@ -200,7 +201,7 @@ const FamilyJobDetailsPage = () => {
     };
 
     const handleReject = (applicationID) => {
-        axios.put(`http://localhost:5280/api/Application/UpdateApplication`, null, {
+        axios.put(`${API_BASE_URL}/Application/UpdateApplication`, null, {
             params: { AppID: applicationID, status: 3 }, headers
         })
             .then(() => window.location.reload())
@@ -224,10 +225,10 @@ const FamilyJobDetailsPage = () => {
 
         try {
             const housekeeperID = job.housekeeperID;
-            const hkRes = await axios.get(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByID?id=${housekeeperID}`, { headers });
+            const hkRes = await axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByID?id=${housekeeperID}`, { headers });
             const revieweeAccountID = hkRes.data.accountID;
 
-            await axios.post("http://localhost:5280/api/Rating/AddRating", null, {
+            await axios.post("${API_BASE_URL}/Rating/AddRating", null, {
                 params: {
                     Reviewer: parseInt(accountID),
                     Reviewee: revieweeAccountID,

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import JobOfferedDetailModal from "../components/JobOfferedDetailModal";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function JobsOfferedToMePage() {
     const [jobs, setJobs] = useState([]);
@@ -14,7 +15,7 @@ function JobsOfferedToMePage() {
         const fetchJobs = async () => {
             try {
                 const res = await fetch(
-                    `http://localhost:5280/api/Job/GetJobsOfferedByHK?accountId=${accountID}&pageNumber=1&pageSize=100`,
+                    `${API_BASE_URL}/Job/GetJobsOfferedByHK?accountId=${accountID}&pageNumber=1&pageSize=100`,
                     {
                         headers: {
                             Authorization: `Bearer ${authToken}`,

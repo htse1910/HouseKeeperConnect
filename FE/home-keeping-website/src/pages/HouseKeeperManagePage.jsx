@@ -11,6 +11,7 @@ import JobDetailModal from "../components/JobDetailModal";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function HouseKeeperManagePage() {
   const [activeTab, setActiveTab] = useState("all");
@@ -25,7 +26,7 @@ function HouseKeeperManagePage() {
     const authToken = localStorage.getItem("authToken");
     try {
       const resApp = await fetch(
-        `http://localhost:5280/api/Application/GetApplicationsByAccountID?uid=${accountID}&pageNumber=1&pageSize=50`,
+        `${API_BASE_URL}/Application/GetApplicationsByAccountID?uid=${accountID}&pageNumber=1&pageSize=50`,
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
       const appData = await resApp.json();
@@ -34,10 +35,10 @@ function HouseKeeperManagePage() {
         appData.map(async (app) => {
           try {
             const [familyRes, jobRes] = await Promise.all([
-              fetch(`http://localhost:5280/api/Families/GetFamilyByID?id=${app.familyID}`, {
+              fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${app.familyID}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
               }),
-              fetch(`http://localhost:5280/api/Job/GetJobDetailByID?id=${app.jobID}`, {
+              fetch(`${API_BASE_URL}/Job/GetJobDetailByID?id=${app.jobID}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
               }),
             ]);
@@ -45,7 +46,7 @@ function HouseKeeperManagePage() {
             const familyData = await familyRes.json();
             const jobData = await jobRes.json();
 
-            const accRes = await fetch(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${familyData.accountID}`, {
+            const accRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${familyData.accountID}`, {
               headers: { Authorization: `Bearer ${authToken}` },
             });
 

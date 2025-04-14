@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaMoneyBillWave, FaWallet, FaInfoCircle, FaClock } from "react-icons/fa";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const RecentTransactionsCard = () => {
   const [transactions, setTransactions] = useState([]);
@@ -32,14 +33,14 @@ const RecentTransactionsCard = () => {
   useEffect(() => {
     if (!accountID || !authToken) return;
 
-    fetch(`http://localhost:5280/api/Wallet/getWallet?id=${accountID}`, {
+    fetch(`${API_BASE_URL}/Wallet/getWallet?id=${accountID}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
       .then((data) => setWallet(data))
       .catch((err) => console.error("Lỗi khi lấy ví:", err));
 
-    fetch(`http://localhost:5280/api/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=5`, {
+    fetch(`${API_BASE_URL}/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=5`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())

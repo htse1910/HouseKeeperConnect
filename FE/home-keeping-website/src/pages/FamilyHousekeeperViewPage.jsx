@@ -9,6 +9,7 @@ import {
 } from "../utils/formatData";
 import { useTranslation } from "react-i18next";
 import { shouldShowLoadingOrError } from "../utils/uiHelpers";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyHousekeeperViewPage = () => {
     const { t } = useTranslation();
@@ -39,14 +40,14 @@ const FamilyHousekeeperViewPage = () => {
             }
 
             try {
-                const accRes = await axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers });
+                const accRes = await axios.get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers });
                 if (accRes.data.roleID !== 2) {
                     setMainError(t("error.error_auth"));
                     setLoading(false);
                     return;
                 }
 
-                const famRes = await axios.get(`http://localhost:5280/api/Families/GetFamilyByAccountID?id=${accountID}`, { headers });
+                const famRes = await axios.get(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${accountID}`, { headers });
                 setFamilyID(famRes.data.familyID);
             } catch {
                 setMainError(t("error.error_auth"));
@@ -55,7 +56,7 @@ const FamilyHousekeeperViewPage = () => {
             }
 
             try {
-                const hkRes = await axios.get(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${housekeeperAccountID}`, { headers });
+                const hkRes = await axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByAccountID?id=${housekeeperAccountID}`, { headers });
                 setHousekeeper(hkRes.data);
             } catch {
                 setMainError(t("error.error_account"));
@@ -65,7 +66,7 @@ const FamilyHousekeeperViewPage = () => {
 
             try {
                 const skillMapRes = await axios.get(
-                    `http://localhost:5280/api/HousekeeperSkillMapping/GetSkillsByAccountID?accountId=${housekeeperAccountID}`,
+                    `${API_BASE_URL}/HousekeeperSkillMapping/GetSkillsByAccountID?accountId=${housekeeperAccountID}`,
                     { headers }
                 );
 
@@ -77,7 +78,7 @@ const FamilyHousekeeperViewPage = () => {
                     skillIDs.map(async (id) => {
                         try {
                             const detail = await axios.get(
-                                `http://localhost:5280/api/HouseKeeperSkills/GetHousekeeperSkillById?id=${id}`,
+                                `${API_BASE_URL}/HouseKeeperSkills/GetHousekeeperSkillById?id=${id}`,
                                 { headers }
                             );
                             return detail.data.skillCode || detail.data.name;
@@ -94,12 +95,12 @@ const FamilyHousekeeperViewPage = () => {
 
             try {
                 const ratingRes = await axios.get(
-                    `http://localhost:5280/api/Rating/GetRatingListByHK?id=${housekeeperAccountID}&pageNumber=1&pageSize=100`, { headers });
+                    `${API_BASE_URL}/Rating/GetRatingListByHK?id=${housekeeperAccountID}&pageNumber=1&pageSize=100`, { headers });
 
                 const enriched = await Promise.all(ratingRes.data.map(async (r) => {
                     try {
-                        const fam = await axios.get(`http://localhost:5280/api/Families/GetFamilyByID?id=${r.familyID}`, { headers });
-                        const acc = await axios.get(`http://localhost:5280/api/Account/GetAccount?id=${fam.data.accountID}`, { headers });
+                        const fam = await axios.get(`${API_BASE_URL}/Families/GetFamilyByID?id=${r.familyID}`, { headers });
+                        const acc = await axios.get(`${API_BASE_URL}/Account/GetAccount?id=${fam.data.accountID}`, { headers });
                         return {
                             reviewerName: acc.data.name,
                             score: r.score,

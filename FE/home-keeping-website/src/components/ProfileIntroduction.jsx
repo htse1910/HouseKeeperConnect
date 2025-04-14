@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../assets/styles/ProfileIntroduction.css"; // Adjust path if needed
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const ProfileIntroduction = () => {
   const [introduction, setIntroduction] = useState("Chưa có");
@@ -10,7 +11,7 @@ const ProfileIntroduction = () => {
   useEffect(() => {
     if (!accountID || !authToken) return;
 
-    fetch(`http://localhost:5280/api/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
+    fetch(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },

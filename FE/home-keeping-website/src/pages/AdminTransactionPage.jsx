@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const AdminTransactionPage = () => {
   const authToken = localStorage.getItem("authToken");
@@ -27,7 +28,7 @@ const AdminTransactionPage = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "http://localhost:5280/api/Transaction/TransactionList?pageNumber=1&pageSize=100",
+        `${API_BASE_URL}/Transaction/TransactionList?pageNumber=1&pageSize=100`,
         {
           headers: { Authorization: `Bearer ${authToken}` },
         }

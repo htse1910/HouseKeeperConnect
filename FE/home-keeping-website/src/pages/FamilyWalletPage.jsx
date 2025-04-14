@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "../assets/styles/Transaction.css";
 import { useTranslation } from "react-i18next";
 import { formatDate, formatTotalCurrency } from "../utils/formatData";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyWalletPage = () => {
     const { t } = useTranslation();
@@ -20,7 +21,7 @@ const FamilyWalletPage = () => {
 
     const fetchWallet = async () => {
         try {
-            const res = await fetch(`http://localhost:5280/api/Wallet/getWallet?id=${accountID}`, {
+            const res = await fetch(`${API_BASE_URL}/Wallet/getWallet?id=${accountID}`, {
                 headers: { Authorization: `Bearer ${authToken}` },
             });
             const data = await res.json();
@@ -33,7 +34,7 @@ const FamilyWalletPage = () => {
     const fetchTransactions = async () => {
         try {
             const res = await fetch(
-                `http://localhost:5280/api/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=10`,
+                `${API_BASE_URL}/Transaction/GetTransactionByUserID?id=${accountID}&pageNumber=1&pageSize=10`,
                 { headers: { Authorization: `Bearer ${authToken}` } }
             );
             const data = await res.json();
@@ -54,7 +55,7 @@ const FamilyWalletPage = () => {
 
         try {
             const res = await fetch(
-                `http://localhost:5280/api/Withdraw/AddWithdraw?AccountID=${accountID}&Amount=${amount}`,
+                `${API_BASE_URL}/Withdraw/AddWithdraw?AccountID=${accountID}&Amount=${amount}`,
                 {
                     method: "POST",
                     headers: {

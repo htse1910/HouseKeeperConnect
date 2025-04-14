@@ -4,6 +4,7 @@ import IDVerificationForm from "../components/IDVerificationForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ScrollToTopButton from "../components/ScrollToTopButton";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const IDVerificationCreatePage = () => {
   const housekeeperID = localStorage.getItem("housekeeperID");
@@ -22,7 +23,7 @@ const IDVerificationCreatePage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5280/api/IDVerifications/CreateIDVerification?housekeeperId=${housekeeperID}`,
+        `${API_BASE_URL}/IDVerifications/CreateIDVerification?housekeeperId=${housekeeperID}`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${authToken}` },

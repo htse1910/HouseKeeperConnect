@@ -11,6 +11,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { FaBroom } from "react-icons/fa"; // instead of FaTools
 import "react-toastify/dist/ReactToastify.css";
 import "../assets/styles/HouseKeeperSkillsCard.css";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const HouseKeeperSkillsCard = () => {
   const [skillMappings, setSkillMappings] = useState([]);
@@ -27,7 +28,7 @@ const HouseKeeperSkillsCard = () => {
 
   const fetchAllSkills = () => {
     return fetch(
-      `http://localhost:5280/api/HouseKeeperSkills/HousekeeperSkillList?pageNumber=1&pageSize=50`,
+      `${API_BASE_URL}/HouseKeeperSkills/HousekeeperSkillList?pageNumber=1&pageSize=50`,
       {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -48,7 +49,7 @@ const HouseKeeperSkillsCard = () => {
 
   const fetchSkillMappings = () => {
     return fetch(
-      `http://localhost:5280/api/HousekeeperSkillMapping/GetSkillsByAccountID?accountId=${accountID}`,
+      `${API_BASE_URL}/HousekeeperSkillMapping/GetSkillsByAccountID?accountId=${accountID}`,
       {
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -72,7 +73,7 @@ const HouseKeeperSkillsCard = () => {
 
     setLoading(true);
     fetch(
-      `http://localhost:5280/api/HousekeeperSkillMapping/AddSkill?accountId=${accountID}&skillId=${selectedSkillID}`,
+      `${API_BASE_URL}/HousekeeperSkillMapping/AddSkill?accountId=${accountID}&skillId=${selectedSkillID}`,
       {
         method: "POST",
         headers: {
@@ -108,7 +109,7 @@ const HouseKeeperSkillsCard = () => {
     if (!skillToDelete) return;
 
     fetch(
-      `http://localhost:5280/api/HousekeeperSkillMapping/RemoveSkill?accountId=${accountID}&skillId=${skillToDelete}`,
+      `${API_BASE_URL}/HousekeeperSkillMapping/RemoveSkill?accountId=${accountID}&skillId=${skillToDelete}`,
       {
         method: "DELETE",
         headers: {

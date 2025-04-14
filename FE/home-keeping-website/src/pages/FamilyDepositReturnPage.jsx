@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../assets/styles/Payment.css";
 import { formatTotalCurrency } from "../utils/formatData";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 function FamilyDepositReturnPage() {
   const { t } = useTranslation();
@@ -31,7 +32,7 @@ function FamilyDepositReturnPage() {
 
     if (transID && result === "paid") {
       axios
-        .get(`http://localhost:5280/api/Payment/success?orderCode=${transID}`, { headers })
+        .get(`${API_BASE_URL}/Payment/success?orderCode=${transID}`, { headers })
         .then((res) => {
           if (res.data === "PAID") {
             setStatus("success");
@@ -44,7 +45,7 @@ function FamilyDepositReturnPage() {
         });
     } else if (transID && result === "cancelled") {
       axios
-        .get(`http://localhost:5280/api/Payment/cancel?orderCode=${transID}`, { headers })
+        .get(`${API_BASE_URL}/Payment/cancel?orderCode=${transID}`, { headers })
         .then(() => setStatus("cancelled"))
         .catch(() => setStatus("failed"));
     } else {
