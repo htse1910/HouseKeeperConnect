@@ -60,7 +60,7 @@ function LoginPage() {
   
     try {
       const response = await axios.post(
-        '${API_BASE_URL}/Account/LoginWithGoogle',
+        `${API_BASE_URL}/Account/LoginWithGoogle`,
         null,
         {
           params: {

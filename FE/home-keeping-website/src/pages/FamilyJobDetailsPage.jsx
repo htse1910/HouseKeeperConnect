@@ -163,7 +163,7 @@ const FamilyJobDetailsPage = () => {
 
     const handleConfirmSlot = () => {
         if (!job?.bookingID) return toast.error("Thiếu thông tin bookingID.");
-        axios.post("${API_BASE_URL}/Job/ConfirmSlotWorked", null, {
+        axios.post(`${API_BASE_URL}/Job/ConfirmSlotWorked`, null, {
             params: {
                 bookingId: job.bookingID,
                 dayOfWeek: selectedDayIndex
@@ -228,7 +228,7 @@ const FamilyJobDetailsPage = () => {
             const hkRes = await axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByID?id=${housekeeperID}`, { headers });
             const revieweeAccountID = hkRes.data.accountID;
 
-            await axios.post("${API_BASE_URL}/Rating/AddRating", null, {
+            await axios.post(`${API_BASE_URL}/Rating/AddRating`, null, {
                 params: {
                     Reviewer: parseInt(accountID),
                     Reviewee: revieweeAccountID,

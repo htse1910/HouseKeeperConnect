@@ -246,7 +246,7 @@ const FamilyJobPostingPage = () => {
 
         try {
             const response = await axios.post(
-                "${API_BASE_URL}/Job/AddJob",
+                `${API_BASE_URL}/Job/AddJob`,
                 null,
                 {
                     headers,
