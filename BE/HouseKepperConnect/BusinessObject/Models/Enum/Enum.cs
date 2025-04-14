@@ -66,9 +66,10 @@
 
     public enum WithdrawStatus
     {
-        Pending = 1,
-        Completed = 2,
-        Failed = 3
+        WaitingForOTP = 1,
+        OTPVerify = 2,
+        Success = 3, 
+        Failed = 4
     }
 
     public enum DayOfWeek

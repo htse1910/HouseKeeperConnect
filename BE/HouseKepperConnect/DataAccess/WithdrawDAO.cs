@@ -1,6 +1,8 @@
 ﻿using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
+using System.Net;
 
 namespace DataAccess
 {
@@ -181,5 +183,99 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
+        // Thêm phương thức để tạo OTP
+        
+
+        // Thêm phương thức để tạo yêu cầu rút tiền với OTP
+        public async Task<Withdraw> CreateWithdrawWithOTPAsync(Withdraw withdraw)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    // Tạo mã OTP
+                    
+                    withdraw.OTPCreatedTime = DateTime.Now;
+                    withdraw.OTPExpiredTime = DateTime.Now.AddMinutes(5); // OTP có hiệu lực 5 phút
+                    withdraw.IsOTPVerified = false;
+
+                    context.Withdraw.Add(withdraw);
+                    await context.SaveChangesAsync();
+
+                    return withdraw;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        // Thêm phương thức để xác thực OTP
+        public async Task<bool> VerifyOTPAsync(int withdrawId, string otpCode)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    var withdraw = await context.Withdraw.FindAsync(withdrawId);
+
+                    if (withdraw == null ||
+                        withdraw.OTPCode != otpCode ||
+                        withdraw.IsOTPVerified ||
+                        DateTime.Now > withdraw.OTPExpiredTime)
+                    {
+                        return false;
+                    }
+
+                    withdraw.IsOTPVerified = true;
+                    context.Entry(withdraw).State = EntityState.Modified;
+                    await context.SaveChangesAsync();
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        // Thêm phương thức để gửi email OTP
+        public async Task SendOTPEmailAsync(string email, string otpCode)
+        {
+            try
+            {
+                var fromAddress = new MailAddress("your-email@example.com", "PCHWFSystem");
+                var toAddress = new MailAddress(email);
+                const string subject = "Mã xác nhận rút tiền";
+                string body = $"Mã xác nhận rút tiền của bạn là: {otpCode}. Mã có hiệu lực trong 5 phút.";
+
+                using (var smtp = new SmtpClient
+                {
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    EnableSsl = true,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential("your-email@example.com", "your-app-password")
+                })
+                using (var message = new MailMessage(fromAddress, toAddress)
+                {
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = false
+                })
+                {
+                    await smtp.SendMailAsync(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to send email: {ex.Message}");
+            }
+        }
     }
+
 }

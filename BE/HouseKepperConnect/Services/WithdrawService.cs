@@ -30,5 +30,8 @@ namespace Services
         public async Task<List<Withdraw>> GetWithdrawsPastWeekAsync(int pageNumber, int pageSize) => await _repository.GetWithdrawsPastWeekAsync(pageNumber, pageSize);
 
         public async Task UpdateWithdrawAsync(Withdraw wi) => await _repository.UpdateWithdrawAsync(wi);
+        public async Task<Withdraw> CreateWithdrawWithOTPAsync(Withdraw withdraw) => await _repository.CreateWithdrawWithOTPAsync(withdraw);
+        public async Task<bool> VerifyOTPAsync(int withdrawId, string otpCode) => await _repository.VerifyOTPAsync(withdrawId, otpCode);
+        public async Task SendOTPEmailAsync(string email, string otpCode) => await _repository.SendOTPEmailAsync(email, otpCode);
     }
 }
