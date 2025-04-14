@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250414114936_Add_OTP_Withdraw")]
+    partial class Add_OTP_Withdraw
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -457,9 +460,6 @@ namespace BusinessObject.Migrations
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<decimal>("HKPrice")
-                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<int?>("HousekeeperID")
                         .HasColumnType("int");

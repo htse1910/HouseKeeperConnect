@@ -2,8 +2,10 @@
 using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
+using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -18,9 +20,10 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly INotificationService _notificationService;
         private readonly ITransactionService _transactionService;
         private readonly IMapper _mapper;
+        private readonly EmailHelper _emailHelper;
         private string Message;
 
-        public WithdrawController(IWithdrawService WithdrawService, IAccountService accountService, IMapper mapper, IWalletService walletService, INotificationService notificationService, ITransactionService transactionService)
+        public WithdrawController(IWithdrawService WithdrawService, IAccountService accountService, IMapper mapper, IWalletService walletService, INotificationService notificationService, ITransactionService transactionService, EmailHelper emailHelper)
         {
             _withdrawService = WithdrawService;
             _accountService = accountService;
@@ -28,6 +31,7 @@ namespace HouseKeeperConnect_API.Controllers
             _walletService = walletService;
             _notificationService = notificationService;
             _transactionService = transactionService;
+            _emailHelper = emailHelper;
         }
 
         [HttpGet("WithdrawList")]
@@ -240,7 +244,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             var noti = new Notification();
             noti.AccountID = wi.AccountID;
-            if (wi.Status == (int)WithdrawStatus.Completed)
+            if (wi.Status == (int)WithdrawStatus.Success)
             {
                 trans.Status = (int)TransactionStatus.Completed;
                 noti.Message = "Bạn đã rút " + wi.Amount + "VND" + " về STK: " + wi.BankNumber + " thành công!";
@@ -257,5 +261,174 @@ namespace HouseKeeperConnect_API.Controllers
             Message = "Updated!";
             return Ok(Message);
         }
+
+
+        [HttpPost("RequestWithdrawOTP")]
+        [Authorize]
+        public async Task<ActionResult<object>> RequestWithdrawOTP([FromQuery] WithdrawCreateDTO withdrawCreateDTO)
+        {
+            try
+            {
+                var acc = await _accountService.GetAccountByIDAsync(withdrawCreateDTO.AccountID);
+                if (acc == null)
+                    return NotFound("Account not found!");
+
+                if (string.IsNullOrWhiteSpace(acc.BankAccountNumber))
+                    return BadRequest("Please update your bank number info in order to withdraw!");
+
+                var wallet = await _walletService.GetWalletByUserAsync(acc.AccountID);
+                if (wallet == null)
+                    return NotFound("Wallet not found!");
+
+                if (wallet.Balance < withdrawCreateDTO.Amount)
+                    return BadRequest("Not enough money to withdraw!");
+
+                if (withdrawCreateDTO.Amount < 1000)
+                    return BadRequest("Need to withdraw at least 1.000 VND!");
+
+                if (string.IsNullOrEmpty(acc.Email))
+                    return BadRequest("Email not found for the account!");
+                int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+
+                var otp = GenerateOTP();
+
+
+                // Tạo OTP và Withdraw
+                var withdraw = _mapper.Map<Withdraw>(withdrawCreateDTO);
+                withdraw.TransactionID = orderCode;
+                withdraw.RequestDate = DateTime.Now;
+                withdraw.BankNumber = acc.BankAccountNumber;
+                withdraw.Status = (int)TransactionStatus.Pending;
+                withdraw.OTPCode = otp;
+                withdraw.OTPCreatedTime = DateTime.Now;
+                withdraw.OTPExpiredTime = DateTime.Now.AddMinutes(5);
+                withdraw.IsOTPVerified = false;
+                // Tạo Transaction
+                // Hoặc dùng Guid nếu muốn chắc chắn
+                var trans = new Transaction
+                {
+                    TransactionID = orderCode,
+                    WalletID = wallet.WalletID,
+                    AccountID = withdraw.AccountID,
+                    Amount = withdraw.Amount,
+                    Fee = 0,
+                    CreatedDate = DateTime.Now,
+                    Description = "Yêu cầu rút tiền đang chờ xác minh OTP",
+                    UpdatedDate = DateTime.Now,
+                    TransactionType = (int)TransactionType.Withdrawal,
+                    Status = (int)TransactionStatus.Pending
+                };
+
+                await _transactionService.AddTransactionAsync(trans); 
+                await _withdrawService.AddWithdrawAsync(withdraw);  
+               
+
+                // Gửi OTP
+                const string subject = "Mã xác nhận rút tiền";
+                string body = $"Mã xác nhận rút tiền của bạn là: {otp}. Mã có hiệu lực trong 5 phút.";
+                await _emailHelper.SendEmailAsync(acc.Email, subject, body);
+
+                
+                return Ok(new {
+                    withdraw.WithdrawID,
+                    withdraw.OTPExpiredTime 
+                    
+                });
+
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("NewOTP")]
+        [Authorize]
+        public async Task<ActionResult<object>> NewOTP([FromQuery] int withdrawID)
+        {
+            var w = await _withdrawService.GetWithdrawByIDAsync(withdrawID);
+            w.OTPCode = GenerateOTP(); 
+            w.OTPCreatedTime = DateTime.Now;
+            w.OTPExpiredTime = DateTime.Now.AddMinutes(5);
+            await _withdrawService.UpdateWithdrawAsync(w);
+            
+            return Ok(new
+            {
+                w.OTPCode,
+                w.OTPExpiredTime
+            });
+        }
+        
+       
+        private static string GenerateOTP()
+        {
+            Random random = new Random();
+            return random.Next(100000, 999999).ToString();
+        }
+
+
+
+
+        [HttpPost("VerifyOTP")]
+        [Authorize]
+        public async Task<ActionResult> VerifyOTP([FromQuery] int withdrawID, [FromQuery] string otp)
+        {
+            try
+            {
+                var withdraw = await _withdrawService.GetWithdrawByIDAsync(withdrawID);
+                if (withdraw == null)
+                {
+                    Message = "Withdraw request not found!";
+                    return NotFound(Message);
+                }
+
+                if (withdraw.OTPCode != otp)
+                {
+                    Message = "Mã OTP không đúng";
+                    return BadRequest(Message);
+                }
+
+                if (withdraw.Status == (int)TransactionStatus.Completed)
+                {
+                    Message = "This transaction has already been processed.";
+                    return BadRequest(Message);
+                }
+
+                // Đánh dấu Withdraw là hoàn tất
+                withdraw.Status = (int)WithdrawStatus.OTPVerify;
+                withdraw.IsOTPVerified = true;
+
+                await _withdrawService.UpdateWithdrawAsync(withdraw);
+
+                // Cập nhật Transaction tương ứng nếu có
+                if (withdraw.TransactionID != 0)
+                {
+                    var trans = await _transactionService.GetTransactionByIDAsync(withdraw.TransactionID);
+                    if (trans != null)
+                    {
+                        trans.Status = (int)TransactionStatus.Completed;
+                        trans.UpdatedDate = DateTime.Now;
+
+                        await _transactionService.UpdateTransactionAsync(trans);
+                    }
+                }
+
+                // Trừ tiền khỏi ví người dùng
+                var wallet = await _walletService.GetWalletByUserAsync(withdraw.AccountID);
+                if (wallet != null)
+                {
+                    wallet.Balance -= withdraw.Amount;
+                    await _walletService.UpdateWalletAsync(wallet);
+                }
+
+                return Ok("OTP verified and transaction completed successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

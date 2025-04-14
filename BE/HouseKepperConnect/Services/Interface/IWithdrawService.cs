@@ -21,5 +21,8 @@ namespace Services.Interface
         Task DeleteWithdrawAsync(int id);
 
         Task UpdateWithdrawAsync(Withdraw wi);
+        Task<Withdraw> CreateWithdrawWithOTPAsync(Withdraw withdraw);
+        Task<bool> VerifyOTPAsync(int withdrawId, string otpCode);
+        Task SendOTPEmailAsync(string email, string otpCode);
     }
 }

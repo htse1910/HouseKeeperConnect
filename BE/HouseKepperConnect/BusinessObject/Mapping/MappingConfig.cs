@@ -56,6 +56,7 @@ namespace BusinessObject.Mapping
             Map_Create_Housekeeper_Violation();
             Map_Reset_Password();
             Map_List_HouseKeeper();
+            Map_OTP_Verification(); 
         }
 
         private void Map_List_Register()
@@ -312,5 +313,11 @@ namespace BusinessObject.Mapping
         {
             CreateMap<RatingDisplayDTO, Rating>().ReverseMap();
         }
+        private void Map_OTP_Verification()
+        {
+            CreateMap<OTPVerificationDTO, Withdraw>().ReverseMap();
+        }
+
+        
     }
 }
