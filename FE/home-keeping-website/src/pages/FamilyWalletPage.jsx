@@ -15,6 +15,10 @@ const FamilyWalletPage = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [withdrawAmount, setWithdrawAmount] = useState("");
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [otp, setOtp] = useState("");
+    const [otpExpiredTime, setOtpExpiredTime] = useState(null);
+    const [withdrawID, setWithdrawID] = useState(null);
 
     const accountID = localStorage.getItem("accountID");
     const authToken = localStorage.getItem("authToken");
@@ -55,12 +59,41 @@ const FamilyWalletPage = () => {
 
         try {
             const res = await fetch(
-                `${API_BASE_URL}/Withdraw/AddWithdraw?AccountID=${accountID}&Amount=${amount}`,
+                `${API_BASE_URL}/Withdraw/RequestWithdrawOTP?AccountID=${accountID}&Amount=${amount}`,
                 {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${authToken}`,
-                        Accept: "text/plain",
+                        Accept: "*/*",
+                    },
+                }
+            );
+
+            const data = await res.json();
+
+            if (res.ok) {
+                toast.info("Vui lòng nhập mã OTP được gửi.");
+                setWithdrawID(data.withdrawID);
+                setOtpExpiredTime(data.otpExpiredTime);
+                setShowModal(false);
+                setShowOtpModal(true);
+            } else {
+                toast.error("Không thể gửi yêu cầu OTP.");
+            }
+        } catch {
+            toast.error("Lỗi khi gửi yêu cầu OTP.");
+        }
+    };
+
+    const handleVerifyOtp = async () => {
+        try {
+            const res = await fetch(
+                `${API_BASE_URL}/Withdraw/VerifyOTP?withdrawID=${withdrawID}&otp=${otp}`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        Accept: "*/*",
                     },
                 }
             );
@@ -68,16 +101,17 @@ const FamilyWalletPage = () => {
             const message = await res.text();
 
             if (res.ok) {
-                toast.success(message || t("deposit.deposit_return_success"));
-                setShowModal(false);
+                toast.success("Rút tiền thành công!");
+                setShowOtpModal(false);
                 setWithdrawAmount("");
+                setOtp("");
                 fetchWallet();
                 fetchTransactions();
             } else {
-                toast.error(message || t("deposit.deposit_return_fail"));
+                toast.error(message || "Xác thực OTP thất bại.");
             }
         } catch {
-            toast.error(t("deposit.deposit_failed"));
+            toast.error("Lỗi xác thực OTP.");
         }
     };
 
@@ -201,6 +235,39 @@ const FamilyWalletPage = () => {
                                 {t("misc.cancel")}
                             </button>
                             <button className="btn-primary" onClick={handleWithdraw}>
+                                {t("misc.confirm")}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showOtpModal && (
+                <div className="wallet-modal-overlay">
+                    <div className="wallet-modal-box">
+                        <div className="wallet-modal-header-row">
+                            <label className="wallet-modal-title">🔐 Xác nhận OTP</label>
+                            <span className="wallet-modal-close" onClick={() => setShowOtpModal(false)}>✖</span>
+                        </div>
+                        <div className="wallet-modal-body">
+                            <label className="wallet-label">Nhập mã OTP</label>
+                            <input
+                                type="text"
+                                maxLength={6}
+                                placeholder="VD: 123456"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                            />
+                            {otpExpiredTime && (
+                                <small className="wallet-meta">
+                                    Mã hết hạn lúc: {formatDate(otpExpiredTime)}
+                                </small>
+                            )}
+                        </div>
+                        <div className="wallet-modal-footer">
+                            <button className="btn-secondary" onClick={() => setShowOtpModal(false)}>
+                                {t("misc.cancel")}
+                            </button>
+                            <button className="btn-primary" onClick={handleVerifyOtp}>
                                 {t("misc.confirm")}
                             </button>
                         </div>
