@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { FaBell } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import { Modal, Button } from "react-bootstrap";
+import API_BASE_URL from "../config/apiConfig";
 
 const NotificationButton = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   const accountID = localStorage.getItem("accountID");
@@ -32,36 +33,13 @@ const NotificationButton = () => {
     }
   };
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
-
-  const toggleDropdown = async () => {
-    const nextShow = !showDropdown;
-    setShowDropdown(nextShow);
-
-    if (nextShow) {
-      await fetchNotifications();
-
-      // ⏳ Auto-mark unread notifications after 2.5s
-      setTimeout(() => {
-        const unread = notifications.filter((n) => !n.isRead);
-        unread.forEach((n) => markAsRead(n.notificationsID));
-      }, 2500);
-    }
-  };
-
   const markAsRead = async (id) => {
     try {
-      await fetch(
-        `${API_BASE_URL}/Notification/IsRead?id=${id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      await fetch(`${API_BASE_URL}/Notification/IsRead?id=${id}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
       setNotifications((prev) =>
         prev.map((n) => (n.notificationsID === id ? { ...n, isRead: true } : n))
       );
@@ -71,82 +49,83 @@ const NotificationButton = () => {
     }
   };
 
-  return (
-    <div className="notification-wrapper position-relative mx-2">
-      <button
-        className="btn btn-light position-relative"
-        title="Notifications"
-        onClick={toggleDropdown}
-        style={{
-          borderRadius: "50%",
-          padding: "8px 10px",
-          border: "1px solid #ccc",
-        }}
-      >
-        <FaBell size={16} />
-        {unreadCount > 0 && (
-          <span
-            className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-            style={{ fontSize: "0.6rem" }}
-          >
-            {unreadCount}
-          </span>
-        )}
-      </button>
+  const handleOpen = async () => {
+    setShowModal(true);
+    await fetchNotifications();
 
-      {showDropdown && (
-        <div
-          className="card shadow-sm position-absolute end-0 mt-2"
-          style={{
-            width: "300px",
-            maxHeight: "400px",
-            overflowY: "auto",
-            zIndex: 999,
-          }}
+    setTimeout(() => {
+      const unread = notifications.filter((n) => !n.isRead);
+      unread.forEach((n) => markAsRead(n.notificationsID));
+    }, 2500);
+  };
+
+  return (
+    <>
+      <div className="position-relative mx-2">
+        <button
+          className="btn btn-light position-relative rounded-circle border"
+          title="Notifications"
+          onClick={handleOpen}
         >
-          <div className="card-body">
-            <h6 className="card-title mb-2">Notifications</h6>
-            {notifications.length === 0 ? (
-              <p className="text-muted">No notifications</p>
-            ) : (
-              <>
-                {notifications
-                  .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
-                  .map((notification) => (
-                    <div key={notification.notificationsID} className="mb-3">
-                      <div className="small">{notification.message}</div>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <small className="text-muted">
-                          {new Date(notification.createdDate).toLocaleString()}
-                        </small>
-                        {notification.isRead ? (
-                          <span className="badge bg-secondary">Read</span>
-                        ) : (
-                          <button
-                            className="badge bg-warning border-0"
-                            onClick={() => markAsRead(notification.notificationsID)}
-                          >
-                            Unread
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                {/* 👉 See more link */}
-                <div className="text-center mt-3">
-                  <button
-                    className="btn btn-sm btn-outline-primary rounded-pill px-3"
-                    onClick={() => navigate("/account/notifications")}
-                  >
-                    🔗 Xem tất cả
-                  </button>
+          <FaBell size={16} />
+          {unreadCount > 0 && (
+            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+        dialogClassName="modal-lg modal-dialog-scrollable"
+      >
+        <Modal.Header closeButton className="py-2 px-3">
+          <Modal.Title className="fs-6">🔔 Notifications</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body className="px-3 py-2">
+          {notifications.length === 0 ? (
+            <p className="text-muted small text-center m-0">No notifications</p>
+          ) : (
+            notifications
+              .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
+              .map((notification) => (
+                <div key={notification.notificationsID} className="border-bottom py-2">
+                  <div className="small mb-1">{notification.message}</div>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <small className="text-muted">
+                      {new Date(notification.createdDate).toLocaleString()}
+                    </small>
+                    <span
+                      className={`badge ${notification.isRead ? "bg-secondary" : "bg-warning text-dark"
+                        }`}
+                    >
+                      {notification.isRead ? "Read" : "Unread"}
+                    </span>
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+              ))
+          )}
+        </Modal.Body>
+
+        <Modal.Footer className="py-2 px-3">
+          <Button
+            variant="outline-primary"
+            size="sm"
+            className="rounded-pill"
+            onClick={() => {
+              setShowModal(false);
+              navigate("/account/notifications");
+            }}
+          >
+            🔗 Xem tất cả
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 };
 
