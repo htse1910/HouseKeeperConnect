@@ -7,7 +7,12 @@ const StaffWithdrawalVerificationPage = () => {
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("authToken");
-
+  const WithdrawStatus = {
+    WaitingForOTP: 1,
+    OTPVerify: 2,
+    Success: 3,
+    Failed: 4
+  };
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
@@ -17,15 +22,15 @@ const StaffWithdrawalVerificationPage = () => {
     axios
       .get(`${API_BASE_URL}/Withdraw/WithdrawList?pageNumber=1&pageSize=100`, { headers })
       .then(async (res) => {
-        const pendingList = res.data.filter(w => w.status === 1); // Only Pending
+        const verifiedList = res.data.filter(w => w.status === 2); // Only OTP Verified
 
         const enriched = await Promise.all(
-          pendingList.map(async (w) => {
+          verifiedList.map(async (w) => {
             try {
               const acc = await axios.get(`${API_BASE_URL}/Account/GetAccount?id=${w.accountID}`, { headers });
               return { ...w, account: acc.data };
             } catch {
-              return { ...w, account: { name: "Unknown" } };
+              return { ...w, account: { name: "Unknown", email: "N/A" } };
             }
           })
         );
@@ -36,12 +41,20 @@ const StaffWithdrawalVerificationPage = () => {
   }, []);
 
   const handleUpdateStatus = async (withdrawID, newStatus) => {
-    await axios.put(`${API_BASE_URL}/Withdraw/UpdateWithdraw`, null, {
-      headers,
-      params: { WithdrawID: withdrawID, Status: newStatus }
-    });
+    try {
+      await axios.put(`${API_BASE_URL}/Withdraw/UpdateWithdraw`, null, {
+        headers,
+        params: {
+          WithdrawID: withdrawID,
+          Status: newStatus
+        }
+      });
 
-    setWithdrawals(prev => prev.filter(w => w.withdrawID !== withdrawID));
+      setWithdrawals(prev => prev.filter(w => w.withdrawID !== withdrawID));
+    } catch (err) {
+      console.error("Update failed", err);
+      alert("Lỗi khi cập nhật trạng thái.");
+    }
   };
 
   if (loading) return <div className="p-4">Loading...</div>;
@@ -77,13 +90,13 @@ const StaffWithdrawalVerificationPage = () => {
                   <td>
                     <button
                       className="btn btn-success btn-sm me-2"
-                      onClick={() => handleUpdateStatus(w.withdrawID, 2)}
+                      onClick={() => handleUpdateStatus(w.withdrawID, WithdrawStatus.Success)}
                     >
                       Approve
                     </button>
                     <button
                       className="btn btn-danger btn-sm"
-                      onClick={() => handleUpdateStatus(w.withdrawID, 3)}
+                      onClick={() => handleUpdateStatus(w.withdrawID, WithdrawStatus.Failed)}
                     >
                       Reject
                     </button>

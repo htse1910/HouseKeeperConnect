@@ -10,6 +10,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ScrollToTopButton from "../components/ScrollToTopButton";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import { InputGroup } from "react-bootstrap";
 
 const HousekeeperWalletPage = () => {
   const [wallet, setWallet] = useState(null);
@@ -17,9 +18,12 @@ const HousekeeperWalletPage = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
-
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpExpiredTime, setOtpExpiredTime] = useState(null);
+  const [otp, setOtp] = useState("");
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
+  const [withdrawID, setWithdrawID] = useState(null);
 
   const fetchWallet = async () => {
     try {
@@ -48,7 +52,7 @@ const HousekeeperWalletPage = () => {
     }
   };
 
-  const handleWithdraw = async () => {
+  const handleWithdrawRequest = async () => {
     const amount = parseFloat(withdrawAmount);
     if (!amount || amount < 10000) {
       toast.warning("Số tiền phải từ 10,000₫ trở lên.");
@@ -57,12 +61,41 @@ const HousekeeperWalletPage = () => {
 
     try {
       const res = await fetch(
-        `${API_BASE_URL}/Withdraw/AddWithdraw?AccountID=${accountID}&Amount=${amount}`,
+        `${API_BASE_URL}/Withdraw/RequestWithdrawOTP?AccountID=${accountID}&Amount=${amount}`,
         {
           method: "POST",
           headers: {
             Authorization: `Bearer ${authToken}`,
-            Accept: "text/plain",
+            Accept: "*/*",
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.info("Nhập mã OTP đã gửi để xác nhận.");
+        setWithdrawID(data.withdrawID);
+        setOtpExpiredTime(data.otpExpiredTime);
+        setShowModal(false);
+        setShowOtpModal(true);
+      } else {
+        toast.error("Không thể gửi yêu cầu OTP.");
+      }
+    } catch {
+      toast.error("Lỗi khi gửi yêu cầu OTP.");
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/Withdraw/VerifyOTP?withdrawID=${withdrawID}&otp=${otp}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            Accept: "*/*",
           },
         }
       );
@@ -70,16 +103,17 @@ const HousekeeperWalletPage = () => {
       const message = await res.text();
 
       if (res.ok) {
-        toast.success(message || "Yêu cầu rút tiền đã được gửi!");
-        setShowModal(false);
+        toast.success("OTP xác thực thành công. Giao dịch hoàn tất!");
+        setShowOtpModal(false);
         setWithdrawAmount("");
+        setOtp("");
         fetchWallet();
         fetchTransactions();
       } else {
-        toast.error(message || "Rút tiền thất bại.");
+        toast.error(message || "Xác thực OTP thất bại.");
       }
     } catch {
-      toast.error("Lỗi khi gửi yêu cầu rút tiền.");
+      toast.error("Lỗi xác thực OTP.");
     }
   };
 
@@ -205,7 +239,46 @@ const HousekeeperWalletPage = () => {
           <Button
             variant="warning"
             className="text-white fw-bold rounded-pill"
-            onClick={handleWithdraw}
+            onClick={handleWithdrawRequest}
+          >
+            Gửi mã OTP
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* OTP Modal */}
+      <Modal show={showOtpModal} onHide={() => setShowOtpModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title className="fw-semibold">🔐 Xác nhận OTP</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label className="small">Nhập mã OTP</Form.Label>
+            <InputGroup>
+              <Form.Control
+                type="text"
+                maxLength={6}
+                className="rounded-3"
+                placeholder="VD: 123456"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+            </InputGroup>
+            {otpExpiredTime && (
+              <small className="text-muted mt-2 d-block">
+                Mã hết hạn lúc: {new Date(otpExpiredTime).toLocaleString()}
+              </small>
+            )}
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" className="rounded-pill" onClick={() => setShowOtpModal(false)}>
+            Hủy
+          </Button>
+          <Button
+            variant="success"
+            className="fw-bold rounded-pill"
+            onClick={handleVerifyOtp}
           >
             Xác nhận
           </Button>
