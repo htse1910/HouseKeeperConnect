@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +46,7 @@ namespace DataAccess
             }
             return list;
         }
-        
+
         public async Task<List<SupportRequest>> GetAllPendingSupportRequestsAsync(int pageNumber, int pageSize)
         {
             var list = new List<SupportRequest>();
@@ -93,7 +88,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.SupportRequests.Where(s => s.RequestedBy==id).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.SupportRequests.Where(s => s.RequestedBy == id).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

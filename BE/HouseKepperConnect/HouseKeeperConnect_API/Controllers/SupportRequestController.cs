@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using Appwrite;
+﻿using Appwrite;
 using Appwrite.Models;
 using Appwrite.Services;
 using AutoMapper;
@@ -8,9 +7,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.AppWrite;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -45,11 +42,11 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("SupportRequestList")]
-        [Authorize(Policy ="Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<List<SupportRequestDisplayDTO>>> GetRequestList([FromQuery] int pageNumber, int pageSize)
         {
             var reqL = await _supportRequestService.GetAllSupportRequestsAsync(pageNumber, pageSize);
-            if(reqL == null)
+            if (reqL == null)
             {
                 Message = "No requests found!";
                 return NotFound(Message);
@@ -61,10 +58,10 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetSupportRequestByAccount")]
         [Authorize]
-        public async Task<ActionResult<List<SupportRequestDisplayDTO>>> GetRequestListByAccount([FromQuery]int id, int pageNumber, int pageSize)
+        public async Task<ActionResult<List<SupportRequestDisplayDTO>>> GetRequestListByAccount([FromQuery] int id, int pageNumber, int pageSize)
         {
             var acc = _accountService.GetAccountByIDAsync(id);
-            if(acc == null)
+            if (acc == null)
             {
                 Message = " No account found!";
                 return NotFound(Message);
@@ -84,7 +81,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPost("AddSupportRequest")]
         [Authorize]
-        public async Task<ActionResult> AddRequest([FromQuery]SupportRequestCreateDTO requestCreateDTO)
+        public async Task<ActionResult> AddRequest([FromQuery] SupportRequestCreateDTO requestCreateDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -92,7 +89,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(Message);
             }
             var acc = await _accountService.GetAccountByIDAsync(requestCreateDTO.RequestedBy);
-            if( acc == null)
+            if (acc == null)
             {
                 Message = "Account not found!";
                 return NotFound(Message);
@@ -133,20 +130,19 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("VerifySupportRequest")]
-        [Authorize(Policy ="Staff")]
+        [Authorize(Policy = "Staff")]
         public async Task<ActionResult> VerifyRequest([FromQuery] SupportRequestUpdateDTO supportRequestUpdateDTO)
         {
-
             // Check tải khoản staff có tồn tại?
             var staff = await _accountService.GetAccountByIDAsync(supportRequestUpdateDTO.AccountID);
-            if(staff == null)
+            if (staff == null)
             {
                 Message = "Không tìm thấy tài khoản nhân viên!";
                 return NotFound(Message);
             }
             //Check đơn có tồn tại?
             var req = await _supportRequestService.GetSupportRequestByIDAsync(supportRequestUpdateDTO.RequestID);
-            if(req == null)
+            if (req == null)
             {
                 Message = "Không tìm thấy đơn hỗ trợ!";
                 return NotFound(Message);
