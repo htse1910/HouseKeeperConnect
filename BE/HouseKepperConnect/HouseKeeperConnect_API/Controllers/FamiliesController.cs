@@ -164,6 +164,9 @@ namespace HouseKeeperConnect_API.Controllers
                 Acc.BankAccountNumber = familyDTO.BankAccountNumber;
                 Acc.Address = familyDTO.Address;
                 Acc.UpdatedAt = DateTime.Now;
+                Acc.Gender = familyDTO.Gender;
+                Acc.Nickname = familyDTO.Nickname;
+                    
 
                 await _accountService.UpdateAccountAsync(Acc);
 

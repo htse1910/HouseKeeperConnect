@@ -288,11 +288,10 @@ namespace HouseKeeperConnect_API.Controllers
 
                 if (string.IsNullOrEmpty(acc.Email))
                     return BadRequest("Email not found for the account!");
+                
+                
                 int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
-
                 var otp = GenerateOTP();
-
-
                 // Tạo OTP và Withdraw
                 var withdraw = _mapper.Map<Withdraw>(withdrawCreateDTO);
                 withdraw.TransactionID = orderCode;
@@ -303,8 +302,7 @@ namespace HouseKeeperConnect_API.Controllers
                 withdraw.OTPCreatedTime = DateTime.Now;
                 withdraw.OTPExpiredTime = DateTime.Now.AddMinutes(5);
                 withdraw.IsOTPVerified = false;
-                // Tạo Transaction
-                // Hoặc dùng Guid nếu muốn chắc chắn
+
                 var trans = new Transaction
                 {
                     TransactionID = orderCode,
@@ -395,7 +393,6 @@ namespace HouseKeeperConnect_API.Controllers
                     return BadRequest(Message);
                 }
 
-                // Đánh dấu Withdraw là hoàn tất
                 withdraw.Status = (int)WithdrawStatus.OTPVerify;
                 withdraw.IsOTPVerified = true;
 
