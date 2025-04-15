@@ -301,6 +301,9 @@ namespace HouseKeeperConnect_API.Controllers
                 Acc.Address = newAcc.Address;
                 Acc.UpdatedAt = DateTime.Now;
                 Acc.LocalProfilePicture = avatarUrl;
+                Acc.Gender = newAcc.Gender;
+                Acc.Nickname = newAcc.Nickname;
+
 
                 await _accountService.UpdateAccountAsync(Acc);
 
