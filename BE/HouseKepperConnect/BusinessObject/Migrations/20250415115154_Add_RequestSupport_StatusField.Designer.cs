@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250415115154_Add_RequestSupport_StatusField")]
+    partial class Add_RequestSupport_StatusField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1081,9 +1084,10 @@ namespace BusinessObject.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ReviewNote")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ReviewedBy")
+                    b.Property<int>("ReviewedBy")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -1600,7 +1604,9 @@ namespace BusinessObject.Migrations
 
                     b.HasOne("BusinessObject.Models.Account", "Reviewer")
                         .WithMany()
-                        .HasForeignKey("ReviewedBy");
+                        .HasForeignKey("ReviewedBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Requester");
 
