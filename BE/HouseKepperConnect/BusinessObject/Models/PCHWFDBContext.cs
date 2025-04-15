@@ -48,6 +48,7 @@ namespace BusinessObject.Models
         public virtual DbSet<Booking_Slots> Booking_Slots { get; set; }
         public virtual DbSet<Job_Service> Job_Service { get; set; }
         public virtual DbSet<Job_Slots> Job_Slots { get; set; }
+        public virtual DbSet<SupportRequest> SupportRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

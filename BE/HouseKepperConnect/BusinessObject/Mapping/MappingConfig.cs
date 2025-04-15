@@ -57,6 +57,8 @@ namespace BusinessObject.Mapping
             Map_Reset_Password();
             Map_List_HouseKeeper();
             Map_OTP_Verification(); 
+            Map_Display_SupportRequest(); 
+            Map_Create_SupportRequest(); 
         }
 
         private void Map_List_Register()
@@ -316,6 +318,16 @@ namespace BusinessObject.Mapping
         private void Map_OTP_Verification()
         {
             CreateMap<OTPVerificationDTO, Withdraw>().ReverseMap();
+        }
+        
+        private void Map_Display_SupportRequest()
+        {
+            CreateMap<SupportRequestDisplayDTO, SupportRequest>().ReverseMap();
+        }
+        private void Map_Create_SupportRequest()
+        {
+            CreateMap<SupportRequestCreateDTO, SupportRequest>()
+                .ForMember(f => f.Picture, opt => opt.Ignore());
         }
 
         

@@ -119,5 +119,18 @@
         Pending = 1,
         Completed = 2
     }
+    
+    public enum SupportRequestStatus
+    {
+        Processing = 1,
+        Completed = 2
+    }
+    public enum SupportRequestType
+    {
+        Account = 1,
+        Job = 2,
+        IDVerify = 3,
+        Transaction = 4
+    }
 
 }
