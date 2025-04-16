@@ -1,6 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Configuration;
+using Appwrite;
+using Appwrite.Models;
+using Appwrite.Services;
+using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
+using BusinessObject.Models.AppWrite;
 using BusinessObject.Models.Enum;
 using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authorization;
@@ -21,9 +26,13 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly ITransactionService _transactionService;
         private readonly IMapper _mapper;
         private readonly EmailHelper _emailHelper;
+        private readonly IConfiguration _configuration;
+        private readonly Client _appWriteClient;
         private string Message;
 
-        public WithdrawController(IWithdrawService WithdrawService, IAccountService accountService, IMapper mapper, IWalletService walletService, INotificationService notificationService, ITransactionService transactionService, EmailHelper emailHelper)
+        public WithdrawController(IWithdrawService WithdrawService, IAccountService accountService,
+            IMapper mapper, IWalletService walletService, INotificationService notificationService,
+            ITransactionService transactionService, EmailHelper emailHelper, IConfiguration configuration)
         {
             _withdrawService = WithdrawService;
             _accountService = accountService;
@@ -32,6 +41,14 @@ namespace HouseKeeperConnect_API.Controllers
             _notificationService = notificationService;
             _transactionService = transactionService;
             _emailHelper = emailHelper;
+            _configuration = configuration;
+            AppwriteSettings appW = new AppwriteSettings()
+            {
+                ProjectId = configuration.GetValue<string>("Appwrite:ProjectId"),
+                Endpoint = configuration.GetValue<string>("Appwrite:Endpoint"),
+                ApiKey = configuration.GetValue<string>("Appwrite:ApiKey")
+            };
+            _appWriteClient = new Client().SetProject(appW.ProjectId).SetEndpoint(appW.Endpoint).SetKey(appW.ApiKey);
         }
 
         [HttpGet("WithdrawList")]
@@ -194,7 +211,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("UpdateWithdraw")] //Staff Only
-        [Authorize]
+        [Authorize(Policy ="Staff")]
         public async Task<ActionResult<Withdraw>> UpdateWithdraw([FromQuery] WithdrawUpdateDTO withdrawUpdateDTO)
         {
             var wi = await _withdrawService.GetWithdrawByIDAsync(withdrawUpdateDTO.WithdrawID);
@@ -211,6 +228,33 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            if(withdrawUpdateDTO.Picture!=null && withdrawUpdateDTO.Status==(int)WithdrawStatus.Success)
+            {
+                var storage = new Storage(_appWriteClient);
+                var buckID = "67e3d029000d5b9dd68e";
+                var projectID = _configuration.GetValue<string>("Appwrite:ProjectId");
+                List<string> perms = new List<string>() { Permission.Write(Appwrite.Role.Any()), Permission.Read(Appwrite.Role.Any()) };
+
+                var id = Guid.NewGuid().ToString();
+                var avatar = InputFile.FromStream(
+            withdrawUpdateDTO.Picture.OpenReadStream(),
+             withdrawUpdateDTO.Picture.FileName,
+            withdrawUpdateDTO.Picture.ContentType
+            );
+                var response = await storage.CreateFile(
+                    buckID,
+                    id,
+                    avatar,
+                    perms,
+                    null
+                    );
+                var avatarID = response.Id;
+                var avatarUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response.BucketId}/files/{avatarID}/view?project={projectID}";
+
+                wi.Picture = avatarUrl;
+            }
+
+            
             wi.Status = withdrawUpdateDTO.Status;
 
             await _withdrawService.UpdateWithdrawAsync(wi);

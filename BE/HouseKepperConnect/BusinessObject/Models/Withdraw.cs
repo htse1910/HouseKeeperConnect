@@ -25,6 +25,8 @@ namespace BusinessObject.Models
         public DateTime? OTPExpiredTime { get; set; }
         public bool IsOTPVerified { get; set; }
 
+        public string? Picture { get; set; }
+
         public virtual Account Account { get; set; }
         public virtual Transaction Transaction { get; set; }
     }

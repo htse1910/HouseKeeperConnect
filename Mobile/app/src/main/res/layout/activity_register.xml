@@ -24,13 +24,13 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="16dp"/>
         <RadioGroup
-            android:id="@+id/account_type"
+            android:id="@+id/reg_account_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <RadioButton
-                android:id="@+id/rb_family"
+                android:id="@+id/reg_rb_family"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -39,7 +39,7 @@
                 android:checked="true"/>
 
             <RadioButton
-                android:id="@+id/rb_housekeeper"
+                android:id="@+id/reg_rb_housekeeper"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -59,7 +59,7 @@
 
         <!-- Các ô nhập liệu -->
         <EditText
-            android:id="@+id/full_name"
+            android:id="@+id/reg_full_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Họ và tên"
@@ -69,9 +69,20 @@
             android:textColor="#000000"
             android:textSize="16sp"
             android:layout_marginBottom="12dp"/>
+        <EditText
+            android:id="@+id/reg_nickname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nickname"
+            android:padding="12dp"
+            android:background="@drawable/bg_input"
+            android:textColorHint="#999999"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp"/>
 
         <EditText
-            android:id="@+id/email"
+            android:id="@+id/reg_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email"
@@ -84,7 +95,7 @@
             android:layout_marginBottom="12dp"/>
 
         <EditText
-            android:id="@+id/password"
+            android:id="@+id/reg_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Mật khẩu"
@@ -97,7 +108,7 @@
             android:layout_marginBottom="12dp"/>
 
         <EditText
-            android:id="@+id/confirm_password"
+            android:id="@+id/reg_confirm_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Xác nhận mật khẩu"
@@ -110,7 +121,7 @@
             android:layout_marginBottom="12dp"/>
 
         <EditText
-            android:id="@+id/bank_account"
+            android:id="@+id/reg_bank_account"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Tài khoản ngân hàng"
@@ -123,7 +134,7 @@
             android:layout_marginBottom="12dp"/>
 
         <EditText
-            android:id="@+id/phone"
+            android:id="@+id/reg_phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Số điện thoại"
@@ -136,7 +147,7 @@
             android:layout_marginBottom="12dp"/>
 
         <EditText
-            android:id="@+id/address"
+            android:id="@+id/reg_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Địa chỉ"
@@ -147,21 +158,9 @@
             android:textColor="#000000"
             android:textSize="16sp"
             android:layout_marginBottom="12dp"/>
-        <EditText
-            android:id="@+id/gender"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Giới tính"
-            android:inputType="textPostalAddress"
-            android:padding="12dp"
-            android:background="@drawable/bg_input"
-            android:textColorHint="#999999"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:layout_marginBottom="12dp"/>
 
         <EditText
-            android:id="@+id/description"
+            android:id="@+id/reg_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Giới thiệu bản thân"
@@ -174,20 +173,20 @@
             android:textSize="16sp"
             android:layout_marginBottom="12dp"/>
         <RadioGroup
-            android:id="@+id/gender_group"
+            android:id="@+id/reg_gender_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <RadioButton
-                android:id="@+id/rb_male"
+                android:id="@+id/reg_rb_male"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Nam"/>
 
             <RadioButton
-                android:id="@+id/rb_female"
+                android:id="@+id/reg_rb_female"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -197,7 +196,7 @@
 
         <!-- Upload ảnh -->
         <LinearLayout
-            android:id="@+id/upload_image"
+            android:id="@+id/reg_upload_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -208,6 +207,7 @@
             android:layout_marginBottom="20dp">
 
             <ImageView
+                android:id="@+id/reg_image_view"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_upload"
@@ -224,7 +224,7 @@
         <!-- Nút Đăng ký -->
 
         <LinearLayout
-            android:id="@+id/btn_login_now"
+            android:id="@+id/regBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
