@@ -40,7 +40,7 @@ public class Job {
         // Tạo Family + Account giả
         this.family = new Family();
         Account acc = new Account();
-        acc.setFullName(familyName);
+        acc.setName(familyName);
         this.family.setAccount(acc);
 
         // Loại công việc
@@ -54,7 +54,7 @@ public class Job {
 
 
     public String getFamilyName() {
-        return family != null && family.getAccount() != null ? family.getAccount().getFullName() : "";
+        return family != null && family.getAccount() != null ? family.getAccount().getName() : "";
     }
 
     public String getLocation() {
