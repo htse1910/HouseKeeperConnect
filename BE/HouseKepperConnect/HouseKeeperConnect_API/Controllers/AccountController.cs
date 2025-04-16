@@ -33,7 +33,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly Client _appWriteClient;
         private readonly EmailHelper _emailHelper;
 
-        private static readonly char[] Characters =
+        /*private static readonly char[] Characters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
 
         private static string GenerateaccountCode(int length = 20)
@@ -41,7 +41,7 @@ namespace HouseKeeperConnect_API.Controllers
             var random = new Random();
             return new string(Enumerable.Range(0, length)
                 .Select(_ => Characters[random.Next(Characters.Length)]).ToArray());
-        }
+        }*/
 
         public AccountController(IAccountService accountService, IMapper mapper, IPasswordHasher<BusinessObject.Models.Account> passwordHasher, IWalletService walletService, IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService, IConfiguration configuration, EmailHelper emailHelper)
         {
@@ -113,16 +113,11 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(accountDTO);
         }
 
-        [HttpGet("Login")]
-        public async Task<ActionResult<LoginInfoDTO>> Login([FromQuery] string email, [FromQuery] string password)
+        [HttpPost("Login")]
+        public async Task<ActionResult<LoginInfoDTO>> Login([FromBody] JWTLoginModel model)
         {
             try
             {
-                var model = new JWTLoginModel()
-                {
-                    Email = email,
-                    Password = password
-                };
 
                 var loginInfo = await _accountService.Login(model);
                 return Ok(loginInfo);

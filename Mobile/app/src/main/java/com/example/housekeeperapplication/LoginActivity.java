@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Model.Account;
+import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText emailTxt, passTxt;
     private Button loginBtn;
+    private TextView regTxt;
     private SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,16 @@ public class LoginActivity extends AppCompatActivity {
         emailTxt = findViewById(R.id.email);
         passTxt = findViewById(R.id.password);
         loginBtn = findViewById(R.id.loginBTN);
+        regTxt = findViewById(R.id.txt_register);
+
+        regTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent regIntent = new Intent(LoginActivity.this, Register.class);
+                startActivity(regIntent);
+                finish();
+            }
+        });
 
         loginBtn.setOnClickListener(v -> {
             String email = emailTxt.getText().toString();
@@ -52,7 +64,9 @@ public class LoginActivity extends AppCompatActivity {
             loginBtn.setEnabled(false);
 
             APIServices api = APIClient.getClient().create(APIServices.class);
-            Call<Account> call = api.login(email, password);
+            LoginInfo logInfo = new LoginInfo(email, password);
+
+            Call<Account> call = api.login(logInfo);
             if(call == null){
                 Toast.makeText(LoginActivity.this, "Incorrect email or password", Toast.LENGTH_SHORT).show();
                 return;
@@ -60,8 +74,6 @@ public class LoginActivity extends AppCompatActivity {
             call.enqueue(new Callback<Account>() {
                 @Override
                 public void onResponse(Call<Account> call, Response<Account> response) {
-                    // Re-enable the button after the response
-                    loginBtn.setEnabled(true);
 
                     if (response.isSuccessful()) {
                         Account acc = response.body();
@@ -96,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         }
                     } else {
+                        loginBtn.setEnabled(true);
                         Toast.makeText(LoginActivity.this, "Login failed: " + response.message(), Toast.LENGTH_SHORT).show();
                     }
                 }
