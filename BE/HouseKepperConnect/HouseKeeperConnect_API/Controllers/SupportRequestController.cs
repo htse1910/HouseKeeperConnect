@@ -168,5 +168,23 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(Message);
         }
+
+        [HttpGet("GetSupportRequestPending")]
+        [Authorize(Policy = "Staff")]
+        public async Task<ActionResult<List<SupportRequestDisplayDTO>>> GetRequestListPending([FromQuery] int pageNumber, int pageSize)
+        {
+
+            var reqL = await _supportRequestService.GetAllPendingSupportRequestsAsync(pageNumber, pageSize);
+            if (reqL == null)
+            {
+                Message = "No requests found for this account!";
+                return NotFound(Message);
+            }
+            var display = new List<SupportRequestDisplayDTO>();
+
+            _mapper.Map(reqL, display);
+            return Ok(display);
+        }
+
     }
 }

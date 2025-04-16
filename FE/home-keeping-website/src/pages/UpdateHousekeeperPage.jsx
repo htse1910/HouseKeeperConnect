@@ -17,6 +17,9 @@ function UpdateHousekeeperPage() {
   const [bankAccount, setBankAccount] = useState("");
   const [location, setLocation] = useState("");
   const [localProfilePicture, setLocalProfilePicture] = useState(null);
+  const [gender, setGender] = useState(0);
+  const [nickname, setNickname] = useState("");
+  const [workType, setWorkType] = useState(0);
 
   useEffect(() => {
     if (!accountId || !authToken) {
@@ -38,6 +41,9 @@ function UpdateHousekeeperPage() {
         setIntroduction(data.introduction || "");
         setBankAccount(data.bankAccountNumber || "");
         setLocation(data.address || "");
+        setGender(data.gender ?? 0);
+        setNickname(data.nickname ?? "");
+        setWorkType(data.workType ?? 0);
       })
       .catch((error) => {
         console.error("Error fetching housekeeper details:", error);
@@ -56,7 +62,10 @@ function UpdateHousekeeperPage() {
     formData.append("Introduction", introduction);
     formData.append("BankAccountNumber", bankAccount);
     formData.append("Address", location);
-
+    formData.append("Gender", gender);
+    formData.append("Nickname", nickname);
+    formData.append("WorkType", workType);
+        
     if (localProfilePicture) formData.append("LocalProfilePicture", localProfilePicture);
 
     try {
@@ -117,6 +126,29 @@ function UpdateHousekeeperPage() {
           <div className="col-12">
             <label className="form-label">Địa chỉ</label>
             <input type="text" className="form-control" value={location} onChange={(e) => setLocation(e.target.value)} />
+          </div>
+
+          <div className="col-md-4">
+            <label className="form-label">Giới tính</label>
+            <select className="form-select" value={gender} onChange={(e) => setGender(Number(e.target.value))}>
+              <option value={0}>Nam</option>
+              <option value={1}>Nữ</option>
+              <option value={2}>Khác</option>
+            </select>
+          </div>
+
+          <div className="col-md-4">
+            <label className="form-label">Biệt danh</label>
+            <input type="text" className="form-control" value={nickname} onChange={(e) => setNickname(e.target.value)} />
+          </div>
+
+          <div className="col-md-4">
+            <label className="form-label">Loại công việc</label>
+            <select className="form-select" value={workType} onChange={(e) => setWorkType(Number(e.target.value))}>
+              <option value={0}>Chọn loại công việc</option>
+              <option value={1}>Một lần duy nhất</option>
+              <option value={2}>Định kỳ</option>
+            </select>
           </div>
 
           <div className="col-md-4">

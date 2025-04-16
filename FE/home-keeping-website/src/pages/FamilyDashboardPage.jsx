@@ -8,10 +8,17 @@ import {
 import "../assets/styles/Dashboard.css";
 import { formatTotalCurrency, getTransactionFormatData } from "../utils/formatData";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
-
+import { Modal, Button } from "react-bootstrap"; // Make sure it's imported
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function FamilyDashboardPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [supportType, setSupportType] = useState(1);
+  const [supportContent, setSupportContent] = useState("");
+  const [supportImage, setSupportImage] = useState(null);
+  const [sending, setSending] = useState(false);
 
   const authToken = localStorage.getItem("authToken");
   const accountID = localStorage.getItem("accountID");
@@ -115,13 +122,58 @@ function FamilyDashboardPage() {
       </div>
     );
   }
+  
+  const submitSupportRequest = async () => {
+    setSending(true);
+    const formData = new FormData();
+    if (supportImage) formData.append("Picture", supportImage);
+
+    const queryParams = new URLSearchParams({
+      RequestedBy: accountID,
+      Type: supportType,
+      Content: supportContent,
+    });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/SupportRequest/AddSupportRequest?${queryParams}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        toast.success("Yêu cầu đã được gửi thành công!");
+        setShowSupportModal(false);
+        setSupportType(1);
+        setSupportContent("");
+        setSupportImage(null);
+      } else {
+        toast.error("Gửi yêu cầu thất bại.");
+      }
+    } catch (err) {
+      toast.error("Lỗi kết nối máy chủ.");
+      console.error(err);
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-box shadow-box">
-        <h2 className="dashboard-heading">
-          {t("dashboard.dashboard_welcome_message", { name: userName })}
-        </h2>
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <h2 className="dashboard-heading mb-0">
+            {t("dashboard.dashboard_welcome_message", { name: userName })}
+          </h2>
+          <button
+            className="btn btn-outline-info btn-sm"
+            onClick={() => setShowSupportModal(true)}
+          >
+            🛠 {t("dashboard.support_requests") || "Yêu cầu hỗ trợ"}
+          </button>
+        </div>
         <p className="dashboard-subtext">{t("dashboard.dashboard_family_subtext")}</p>
 
         {/* Thẻ thống kê */}
@@ -223,6 +275,67 @@ function FamilyDashboardPage() {
           </table>
         </div>
       </div>
+      <Modal show={showSupportModal} onHide={() => setShowSupportModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Gửi yêu cầu hỗ trợ</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="mb-3">
+            <label className="form-label">Loại hỗ trợ</label>
+            <select
+              className="form-select"
+              value={supportType}
+              onChange={(e) => setSupportType(Number(e.target.value))}
+            >
+              <option value={1}>Tài khoản</option>
+              <option value={2}>Công việc</option>
+              <option value={3}>Xác minh CMND</option>
+              <option value={4}>Giao dịch</option>
+            </select>
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Nội dung</label>
+            <textarea
+              className="form-control"
+              rows={4}
+              value={supportContent}
+              onChange={(e) => setSupportContent(e.target.value)}
+              placeholder="Nhập nội dung hỗ trợ..."
+            ></textarea>
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Hình ảnh (nếu có)</label>
+            <input
+              className="form-control"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setSupportImage(e.target.files[0])}
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowSupportModal(false)}>
+            Đóng
+          </Button>
+          <Button
+            variant="primary"
+            onClick={submitSupportRequest}
+            disabled={sending || !supportContent}
+          >
+            {sending ? "Đang gửi..." : "Gửi yêu cầu"}
+          </Button>
+          <Button
+            variant="outline-info"
+            onClick={() => {
+              setShowSupportModal(false);
+              navigate("/family/support-requests");
+            }}
+          >
+            Xem yêu cầu đã gửi
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 }

@@ -54,6 +54,9 @@ import JobListOfFamily from './pages/JobListOfFamily.jsx';
 import JobsOfferedToMePage from './pages/JobsOfferedToMePage.jsx';
 import HouseKeeperPayoutsPage from './pages/HouseKeeperPayoutsPage.jsx';
 import StaffWithdrawalVerificationPage from './pages/StaffWithdrawalVerificationPage.jsx';
+import HousekeeperSupportRequestPage from './pages/HousekeeperSupportRequestPage'; // ✅ New page
+import FamilySupportRequestPage from './pages/FamilySupportRequestPage'; // ✅ Import new page
+import StaffSupportRequestPage from './pages/StaffSupportRequestPage'; // ✅ Import it if you've created it
 
 function AppRoutes() {
   return (
@@ -89,6 +92,7 @@ function AppRoutes() {
         <Route path="/housekeeper/bookings" element={<HousekeeperBookingManagementPage />} />
         <Route path="/housekeeper/jobs-offered" element={<JobsOfferedToMePage />} />
         <Route path="/housekeeper/payouts" element={<HouseKeeperPayoutsPage />} />
+        <Route path="/housekeeper/support-requests" element={<HousekeeperSupportRequestPage />} />
 
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
@@ -115,6 +119,8 @@ function AppRoutes() {
         <Route path="/family/transactions" element={<FamilyTransactionPage />} />
         <Route path="/family/messages" element={<FamilyMessagesPage />} />
         <Route path="/family/jobs" element={<JobListOfFamily />} />
+        <Route path="/family/support-requests" element={<FamilySupportRequestPage />} />
+        <Route path="/dashboard/support" element={<StaffSupportRequestPage />} />
 
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
