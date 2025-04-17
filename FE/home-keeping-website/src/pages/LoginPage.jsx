@@ -25,29 +25,38 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/Account/Login?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}`
+      const response = await axios.post(
+        `${API_BASE_URL}/Account/Login`,
+        {
+          email: formData.email,
+          password: formData.password
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
-
+  
       if (response.status === 200) {
         const loginData = response.data;
-
+  
         localStorage.setItem('authToken', loginData.token);
         localStorage.setItem('userRoleID', loginData.roleID);
         localStorage.setItem('userName', loginData.name);
         localStorage.setItem('userRole', loginData.roleName);
         localStorage.setItem('accountID', loginData.accountID);
-
+  
         setUserRole(loginData.roleName);
         toast.success(`Welcome ${loginData.name}!`, { position: 'top-center', autoClose: 3000 });
-
+  
         redirectUser(loginData.roleID);
       }
     } catch (error) {
       toast.error('Invalid email or password.', { position: 'top-center', autoClose: 3000 });
     }
   };
-
+  
   const startGoogleLogin = (roleID) => {
     setSelectedRoleID(roleID);
   };
