@@ -4,12 +4,16 @@ import com.example.housekeeperapplication.Model.Account;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.RegInfo;
 
+import java.io.File;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.Field;
-import retrofit2.http.FieldMap;
-import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface APIServices {
@@ -19,17 +23,19 @@ public interface APIServices {
     Call<Account> login (
             @Body LoginInfo loginInfo
             );
-    @FormUrlEncoded
+    @Multipart
     @POST("api/Account/Register")
-    Call<RegInfo> register (
-         @Field("name") String name,
-         @Field("email") String email,
-         @Field("password") String password,
-         @Field("bankNumber") String bankNum,
-         @Field("roleID") int roleID,
-         @Field("introduction") String description,
-         @Field("address") String address,
-         @Field("gender") int gender,
-         @Field("Nickname") String nickname
+    Call<ResponseBody> register(
+            @Part("name") RequestBody name,
+            @Part("email") RequestBody email,
+            @Part("password") RequestBody password,
+            @Part("bankAccountNumber") RequestBody bankNum,
+            @Part("phone") RequestBody phone,
+            @Part("roleID") RequestBody roleID,
+            @Part("introduction") RequestBody description,
+            @Part("address") RequestBody address,
+            @Part("gender") RequestBody gender,
+            @Part("nickname") RequestBody nickname,
+            @Part MultipartBody.Part localProfilePicture // Change to MultipartBody.Part
     );
 }

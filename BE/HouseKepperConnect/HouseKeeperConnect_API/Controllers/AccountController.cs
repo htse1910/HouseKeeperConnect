@@ -133,6 +133,7 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult<AccountRegisterDTO>> Register([FromForm] AccountRegisterDTO accountRegisterDTO)
         {
             var validationResult = await _accountService.ValidateAccountAsync(accountRegisterDTO);
+            var acc = _mapper.Map<BusinessObject.Models.Account>(accountRegisterDTO);
             if (validationResult != null)
             {
                 return BadRequest(validationResult);
@@ -149,35 +150,42 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Invalid role selection!");
             }
 
-            var storage = new Storage(_appWriteClient);
-            var buckID = "67e3d029000d5b9dd68e";
-            var projectID = _configuration.GetValue<string>("Appwrite:ProjectId");
-            List<string> perms = new List<string>() { Permission.Write(Appwrite.Role.Any()), Permission.Read(Appwrite.Role.Any()) };
+            if (accountRegisterDTO.LocalProfilePicture == null)
+            {
+                Message = "No picture found!";
+                return NotFound(Message);
+            }
+            else
+            {
+                var storage = new Storage(_appWriteClient);
+                var buckID = "67e3d029000d5b9dd68e";
+                var projectID = _configuration.GetValue<string>("Appwrite:ProjectId");
+                List<string> perms = new List<string>() { Permission.Write(Appwrite.Role.Any()), Permission.Read(Appwrite.Role.Any()) };
 
-            var id = Guid.NewGuid().ToString();
-            var avatar = InputFile.FromStream(
-        accountRegisterDTO.LocalProfilePicture.OpenReadStream(),
-        accountRegisterDTO.LocalProfilePicture.FileName,
-        accountRegisterDTO.LocalProfilePicture.ContentType
-        );
-            var response = await storage.CreateFile(
-                buckID,
-                id,
-                avatar,
-                perms,
-                null
-                );
-            var avatarID = response.Id;
-            var avatarUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response.BucketId}/files/{avatarID}/view?project={projectID}";
+                var id = Guid.NewGuid().ToString();
+                var avatar = InputFile.FromStream(
+            accountRegisterDTO.LocalProfilePicture.OpenReadStream(),
+            accountRegisterDTO.LocalProfilePicture.FileName,
+            accountRegisterDTO.LocalProfilePicture.ContentType
+            );
+                var response = await storage.CreateFile(
+                    buckID,
+                    id,
+                    avatar,
+                    perms,
+                    null
+                    );
+                var avatarID = response.Id;
+                var avatarUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response.BucketId}/files/{avatarID}/view?project={projectID}";
+                acc.LocalProfilePicture = avatarUrl;
+            }
 
-            var acc = _mapper.Map<BusinessObject.Models.Account>(accountRegisterDTO);
 
             acc.Status = (int)AccountStatus.Active;
             acc.CreatedAt = DateTime.Now;
             acc.UpdatedAt = DateTime.Now;
             acc.Password = _passwordHasher.HashPassword(acc, accountRegisterDTO.Password);
             acc.Introduction = accountRegisterDTO.Introduction;
-            acc.LocalProfilePicture = avatarUrl;
             acc.Gender = (int)accountRegisterDTO.Gender;
             await _accountService.AddAccountAsync(acc);
             if (acc.RoleID == 1)
