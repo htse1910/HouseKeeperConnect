@@ -5,25 +5,25 @@ import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 const StaffWithdrawalVerificationPage = () => {
   const [withdrawals, setWithdrawals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pictures, setPictures] = useState({}); // store selected pictures per withdrawID
 
   const token = localStorage.getItem("authToken");
   const WithdrawStatus = {
     WaitingForOTP: 1,
     OTPVerify: 2,
     Success: 3,
-    Failed: 4
+    Failed: 4,
   };
+
   const headers = {
     Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
   };
 
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/Withdraw/WithdrawList?pageNumber=1&pageSize=100`, { headers })
       .then(async (res) => {
-        const verifiedList = res.data.filter(w => w.status === 2); // Only OTP Verified
-
+        const verifiedList = res.data.filter((w) => w.status === 2); // Only OTP Verified
         const enriched = await Promise.all(
           verifiedList.map(async (w) => {
             try {
@@ -34,23 +34,34 @@ const StaffWithdrawalVerificationPage = () => {
             }
           })
         );
-
         setWithdrawals(enriched);
       })
       .finally(() => setLoading(false));
   }, []);
 
+  const handlePictureChange = (withdrawID, file) => {
+    setPictures((prev) => ({ ...prev, [withdrawID]: file }));
+  };
+
   const handleUpdateStatus = async (withdrawID, newStatus) => {
+    const formData = new FormData();
+    const picture = pictures[withdrawID];
+    if (picture) formData.append("Picture", picture);
+    else formData.append("Picture", ""); // allow empty value
+
     try {
-      await axios.put(`${API_BASE_URL}/Withdraw/UpdateWithdraw`, null, {
-        headers,
+      await axios.put(`${API_BASE_URL}/Withdraw/UpdateWithdraw`, formData, {
+        headers: {
+          ...headers,
+          "Content-Type": "multipart/form-data",
+        },
         params: {
           WithdrawID: withdrawID,
-          Status: newStatus
-        }
+          Status: newStatus,
+        },
       });
 
-      setWithdrawals(prev => prev.filter(w => w.withdrawID !== withdrawID));
+      setWithdrawals((prev) => prev.filter((w) => w.withdrawID !== withdrawID));
     } catch (err) {
       console.error("Update failed", err);
       alert("Lỗi khi cập nhật trạng thái.");
@@ -66,7 +77,7 @@ const StaffWithdrawalVerificationPage = () => {
         <p>No pending withdrawals found.</p>
       ) : (
         <div className="table-responsive">
-          <table className="table table-bordered table-hover">
+          <table className="table table-bordered table-hover align-middle">
             <thead className="table-light">
               <tr>
                 <th>Withdraw ID</th>
@@ -75,6 +86,7 @@ const StaffWithdrawalVerificationPage = () => {
                 <th>Amount</th>
                 <th>Bank Number</th>
                 <th>Requested On</th>
+                <th>Upload Picture</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -87,6 +99,14 @@ const StaffWithdrawalVerificationPage = () => {
                   <td>{w.amount.toLocaleString()} VND</td>
                   <td>{w.bankNumber}</td>
                   <td>{new Date(w.requestDate).toLocaleString()}</td>
+                  <td>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handlePictureChange(w.withdrawID, e.target.files[0])}
+                      className="form-control form-control-sm"
+                    />
+                  </td>
                   <td>
                     <button
                       className="btn btn-success btn-sm me-2"
