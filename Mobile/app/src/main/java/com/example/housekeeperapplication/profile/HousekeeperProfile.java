@@ -16,6 +16,7 @@ import com.example.housekeeperapplication.HomeHousekeeperActivity;
 import com.example.housekeeperapplication.NotificationActivity;
 import com.example.housekeeperapplication.ProfileOption;
 import com.example.housekeeperapplication.R;
+import com.example.housekeeperapplication.WalletHousekeeperActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Arrays;
@@ -42,7 +43,26 @@ public class HousekeeperProfile extends AppCompatActivity {
         );
 
         ProfileOptionAdapter adapter = new ProfileOptionAdapter(options, option -> {
-            // Xử lý khi người dùng nhấn vào một mục
+            switch (option.getTitle()) {
+                case "Ví":
+                    startActivity(new Intent(HousekeeperProfile.this, WalletHousekeeperActivity.class));
+                    break;
+                case "Xác thực danh tính":
+                    //
+                    break;
+                case "Thanh toán":
+                    // ...
+                    break;
+                case "Trung tâm hỗ trợ":
+                    // ...
+                    break;
+                case "Chính sách & Quy định":
+                    // ...
+                    break;
+                case "Cài đặt":
+                    // ...
+                    break;
+            }
         });
 
         recyclerView.setAdapter(adapter);

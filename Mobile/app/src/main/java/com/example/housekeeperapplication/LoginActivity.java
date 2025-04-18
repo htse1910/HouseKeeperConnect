@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
 
             loginBtn.setEnabled(false);
 
-            APIServices api = APIClient.getClient().create(APIServices.class);
+            APIServices api = APIClient.getClient(LoginActivity.this).create(APIServices.class);
             LoginInfo logInfo = new LoginInfo(email, password);
 
             Call<Account> call = api.login(logInfo);

@@ -164,7 +164,7 @@ public class Register extends AppCompatActivity {
 
 
 
-                APIServices api = APIClient.getClient().create(APIServices.class);
+                APIServices api = APIClient.getClient(Register.this).create(APIServices.class);
                 Call<ResponseBody> call = api.register(nameBody, emailBody, passwordBody, bankNumBody, phoneBody, roleIDBody, descriptionBody, addressBody, genderBody, nicknameBody, imageBody);
                 if(call == null){
                     Toast.makeText(Register.this, "Incorrect email or password", Toast.LENGTH_SHORT).show();
