@@ -2,6 +2,7 @@
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using BusinessObject.Models.PayOS;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -45,6 +46,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // GET api/<WalletController>/5
         [HttpGet("getWallet")]
+        [Authorize]
         public async Task<ActionResult<Wallet>> GetWalletByID(int id)
         {
             var wallet = await _walletService.GetWalletByIDAsync(id);
@@ -53,6 +55,18 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "No wallet found!";
                 return NotFound(Message);
             }
+            return Ok(wallet);
+        }
+        [HttpGet("GetWalletByAccountID")]
+        public async Task<ActionResult<Wallet>> GetWalletByAccountID([FromQuery]int id)
+        {
+            var wallet = await _walletService.GetWalletByUserAsync(id);
+            if (wallet == null)
+            {
+                Message = "No wallet found!";
+                return NotFound(Message);
+            }
+            var display = _mapper.Map<Wallet>(wallet);
             return Ok(wallet);
         }
 
