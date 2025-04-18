@@ -640,7 +640,151 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
-        [HttpPut("OfferJob")]
+        [HttpPost("ForceAbandonJobAndReassign")]
+        [Authorize(Roles = "Admin,Staff")]
+        public async Task<IActionResult> ForceAbandonJobAndReassign([FromQuery] int jobId, [FromQuery] DateTime abandonDate)
+        {
+            var oldJob = await _jobService.GetJobByIDAsync(jobId);
+            if (oldJob == null)
+                return NotFound("Original job not found.");
+
+            if (oldJob.Status != (int)JobStatus.Verified)
+                return BadRequest("Only in-progress jobs can be force-abandoned.");
+
+            var oldJobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+            if (oldJobDetail == null)
+                return NotFound("Job detail not found.");
+
+            if (abandonDate < oldJobDetail.StartDate || abandonDate >= oldJobDetail.EndDate)
+                return BadRequest("Abandon date must be within the job's duration.");
+
+            // 1. Calculate how many weeks were worked
+            int totalWeeks = (int)Math.Ceiling((oldJobDetail.EndDate - oldJobDetail.StartDate).TotalDays / 7.0);
+            int weeksWorked = (int)Math.Ceiling((abandonDate - oldJobDetail.StartDate).TotalDays / 7.0);
+            int weeksRemaining = totalWeeks - weeksWorked;
+
+            if (weeksRemaining <= 0)
+                return BadRequest("No remaining weeks to reassign. Job is almost finished.");
+
+            // 2. Calculate payouts and refunds
+            decimal pricePerWeek = oldJobDetail.Price / totalWeeks;
+            decimal payoutAmount = pricePerWeek * weeksWorked * 0.9m; // 90% to housekeeper
+            decimal refundAmount = pricePerWeek * weeksRemaining;
+
+            var family = await _familyProfileService.GetFamilyByIDAsync(oldJob.FamilyID);
+            var hkAccountId = oldJobDetail.HousekeeperID;
+            var familyWallet = await _walletService.GetWalletByUserAsync(family.AccountID);
+            var hkWallet = await _walletService.GetWalletByUserAsync(hkAccountId.Value);
+
+            if (familyWallet == null || hkWallet == null)
+                return NotFound("Wallets not found.");
+
+            // 3. Refund family
+            familyWallet.Balance += refundAmount;
+            familyWallet.UpdatedAt = DateTime.Now;
+            await _walletService.UpdateWalletAsync(familyWallet);
+
+            await _transactionService.AddTransactionAsync(new Transaction
+            {
+                TransactionID = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
+                WalletID = familyWallet.WalletID,
+                AccountID = family.AccountID,
+                Amount = refundAmount,
+                Fee = 0,
+                CreatedDate = DateTime.Now,
+                Description = $"Refund for unworked weeks of job {jobId}",
+                UpdatedDate = DateTime.Now,
+                TransactionType = (int)TransactionType.Refund,
+                Status = (int)TransactionStatus.Completed
+            });
+
+            // 4. Payout to housekeeper
+            hkWallet.Balance += payoutAmount;
+            hkWallet.UpdatedAt = DateTime.Now;
+            await _walletService.UpdateWalletAsync(hkWallet);
+
+            await _transactionService.AddTransactionAsync(new Transaction
+            {
+                TransactionID = int.Parse(DateTimeOffset.Now.ToString("ffffff")) + 1,
+                WalletID = hkWallet.WalletID,
+                AccountID = hkAccountId.Value,
+                Amount = payoutAmount,
+                Fee = 0,
+                CreatedDate = DateTime.Now,
+                Description = $"Payout for worked weeks of job {jobId}",
+                UpdatedDate = DateTime.Now,
+                TransactionType = (int)TransactionType.Payout,
+                Status = (int)TransactionStatus.Completed
+            });
+
+            // 5. Update original job status to Abandoned
+            oldJob.Status = (int)JobStatus.Verified;
+            await _jobService.UpdateJobAsync(oldJob);
+
+            // 6. Create new job for remaining weeks
+            var job = new Job
+            {
+                FamilyID = oldJob.FamilyID,
+                JobName = oldJob.JobName,
+                Status = (int)JobStatus.Pending,
+                JobType = oldJob.JobType,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+
+            await _jobService.AddJobAsync(job); // saves and generates JobID
+
+            var jobDetail = new JobDetail
+            {
+                JobID = job.JobID,
+                Location = oldJobDetail.Location,
+                Price = pricePerWeek * weeksRemaining,
+                PricePerHour = oldJobDetail.PricePerHour,
+                HKPrice = oldJobDetail.HKPrice,
+                Description = oldJobDetail.Description,
+                IsOffered = false,
+                HousekeeperID = null,
+                StartDate = abandonDate.AddDays(1),
+                EndDate = oldJobDetail.EndDate
+            };
+
+            await _jobService.AddJobDetailAsync(jobDetail);
+
+
+            // 7. Clone services and slots from old job
+            var oldServices = await _jobServiceService.GetJob_ServicesByJobIDAsync(jobId);
+            foreach (var service in oldServices)
+            {
+                await _jobServiceService.AddJob_ServiceAsync(new Job_Service
+                {
+                    JobID = job.JobID,
+                    ServiceID = service.ServiceID
+                });
+            }
+
+            var oldSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
+            foreach (var slot in oldSlots)
+            {
+                await _jobSlotsService.AddJob_SlotsAsync(new Job_Slots
+                {
+                    JobID = job.JobID,
+                    SlotID = slot.SlotID,
+                    DayOfWeek = slot.DayOfWeek
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Job reassigned successfully.",
+                oldJobId = jobId,
+                newJobId = job.JobID,
+                refund = refundAmount,
+                payout = payoutAmount
+            });
+        }
+
+
+            [HttpPut("OfferJob")]
         [Authorize]
         public async Task<ActionResult> OfferJob([FromQuery] int jobId, [FromQuery] int housekeeperId)
         {

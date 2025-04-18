@@ -19,6 +19,7 @@
         Withdrawal = 2,
         Payment = 3,
         Payout = 4,
+        Refund = 5,
     }
 
     public enum TransactionStatus
