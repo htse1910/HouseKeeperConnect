@@ -6,7 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
-    android:padding="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="16dp"
+    android:paddingTop="32dp"
     tools:context=".HKWalletActivity">
 
     <!-- Title -->
@@ -19,23 +22,23 @@
         android:textStyle="bold"
         android:textColor="@color/colorPrimary"
         android:gravity="center"
+        android:paddingBottom="8dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingBottom="8dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Wallet Info Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardWallet"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         app:cardElevation="4dp"
         app:cardCornerRadius="16dp"
+        android:padding="12dp"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/cardTransactions"
-        app:layout_constraintWidth_percent="0.45">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -91,7 +94,7 @@
                 android:layout_marginTop="12dp"
                 android:padding="12dp"
                 android:letterSpacing="0.02"
-                android:fontFamily="sans-serif-medium"/>
+                android:fontFamily="sans-serif-medium" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -100,13 +103,13 @@
         android:id="@+id/cardTransactions"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         app:cardElevation="4dp"
         app:cardCornerRadius="16dp"
-        app:layout_constraintTop_toTopOf="@+id/cardWallet"
-        app:layout_constraintBottom_toBottomOf="@+id/cardWallet"
-        app:layout_constraintStart_toEndOf="@+id/cardWallet"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/cardWallet"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -136,7 +139,7 @@
                 android:textColor="@android:color/darker_gray"
                 android:textAlignment="center"
                 android:visibility="gone"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="8dp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

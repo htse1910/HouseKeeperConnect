@@ -131,9 +131,9 @@ function UpdateHousekeeperPage() {
           <div className="col-md-4">
             <label className="form-label">Giới tính</label>
             <select className="form-select" value={gender} onChange={(e) => setGender(Number(e.target.value))}>
-              <option value={0}>Nam</option>
-              <option value={1}>Nữ</option>
-              <option value={2}>Khác</option>
+              <option value={1}>Nam</option>
+              <option value={2}>Nữ</option>
+              <option value={0}>Khác</option>
             </select>
           </div>
 
