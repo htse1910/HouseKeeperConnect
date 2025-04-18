@@ -4,7 +4,11 @@ import com.example.housekeeperapplication.Model.Account;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.TransactionInfo;
 import com.example.housekeeperapplication.Model.DTOs.WalletInfo;
+import com.example.housekeeperapplication.Model.Transaction;
+import com.example.housekeeperapplication.Model.Wallet;
 
+
+import java.util.List;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -40,18 +44,14 @@ public interface APIServices {
             @Part MultipartBody.Part localProfilePicture // Change to MultipartBody.Part
     );
 
-    //Wallet APIs
+    @GET("api/Wallet/getWallet")
+    Call<Wallet> getWalletById(
+            @Query("id") int id);
 
-    @GET("api/Wallet/GetWalletByAccountID")
-    Call<WalletInfo> getWalletByAccount(
-            @Query("id") int accountID
-    );
-
-    //Transaction APIs
     @GET("api/Transaction/GetTransactionByUserID")
-    Call<TransactionInfo> getTransByAccountID(
-            @Query("id") String accountID,
+    Call<List<Transaction>> getTransactionByUserID(
+            @Query("id") int accountId,
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
-    );
+    );;
 }

@@ -59,6 +59,12 @@
             android:name=".Register"
             android:exported="false" />
         <activity
+            android:name=".WalletHousekeeperActivity"
+            android:exported="false" />
+        <activity
+            android:name=".WalletFamilyActivity"
+            android:exported="false" />
+        <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
