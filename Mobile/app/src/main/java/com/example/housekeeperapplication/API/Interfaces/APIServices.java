@@ -54,4 +54,16 @@ public interface APIServices {
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
     );;
+
+    @POST("api/Withdraw/RequestWithdrawOTP")
+    Call<ResponseBody> requestWithdrawOTP(
+            @Query("accountId") int accountId,
+            @Query("amount") int amount
+    );
+
+    @POST("api/Withdraw/VerifyOTP")
+    Call<ResponseBody> verifyOTP(
+            @Query("withdrawID") int withdrawID,
+            @Query("otp") String otp
+    );
 }
