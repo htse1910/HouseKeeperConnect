@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    android:backgroundTint="@android:color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:divider="?android:dividerVertical"
+        android:showDividers="middle">
+
+        <!-- Header Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvJobTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🧽 Dọn Dẹp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvBookingID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="#1"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+
+        <!-- Family -->
+        <TextView
+            android:id="@+id/tvFamily"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="👨 Gia đình: Lâm Bùi Văn Tuấn"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+
+        <!-- Location & Salary -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📍 Địa điểm: Quận 1"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="💵 Lương: 180,000 VND"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Start/End Date -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📅 Bắt đầu: 14/4/2025"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="📅 Kết thúc: 22/4/2025"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Description -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📝 Mô tả: No"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+
+        <!-- Slot -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🕐 Ca làm việc: 16H - 17H"
+            android:textSize="14sp"
+            android:textColor="@color/teal_700"
+            android:layout_marginTop="4dp" />
+
+        <!-- Day of Week with Check-In -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/tvWeekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📆 Thứ: Thứ Ba"
+                android:textSize="14sp"
+                android:textColor="@color/amber_500"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnCheckIn"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:text="Check-In"
+                android:textAllCaps="false"
+                android:textSize="11sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/rounded_button_primary"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:elevation="1dp" />
+        </LinearLayout>
+
+        <!-- Services -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🛎️ Dịch vụ: Giữ trẻ theo giờ"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_green_dark"
+            android:layout_marginTop="4dp" />
+
+        <!-- Status Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_marginTop="12dp">
+
+            <Button
+                android:id="@+id/btnStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đã hoàn thành ✅"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/successGreen"
+                android:background="@drawable/rounded_button_green"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:elevation="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
