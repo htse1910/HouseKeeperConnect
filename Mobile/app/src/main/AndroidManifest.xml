@@ -65,6 +65,12 @@
             android:name=".WalletFamilyActivity"
             android:exported="false" />
         <activity
+            android:name=".RequestWithdrawActivity"
+            android:exported="false" />
+        <activity
+            android:name=".VerifyOTPActivity"
+            android:exported="false" />
+        <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>

@@ -1,9 +1,11 @@
 package com.example.housekeeperapplication;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -105,5 +107,13 @@ public class WalletHousekeeperActivity extends AppCompatActivity {
                 Toast.makeText(WalletHousekeeperActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        Button btnWithdraw = findViewById(R.id.btnWithdraw);
+        btnWithdraw.setOnClickListener(v -> {
+            Intent intent = new Intent(WalletHousekeeperActivity.this, RequestWithdrawActivity.class);
+            startActivity(intent);
+        });
+
+
     }
 }

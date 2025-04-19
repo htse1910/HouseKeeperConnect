@@ -48,22 +48,8 @@
         app:layout_constraintTop_toBottomOf="@id/etOtpCode"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- Cancel Button -->
-    <Button
-        android:id="@+id/btnCancelOtp"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Hủy"
-        android:backgroundTint="@android:color/darker_gray"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvOtpExpiresAt"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btnConfirmOtp"
-        app:layout_constraintHorizontal_weight="1"/>
 
-    <!-- Confirm OTP Button -->
+    <!-- Confirm OTP Button - Bên trái -->
     <Button
         android:id="@+id/btnConfirmOtp"
         android:layout_width="0dp"
@@ -72,9 +58,26 @@
         android:backgroundTint="@color/successGreen"
         android:textColor="@android:color/white"
         android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tvOtpExpiresAt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnCancelOtp"
+        app:layout_constraintHorizontal_weight="1" />
+
+    <!-- Cancel Button - Bên phải -->
+    <Button
+        android:id="@+id/btnCancelOtp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Hủy"
+        android:backgroundTint="@android:color/darker_gray"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="24dp"
         android:layout_marginStart="8dp"
-        app:layout_constraintTop_toTopOf="@id/btnCancelOtp"
-        app:layout_constraintStart_toEndOf="@id/btnCancelOtp"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/tvOtpExpiresAt"
+        app:layout_constraintStart_toEndOf="@id/btnConfirmOtp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
