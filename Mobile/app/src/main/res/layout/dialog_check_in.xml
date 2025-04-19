@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_white_bg"
+    android:padding="24dp">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvDialogTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="📋 Thông tin ca làm việc"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Info Block -->
+    <LinearLayout
+        android:id="@+id/infoBlock"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_input_bg"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/tvDialogTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView android:id="@+id/tvJobName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔧 Công việc: Dọn Dẹp" android:textSize="14sp" android:textColor="@android:color/black" />
+        <TextView android:id="@+id/tvFamilyName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="👨 Gia đình: Lâm Bùi Văn Tuấn" android:textSize="14sp" android:layout_marginTop="4dp" />
+        <TextView android:id="@+id/tvStartDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📅 Bắt đầu: 14/04/2025" android:textSize="14sp" android:layout_marginTop="4dp" />
+        <TextView android:id="@+id/tvEndDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📅 Kết thúc: 22/04/2025" android:textSize="14sp" android:layout_marginTop="4dp" />
+        <TextView android:id="@+id/tvDayOfWeek" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📆 Thứ: Thứ Ba" android:textSize="14sp" android:textColor="@color/amber_500" android:layout_marginTop="4dp" />
+        <TextView android:id="@+id/tvMatchedDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="📋 Ngày này: 16/04/2025" android:textSize="14sp" android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- Button Group -->
+    <LinearLayout
+        android:id="@+id/dialogActions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/infoBlock"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnCheckInDialog"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="✅ Check In"
+            android:textAllCaps="false"
+            android:background="@drawable/rounded_button_primary"
+            android:textColor="@android:color/white"
+            android:paddingVertical="10dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnCloseDialog"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Đóng"
+            android:textAllCaps="false"
+            android:background="@drawable/rounded_button_gray"
+            android:textColor="@android:color/white"
+            android:paddingVertical="10dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
