@@ -22,7 +22,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("Booking_SlotsList")]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
         public async Task<ActionResult<IEnumerable<Booking_Slots>>> GetBooking_SlotsAsync()
         {
             var bookingSlots = await _bookingSlotsService.GetAllBooking_SlotsAsync();
@@ -48,7 +48,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddBooking_Slots")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> AddBooking_Slots([FromQuery] Booking_SlotsCreateDTO bookingSlotsCreateDTO)
         {
             if (bookingSlotsCreateDTO == null)
@@ -61,7 +61,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpDelete("DeleteBooking_Slots")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> DeleteBooking_Slots([FromQuery] int id)
         {
             await _bookingSlotsService.DeleteBooking_SlotsAsync(id);

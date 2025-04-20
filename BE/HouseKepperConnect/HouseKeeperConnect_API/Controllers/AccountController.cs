@@ -64,7 +64,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // GET: api/<AccountController>
         [HttpGet("AccountList")]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
         public async Task<ActionResult<IEnumerable<AccountDisplayDTO>>> GetAllaccount(int pageNumber, int pageSize)
         {
             try
@@ -251,7 +251,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("AdminUpdateAccount")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> AdminUpdate(AdminUpdateAccountDTO adminUpdateDTO)
         {
             var account = _mapper.Map<BusinessObject.Models.Account>(adminUpdateDTO);
@@ -275,7 +275,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("ChangeStatus")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ToggleStatus([FromQuery] int id)
         {
             try

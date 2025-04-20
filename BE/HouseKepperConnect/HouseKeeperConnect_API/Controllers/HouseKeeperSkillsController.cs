@@ -56,7 +56,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("CreateHousekeeperSkill")]
-        [Authorize]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> CreateHousekeeperSkill([FromBody] HousekeeperSkillCreateDTO housekeeperSkillCreateDTO)
         {
             if (housekeeperSkillCreateDTO == null)
@@ -70,7 +70,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("UpdateHousekeeperSkill")]
-        [Authorize]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> UpdateHousekeeperSkill([FromBody] HousekeeperSkillUpdateDTO housekeeperSkillUpdateDTO)
         {
             try
@@ -92,7 +92,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpDelete("DeleteHousekeeperSkill")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> DeleteHousekeeperSkill([FromQuery] int id)
         {
             try

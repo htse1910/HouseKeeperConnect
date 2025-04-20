@@ -59,7 +59,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetBookingByHousekeeperID")]
-        [Authorize]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult<IEnumerable<object>>> GetBookingByHousekeeperID([FromQuery] int housekeeperId)
         {
             var bookings = await _bookingService.GetBookingsByHousekeeperIDAsync(housekeeperId);
@@ -94,7 +94,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddBooking")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> AddBooking([FromQuery] BookingCreateDTO bookingCreateDTO)
         {
             if (bookingCreateDTO == null)
@@ -208,7 +208,7 @@ namespace HouseKeeperConnect_API.Controllers
         
 
         [HttpPut("UpdateBooking")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> UpdateBooking([FromQuery] BookingUpdateDTO bookingUpdateDTO)
         {
             var booking = await _bookingService.GetBookingByIDAsync(bookingUpdateDTO.BookingID);
@@ -224,7 +224,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpDelete("DeleteBooking")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> DeleteBooking([FromQuery] int id)
         {
             await _bookingService.DeleteBookingAsync(id);

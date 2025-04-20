@@ -1,13 +1,12 @@
 package com.example.housekeeperapplication;
 
-import android.annotation.SuppressLint;
-import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -18,15 +17,17 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 
 import java.io.File;
+import java.io.IOException;
 
-import io.appwrite.Client;
-import io.appwrite.services.Storage;
 import okhttp3.MediaType;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,7 +47,8 @@ public class Register extends AppCompatActivity {
 
     private int genderID, roleID;
     private LinearLayout pictBtn, regBtn;
-    private static final int PICK_IMAGE = 1;
+    private static final int REQUEST_CODE_PERMISSIONS = 101;
+    private static final int REQUEST_CODE_PICK_IMAGE = 102;
     private String imageUrl;
     private ImageView imageView;
     private  Uri imageUri;
@@ -80,6 +82,8 @@ public class Register extends AppCompatActivity {
         genderID = 1;
         hkRb.setChecked(true);
 
+
+
         accTypeRadio = findViewById(R.id.reg_account_type);
         genTypeRadio = findViewById(R.id.reg_gender_group);
 
@@ -111,15 +115,17 @@ public class Register extends AppCompatActivity {
             }
         });
 
-        //Select & Process picture from external
+        //Check permission & Select picture from external storage
 
         pictBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, PICK_IMAGE);
+                if (ContextCompat.checkSelfPermission(Register.this, android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(Register.this, new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_CODE_PERMISSIONS);
+                }
             }
         });
+
 
         regBtn.setEnabled(true);
 
@@ -136,7 +142,6 @@ public class Register extends AppCompatActivity {
                 String nickname = nicknameTxt.getText().toString();
                 String introduce = introduceTxt.getText().toString();
                 regBtn.setEnabled(false);
-
 
                 // Create a request body from the file
                 File file = new File(imageUrl);
@@ -167,7 +172,7 @@ public class Register extends AppCompatActivity {
                 APIServices api = APIClient.getClient(Register.this).create(APIServices.class);
                 Call<ResponseBody> call = api.register(nameBody, emailBody, passwordBody, bankNumBody, phoneBody, roleIDBody, descriptionBody, addressBody, genderBody, nicknameBody, imageBody);
                 if(call == null){
-                    Toast.makeText(Register.this, "Incorrect email or password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Register.this, "Lôĩ khi gửi yêu cầu server!", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 call.enqueue(new Callback<ResponseBody>() {
@@ -181,15 +186,21 @@ public class Register extends AppCompatActivity {
                             startActivity(loginIntent);
                             finish();
                         }else{
-
-                            Toast.makeText(Register.this, "Không thể tạo tài khoản!\n Lỗi: "+response.message(), Toast.LENGTH_SHORT).show();
+                            try {
+                                Log.d("Register", response.errorBody().string());
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            Toast.makeText(Register.this, "Không thể tạo tài khoản! Lỗi: "+response.message(), Toast.LENGTH_SHORT).show();
                             regBtn.setEnabled(true);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        Toast.makeText(Register.this, "Không thể tạo tài khoản!\n Lỗi: "+t.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        Log.d("RegisterAccount", t.getMessage().toString());
+                        Toast.makeText(Register.this, "Không thể tạo tài khoản! Lỗi: "+t.getMessage(), Toast.LENGTH_SHORT).show();
                         regBtn.setEnabled(true);
                     }
                 });
@@ -201,24 +212,55 @@ public class Register extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK && data != null) {
             imageUri = data.getData();
             imageUrl = getRealPathFromURI(imageUri);
+            /*imageUrl = getFullPathFromUri(imageUri);*/
             imageView.setImageURI(imageUri);
         }
     }
 
-    public String getRealPathFromURI(Uri uri) {
-        String[] projection = { MediaStore.Images.Media.DATA };
-        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            String path = cursor.getString(column_index);
-            cursor.close();
-            return path;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, open image picker
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
+            } else {
+                // Permission denied
+                Toast.makeText(this, "Permission denied to read media images", Toast.LENGTH_SHORT).show();
+            }
         }
-        return null;
+    }
+
+
+    public String getRealPathFromURI(Uri uri) {
+        String path = null;
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = null;
+
+        try {
+            cursor = getContentResolver().query(uri, projection, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                path = cursor.getString(column_index);
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Handle exceptions
+        } finally {
+            if (cursor != null) {
+                cursor.close(); // Ensure cursor is closed
+            }
+        }
+
+        // If path is still null, handle alternative cases
+        if (path == null) {
+            path = uri.getPath(); // Fallback for file URIs
+        }
+
+        return path;
     }
 
 }
