@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Model.Account;
+import com.example.housekeeperapplication.Model.DTOs.Housekeeper;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 
 import retrofit2.Call;
@@ -74,7 +75,6 @@ public class LoginActivity extends AppCompatActivity {
             call.enqueue(new Callback<Account>() {
                 @Override
                 public void onResponse(Call<Account> call, Response<Account> response) {
-
                     if (response.isSuccessful()) {
                         Account acc = response.body();
                         if (acc != null) {
@@ -84,7 +84,6 @@ public class LoginActivity extends AppCompatActivity {
                             String uName = acc.getName();
                             int roleID = acc.getRoleID();
 
-                            // Save data to SharedPreferences
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putInt("accountID", accountID);
                             editor.putString("email", uEmail);
@@ -93,18 +92,46 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("name", uName);
                             editor.apply();
 
-                            Toast.makeText(LoginActivity.this, "Login successful!\nWelcome " + uName, Toast.LENGTH_SHORT).show();
+                            APIServices api = APIClient.getClient(LoginActivity.this).create(APIServices.class);
 
-                            // Navigate to the next activity if needed
-                            if(roleID == 1){
-                                Intent intent = new Intent(LoginActivity.this, HomeHousekeeperActivity.class);
-                                startActivity(intent);
-                                finish(); // Close the LoginActivity
-                            }
-                            if(roleID == 2){
+                            // Nếu là Housekeeper
+                            if (roleID == 1) {
+                                Call<Housekeeper> housekeeperCall = api.getHousekeeperByAccountID(accountID);
+                                housekeeperCall.enqueue(new Callback<Housekeeper>() {
+                                    @Override
+                                    public void onResponse(Call<Housekeeper> call, Response<Housekeeper> response) {
+                                        if (response.isSuccessful()) {
+                                            Housekeeper housekeeper = response.body();
+                                            if (housekeeper != null) {
+                                                int housekeeperID = housekeeper.getHousekeeperID();
+                                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                                editor.putInt("housekeeperID", housekeeperID);
+                                                editor.apply();
+
+                                                Toast.makeText(LoginActivity.this, "Welcome " + uName, Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(LoginActivity.this, HomeHousekeeperActivity.class);
+                                                startActivity(intent);
+                                                finish();
+                                            }
+                                        } else {
+                                            loginBtn.setEnabled(true);
+                                            Toast.makeText(LoginActivity.this, "Lấy thông tin housekeeper thất bại", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Housekeeper> call, Throwable t) {
+                                        loginBtn.setEnabled(true);
+                                        Toast.makeText(LoginActivity.this, "Lỗi kết nối housekeeper: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                                // Nếu là Family
+                            } else if (roleID == 2) {
+                                Toast.makeText(LoginActivity.this, "Welcome " + uName, Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                 startActivity(intent);
-                                finish(); // Close the LoginActivity
+                                finish();
                             }
                         }
                     } else {
@@ -115,11 +142,11 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<Account> call, Throwable t) {
-                    // Re-enable the button on failure
                     loginBtn.setEnabled(true);
                     Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
+
         });
     }
 
