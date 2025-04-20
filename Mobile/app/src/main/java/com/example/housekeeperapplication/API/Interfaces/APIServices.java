@@ -1,6 +1,8 @@
 package com.example.housekeeperapplication.API.Interfaces;
 
 import com.example.housekeeperapplication.Model.Account;
+import com.example.housekeeperapplication.Model.DTOs.Housekeeper;
+import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.TransactionInfo;
 import com.example.housekeeperapplication.Model.DTOs.WalletInfo;
@@ -65,5 +67,16 @@ public interface APIServices {
     Call<ResponseBody> verifyOTP(
             @Query("withdrawID") int withdrawID,
             @Query("otp") String otp
+    );
+    @GET("api/HouseKeeper/GetHousekeeperByAccountID")
+    Call<Housekeeper> getHousekeeperByAccountID(@Query("id") int accountId);
+
+    @Multipart
+    @POST("api/IDVerifications/CreateIDVerification")
+    Call<ResponseBody> uploadIDVerification(
+            @Query("housekeeperId") int housekeeperId,
+            @Part MultipartBody.Part FrontPhoto,
+            @Part MultipartBody.Part BackPhoto,
+            @Part MultipartBody.Part FacePhoto
     );
 }

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.housekeeperapplication.Adapter.ProfileOptionAdapter;
 import com.example.housekeeperapplication.HomeHousekeeperActivity;
+import com.example.housekeeperapplication.IdentityVerificationActivity;
 import com.example.housekeeperapplication.NotificationActivity;
 import com.example.housekeeperapplication.ProfileOption;
 import com.example.housekeeperapplication.R;
@@ -48,7 +49,7 @@ public class HousekeeperProfile extends AppCompatActivity {
                     startActivity(new Intent(HousekeeperProfile.this, WalletHousekeeperActivity.class));
                     break;
                 case "Xác thực danh tính":
-                    //
+                    startActivity(new Intent(HousekeeperProfile.this, IdentityVerificationActivity.class));
                     break;
                 case "Thanh toán":
                     // ...
