@@ -136,7 +136,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddWithdraw")]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
         public async Task<ActionResult<Withdraw>> CreateWithdraw([FromQuery] WithdrawCreateDTO withdrawCreateDTO)
         {
             var acc = await _accountService.GetAccountByIDAsync(withdrawCreateDTO.AccountID);

@@ -164,7 +164,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetJobsOfferedByHK")]
-        [Authorize]
+        [Authorize(Policy ="Housekeeper")]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsOfferedByHK([FromQuery] int accountId, int pageNumber, int pageSize)
         {
 
@@ -199,7 +199,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(display);
         }[HttpGet("GetJobsByAccountID")]
-        [Authorize]
+        [Authorize(Policy ="Family")]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsByAccountID([FromQuery] int accountId, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
 
@@ -236,7 +236,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddJob")]
-        [Authorize]
+        [Authorize(Policy ="Family")]
         public async Task<ActionResult> AddJob([FromQuery] JobCreateDTO jobCreateDTO)
         {
             if (!ModelState.IsValid)
@@ -429,7 +429,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // Accept the job and create the booking and booking slots if conditions are met
         [HttpPost("AcceptJob")]
-        [Authorize]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> AcceptJob([FromQuery] int jobId, int accountID)
         {
             if (jobId <= 0)
@@ -551,7 +551,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("DenyJob")]
-        [Authorize]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> DenyJob([FromQuery] int jobId, int accountID)
         {
             if (jobId <= 0)
@@ -784,8 +784,8 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
 
-            [HttpPut("OfferJob")]
-        [Authorize]
+        [HttpPut("OfferJob")]
+        [Authorize(Policy = "Family")]
         public async Task<ActionResult> OfferJob([FromQuery] int jobId, [FromQuery] int housekeeperId)
         {
             if (jobId <= 0 || housekeeperId <= 0)
@@ -855,7 +855,7 @@ namespace HouseKeeperConnect_API.Controllers
 
 
         [HttpPut("VerifyJob")]
-        [Authorize]
+        [Authorize(Policy = "Staff")]
         public async Task<IActionResult> VerifyJob([FromQuery] int jobId, [FromQuery] int status)
         {
             // Validate allowed statuses
@@ -932,7 +932,7 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
         [HttpPost("CancelJob")]
-        [Authorize]
+        [Authorize(Policy = "Family")]
         public async Task<ActionResult> CancelJob([FromQuery] int jobId, [FromQuery] int accountId)
         {
             try

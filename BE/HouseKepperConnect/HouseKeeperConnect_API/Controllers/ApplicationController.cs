@@ -41,7 +41,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("ApplicationList")]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
         public async Task<ActionResult<Application>> ApplicationList(int pageNumber, int pageSize)
         {
             var list = await _applicationService.GetAllApplicationsAsync(pageNumber, pageSize);
@@ -70,7 +70,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("ApplicationListByJob")]
-        [Authorize]
+        [Authorize(Policy ="Family")]
         public async Task<ActionResult<List<Application>>> ApplicationListByJob(int jobID, int pageNumber, int pageSize)
         {
             var list = await _applicationService.GetAllApplicationsByJobIDAsync(jobID, pageNumber, pageSize);
@@ -123,7 +123,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetApplicationsByAccountID")]
-        [Authorize]
+        [Authorize(Policy ="Housekeeper")]
         public async Task<ActionResult<List<Application>>> GetAppByAccID([FromQuery]int uid, int pageNumber, int pageSize)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(uid);
@@ -173,7 +173,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddApplication")]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
         public async Task<ActionResult> AddApplication([FromQuery] int accountID, int jobID)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
@@ -266,7 +266,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("UpdateApplication")]
-        [Authorize]
+        [Authorize(Policy ="Family")]
         public async Task<ActionResult> UpdateApplication([FromQuery] int AppID, int status)
         {
             var app = await _applicationService.GetApplicationByIDAsync(AppID);

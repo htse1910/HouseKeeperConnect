@@ -1,12 +1,10 @@
-﻿using System.Configuration;
-using Appwrite;
+﻿using Appwrite;
 using Appwrite.Models;
 using Appwrite.Services;
 using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.AppWrite;
-using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
@@ -46,7 +44,7 @@ namespace HouseKeeperConnect_API.Controllers
             _appWriteClient = new Client().SetProject(appW.ProjectId).SetEndpoint(appW.Endpoint).SetKey(appW.ApiKey);
         }
 
-        [HttpGet("HousekeeperDisplay")] //Admin
+        [HttpGet("HousekeeperDisplay")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<HouseKeeperDisplayDTO>>> GetHousekeepersAsync(int pageNumber, int pageSize)
         {
@@ -202,7 +200,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddHousekeeper")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<Housekeeper>> addHK([FromQuery] HouseKeeperCreateDTO hk)
         {
             var oHk = _mapper.Map<Housekeeper>(hk);
@@ -355,7 +353,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("ListHousekeeperIDPending")]
-        [Authorize]
+        [Authorize(Policy = "Staff")]
         public async Task<IActionResult> GetPendingHousekeepers(int pageNumber, int pageSize)
         {
             var pendingHousekeepers = await _housekeeperService.GetPendingHousekeepersAsync(pageNumber, pageSize);

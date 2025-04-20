@@ -32,6 +32,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // GET: api/<WalletController>
         [HttpGet("WalletList")]
+        [Authorize(Policy ="Admin")]
         public async Task<ActionResult<List<Wallet>>> GetWalletsAsync()
         {
             var list = await _walletService.GetAllWalletsAsync();
@@ -58,6 +59,7 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(wallet);
         }
         [HttpGet("GetWalletByAccountID")]
+        [Authorize]
         public async Task<ActionResult<Wallet>> GetWalletByAccountID([FromQuery]int id)
         {
             var wallet = await _walletService.GetWalletByUserAsync(id);
@@ -71,7 +73,8 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         // POST api/<WalletController>
-        [HttpPost("AddWallet")] //For admin only
+        [HttpPost("AddWallet")]
+        [Authorize(Policy ="Admin")]//For admin only
         public async Task<IActionResult> AddWalletAsync(int id)
         {
             Wallet nWallet = new Wallet();
@@ -100,6 +103,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // PUT api/<WalletController>/5
         [HttpPut("Deposit")]
+        [Authorize]
         public async Task<IActionResult> Deposit(int id, decimal balance)
         {
             var acc = await _accountService.GetAccountByIDAsync(id);
@@ -229,7 +233,8 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }*/
 
-        [HttpPut("Disable")] //Admin only
+        [HttpPut("Disable")]
+        [Authorize(Policy ="Admin")]//Admin only
         public async Task<IActionResult> WalletDisable(int id)
         {
             var wallet = await _walletService.GetWalletByIDAsync(id);
@@ -251,7 +256,8 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
-        [HttpPut("Enable")] //Admin only
+        [HttpPut("Enable")]
+        [Authorize(Policy ="Admin")]//Admin only
         public async Task<IActionResult> WalletEnable(int id)
         {
             var wallet = await _walletService.GetWalletByIDAsync(id);
