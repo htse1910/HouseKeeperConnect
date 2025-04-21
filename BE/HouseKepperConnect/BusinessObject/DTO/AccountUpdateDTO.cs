@@ -12,6 +12,7 @@ namespace BusinessObject.DTO
 
         [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]
         public long BankAccountNumber { get; set; }
+
         public string? BankAccountName { get; set; }
 
         [Required(ErrorMessage = "Phone is required.")]

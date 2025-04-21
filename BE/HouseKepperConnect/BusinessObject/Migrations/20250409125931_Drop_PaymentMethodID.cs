@@ -16,7 +16,6 @@ namespace BusinessObject.Migrations
             migrationBuilder.DropColumn(
                 name: "PaymentMethodID",
                 table: "Payment");
-            
         }
 
         /// <inheritdoc />

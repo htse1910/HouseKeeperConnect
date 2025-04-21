@@ -21,8 +21,7 @@ namespace Repositories.Interface
         Task DeleteWithdrawAsync(int id);
 
         Task UpdateWithdrawAsync(Withdraw wi);
+
         Task<bool> VerifyOTPAsync(int withdrawId, string otpCode);
-
-
     }
 }

@@ -3,7 +3,6 @@ using BusinessObject.DTO;
 using BusinessObject.DTOs;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
-using DataAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -205,7 +204,6 @@ namespace HouseKeeperConnect_API.Controllers
             int daysUntilNext = ((dayOfWeek - (int)startDate.DayOfWeek + 7) % 7);
             return startDate.AddDays(daysUntilNext == 0 ? 7 : daysUntilNext);
         }
-        
 
         [HttpPut("UpdateBooking")]
         [Authorize(Policy = "Admin")]

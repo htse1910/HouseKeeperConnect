@@ -11,6 +11,7 @@ namespace Services.Interface
         Task<Job> GetJobByIDAsync(int id);
 
         Task<List<Job>> GetJobsByAccountIDAsync(int accountId, int pageNumber, int pageSize);
+
         Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize);
 
         Task<JobDetail> GetJobDetailByJobIDAsync(int jobID);

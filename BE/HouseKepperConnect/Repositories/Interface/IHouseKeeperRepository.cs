@@ -9,6 +9,7 @@ namespace Repositories.Interface
         Task<Housekeeper> GetHousekeeperByIDAsync(int id);
 
         Task<Housekeeper> GetHousekeepersByUserAsync(int uId);
+
         Task<Housekeeper> GetHousekeepersByIDVerifyAsync(int ID);
 
         Task AddHousekeeperAsync(Housekeeper Housekeeper);

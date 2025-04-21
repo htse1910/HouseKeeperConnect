@@ -1,6 +1,5 @@
 ﻿using BusinessObject.Models;
 using DataAccess;
-using Microsoft.EntityFrameworkCore;
 using Repositories.Interface;
 
 namespace Repositories
@@ -30,6 +29,7 @@ namespace Repositories
 
             return bookedSlots.Contains(slotId); // If slotId exists in booked slots, return true
         }*/
+
         public async Task<bool> IsSlotBooked(int housekeeperId, int slotId, int dayOfWeek, DateTime startDate, DateTime endDate)
             => await _bookingSlotsDAO.IsSlotBooked(housekeeperId, slotId, dayOfWeek, startDate, endDate);
 
@@ -37,10 +37,12 @@ namespace Repositories
         => await _bookingSlotsDAO.GetBookedSlotsByHousekeeper(housekeeperId, startDate, endDate);
 
         public async Task<List<int>> GetAllSlotIDsAsync() => await _bookingSlotsDAO.GetAllSlotIDsAsync();
+
         public async Task UpdateBooking_SlotAsync(Booking_Slots bookingSlot)
         {
             await _bookingSlotsDAO.UpdateBooking_SlotAsync(bookingSlot);
         }
+
         public async Task<List<Booking_Slots>> GetBookingSlotsByDateAndBookingIDAsync(int bookingId, DateTime date)
         {
             return await _bookingSlotsDAO.GetBookingSlotsByDateAndBookingIDAsync(bookingId, date);

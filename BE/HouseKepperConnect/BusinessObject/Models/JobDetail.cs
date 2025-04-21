@@ -19,9 +19,14 @@ namespace BusinessObject.Models
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
+
         [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal PricePerHour { get; set; }
+
+        [Required]
+        [ForeignKey("PlatformFee")]
+        public int FeeID { get; set; }
 
         [Required]
         public DateTime StartDate { get; set; }
@@ -39,5 +44,6 @@ namespace BusinessObject.Models
 
         public virtual Job Job { get; set; }
         public virtual Housekeeper Housekeeper { get; set; }
+        public virtual PlatformFee PlatformFee { get; set; }
     }
 }

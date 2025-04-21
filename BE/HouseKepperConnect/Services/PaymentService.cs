@@ -1,6 +1,5 @@
 ﻿using BusinessObject.Models;
 using BusinessObject.Models.PayOS;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Net.payOS;
 using Net.payOS.Types;
@@ -34,7 +33,6 @@ namespace Services
 
         public async Task AddPaymentAsync(Payment Payment) => await _paymentRepository.AddPaymentAsync(Payment);
 
-
         public async Task DeletePaymentAsync(int id) => await _paymentRepository.DeletePaymentAsync(id);
 
         public async Task<List<Payment>> GetAllPaymentsAsync(int pageNumber, int pageSize) => await _paymentRepository.GetAllPaymentsAsync(pageNumber, pageSize);
@@ -42,6 +40,7 @@ namespace Services
         public async Task<Payment> GetPaymentByIDAsync(int rID) => await _paymentRepository.GetPaymentByIDAsync(rID);
 
         public async Task<List<Payment>> GetPaymentsByFamilyAsync(int familyID, int pageNumber, int pageSize) => await _paymentRepository.GetPaymentsByFamilyAsync(familyID, pageNumber, pageSize);
+
         public async Task UpdatePaymentAsync(Payment Payment) => await _paymentRepository.UpdatePaymentAsync(Payment);
 
         public async Task<PaymentLinkInformation> GetPaymentStatus(int transID)
@@ -57,6 +56,7 @@ namespace Services
 
             return paymentStatus;
         }
+
         public async Task<string> CreatePaymentLink(CreatePaymentLinkRequest body)
         {
             List<ItemData> items = new List<ItemData>();
@@ -84,6 +84,5 @@ namespace Services
 
             return createPayment.checkoutUrl;
         }
-
     }
 }

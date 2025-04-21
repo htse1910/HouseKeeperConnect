@@ -30,6 +30,5 @@ namespace BusinessObject.Models
         public virtual IDVerification IDVerification { get; set; }
         public virtual IEnumerable<Rating> Ratings { get; set; }
         public virtual IEnumerable<Payout> Payouts { get; set; }
-        
     }
 }

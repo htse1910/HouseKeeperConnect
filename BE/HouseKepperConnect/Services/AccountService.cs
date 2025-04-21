@@ -56,5 +56,7 @@ namespace Services
         public async Task UpdatePasswordAsync(int accountId, string hashedPassword) => await _accountRepository.UpdatePasswordAsync(accountId, hashedPassword);
 
         public async Task InvalidateResetTokenAsync(int accountId) => await _accountRepository.InvalidateResetTokenAsync(accountId);
+
+        public async Task<List<Account>> GetAllAccountsAsync() => await _accountRepository.GetAllAccountsAsync();
     }
 }

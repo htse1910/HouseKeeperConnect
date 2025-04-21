@@ -27,7 +27,7 @@ namespace BusinessObject.Models
 
         [Required]
         public int Status { get; set; }
-        
+
         public virtual Housekeeper Housekeeper { get; set; }
     }
 }

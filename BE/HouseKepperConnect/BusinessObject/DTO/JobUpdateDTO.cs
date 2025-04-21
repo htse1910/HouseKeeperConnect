@@ -35,6 +35,7 @@ namespace BusinessObject.DTO
         public bool IsOffered { get; set; }
 
         public int? HousekeeperID { get; set; }
+
         [Required]
         public int Status { get; set; }
     }

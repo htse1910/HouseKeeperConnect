@@ -1,6 +1,5 @@
 ﻿using BusinessObject.Models;
 using BusinessObject.Models.Enum;
-using Google;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -110,6 +109,7 @@ namespace DataAccess
                 .Distinct()
                 .ToListAsync(); // Return unique SlotIDs
         }
+
         public async Task UpdateBooking_SlotAsync(Booking_Slots bookingSlot)
         {
             using var context = new PCHWFDBContext();
@@ -118,6 +118,7 @@ namespace DataAccess
                 await context.SaveChangesAsync();
             }
         }
+
         public async Task<List<Booking_Slots>> GetBookingSlotsByDateAndBookingIDAsync(int bookingId, DateTime date)
         {
             using var context = new PCHWFDBContext();
@@ -125,6 +126,5 @@ namespace DataAccess
                 .Where(bs => bs.BookingID == bookingId && bs.Date == date.Date)
                 .ToListAsync();
         }
-
     }
 }

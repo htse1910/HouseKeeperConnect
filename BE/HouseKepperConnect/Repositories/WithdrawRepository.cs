@@ -23,8 +23,7 @@ namespace Repositories
         public async Task<List<Withdraw>> GetWithdrawsPastWeekAsync(int pageNumber, int pageSize) => await WithdrawDAO.Instance.GetWithdrawsPastWeekAsync(pageNumber, pageSize);
 
         public async Task UpdateWithdrawAsync(Withdraw wi) => await WithdrawDAO.Instance.UpdateWithdrawAsync(wi);
-     
-        public async Task<bool> VerifyOTPAsync(int withdrawId, string otpCode) => await WithdrawDAO.Instance.VerifyOTPAsync(withdrawId, otpCode);
 
+        public async Task<bool> VerifyOTPAsync(int withdrawId, string otpCode) => await WithdrawDAO.Instance.VerifyOTPAsync(withdrawId, otpCode);
     }
 }

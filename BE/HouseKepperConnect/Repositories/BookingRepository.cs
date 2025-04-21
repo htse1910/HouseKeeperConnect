@@ -13,7 +13,7 @@ namespace Repositories
             _bookingDAO = BookingDAO.Instance;
         }
 
-        public async Task AddBookingAsync(Booking booking) =>await _bookingDAO.AddBookingAsync(booking);
+        public async Task AddBookingAsync(Booking booking) => await _bookingDAO.AddBookingAsync(booking);
 
         public async Task DeleteBookingAsync(int id) => await _bookingDAO.DeleteBookingAsync(id);
 

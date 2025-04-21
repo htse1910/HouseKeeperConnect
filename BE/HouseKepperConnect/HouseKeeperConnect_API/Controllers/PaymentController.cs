@@ -3,7 +3,6 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -36,12 +35,11 @@ namespace HouseKeeperConnect_API.Controllers
             _houseKeeperService = houseKeeperService;
         }
 
-
         [HttpGet("GetPaymentList")]
-        [Authorize(Policy ="Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<List<Payment>>> GetPayments(int pageNumber, int pageSize)
         {
-            var list =await _paymentService.GetAllPaymentsAsync(pageNumber, pageSize);
+            var list = await _paymentService.GetAllPaymentsAsync(pageNumber, pageSize);
             if (list == null)
             {
                 Message = "No records!";
@@ -50,18 +48,18 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(list);
         }
-        
+
         [HttpGet("GetPaymentsByFA")]
-        [Authorize(Policy ="Family")]
-        public async Task<ActionResult<List<Payment>>> GetPaymentsByFA([FromQuery]int accountID, int pageNumber, int pageSize)
+        [Authorize(Policy = "Family")]
+        public async Task<ActionResult<List<Payment>>> GetPaymentsByFA([FromQuery] int accountID, int pageNumber, int pageSize)
         {
             var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountID);
-            if(fa == null)
+            if (fa == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
             }
-            var list =await _paymentService.GetPaymentsByFamilyAsync(fa.FamilyID, pageNumber, pageSize);
+            var list = await _paymentService.GetPaymentsByFamilyAsync(fa.FamilyID, pageNumber, pageSize);
             if (list == null)
             {
                 Message = "No records!";
@@ -71,7 +69,6 @@ namespace HouseKeeperConnect_API.Controllers
 
             foreach (var item in list)
             {
-
                 var job = await _jobService.GetJobByIDAsync(item.JobID);
                 if (job == null)
                 {
@@ -87,7 +84,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
 
                 var hk = await _houseKeeperService.GetHousekeeperByIDAsync(jobDetail.HousekeeperID.GetValueOrDefault());
-                if(hk == null)
+                if (hk == null)
                 {
                     Message = "No Housekeeper found!";
                     return NotFound(Message);
@@ -119,7 +116,6 @@ namespace HouseKeeperConnect_API.Controllers
                 dis.Commission = jobDetail.Price * 0.1m;
 
                 display.Add(dis);
-
             }
             return Ok(display);
         }
@@ -162,7 +158,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             var noti = new Notification();
             noti.AccountID = trans.AccountID;
-            noti.Message = "Bạn đã nạp " + trans.Amount+" VNĐ vào ví!";
+            noti.Message = "Bạn đã nạp " + trans.Amount + " VNĐ vào ví!";
 
             await _notificationService.AddNotificationAsync(noti);
             Message = "PAID";

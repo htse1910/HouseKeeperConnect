@@ -22,7 +22,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("Booking_SlotsList")]
-        [Authorize(Policy ="Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<IEnumerable<Booking_Slots>>> GetBooking_SlotsAsync()
         {
             var bookingSlots = await _bookingSlotsService.GetAllBooking_SlotsAsync();
@@ -75,6 +75,7 @@ namespace HouseKeeperConnect_API.Controllers
             var availableSlots = await _bookingSlotsService.GetAvailableSlotsByHousekeeper(housekeeperId, startDate, endDate);
             return Ok(availableSlots);
         }
+
         [HttpGet("GetBookingSlotsByDateAndBookingID")]
         [Authorize]
         public async Task<ActionResult<List<Booking_Slots>>> GetBookingSlotsByDateAndBookingID([FromQuery] int bookingId, [FromQuery] DateTime date)
@@ -88,6 +89,5 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(slots);
         }
-
     }
 }

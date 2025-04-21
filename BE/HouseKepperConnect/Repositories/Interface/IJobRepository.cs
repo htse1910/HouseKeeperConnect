@@ -9,6 +9,7 @@ namespace Repositories.Interface
         Task<List<JobDetail>> GetAllDetailJobsAsync(int pageNumber, int pageSize);
 
         Task<Job> GetJobByIDAsync(int id);
+
         Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize);
 
         Task<List<Job>> GetJobsByAccountIDAsync(int accountId, int pageNumber, int pageSize);

@@ -7,6 +7,7 @@ namespace Services.Interface
         //Task<List<VerificationTask>> GetPendingTasksAsync(int pageNumber, int pageSize);
 
         Task<VerificationTask> GetTaskByIdAsync(int taskId);
+
         Task<VerificationTask> GetTaskByVerificationIdAsync(int verifyId);
 
         Task CreateVerificationTaskAsync(VerificationTask task);

@@ -56,9 +56,10 @@ namespace BusinessObject.Mapping
             Map_Create_Housekeeper_Violation();
             Map_Reset_Password();
             Map_List_HouseKeeper();
-            Map_OTP_Verification(); 
-            Map_Display_SupportRequest(); 
-            Map_Create_SupportRequest(); 
+            Map_OTP_Verification();
+            Map_Display_SupportRequest();
+            Map_Create_SupportRequest();
+            Map_Display_Fee();
         }
 
         private void Map_List_Register()
@@ -132,7 +133,6 @@ namespace BusinessObject.Mapping
         {
             CreateMap<HouseKeeperCreateDTO, Housekeeper>();
         }
-
 
         private void Map_Create_Job()
         {
@@ -315,21 +315,26 @@ namespace BusinessObject.Mapping
         {
             CreateMap<RatingDisplayDTO, Rating>().ReverseMap();
         }
+
         private void Map_OTP_Verification()
         {
             CreateMap<OTPVerificationDTO, Withdraw>().ReverseMap();
         }
-        
+
         private void Map_Display_SupportRequest()
         {
             CreateMap<SupportRequestDisplayDTO, SupportRequest>().ReverseMap();
         }
+
         private void Map_Create_SupportRequest()
         {
             CreateMap<SupportRequestCreateDTO, SupportRequest>()
                 .ForMember(f => f.Picture, opt => opt.Ignore());
         }
 
-        
+        private void Map_Display_Fee()
+        {
+            CreateMap<FeeDisplayDTO, PlatformFee>().ReverseMap();
+        }
     }
 }

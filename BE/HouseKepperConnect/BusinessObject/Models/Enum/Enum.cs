@@ -34,7 +34,7 @@
     {
         Pending = 1,
         Verified = 2,
-        Denied =3,
+        Denied = 3,
     }
 
     public enum JobStatus
@@ -69,7 +69,7 @@
     {
         WaitingForOTP = 1,
         OTPVerify = 2,
-        Success = 3, 
+        Success = 3,
         Failed = 4
     }
 
@@ -114,18 +114,19 @@
         Pending = 1,
         Completed = 2
     }
-    
+
     public enum PaymentStatus
     {
         Pending = 1,
         Completed = 2
     }
-    
+
     public enum SupportRequestStatus
     {
         Processing = 1,
         Completed = 2
     }
+
     public enum SupportRequestType
     {
         Account = 1,
@@ -133,5 +134,4 @@
         IDVerify = 3,
         Transaction = 4
     }
-
 }

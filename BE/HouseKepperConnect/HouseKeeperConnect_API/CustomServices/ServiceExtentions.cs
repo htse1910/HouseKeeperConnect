@@ -62,6 +62,8 @@ public static class ServiceExtentions
         services.AddScoped<IPayoutService, PayoutService>();
         services.AddScoped<ISupportRequestRepository, SupportRequestRepository>();
         services.AddScoped<ISupportRequestService, SupportRequestService>();
+        services.AddScoped<IPlatformFeeRepository, PlatformFeeRepository>();
+        services.AddScoped<IPlatformFeeService, PlatformFeeService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

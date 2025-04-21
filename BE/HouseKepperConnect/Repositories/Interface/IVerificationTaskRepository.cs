@@ -9,6 +9,7 @@ namespace Repositories.Interface
         Task<VerificationTask> GetTaskByIdAsync(int taskId);
 
         Task<VerificationTask> GetTaskByVerificationIdAsync(int verifyId);
+
         Task CreateVerificationTaskAsync(VerificationTask task);
 
         Task UpdateVerificationTaskAsync(VerificationTask task);

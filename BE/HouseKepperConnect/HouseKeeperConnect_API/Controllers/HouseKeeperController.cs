@@ -7,7 +7,6 @@ using BusinessObject.Models;
 using BusinessObject.Models.AppWrite;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -317,9 +316,6 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound(Message);
                 }
 
-
-                
-
                 /*var id = await _verificationService.GetIDVerifyByIDAsync(oHk.VerifyID.Value);
 
                 if (id != null)
@@ -362,7 +358,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return NotFound("Housekeeper Pending list is empty!");
             }
-           
+
             var pendingList = new List<HousekeeperPendingDTO>();
             foreach (var hk in pendingHousekeepers)
             {
@@ -386,7 +382,6 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(pendingList);
         }
-
 
         [HttpPost("UpdateVerificationStatus")]
         [Authorize]

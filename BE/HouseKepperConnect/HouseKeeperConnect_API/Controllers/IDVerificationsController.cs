@@ -75,7 +75,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("CreateIDVerification")]
-        [Authorize(Policy ="Housekeeper")]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> CreateIDVerification([FromForm] IDVerificationCreateDTO idVerificationDTO, [FromQuery] int housekeeperId)
         {
             if (idVerificationDTO == null)
