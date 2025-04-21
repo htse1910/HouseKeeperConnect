@@ -28,11 +28,6 @@ namespace BusinessObject.DTO
         [Required]
         public DateTime EndDate { get; set; }
 
-        [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Price must be at least 0.")]
-        public decimal HKPrice { get; set; }
-
-
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
         public string Description { get; set; }
 
