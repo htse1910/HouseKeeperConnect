@@ -87,7 +87,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("Approve")]
-        [Authorize]
+        [Authorize(Policy = "Staff")]
         public async Task<ActionResult> ApproveVerification(int taskId, [FromQuery] VerificationRequestDTO request)
         {
             try
@@ -133,7 +133,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("Reject")]
-        [Authorize]
+        [Authorize(Policy = "Staff")]
         public async Task<ActionResult> RejectVerification(int taskId, [FromQuery] VerificationRequestDTO request)
         {
             try

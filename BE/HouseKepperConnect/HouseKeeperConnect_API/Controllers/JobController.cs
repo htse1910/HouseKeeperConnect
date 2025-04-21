@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
 using BusinessObject.DTO;
-using BusinessObject.DTOs;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -156,7 +153,7 @@ namespace HouseKeeperConnect_API.Controllers
                 displayDTO.BookingID = booking.BookingID;
             }
 
-                displayDTO.SlotIDs = JobSlotDay.Select(slot => slot.SlotID).Distinct().ToList();
+            displayDTO.SlotIDs = JobSlotDay.Select(slot => slot.SlotID).Distinct().ToList();
             displayDTO.DayofWeek = JobSlotDay.Select(slot => slot.DayOfWeek).Distinct().ToList();
             displayDTO.ServiceIDs = JobService.Select(service => service.ServiceID).Distinct().ToList();
 
@@ -164,10 +161,9 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetJobsOfferedByHK")]
-        [Authorize(Policy ="Housekeeper")]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsOfferedByHK([FromQuery] int accountId, int pageNumber, int pageSize)
         {
-
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountId);
             if (hk == null)
             {
@@ -198,11 +194,12 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             return Ok(display);
-        }[HttpGet("GetJobsByAccountID")]
-        [Authorize(Policy ="Family")]
+        }
+
+        [HttpGet("GetJobsByAccountID")]
+        [Authorize(Policy = "Family")]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsByAccountID([FromQuery] int accountId, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
-
             var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountId);
             if (fa == null)
             {
@@ -236,7 +233,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddJob")]
-        [Authorize(Policy ="Family")]
+        [Authorize(Policy = "Family")]
         public async Task<ActionResult> AddJob([FromQuery] JobCreateDTO jobCreateDTO)
         {
             if (!ModelState.IsValid)
@@ -416,7 +413,6 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok("Job created successfully!");
         }
-
 
         /*
                 private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
@@ -609,7 +605,6 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
-
         [HttpPut("UpdateJob")]
         [Authorize]
         public async Task<ActionResult> UpdateJob([FromQuery] JobUpdateDTO jobUpdateDTO)
@@ -661,7 +656,6 @@ namespace HouseKeeperConnect_API.Controllers
                 var slots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(booking.BookingID);
                 allSlots.AddRange(slots);
             }
-
 
             var workedSlots = allSlots
                 .Where(s => s.Date <= abandonDate && s.IsConfirmedByFamily == true)
@@ -802,8 +796,7 @@ namespace HouseKeeperConnect_API.Controllers
             });
         }
 
-
-            [HttpPut("OfferJob")]
+        [HttpPut("OfferJob")]
         [Authorize]
         public async Task<ActionResult> OfferJob([FromQuery] int jobId, [FromQuery] int housekeeperId)
         {
@@ -865,13 +858,12 @@ namespace HouseKeeperConnect_API.Controllers
             noti.Message = "Công việc #" + job.JobID + " - " + job.JobName + " đã được offer cho bạn!";
             noti.AccountID = hk.AccountID;
 
-           await _notificationService.AddNotificationAsync(noti);
+            await _notificationService.AddNotificationAsync(noti);
 
             await _jobService.UpdateJobDetailAsync(jobDetail);
 
             return Ok("Job has been offered to the housekeeper successfully.");
         }
-
 
         [HttpPut("VerifyJob")]
         [Authorize(Policy = "Staff")]
@@ -908,7 +900,7 @@ namespace HouseKeeperConnect_API.Controllers
                 : "Job marked as not permitted.";
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
             var housekeeper = await _houseKeeperService.GetHousekeeperByIDAsync(jobDetail.HousekeeperID.GetValueOrDefault());
-            if(housekeeper != null)
+            if (housekeeper != null)
             {
                 await _notificationService.AddNotificationAsync(new Notification
                 {
@@ -927,10 +919,9 @@ namespace HouseKeeperConnect_API.Controllers
             noti.AccountID = job.Family.AccountID;
 
             await _notificationService.AddNotificationAsync(noti);
-            
+
             return Ok(Message);
         }
-
 
         [HttpDelete("DeleteJob")]
         [Authorize]
@@ -950,6 +941,7 @@ namespace HouseKeeperConnect_API.Controllers
             Message = "Job has been canceled successfully!";
             return Ok(Message);
         }
+
         [HttpPost("CancelJob")]
         [Authorize(Policy = "Family")]
         public async Task<ActionResult> CancelJob([FromQuery] int jobId, [FromQuery] int accountId)
@@ -1037,6 +1029,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return StatusCode(500, "Internal Server Error.");
             }
         }
+
         [HttpPost("CheckIn")]
         [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> CheckIn([FromQuery] int bookingId)
@@ -1100,12 +1093,10 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok("Today's slots confirmed successfully.");
         }
 
-
         [HttpPost("HousekeeperCompleteJob")]
         [Authorize(Policy = "Housekeeper")]
         public async Task<IActionResult> HousekeeperCompleteJob([FromQuery] int jobId, int accountID)
         {
-
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
             if (hk == null)
             {
@@ -1117,13 +1108,13 @@ namespace HouseKeeperConnect_API.Controllers
             var job = await _jobService.GetJobByIDAsync(jobId);
             if (job == null)
                 return NotFound("Job not found.");
-            
+
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
             if (jobDetail == null)
                 return NotFound("JobDetail not found.");
 
             var fa = await _familyProfileService.GetFamilyByIDAsync(job.FamilyID);
-            if(fa == null)
+            if (fa == null)
             {
                 Message = "Account not found!";
                 return NotFound(Message);
@@ -1168,7 +1159,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             job.Status = (int)JobStatus.PendingFamilyConfirmation;
             await _jobService.UpdateJobAsync(job);
-            
+
             // Send notification to family
             await _notificationService.AddNotificationAsync(new Notification
             {
@@ -1221,7 +1212,6 @@ namespace HouseKeeperConnect_API.Controllers
             if (booking.Status != (int)BookingStatus.PendingFamilyConfirmation)
                 return BadRequest("Booking is not awaiting confirmation.");
 
-
             var hk = await _houseKeeperService.GetHousekeeperByIDAsync(booking.HousekeeperID);
             if (hk == null)
             {
@@ -1232,13 +1222,13 @@ namespace HouseKeeperConnect_API.Controllers
             //Cập nhật tiền vào balance ví HK
 
             var wallet = await _walletService.GetWalletByUserAsync(hk.AccountID);
-            if(wallet  == null)
+            if (wallet == null)
             {
                 Message = "Wallet not found!";
                 return NotFound(Message);
             }
 
-            if(wallet.OnHold == jobDetail.Price)
+            if (wallet.OnHold == jobDetail.Price)
             {
                 wallet.Balance += wallet.OnHold;
                 wallet.OnHold -= jobDetail.Price;
@@ -1248,7 +1238,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             //Update payout
 
-            var payout =await _payoutService.GetPayoutByJobIDAsync(job.JobID);
+            var payout = await _payoutService.GetPayoutByJobIDAsync(job.JobID);
             if (payout == null)
             {
                 Message = "No payout found!";
@@ -1274,9 +1264,8 @@ namespace HouseKeeperConnect_API.Controllers
             trans.Amount = jobDetail.Price;
             trans.Description = "Tiền lương công việc.";
             trans.WalletID = wallet.WalletID;
-            
-            await _transactionService.AddTransactionAsync(trans);
 
+            await _transactionService.AddTransactionAsync(trans);
 
             // Update statuses to completed
             booking.Status = (int)BookingStatus.Completed;
