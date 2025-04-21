@@ -213,6 +213,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("CheckStatus")]
+        [Authorize]
         public async Task<IActionResult> PaymentCheckStatus([FromQuery] int id)
         {
             var status = await _paymentService.GetPaymentStatus(id);

@@ -173,7 +173,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddApplication")]
-        [Authorize(Policy ="Admin")]
+        [Authorize(Policy ="Housekeeper")]
         public async Task<ActionResult> AddApplication([FromQuery] int accountID, int jobID)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
