@@ -78,6 +78,7 @@ namespace HouseKeeperConnect_API.Controllers
                         Phone = item.Account.Phone,
                         WorkType = item.WorkType,
                         Gender = item.Account.Gender.GetValueOrDefault(),
+                        BankAccountName = item.Account.BankAccountName,
                     };
                     nTr.Add(nHk);
                 }
@@ -301,7 +302,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Acc.LocalProfilePicture = avatarUrl;
                 Acc.Gender = newAcc.Gender;
                 Acc.Nickname = newAcc.Nickname;
-
+                Acc.BankAccountName = newAcc.BankAccountName;
 
                 await _accountService.UpdateAccountAsync(Acc);
 

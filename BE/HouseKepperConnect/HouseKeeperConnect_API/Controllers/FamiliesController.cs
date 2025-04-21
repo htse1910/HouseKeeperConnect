@@ -48,6 +48,7 @@ namespace HouseKeeperConnect_API.Controllers
                     Name = item.Account.Name,
                     Phone = item.Account.Phone,
                     Gender = item.Account.Gender.GetValueOrDefault(),
+                    BankAccountName = item.Account.BankAccountName,
                 };
 
                 familyList.Add(familyDTO);
@@ -166,7 +167,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Acc.UpdatedAt = DateTime.Now;
                 Acc.Gender = familyDTO.Gender;
                 Acc.Nickname = familyDTO.Nickname;
-                    
+                Acc.BankAccountName = familyDTO .BankAccountName;
 
                 await _accountService.UpdateAccountAsync(Acc);
 
