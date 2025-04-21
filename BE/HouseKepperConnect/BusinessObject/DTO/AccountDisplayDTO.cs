@@ -14,6 +14,7 @@ namespace BusinessObject.DTO
         public string Email { get; set; }
 
         public string BankAccountNumber { get; set; }
+        public string? BankAccountName { get; set; }
 
         [Phone]
         public string? Phone { get; set; }
