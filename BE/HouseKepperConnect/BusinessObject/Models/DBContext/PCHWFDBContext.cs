@@ -49,9 +49,14 @@ namespace BusinessObject.Models
         public virtual DbSet<Job_Service> Job_Service { get; set; }
         public virtual DbSet<Job_Slots> Job_Slots { get; set; }
         public virtual DbSet<SupportRequest> SupportRequests { get; set; }
+        public virtual DbSet<PlatformFee> PlatformFee { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<PlatformFee>().HasData(
+                new PlatformFee { FeeID = 1, Percent = 0.1m, CreatedDate = DateTime.Now, UpdatedDate = DateTime.Now }
+                );
+
             modelBuilder.Entity<Role>().HasData(
                 new Role { RoleID = 1, RoleName = "Housekeeper" },
                 new Role { RoleID = 2, RoleName = "Family" },
@@ -83,28 +88,24 @@ namespace BusinessObject.Models
                 new ServiceType { ServiceTypeID = 7, ServiceTypeName = "Hỗ trợ đặc biệt" }
                 );
             modelBuilder.Entity<Service>().HasData(
-    new Service { ServiceID = 1, ServiceName = "Dọn dẹp theo giờ", ServiceTypeID = 1, Price = 75000, Description = "" },
-    new Service { ServiceID = 2, ServiceName = "Dọn dẹp định kỳ", ServiceTypeID = 1, Price = 70000, Description = "" },
-    new Service { ServiceID = 3, ServiceName = "Tổng vệ sinh nhà cửa", ServiceTypeID = 1, Price = 120000, Description = "" },
-    new Service { ServiceID = 4, ServiceName = "Dọn dẹp sau sự kiện/tết", ServiceTypeID = 1, Price = 150000, Description = "" },
-    new Service { ServiceID = 5, ServiceName = "Giữ trẻ theo giờ", ServiceTypeID = 2, Price = 90000, Description = "" },
-    new Service { ServiceID = 6, ServiceName = "Giữ trẻ tại nhà nguyên ngày", ServiceTypeID = 2, Price = 95000, Description = "" },
-    new Service { ServiceID = 7, ServiceName = "Chăm sóc người cao tuổi tại nhà", ServiceTypeID = 2, Price = 95000, Description = "" },
-    new Service { ServiceID = 8, ServiceName = "Nấu ăn theo bữa", ServiceTypeID = 3, Price = 85000, Description = "" },
-    new Service { ServiceID = 9, ServiceName = "Nấu ăn theo tuần/tháng", ServiceTypeID = 3, Price = 85000, Description = "" },
-    new Service { ServiceID = 10, ServiceName = "Mua sắm thực phẩm & lên thực đơn", ServiceTypeID = 3, Price = 80000, Description = "" },
-    new Service { ServiceID = 11, ServiceName = "Giặt ủi theo kg", ServiceTypeID = 4, Price = 30000, Description = "" },
-    new Service { ServiceID = 12, ServiceName = "Ủi quần áo theo bộ", ServiceTypeID = 4, Price = 10000, Description = "" },
-    new Service { ServiceID = 13, ServiceName = "Giặt hấp cao cấp", ServiceTypeID = 4, Price = 60000, Description = "" },
-    new Service { ServiceID = 14, ServiceName = "Chăm sóc cây cảnh", ServiceTypeID = 5, Price = 75000, Description = "" },
-    new Service { ServiceID = 15, ServiceName = "Tưới cây, cắt tỉa hàng tuần", ServiceTypeID = 5, Price = 65000, Description = "" },
-    new Service { ServiceID = 16, ServiceName = "Tắm & cắt tỉa lông thú cưng", ServiceTypeID = 5, Price = 100000, Description = "" },
-    new Service { ServiceID = 17, ServiceName = "Sửa chữa điện nước", ServiceTypeID = 6, Price = 120000, Description = "" },
-    new Service { ServiceID = 18, ServiceName = "Sơn sửa nội thất nhỏ", ServiceTypeID = 6, Price = 130000, Description = "" },
-    new Service { ServiceID = 19, ServiceName = "Thợ sửa chữa theo giờ", ServiceTypeID = 6, Price = 150000, Description = "" },
-    new Service { ServiceID = 20, ServiceName = "Giúp việc theo yêu cầu (dịch vụ VIP)", ServiceTypeID = 7, Price = 180000, Description = "" },
-    new Service { ServiceID = 21, ServiceName = "Dịch vụ giúp việc theo tháng", ServiceTypeID = 7, Price = 95000, Description = "" },
-    new Service { ServiceID = 22, ServiceName = "Hỗ trợ vận chuyển đồ đạc nhẹ", ServiceTypeID = 7, Price = 100000, Description = "" }
+    new Service { ServiceID = 1, ServiceName = "Dọn dẹp", ServiceTypeID = 1, Price = 75000, Description = "" },
+    new Service { ServiceID = 2, ServiceName = "Tổng vệ sinh nhà cửa", ServiceTypeID = 1, Price = 120000, Description = "" },
+    new Service { ServiceID = 3, ServiceName = "Dọn dẹp sau sự kiện/tết", ServiceTypeID = 1, Price = 150000, Description = "" },
+    new Service { ServiceID = 4, ServiceName = "Giữ trẻ tại nhà nguyên ngày", ServiceTypeID = 2, Price = 95000, Description = "" },
+    new Service { ServiceID = 5, ServiceName = "Chăm sóc người cao tuổi tại nhà", ServiceTypeID = 2, Price = 95000, Description = "" },
+    new Service { ServiceID = 6, ServiceName = "Nấu ăn theo bữa", ServiceTypeID = 3, Price = 85000, Description = "" },
+    new Service { ServiceID = 7, ServiceName = "Nấu ăn theo tuần/tháng", ServiceTypeID = 3, Price = 85000, Description = "" },
+    new Service { ServiceID = 8, ServiceName = "Giặt ủi", ServiceTypeID = 4, Price = 30000, Description = "" },
+    new Service { ServiceID = 9, ServiceName = "Ủi quần áo", ServiceTypeID = 4, Price = 10000, Description = "" },
+    new Service { ServiceID = 10, ServiceName = "Giặt hấp cao cấp", ServiceTypeID = 4, Price = 60000, Description = "" },
+    new Service { ServiceID = 11, ServiceName = "Chăm sóc cây cảnh", ServiceTypeID = 5, Price = 75000, Description = "" },
+    new Service { ServiceID = 12, ServiceName = "Tưới cây, cắt tỉa", ServiceTypeID = 5, Price = 65000, Description = "" },
+    new Service { ServiceID = 13, ServiceName = "Tắm & cắt tỉa lông thú cưng", ServiceTypeID = 5, Price = 100000, Description = "" },
+    new Service { ServiceID = 14, ServiceName = "Sửa chữa điện nước", ServiceTypeID = 6, Price = 120000, Description = "" },
+    new Service { ServiceID = 15, ServiceName = "Sơn sửa nội thất nhỏ", ServiceTypeID = 6, Price = 130000, Description = "" },
+    new Service { ServiceID = 16, ServiceName = "Thợ sửa chữa", ServiceTypeID = 6, Price = 150000, Description = "" },
+    new Service { ServiceID = 17, ServiceName = "Giúp việc theo yêu cầu (dịch vụ VIP)", ServiceTypeID = 7, Price = 180000, Description = "" },
+    new Service { ServiceID = 18, ServiceName = "Hỗ trợ vận chuyển đồ đạc nhẹ", ServiceTypeID = 7, Price = 100000, Description = "" }
 );
         }
     }

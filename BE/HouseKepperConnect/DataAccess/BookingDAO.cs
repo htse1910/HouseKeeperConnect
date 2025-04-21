@@ -67,7 +67,7 @@ namespace DataAccess
             }
             return booking;
         }
-        
+
         public async Task<Booking> GetBookingByJobIDAsync(int jobID)
         {
             Booking booking = new Booking();

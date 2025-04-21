@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessObject.Models;
+﻿using BusinessObject.Models;
 using Repositories.Interface;
 using Services.Interface;
 
@@ -17,6 +12,7 @@ namespace Services
         {
             _payoutRepository = payoutRepository;
         }
+
         public async Task AddPayoutAsync(Payout Payout) => await _payoutRepository.AddPayoutAsync(Payout);
 
         public async Task DeletePayoutAsync(int id) => await _payoutRepository.DeletePayoutAsync(id);

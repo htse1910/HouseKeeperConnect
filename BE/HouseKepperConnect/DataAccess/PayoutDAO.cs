@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessObject.Models;
+﻿using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -77,6 +72,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task<Payout> GetPayoutByJobIDAsync(int jobID)
         {
             try

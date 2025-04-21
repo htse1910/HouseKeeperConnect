@@ -11,6 +11,7 @@ namespace Services.Interface
         Task<List<Booking>> GetAllBookingsAsync();
 
         Task<Booking> GetBookingByIDAsync(int id);
+
         Task<Booking> GetBookingByJobIDAsync(int jobID);
 
         Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId);

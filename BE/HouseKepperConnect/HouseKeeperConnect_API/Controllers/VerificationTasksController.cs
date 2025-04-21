@@ -63,7 +63,6 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
-               
                 var verification = await _verificationTaskService.GetTaskByIdAsync(verifyID);
                 if (verification == null)
                 {
@@ -73,7 +72,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var task = new VerificationTask
                 {
                     VerifyID = verifyID,
-                    Status = 1, 
+                    Status = 1,
                     AssignedDate = DateTime.Now
                 };
 
@@ -105,7 +104,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
 
                 var hk = await _housekeeperService.GetHousekeepersByIDVerifyAsync(task.VerifyID);
-                if(hk == null)
+                if (hk == null)
                 {
                     return NotFound("Housekeeper not found!");
                 }
@@ -166,7 +165,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 var noti = new Notification();
                 noti.AccountID = hk.AccountID;
-                noti.Message = "CCCD/CMND của bạn không được phê duyệt!\nLí do: "+request.Notes;
+                noti.Message = "CCCD/CMND của bạn không được phê duyệt!\nLí do: " + request.Notes;
 
                 await _notificationService.AddNotificationAsync(noti);
 

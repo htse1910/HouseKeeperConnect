@@ -31,6 +31,7 @@ namespace BusinessObject.Models
 
         [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]
         public string? BankAccountNumber { get; set; }
+
         public string? BankAccountName { get; set; }
 
         public int Status { get; set; }

@@ -1,5 +1,4 @@
 ﻿using BusinessObject.Models;
-using Microsoft.EntityFrameworkCore;
 using Repositories.Interface;
 using Services.Interface;
 
@@ -54,14 +53,15 @@ namespace Services
         {
             return await _bookingSlotsRepository.GetAllSlotIDsAsync(); // Await the Task<List<int>> here as well
         }
+
         public async Task UpdateBooking_SlotAsync(Booking_Slots bookingSlot)
         {
             await _bookingSlotsRepository.UpdateBooking_SlotAsync(bookingSlot);
         }
+
         public async Task<List<Booking_Slots>> GetBookingSlotsByDateAndBookingIDAsync(int bookingId, DateTime date)
         {
             return await _bookingSlotsRepository.GetBookingSlotsByDateAndBookingIDAsync(bookingId, date);
         }
-
     }
 }

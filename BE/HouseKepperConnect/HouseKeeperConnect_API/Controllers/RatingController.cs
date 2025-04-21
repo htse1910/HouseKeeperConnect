@@ -58,7 +58,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetRatingListByHK")]
-        [Authorize(Policy ="Housekeeper")]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult<List<RatingDisplayDTO>>> getRatingsByHK(int id, int pageNumber, int pageSize)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(id);
@@ -81,7 +81,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetRatingListByFA")]
-        [Authorize(Policy ="Family")]
+        [Authorize(Policy = "Family")]
         public async Task<ActionResult<List<RatingDisplayDTO>>> getRatingsByFA(int id, int pageNumber, int pageSize)
         {
             var fa = await _familyProfileService.GetFamilyByAccountIDAsync(id);
@@ -104,7 +104,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddRating")]
-        [Authorize(Policy ="Family")]
+        [Authorize(Policy = "Family")]
         public async Task<ActionResult> Addrating([FromQuery] RatingCreateDTO ratingCreateDTO)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(ratingCreateDTO.Reviewee);

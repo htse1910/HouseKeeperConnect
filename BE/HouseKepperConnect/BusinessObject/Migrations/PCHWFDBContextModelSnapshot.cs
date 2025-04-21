@@ -461,6 +461,9 @@ namespace BusinessObject.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FeeID")
+                        .HasColumnType("int");
+
                     b.Property<int?>("HousekeeperID")
                         .HasColumnType("int");
 
@@ -485,6 +488,8 @@ namespace BusinessObject.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("JobDetailID");
+
+                    b.HasIndex("FeeID");
 
                     b.HasIndex("HousekeeperID");
 
@@ -643,6 +648,37 @@ namespace BusinessObject.Migrations
                     b.ToTable("Payout");
                 });
 
+            modelBuilder.Entity("BusinessObject.Models.PlatformFee", b =>
+                {
+                    b.Property<int>("FeeID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeeID"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Percent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("FeeID");
+
+                    b.ToTable("PlatformFee");
+
+                    b.HasData(
+                        new
+                        {
+                            FeeID = 1,
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Percent = 0.1m,
+                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
             modelBuilder.Entity("BusinessObject.Models.Rating", b =>
                 {
                     b.Property<int>("RatingID")
@@ -752,20 +788,12 @@ namespace BusinessObject.Migrations
                             ServiceID = 1,
                             Description = "",
                             Price = 75000m,
-                            ServiceName = "Dọn dẹp theo giờ",
+                            ServiceName = "Dọn dẹp",
                             ServiceTypeID = 1
                         },
                         new
                         {
                             ServiceID = 2,
-                            Description = "",
-                            Price = 70000m,
-                            ServiceName = "Dọn dẹp định kỳ",
-                            ServiceTypeID = 1
-                        },
-                        new
-                        {
-                            ServiceID = 3,
                             Description = "",
                             Price = 120000m,
                             ServiceName = "Tổng vệ sinh nhà cửa",
@@ -773,7 +801,7 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 4,
+                            ServiceID = 3,
                             Description = "",
                             Price = 150000m,
                             ServiceName = "Dọn dẹp sau sự kiện/tết",
@@ -781,15 +809,7 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 5,
-                            Description = "",
-                            Price = 90000m,
-                            ServiceName = "Giữ trẻ theo giờ",
-                            ServiceTypeID = 2
-                        },
-                        new
-                        {
-                            ServiceID = 6,
+                            ServiceID = 4,
                             Description = "",
                             Price = 95000m,
                             ServiceName = "Giữ trẻ tại nhà nguyên ngày",
@@ -797,7 +817,7 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 7,
+                            ServiceID = 5,
                             Description = "",
                             Price = 95000m,
                             ServiceName = "Chăm sóc người cao tuổi tại nhà",
@@ -805,7 +825,7 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 8,
+                            ServiceID = 6,
                             Description = "",
                             Price = 85000m,
                             ServiceName = "Nấu ăn theo bữa",
@@ -813,7 +833,7 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 9,
+                            ServiceID = 7,
                             Description = "",
                             Price = 85000m,
                             ServiceName = "Nấu ăn theo tuần/tháng",
@@ -821,31 +841,23 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 10,
-                            Description = "",
-                            Price = 80000m,
-                            ServiceName = "Mua sắm thực phẩm & lên thực đơn",
-                            ServiceTypeID = 3
-                        },
-                        new
-                        {
-                            ServiceID = 11,
+                            ServiceID = 8,
                             Description = "",
                             Price = 30000m,
-                            ServiceName = "Giặt ủi theo kg",
+                            ServiceName = "Giặt ủi",
                             ServiceTypeID = 4
                         },
                         new
                         {
-                            ServiceID = 12,
+                            ServiceID = 9,
                             Description = "",
                             Price = 10000m,
-                            ServiceName = "Ủi quần áo theo bộ",
+                            ServiceName = "Ủi quần áo",
                             ServiceTypeID = 4
                         },
                         new
                         {
-                            ServiceID = 13,
+                            ServiceID = 10,
                             Description = "",
                             Price = 60000m,
                             ServiceName = "Giặt hấp cao cấp",
@@ -853,7 +865,7 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 14,
+                            ServiceID = 11,
                             Description = "",
                             Price = 75000m,
                             ServiceName = "Chăm sóc cây cảnh",
@@ -861,15 +873,15 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 15,
+                            ServiceID = 12,
                             Description = "",
                             Price = 65000m,
-                            ServiceName = "Tưới cây, cắt tỉa hàng tuần",
+                            ServiceName = "Tưới cây, cắt tỉa",
                             ServiceTypeID = 5
                         },
                         new
                         {
-                            ServiceID = 16,
+                            ServiceID = 13,
                             Description = "",
                             Price = 100000m,
                             ServiceName = "Tắm & cắt tỉa lông thú cưng",
@@ -877,7 +889,7 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 17,
+                            ServiceID = 14,
                             Description = "",
                             Price = 120000m,
                             ServiceName = "Sửa chữa điện nước",
@@ -885,7 +897,7 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 18,
+                            ServiceID = 15,
                             Description = "",
                             Price = 130000m,
                             ServiceName = "Sơn sửa nội thất nhỏ",
@@ -893,15 +905,15 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 19,
+                            ServiceID = 16,
                             Description = "",
                             Price = 150000m,
-                            ServiceName = "Thợ sửa chữa theo giờ",
+                            ServiceName = "Thợ sửa chữa",
                             ServiceTypeID = 6
                         },
                         new
                         {
-                            ServiceID = 20,
+                            ServiceID = 17,
                             Description = "",
                             Price = 180000m,
                             ServiceName = "Giúp việc theo yêu cầu (dịch vụ VIP)",
@@ -909,15 +921,7 @@ namespace BusinessObject.Migrations
                         },
                         new
                         {
-                            ServiceID = 21,
-                            Description = "",
-                            Price = 95000m,
-                            ServiceName = "Dịch vụ giúp việc theo tháng",
-                            ServiceTypeID = 7
-                        },
-                        new
-                        {
-                            ServiceID = 22,
+                            ServiceID = 18,
                             Description = "",
                             Price = 100000m,
                             ServiceName = "Hỗ trợ vận chuyển đồ đạc nhẹ",
@@ -1461,6 +1465,12 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.JobDetail", b =>
                 {
+                    b.HasOne("BusinessObject.Models.PlatformFee", "PlatformFee")
+                        .WithMany("JobDetails")
+                        .HasForeignKey("FeeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BusinessObject.Models.Housekeeper", "Housekeeper")
                         .WithMany()
                         .HasForeignKey("HousekeeperID");
@@ -1474,6 +1484,8 @@ namespace BusinessObject.Migrations
                     b.Navigation("Housekeeper");
 
                     b.Navigation("Job");
+
+                    b.Navigation("PlatformFee");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Job_Service", b =>
@@ -1734,6 +1746,11 @@ namespace BusinessObject.Migrations
 
                     b.Navigation("Payment")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.PlatformFee", b =>
+                {
+                    b.Navigation("JobDetails");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Transaction", b =>

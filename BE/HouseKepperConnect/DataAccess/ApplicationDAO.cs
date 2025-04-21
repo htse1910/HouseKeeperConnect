@@ -42,7 +42,7 @@ namespace DataAccess
             }
             return list;
         }
-        
+
         public async Task<List<Application>> GetAllApplicationsByUserAsync(int uid, int pageNumber, int pageSize)
         {
             var list = new List<Application>();
@@ -59,6 +59,7 @@ namespace DataAccess
             }
             return list;
         }
+
         public async Task<List<Application>> GetAllApplicationsByJobIDAsync(int jobID, int pageNumber, int pageSize)
         {
             var list = new List<Application>();

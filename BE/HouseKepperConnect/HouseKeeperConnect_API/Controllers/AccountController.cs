@@ -11,7 +11,6 @@ using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
 using Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -64,7 +63,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // GET: api/<AccountController>
         [HttpGet("AccountList")]
-        [Authorize(Policy ="Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<IEnumerable<AccountDisplayDTO>>> GetAllaccount(int pageNumber, int pageSize)
         {
             try
@@ -118,7 +117,6 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
-
                 var loginInfo = await _accountService.Login(model);
                 return Ok(loginInfo);
             }
@@ -180,7 +178,6 @@ namespace HouseKeeperConnect_API.Controllers
                 acc.LocalProfilePicture = avatarUrl;
             }
 
-
             acc.Status = (int)AccountStatus.Active;
             acc.CreatedAt = DateTime.Now;
             acc.UpdatedAt = DateTime.Now;
@@ -237,10 +234,10 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("No Account Found!");
             }
 
-/*            if (!string.IsNullOrEmpty(accountUpdateDTO.Password))
-            {
-                account.Password = _passwordHasher.HashPassword(account, accountUpdateDTO.Password);
-            }*/
+            /*            if (!string.IsNullOrEmpty(accountUpdateDTO.Password))
+                        {
+                            account.Password = _passwordHasher.HashPassword(account, accountUpdateDTO.Password);
+                        }*/
             else
             {
                 account.Password = u.Password;
@@ -315,8 +312,6 @@ namespace HouseKeeperConnect_API.Controllers
             }
         }
 
-
-
         [HttpGet("TotalAccount")]
         [Authorize]
         public async Task<IActionResult> GetTotalAccount()
@@ -342,7 +337,6 @@ namespace HouseKeeperConnect_API.Controllers
         [HttpPost("Request-forgot-password")]
         public async Task<IActionResult> RequestPasswordReset([FromBody] string email)
         {
-            
             var account = await _accountService.GetAccountByEmailAsync(email);
             if (account == null) return NotFound("Email không tồn tại.");
             string token = Guid.NewGuid().ToString();

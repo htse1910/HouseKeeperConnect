@@ -173,7 +173,6 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Staff")]
         public async Task<ActionResult<List<SupportRequestDisplayDTO>>> GetRequestListPending([FromQuery] int pageNumber, int pageSize)
         {
-
             var reqL = await _supportRequestService.GetAllPendingSupportRequestsAsync(pageNumber, pageSize);
             if (reqL == null)
             {
@@ -185,6 +184,5 @@ namespace HouseKeeperConnect_API.Controllers
             _mapper.Map(reqL, display);
             return Ok(display);
         }
-
     }
 }

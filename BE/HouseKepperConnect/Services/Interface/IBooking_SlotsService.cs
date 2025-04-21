@@ -19,7 +19,9 @@ namespace Services.Interface
         Task<List<int>> GetAvailableSlotsByHousekeeper(int housekeeperId, DateTime startDate, DateTime endDate);
 
         Task<List<int>> GetAllSlotIDs();
+
         Task UpdateBooking_SlotAsync(Booking_Slots bookingSlot);
+
         Task<List<Booking_Slots>> GetBookingSlotsByDateAndBookingIDAsync(int bookingId, DateTime date);
     }
 }

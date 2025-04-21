@@ -182,6 +182,23 @@ namespace DataAccess
             return list;
         }
 
+        public async Task<List<Account>> GetAllAccountsAsync()
+        {
+            var list = new List<Account>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Account.ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
+
         public async Task<List<Account>> SearchAccountsByNameAsync(string name)
         {
             var list = new List<Account>();
@@ -407,7 +424,7 @@ namespace DataAccess
                     db.Account.Add(account);
                     await db.SaveChangesAsync();
 
-                    account = await db.Account.Include(a => a.Role).FirstOrDefaultAsync(a => a.Email == payload.Email); 
+                    account = await db.Account.Include(a => a.Role).FirstOrDefaultAsync(a => a.Email == payload.Email);
                     var wallet = new Wallet
                     {
                         AccountID = account.AccountID,
@@ -463,7 +480,6 @@ namespace DataAccess
                     RoleName = tokenModel.RoleName,
                     Token = token
                 };
-
             }
         }
 

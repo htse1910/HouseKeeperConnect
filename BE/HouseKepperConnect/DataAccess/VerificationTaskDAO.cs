@@ -65,6 +65,7 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task<VerificationTask> GetTaskByVerificationIdAsync(int verifyId)
         {
             try
@@ -82,7 +83,6 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
-
 
         public async Task CreateVerificationTaskAsync(VerificationTask task)
         {

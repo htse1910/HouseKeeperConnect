@@ -2,7 +2,6 @@
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 
@@ -22,7 +21,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly ITransactionService _transactionService;
         private string Message;
 
-        public PayoutController(IPayoutService payoutService,IHouseKeeperService houseKeeperService,
+        public PayoutController(IPayoutService payoutService, IHouseKeeperService houseKeeperService,
             IBookingService bookingService, IJob_ServiceService job_ServiceService, IJobService jobService,
             INotificationService notificationService, IWalletService walletService, ITransactionService transactionService)
         {
@@ -41,7 +40,7 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult<List<Payout>>> GetPayoutList([FromQuery] int pageNumber, int pageSize)
         {
             var list = await _payoutService.GetAllPayoutsAsync(pageNumber, pageSize);
-            if(list == null)
+            if (list == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
@@ -50,11 +49,11 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetPayoutsByHK")]
-        [Authorize(Policy ="Housekeeper")]
-        public async Task<ActionResult<List<Payout>>> GetPayoutsByHK([FromQuery]int accountID, int pageNumber, int pageSize)
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<List<Payout>>> GetPayoutsByHK([FromQuery] int accountID, int pageNumber, int pageSize)
         {
             var list = await _payoutService.GetPayoutsByHKAsync(accountID, pageNumber, pageSize);
-            if(list == null)
+            if (list == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
@@ -65,7 +64,7 @@ namespace HouseKeeperConnect_API.Controllers
             foreach (var item in list)
             {
                 var booking = await _bookingService.GetBookingByIDAsync(item.BookingID);
-                if(booking == null)
+                if (booking == null)
                 {
                     Message = "No records!";
                     return NotFound(Message);
@@ -79,7 +78,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
 
                 var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
-                if(jobDetail == null)
+                if (jobDetail == null)
                 {
                     Message = "No records!";
                     return NotFound(Message);
@@ -110,38 +109,37 @@ namespace HouseKeeperConnect_API.Controllers
                 dis.PayoutDate = item.PayoutDate.GetValueOrDefault();
 
                 display.Add(dis);
-
             }
             return Ok(display);
         }
-        
+
         [HttpPost("AddPayout")]
         [Authorize]
-        public async Task<ActionResult> AddPayout([FromQuery]int accountID, int bookingID)
+        public async Task<ActionResult> AddPayout([FromQuery] int accountID, int bookingID)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
-            if(hk == null)
+            if (hk == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
             }
 
             var booking = await _bookingService.GetBookingByIDAsync(bookingID);
-            if(booking == null)
+            if (booking == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
             }
 
             var job = await _jobService.GetJobByIDAsync(booking.JobID);
-            if(job == null)
+            if (job == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
             }
 
             var JobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
-            if(JobDetail == null)
+            if (JobDetail == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
@@ -163,21 +161,21 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult> UpdatePayout([FromQuery] int payoutID, int status)
         {
             var pay = await _payoutService.GetPayoutByIDAsync(payoutID);
-            if(pay == null)
+            if (pay == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
             }
 
             var hk = await _houseKeeperService.GetHousekeeperByIDAsync(pay.HousekeeperID);
-            if(hk == null)
+            if (hk == null)
             {
                 Message = "No records!";
                 return NotFound(Message);
             }
             var noti = new Notification();
             noti.AccountID = hk.AccountID;
-            if(status == (int)PayoutStatus.Completed)
+            if (status == (int)PayoutStatus.Completed)
             {
                 pay.Status = status;
                 noti.Message = pay.Amount + " đã được chuyển vào ví của bạn";
@@ -189,7 +187,5 @@ namespace HouseKeeperConnect_API.Controllers
             Message = "Payout updated!";
             return Ok(Message);
         }
-
-        
     }
 }

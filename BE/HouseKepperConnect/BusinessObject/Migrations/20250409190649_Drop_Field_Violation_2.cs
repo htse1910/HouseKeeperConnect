@@ -26,7 +26,6 @@ namespace BusinessObject.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
         }
     }
 }

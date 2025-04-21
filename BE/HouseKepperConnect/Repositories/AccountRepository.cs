@@ -49,5 +49,7 @@ namespace Repositories
         public async Task UpdatePasswordAsync(int accountId, string hashedPassword) => await AccountDAO.Instance.UpdatePasswordAsync(accountId, hashedPassword);
 
         public async Task InvalidateResetTokenAsync(int accountId) => await AccountDAO.Instance.InvalidateResetTokenAsync(accountId);
+
+        public async Task<List<Account>> GetAllAccountsAsync() => await AccountDAO.Instance.GetAllAccountsAsync();
     }
 }

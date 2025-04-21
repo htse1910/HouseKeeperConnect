@@ -19,8 +19,10 @@ namespace BusinessObject.Models
         public DateTime RequestDate { get; set; }
         public int Status { get; set; }
         public int TransactionID { get; set; }
+
         //OTP
         public string OTPCode { get; set; }
+
         public DateTime? OTPCreatedTime { get; set; }
         public DateTime? OTPExpiredTime { get; set; }
         public bool IsOTPVerified { get; set; }

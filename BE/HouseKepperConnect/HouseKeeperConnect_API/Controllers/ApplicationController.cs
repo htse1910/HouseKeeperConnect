@@ -4,7 +4,6 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -25,7 +24,7 @@ namespace HouseKeeperConnect_API.Controllers
         private string Message;
 
         public ApplicationController(IApplicationService applicationService, IAccountService accountService,
-            IHouseKeeperService houseKeeperService, IMapper mapper, 
+            IHouseKeeperService houseKeeperService, IMapper mapper,
             IJobService jobService, INotificationService notificationService, IJob_ServiceService job_ServiceService,
             IJob_SlotsService job_SlotsService, IBooking_SlotsService bookingSlotsService)
         {
@@ -41,7 +40,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("ApplicationList")]
-        [Authorize(Policy ="Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<Application>> ApplicationList(int pageNumber, int pageSize)
         {
             var list = await _applicationService.GetAllApplicationsAsync(pageNumber, pageSize);
@@ -70,7 +69,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("ApplicationListByJob")]
-        [Authorize(Policy ="Family")]
+        [Authorize(Policy = "Family")]
         public async Task<ActionResult<List<Application>>> ApplicationListByJob(int jobID, int pageNumber, int pageSize)
         {
             var list = await _applicationService.GetAllApplicationsByJobIDAsync(jobID, pageNumber, pageSize);
@@ -123,8 +122,8 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetApplicationsByAccountID")]
-        [Authorize(Policy ="Housekeeper")]
-        public async Task<ActionResult<List<Application>>> GetAppByAccID([FromQuery]int uid, int pageNumber, int pageSize)
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<List<Application>>> GetAppByAccID([FromQuery] int uid, int pageNumber, int pageSize)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(uid);
             if (hk == null)
@@ -144,7 +143,6 @@ namespace HouseKeeperConnect_API.Controllers
 
             foreach (var item in apps)
             {
-
                 var display = new ApplicationDisplayDTO();
                 var services = new List<int>();
                 var jobDetail = await _jobService.GetJobDetailByJobIDAsync(item.JobID);
@@ -173,7 +171,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddApplication")]
-        [Authorize(Policy ="Housekeeper")]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> AddApplication([FromQuery] int accountID, int jobID)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
@@ -245,7 +243,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             var noti = new Notification();
             noti.AccountID = accountID;
-            noti.Message = "Bạn đã nộp đơn ứng tuyển cho công việc #" + jobID +" - "+job.JobName+"!";
+            noti.Message = "Bạn đã nộp đơn ứng tuyển cho công việc #" + jobID + " - " + job.JobName + "!";
 
             await _notificationService.AddNotificationAsync(noti);
 
@@ -266,7 +264,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("UpdateApplication")]
-        [Authorize(Policy ="Family")]
+        [Authorize(Policy = "Family")]
         public async Task<ActionResult> UpdateApplication([FromQuery] int AppID, int status)
         {
             var app = await _applicationService.GetApplicationByIDAsync(AppID);
@@ -290,7 +288,6 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-
             var noti = new Notification();
             noti.AccountID = app.HouseKepper.AccountID;
 
@@ -302,7 +299,7 @@ namespace HouseKeeperConnect_API.Controllers
             if (status == (int)ApplicationStatus.Accepted)
             {
                 Message = "Application Accepted!";
-                noti.Message = "Đơn ứng tuyển của bạn cho công việc #" + job.JobID +" - "+job.JobName+ " đã được chấp thuận!";
+                noti.Message = "Đơn ứng tuyển của bạn cho công việc #" + job.JobID + " - " + job.JobName + " đã được chấp thuận!";
                 jobDetail.HousekeeperID = app.HouseKeeperID;
             }
             if (status == (int)ApplicationStatus.Denied)

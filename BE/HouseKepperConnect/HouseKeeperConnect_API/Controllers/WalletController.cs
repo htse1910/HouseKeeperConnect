@@ -32,7 +32,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // GET: api/<WalletController>
         [HttpGet("WalletList")]
-        [Authorize(Policy ="Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<List<Wallet>>> GetWalletsAsync()
         {
             var list = await _walletService.GetAllWalletsAsync();
@@ -58,9 +58,10 @@ namespace HouseKeeperConnect_API.Controllers
             }
             return Ok(wallet);
         }
+
         [HttpGet("GetWalletByAccountID")]
         [Authorize]
-        public async Task<ActionResult<Wallet>> GetWalletByAccountID([FromQuery]int id)
+        public async Task<ActionResult<Wallet>> GetWalletByAccountID([FromQuery] int id)
         {
             var wallet = await _walletService.GetWalletByUserAsync(id);
             if (wallet == null)
@@ -74,7 +75,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // POST api/<WalletController>
         [HttpPost("AddWallet")]
-        [Authorize(Policy ="Admin")]//For admin only
+        [Authorize(Policy = "Admin")]//For admin only
         public async Task<IActionResult> AddWalletAsync(int id)
         {
             Wallet nWallet = new Wallet();
@@ -234,7 +235,7 @@ namespace HouseKeeperConnect_API.Controllers
         }*/
 
         [HttpPut("Disable")]
-        [Authorize(Policy ="Admin")]//Admin only
+        [Authorize(Policy = "Admin")]//Admin only
         public async Task<IActionResult> WalletDisable(int id)
         {
             var wallet = await _walletService.GetWalletByIDAsync(id);
@@ -257,7 +258,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("Enable")]
-        [Authorize(Policy ="Admin")]//Admin only
+        [Authorize(Policy = "Admin")]//Admin only
         public async Task<IActionResult> WalletEnable(int id)
         {
             var wallet = await _walletService.GetWalletByIDAsync(id);

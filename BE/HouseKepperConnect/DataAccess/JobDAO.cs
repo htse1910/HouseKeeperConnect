@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -167,7 +166,7 @@ namespace DataAccess
         public async Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize)
         {
             using var context = new PCHWFDBContext();
-            return await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.HousekeeperID==hktId && j.JobDetail.IsOffered==true).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.HousekeeperID == hktId && j.JobDetail.IsOffered == true).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public async Task<List<Job>> GetJobsPastWeekAsync(int pageNumber, int pageSize)

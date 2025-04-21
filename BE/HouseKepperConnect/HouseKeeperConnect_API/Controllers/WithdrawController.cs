@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using Appwrite;
+﻿using Appwrite;
 using Appwrite.Models;
 using Appwrite.Services;
 using AutoMapper;
@@ -10,7 +9,6 @@ using BusinessObject.Models.Enum;
 using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -136,7 +134,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddWithdraw")]
-        [Authorize(Policy ="Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<Withdraw>> CreateWithdraw([FromQuery] WithdrawCreateDTO withdrawCreateDTO)
         {
             var acc = await _accountService.GetAccountByIDAsync(withdrawCreateDTO.AccountID);
@@ -211,7 +209,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("UpdateWithdraw")] //Staff Only
-        [Authorize(Policy ="Staff")]
+        [Authorize(Policy = "Staff")]
         public async Task<ActionResult<Withdraw>> UpdateWithdraw([FromQuery] WithdrawUpdateDTO withdrawUpdateDTO)
         {
             var wi = await _withdrawService.GetWithdrawByIDAsync(withdrawUpdateDTO.WithdrawID);
@@ -228,7 +226,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            if(withdrawUpdateDTO.Picture!=null && withdrawUpdateDTO.Status==(int)WithdrawStatus.Success)
+            if (withdrawUpdateDTO.Picture != null && withdrawUpdateDTO.Status == (int)WithdrawStatus.Success)
             {
                 var storage = new Storage(_appWriteClient);
                 var buckID = "67e3d029000d5b9dd68e";
@@ -254,7 +252,6 @@ namespace HouseKeeperConnect_API.Controllers
                 wi.Picture = avatarUrl;
             }
 
-            
             wi.Status = withdrawUpdateDTO.Status;
 
             await _withdrawService.UpdateWithdrawAsync(wi);
@@ -306,7 +303,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
-
         [HttpPost("RequestWithdrawOTP")]
         [Authorize]
         public async Task<ActionResult<object>> RequestWithdrawOTP([FromQuery] WithdrawCreateDTO withdrawCreateDTO)
@@ -332,8 +328,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 if (string.IsNullOrEmpty(acc.Email))
                     return BadRequest("Email not found for the account!");
-                
-                
+
                 int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
                 var otp = GenerateOTP();
                 // Tạo OTP và Withdraw
@@ -361,23 +356,19 @@ namespace HouseKeeperConnect_API.Controllers
                     Status = (int)TransactionStatus.Pending
                 };
 
-                await _transactionService.AddTransactionAsync(trans); 
-                await _withdrawService.AddWithdrawAsync(withdraw);  
-               
+                await _transactionService.AddTransactionAsync(trans);
+                await _withdrawService.AddWithdrawAsync(withdraw);
 
                 // Gửi OTP
                 const string subject = "Mã xác nhận rút tiền";
                 string body = $"Mã xác nhận rút tiền của bạn là: {otp}. Mã có hiệu lực trong 5 phút.";
                 await _emailHelper.SendEmailAsync(acc.Email, subject, body);
 
-                
-                return Ok(new {
+                return Ok(new
+                {
                     withdraw.WithdrawID,
-                    withdraw.OTPExpiredTime 
-                    
+                    withdraw.OTPExpiredTime
                 });
-
-
             }
             catch (Exception ex)
             {
@@ -390,27 +381,23 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult<object>> NewOTP([FromQuery] int withdrawID)
         {
             var w = await _withdrawService.GetWithdrawByIDAsync(withdrawID);
-            w.OTPCode = GenerateOTP(); 
+            w.OTPCode = GenerateOTP();
             w.OTPCreatedTime = DateTime.Now;
             w.OTPExpiredTime = DateTime.Now.AddMinutes(5);
             await _withdrawService.UpdateWithdrawAsync(w);
-            
+
             return Ok(new
             {
                 w.OTPCode,
                 w.OTPExpiredTime
             });
         }
-        
-       
+
         private static string GenerateOTP()
         {
             Random random = new Random();
             return random.Next(100000, 999999).ToString();
         }
-
-
-
 
         [HttpPost("VerifyOTP")]
         [Authorize]
@@ -470,6 +457,5 @@ namespace HouseKeeperConnect_API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
     }
 }
