@@ -3,6 +3,7 @@ package com.example.housekeeperapplication.API.Interfaces;
 import com.example.housekeeperapplication.Model.Account;
 import com.example.housekeeperapplication.Model.DTOs.Housekeeper;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayDTO;
+import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayForFamilyDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.TransactionInfo;
 import com.example.housekeeperapplication.Model.DTOs.WalletInfo;
@@ -79,4 +80,14 @@ public interface APIServices {
             @Part MultipartBody.Part BackPhoto,
             @Part MultipartBody.Part FacePhoto
     );
+
+    @GET("api/HouseKeeper/HousekeeperDisplay")
+    Call<List<HousekeeperDisplayForFamilyDTO>> getHousekeepersForFamily(
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize
+    );
+
+    @GET("api/Account/GetAccount")
+    Call<Account> getAccountById(@Query("id") int accountId);
+
 }

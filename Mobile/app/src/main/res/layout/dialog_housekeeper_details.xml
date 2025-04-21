@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/imgDialogProfile"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_person"
+            android:layout_marginBottom="16dp" />
+
+        <TextView android:id="@+id/tvDialogName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Họ tên"
+            android:textStyle="bold"
+            android:textSize="18sp" />
+
+        <TextView android:id="@+id/tvDialogAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Địa chỉ"
+            android:layout_marginTop="4dp" />
+
+        <TextView android:id="@+id/tvDialogIntro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Giới thiệu"
+            android:layout_marginTop="4dp" />
+
+        <TextView android:id="@+id/tvDialogSkills"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kỹ năng"
+            android:layout_marginTop="4dp" />
+
+        <TextView android:id="@+id/tvDialogSalary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lương"
+            android:layout_marginTop="4dp" />
+
+        <TextView android:id="@+id/tvDialogWorkType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Loại hình"
+            android:layout_marginTop="4dp" />
+
+        <TextView android:id="@+id/tvDialogRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đánh giá"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+</ScrollView>
