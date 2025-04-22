@@ -1,12 +1,14 @@
 package com.example.housekeeperapplication.API.Interfaces;
 
 import com.example.housekeeperapplication.Model.Account;
+import com.example.housekeeperapplication.Model.DTOs.BookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.Housekeeper;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayForFamilyDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.TransactionInfo;
 import com.example.housekeeperapplication.Model.DTOs.WalletInfo;
+import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.Model.Transaction;
 import com.example.housekeeperapplication.Model.Wallet;
 
@@ -89,5 +91,13 @@ public interface APIServices {
 
     @GET("api/Account/GetAccount")
     Call<Account> getAccountById(@Query("id") int accountId);
+    @GET("api/Booking/GetBookingByHousekeeperID")
+    Call<List<BookingDTO>> getBookingsByHousekeeperID(@Query("housekeeperId") int housekeeperId);
+    @GET("api/Job/GetJobByID")
+    Call<Job> getJobById(@Query("id") int jobId);
+
+    @POST("api/Job/CheckIn")
+    Call<Void> checkIn(@Query("bookingId") int bookingId);
+
 
 }
