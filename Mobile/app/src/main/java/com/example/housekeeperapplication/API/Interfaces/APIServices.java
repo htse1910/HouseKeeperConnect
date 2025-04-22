@@ -16,6 +16,7 @@ import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.TransactionInfo;
 import com.example.housekeeperapplication.Model.DTOs.WalletInfo;
 import com.example.housekeeperapplication.Model.Job;
+import com.example.housekeeperapplication.Model.Notification;
 import com.example.housekeeperapplication.Model.Transaction;
 import com.example.housekeeperapplication.Model.Wallet;
 
@@ -56,17 +57,27 @@ public interface APIServices {
             @Part MultipartBody.Part localProfilePicture // Change to MultipartBody.Part
     );
 
+    //Wallet APIs
     @GET("api/Wallet/getWallet")
     Call<Wallet> getWalletById(
             @Query("id") int id);
 
+    //Transaction APIs
     @GET("api/Transaction/GetTransactionByUserID")
     Call<List<Transaction>> getTransactionByUserID(
             @Query("id") int accountId,
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
-    );;
+    );
 
+    //Notification APIs
+    @GET("api/Notification/GetNotificationByUserID")
+    Call<List<Notification>> getNotisByUserID(
+            @Query("id") int accountID,
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize
+    );
+    //Withdraw APIs
     @POST("api/Withdraw/RequestWithdrawOTP")
     Call<ResponseBody> requestWithdrawOTP(
             @Query("accountId") int accountId,
@@ -78,9 +89,11 @@ public interface APIServices {
             @Query("withdrawID") int withdrawID,
             @Query("otp") String otp
     );
+    //Housekeeper APIs
     @GET("api/HouseKeeper/GetHousekeeperByAccountID")
     Call<Housekeeper> getHousekeeperByAccountID(@Query("id") int accountId);
 
+    //IDVerification
     @Multipart
     @POST("api/IDVerifications/CreateIDVerification")
     Call<ResponseBody> uploadIDVerification(
