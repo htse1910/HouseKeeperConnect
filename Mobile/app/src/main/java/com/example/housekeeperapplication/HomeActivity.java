@@ -1,8 +1,10 @@
 package com.example.housekeeperapplication;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +37,12 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        Button btnManageJobs = findViewById(R.id.btnManageJobs);
+        btnManageJobs.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, FamilyJobListActivity.class);
+            startActivity(intent);
+        });
+
 
         // 👋 Set greeting with actual name
         greetingTextView = findViewById(R.id.tvGreeting);

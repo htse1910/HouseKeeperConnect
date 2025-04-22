@@ -2,9 +2,16 @@ package com.example.housekeeperapplication.API.Interfaces;
 
 import com.example.housekeeperapplication.Model.Account;
 import com.example.housekeeperapplication.Model.DTOs.BookingDTO;
+import com.example.housekeeperapplication.Model.DTOs.BookingHousekeeperDTO;
+import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
+import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
+import com.example.housekeeperapplication.Model.DTOs.FamilyJobSummaryDTO;
 import com.example.housekeeperapplication.Model.DTOs.Housekeeper;
+import com.example.housekeeperapplication.Model.DTOs.HousekeeperDetailDTO;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayForFamilyDTO;
+import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
+import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.TransactionInfo;
 import com.example.housekeeperapplication.Model.DTOs.WalletInfo;
@@ -92,12 +99,46 @@ public interface APIServices {
     @GET("api/Account/GetAccount")
     Call<Account> getAccountById(@Query("id") int accountId);
     @GET("api/Booking/GetBookingByHousekeeperID")
-    Call<List<BookingDTO>> getBookingsByHousekeeperID(@Query("housekeeperId") int housekeeperId);
+    Call<List<BookingHousekeeperDTO>> getBookingsByHousekeeperID(@Query("housekeeperId") int housekeeperId);
     @GET("api/Job/GetJobByID")
     Call<Job> getJobById(@Query("id") int jobId);
 
     @POST("api/Job/CheckIn")
     Call<Void> checkIn(@Query("bookingId") int bookingId);
 
+    @GET("api/Job/GetJobsByAccountID")
+    Call<List<FamilyJobSummaryDTO>> getJobsByAccountID(
+            @Query("accountId") int accountId,
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize
+    );
+    @GET("api/Job/GetJobDetailByID")
+    Call<JobDetailForBookingDTO> getJobDetailByID(@Query("id") int jobID);
+
+    @GET("api/Families/GetFamilyByID")
+    Call<FamilyAccountMappingDTO> getFamilyByID(@Query("id") int familyID);
+
+    @GET("api/Families/GetFamilyByAccountID")
+    Call<FamilyAccountDetailDTO> getFamilyByAccountID(@Query("id") int accountID);
+    @GET("api/HouseKeeper/GetHousekeeperByID")
+    Call<HousekeeperDetailDTO> getHousekeeperByID(@Query("id") int housekeeperID);
+
+    @GET("api/Job/GetJobDetailByID")
+    Call<JobDetailPageDTO> getFullJobDetailByID(@Query("id") int jobID);
+
+    @POST("api/Job/ConfirmSlotWorked")
+    Call<Void> confirmSlotWorked(@Query("bookingId") int bookingId);
+
+    @POST("api/Job/HousekeeperCompleteJob")
+    Call<Void> completeJobByHousekeeper(
+            @Query("jobID") int jobID,
+            @Query("accountID") int accountID
+    );
+
+    @POST("api/Job/ConfirmJobCompletion")
+    Call<Void> confirmJobCompletion(
+            @Query("jobId") int jobId,
+            @Query("accountID") int accountId
+    );
 
 }

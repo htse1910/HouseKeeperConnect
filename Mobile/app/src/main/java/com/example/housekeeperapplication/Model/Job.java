@@ -2,17 +2,31 @@ package com.example.housekeeperapplication.Model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class Job {
     private int jobID;
     private int familyID;
     private String jobName;
     private int status;
     private int jobType;
+    private int price;
+    private String location;
     private String createdDate;
     private String updatedDate;
     private Family family;
     private JobDetail jobDetail;
+    private String startDate;
+    private String endDate;
+    private String description;
+    private List<Integer> slotIDs;
+    private List<Integer> dayofWeek;
+    private List<Integer> serviceIDs;
+    private boolean isOffered;
+    private Integer housekeeperID;
+
     public Job() {}
+
     public Job(JobDetail jobDetail, Family family, String updatedDate, String createdDate, int jobType, int status, String jobName, int familyID, int jobID) {
         this.jobDetail = jobDetail;
         this.family = family;
@@ -24,17 +38,15 @@ public class Job {
         this.familyID = familyID;
         this.jobID = jobID;
     }
+
     public Job(String jobName, String familyName, String location, String salary, String type) {
         this.jobName = jobName;
+        this.location = location;
 
-
-        this.jobDetail = new JobDetail();
-        this.jobDetail.setLocation(location);
         try {
-            double price = Double.parseDouble(salary);  // Chỉ cần parse thẳng
-            this.jobDetail.setPrice(price);
+            this.price = Integer.parseInt(salary);
         } catch (NumberFormatException e) {
-            this.jobDetail.setPrice(0);
+            this.price = 0;
         }
 
         // Tạo Family + Account giả
@@ -43,33 +55,55 @@ public class Job {
         acc.setName(familyName);
         this.family.setAccount(acc);
 
-        // Loại công việc
         switch (type.toLowerCase()) {
             case "full-time": this.jobType = 1; break;
             case "part-time": this.jobType = 2; break;
             default: this.jobType = 0; break;
         }
     }
-
-
+    public String getStartDate() { return startDate; }
+    public String getEndDate() { return endDate; }
+    public String getDescription() { return description; }
+    public List<Integer> getSlotIDs() { return slotIDs; }
+    public List<Integer> getDayofWeek() { return dayofWeek; }
+    public List<Integer> getServiceIDs() { return serviceIDs; }
+    public boolean isOffered() { return isOffered; }
+    public Integer getHousekeeperID() { return housekeeperID; }
 
     public String getFamilyName() {
         return family != null && family.getAccount() != null ? family.getAccount().getName() : "";
     }
 
     public String getLocation() {
-        return jobDetail != null ? jobDetail.getLocation() : "";
+        return location != null ? location : (jobDetail != null ? jobDetail.getLocation() : "");
     }
 
     public String getSalary() {
-        return jobDetail != null ? jobDetail.getPriceText() : "";
+        return price + " VND";
     }
+
     public String getType() {
         switch (jobType) {
             case 1: return "Full-time";
             case 2: return "Part-time";
             default: return "Khác";
         }
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(int jobType) {
+        this.jobType = jobType;
     }
 
     public int getJobID() {
@@ -104,8 +138,6 @@ public class Job {
         this.status = status;
     }
 
-
-
     public String getCreatedDate() {
         return createdDate;
     }
@@ -137,5 +169,8 @@ public class Job {
     public void setJobDetail(JobDetail jobDetail) {
         this.jobDetail = jobDetail;
     }
-}
 
+    public void setLocation(String location) {
+        this.location = location;
+    }
+}
