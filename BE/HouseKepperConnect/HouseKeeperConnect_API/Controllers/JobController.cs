@@ -646,12 +646,19 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             var workedSlots = allSlots
-                .Where(s => s.Date <= abandonDate && s.IsConfirmedByFamily == true)
+                .Where(s => s.Date <= abandonDate && s.IsConfirmedByFamily == true && s.Status == BookingSlotStatus.Active)
                 .ToList();
 
             var unworkedSlots = allSlots
-                .Where(s => s.Date > abandonDate || s.IsConfirmedByFamily == false)
+                .Where(s => (s.Date > abandonDate || s.IsConfirmedByFamily == false) && s.Status == BookingSlotStatus.Active)
                 .ToList();
+
+            // ✅ Mark unworked booking slots as Canceled
+            foreach (var slot in unworkedSlots)
+            {
+                slot.Status = BookingSlotStatus.Canceled;
+                await _bookingSlotsService.UpdateBooking_SlotAsync(slot);
+            }
 
             int totalUnworkedSlots = unworkedSlots.Count;
 
@@ -667,7 +674,7 @@ namespace HouseKeeperConnect_API.Controllers
             if (familyWallet == null || hkWallet == null)
                 return NotFound("Wallets not found.");
 
-            // Update balances
+            // Refund to family
             familyWallet.Balance += refundAmount;
             familyWallet.UpdatedAt = DateTime.Now;
             await _walletService.UpdateWalletAsync(familyWallet);
@@ -686,7 +693,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Status = (int)TransactionStatus.Completed
             });
 
-            // 4. Payout to housekeeper
+            // Payout to housekeeper
             hkWallet.Balance += payoutAmount;
             hkWallet.UpdatedAt = DateTime.Now;
             await _walletService.UpdateWalletAsync(hkWallet);
@@ -705,17 +712,14 @@ namespace HouseKeeperConnect_API.Controllers
                 Status = (int)TransactionStatus.Completed
             });
 
-            // Set the job as abandoned
+            // Mark old job as canceled
             oldJobDetail.EndDate = abandonDate;
             oldJob.Status = (int)JobStatus.Canceled;
 
-            // Save changes
             await _jobService.UpdateJobAsync(oldJob);
             await _jobService.UpdateJobDetailAsync(oldJobDetail);
-            await _walletService.UpdateWalletAsync(familyWallet);
-            await _walletService.UpdateWalletAsync(hkWallet);
 
-            // 1. Create a new job
+            // Create new job
             var newJob = new Job
             {
                 FamilyID = oldJob.FamilyID,
@@ -724,7 +728,6 @@ namespace HouseKeeperConnect_API.Controllers
             };
             await _jobService.AddJobAsync(newJob);
 
-            // 2. Create new JobDetail
             var newJobDetail = new JobDetail
             {
                 JobID = newJob.JobID,
@@ -739,7 +742,6 @@ namespace HouseKeeperConnect_API.Controllers
             };
             await _jobService.AddJobDetailAsync(newJobDetail);
 
-            // 3. Clone job services
             var oldServices = await _jobServiceService.GetJob_ServicesByJobIDAsync(oldJob.JobID);
             foreach (var service in oldServices)
             {
@@ -750,30 +752,26 @@ namespace HouseKeeperConnect_API.Controllers
                 });
             }
 
-            // 4. Clone unworked job slots
-            var unconfirmedBookingSlots = await _bookingSlotsService
-                .GetBookingSlotsByDateAndBookingIDAsync(oldJobDetail.JobID, abandonDate);
-
-            var unworkedSlotIds = unconfirmedBookingSlots
-                .Where(bs => bs.IsConfirmedByFamily != true)
-                .Select(bs => bs.SlotID)
-                .Distinct()
-                .ToList();
-            var unworkedDaysOfWeek = unconfirmedBookingSlots
+            // Recreate job slots for new job from canceled booking slots
+            var cloneSlots = unworkedSlots
                 .Where(bs => bs.Date.HasValue)
-                .Select(bs => (int)bs.Date.Value.DayOfWeek);
-            foreach (var slotId in unworkedSlotIds)
-            {
-                foreach (var day in unworkedDaysOfWeek)
+                .Select(bs => new
                 {
-                    await _jobSlotsService.AddJob_SlotsAsync(new Job_Slots
-                    {
-                        JobID = newJob.JobID,
-                        SlotID = slotId,
-                        DayOfWeek = day
-                    });
-                }
+                    bs.SlotID,
+                    DayOfWeek = (int)bs.Date.Value.DayOfWeek
+                })
+                .Distinct();
+
+            foreach (var item in cloneSlots)
+            {
+                await _jobSlotsService.AddJob_SlotsAsync(new Job_Slots
+                {
+                    JobID = newJob.JobID,
+                    SlotID = item.SlotID,
+                    DayOfWeek = item.DayOfWeek
+                });
             }
+
             return Ok(new
             {
                 message = "Job abandoned and reassigned successfully.",
@@ -783,6 +781,7 @@ namespace HouseKeeperConnect_API.Controllers
                 refundToFamily = refundAmount
             });
         }
+
 
         [HttpPut("OfferJob")]
         [Authorize]

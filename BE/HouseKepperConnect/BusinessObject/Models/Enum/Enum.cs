@@ -64,6 +64,11 @@
         Canceled = 5,
         PendingFamilyConfirmation = 6
     }
+    public enum BookingSlotStatus
+    {
+        Active = 1,
+        Canceled = 2
+    }
 
     public enum WithdrawStatus
     {
