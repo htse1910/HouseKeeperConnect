@@ -64,6 +64,7 @@
             android:layout_marginTop="4dp">
 
             <TextView
+                android:id="@+id/tvLocation"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -71,6 +72,7 @@
                 android:textSize="14sp" />
 
             <TextView
+                android:id="@+id/tvSalary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -86,6 +88,7 @@
             android:layout_marginTop="4dp">
 
             <TextView
+                android:id="@+id/tvStartDate"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -93,6 +96,7 @@
                 android:textSize="14sp" />
 
             <TextView
+                android:id="@+id/tvEndDate"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -102,6 +106,7 @@
 
         <!-- Description -->
         <TextView
+            android:id="@+id/tvDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="📝 Mô tả: No"
@@ -110,6 +115,7 @@
 
         <!-- Slot -->
         <TextView
+            android:id="@+id/tvSlot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="🕐 Ca làm việc: 16H - 17H"
@@ -152,6 +158,7 @@
 
         <!-- Services -->
         <TextView
+            android:id="@+id/tvServices"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="🛎️ Dịch vụ: Giữ trẻ theo giờ"

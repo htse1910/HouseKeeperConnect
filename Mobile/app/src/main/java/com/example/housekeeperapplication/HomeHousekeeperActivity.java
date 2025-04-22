@@ -2,6 +2,7 @@ package com.example.housekeeperapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +29,12 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home_housekeeper);
         RecyclerView recyclerJobs = findViewById(R.id.recyclerJobs);
         List<Job> jobs = new ArrayList<>();
+        Button btnBookingManagement = findViewById(R.id.btnBookingManagement);
+        btnBookingManagement.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeHousekeeperActivity.this, HousekeeperBookingActivity.class);
+            startActivity(intent);
+        });
+
         jobs.add(new Job("Dọn dẹp dịp lễ 30/4", "Gia đình Nguyễn Văn A", "TP.HCM", "75000", "Full-time"));
         jobs.add(new Job("Nấu ăn", "Gia đình Trần Văn B", "Hà Nội", "90000", "Part-time"));
 
