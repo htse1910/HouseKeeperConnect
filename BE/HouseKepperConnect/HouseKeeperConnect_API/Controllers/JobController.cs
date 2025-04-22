@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -26,12 +27,13 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IWalletService _walletService;
         private readonly IPaymentService _paymentService;
         private readonly IPayoutService _payoutService;
+        private readonly IPlatformFeeService _platformFeeService;
         private string Message;
         private readonly IMapper _mapper;
 
         public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService, IBooking_SlotsService bookingSlotsService, INotificationService notificationService,
             IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService,
-            IServiceService serviceService, IAccountService accountService, ITransactionService transactionService, IWalletService walletService, IPaymentService paymentService, IPayoutService payoutService)
+            IServiceService serviceService, IAccountService accountService, ITransactionService transactionService, IWalletService walletService, IPaymentService paymentService, IPayoutService payoutService, IPlatformFeeService platformFeeService)
         {
             _jobService = jobService;
             _jobServiceService = job_ServiceService;
@@ -48,6 +50,7 @@ namespace HouseKeeperConnect_API.Controllers
             _walletService = walletService;
             _paymentService = paymentService;
             _payoutService = payoutService;
+            _platformFeeService = platformFeeService;
         }
 
         [HttpGet("JobList")]
@@ -286,26 +289,27 @@ namespace HouseKeeperConnect_API.Controllers
             // ✅ Calculate total job price
             decimal totalJobPrice = pricePerHour * totalSlots;
 
-            // ✅ Platform fee and charge amount based on job type
-            decimal platformFee = 0;
-            decimal chargeAmount = 0;
+            // ✅ Determine PlatformFee ID by JobType
+            int platformFeeID;
+            if (jobCreateDTO.JobType == 1)
+                platformFeeID = 1; // Subscription (8%)
+            else if (jobCreateDTO.JobType == 2)
+                platformFeeID = 2; // One-time (10%)
+            else
+                return BadRequest("Invalid job type.");
+
+            // ✅ Fetch fee percent from DB
+            var platformFeeRecord = await _platformFeeService.GetPlatformFeeByIDAsync(platformFeeID);
+            if (platformFeeRecord == null)
+                return StatusCode(500, $"Platform fee with ID {platformFeeID} not found.");
+
+            decimal feePercent = platformFeeRecord.Percent;
+
+            // ✅ Final fee/charge calculation
+            decimal platformFee = totalJobPrice * feePercent;
+            decimal chargeAmount = totalJobPrice + platformFee;
             decimal housekeeperEarnings = totalJobPrice;
 
-            if (jobCreateDTO.JobType == 1) // Subscription: 8% fee on full job
-            {
-                platformFee = totalJobPrice * 0.08m;
-            }
-            else if (jobCreateDTO.JobType == 2) // One-time: 10% fee
-            {
-                platformFee = totalJobPrice * 0.10m;
-            }
-            else
-            {
-                return BadRequest("Invalid job type.");
-            }
-
-            // ✅ Final charge to the family
-            chargeAmount = totalJobPrice + platformFee;
             // Wallet and balance check
             var acc = await _familyProfileService.GetFamilyByIDAsync(jobCreateDTO.FamilyID);
             if (acc == null) return NotFound("Family account not found.");
@@ -345,46 +349,29 @@ namespace HouseKeeperConnect_API.Controllers
                 Status = (int)TransactionStatus.Completed,
             });
 
-            // (Optional) Add transaction: earnings to housekeeper
-            /*if (jobCreateDTO.HousekeeperID.HasValue)
-            {
-                var hkwallet = await _walletService.GetWalletByUserAsync(jobCreateDTO.HousekeeperID.Value);
-                await _transactionService.AddTransactionAsync(new Transaction
-                {
-                    TransactionID = transactionId + 1,
-                    WalletID = hkwallet.WalletID,
-                    AccountID = jobCreateDTO.HousekeeperID.Value,
-                    Amount = housekeeperEarnings,
-                    Fee = 0,
-                    CreatedDate = DateTime.Now,
-                    Description = "Earnings reserved from job",
-                    UpdatedDate = DateTime.Now,
-                    TransactionType = (int)TransactionType.Payout,
-                    Status = (int)TransactionStatus.Pending
-                });
-            }*/
-
-            // Create job (no Price or PricePerHour in Job)
+            // Create job
             var job = _mapper.Map<Job>(jobCreateDTO);
             job.Status = (int)JobStatus.Pending;
             await _jobService.AddJobAsync(job);
 
-            // Create job detail (store Price and PricePerHour here)
+            // Create job detail
             var jobDetail = _mapper.Map<JobDetail>(jobCreateDTO);
             jobDetail.JobID = job.JobID;
             jobDetail.Price = totalJobPrice;
             jobDetail.PricePerHour = pricePerHour;
+            jobDetail.FeeID = platformFeeID; // ✅ Save the fee ID used
             await _jobService.AddJobDetailAsync(jobDetail);
 
-            //Tạo đơn payment cho FA
-            var payment = new Payment();
-            payment.FamilyID = acc.FamilyID;
-            payment.PaymentDate = DateTime.Now;
-            payment.Amount = chargeAmount;
-            payment.Commission = platformFee;
-            payment.JobID = job.JobID;
-            payment.Status = (int)PaymentStatus.Pending;
-
+            // Create payment record
+            var payment = new Payment
+            {
+                FamilyID = acc.FamilyID,
+                PaymentDate = DateTime.Now,
+                Amount = chargeAmount,
+                Commission = platformFee,
+                JobID = job.JobID,
+                Status = (int)PaymentStatus.Pending
+            };
             await _paymentService.AddPaymentAsync(payment);
 
             // Add job services
@@ -413,6 +400,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok("Job created successfully!");
         }
+
 
         /*
                 private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
