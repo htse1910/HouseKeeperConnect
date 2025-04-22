@@ -1,13 +1,17 @@
 package com.example.housekeeperapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.housekeeperapplication.API.APIClient;
+import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Adapter.NotificationAdapter;
 import com.example.housekeeperapplication.Model.Notification;
 import com.example.housekeeperapplication.profile.FamilyProfile;
@@ -15,6 +19,11 @@ import com.example.housekeeperapplication.profile.HousekeeperProfile;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class NotificationActivity extends AppCompatActivity {
 
@@ -29,14 +38,37 @@ public class NotificationActivity extends AppCompatActivity {
         recyclerViewNotifications = findViewById(R.id.recyclerViewNotifications);
         recyclerViewNotifications.setLayoutManager(new LinearLayoutManager(this));
 
-        // Tạo danh sách thông báo mẫu
-        ArrayList<Notification> notificationList = new ArrayList<>();
-        notificationList.add(new Notification("Bạn đã nộp đơn ứng tuyển cho công việc 2", "00:38:00 8/4/2025"));
-        notificationList.add(new Notification("Đã có cập nhật mới về đơn ứng tuyển của bạn", "08:30:00 8/4/2025"));
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int accountID = prefs.getInt("accountID", 0);
+        int pageNumber = 1;
+        int pageSize = 5;
+        APIServices api = APIClient.getClient(NotificationActivity.this).create(APIServices.class);
+        Call<List<Notification>> call = api.getNotisByUserID(accountID, pageNumber, pageSize);
+        call.enqueue(new Callback<List<Notification>>() {
+            @Override
+            public void onResponse(Call<List<Notification>> call, Response<List<Notification>> response) {
+                List<Notification> list = response.body();
+                if(response.isSuccessful() && response.body()!=null){
+                    notificationAdapter = new NotificationAdapter(list);
+                    recyclerViewNotifications.setAdapter(notificationAdapter);
+                }
 
-        // Gán adapter
-        notificationAdapter = new NotificationAdapter(notificationList);
-        recyclerViewNotifications.setAdapter(notificationAdapter);
+                if(response.body()==null){
+                    Toast.makeText(NotificationActivity.this, "Không có thông báo nào!", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<Notification>> call, Throwable t) {
+                Toast.makeText(NotificationActivity.this, "Khổng thể tải dữ liệu!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        // Tạo danh sách thông báo mẫu
+        /*notificationList.add(new Notification("Bạn đã nộp đơn ứng tuyển cho công việc 2", "00:38:00 8/4/2025"));
+        notificationList.add(new Notification("Đã có cập nhật mới về đơn ứng tuyển của bạn", "08:30:00 8/4/2025"));*/
+
+        // Gán adapte
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.nav_notification); // Đánh dấu tab đang chọn

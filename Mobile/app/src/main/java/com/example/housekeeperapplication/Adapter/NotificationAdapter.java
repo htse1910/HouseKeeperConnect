@@ -35,7 +35,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
         Notification notification = notificationList.get(position);
         holder.tvMessage.setText(notification.getMessage());
-        holder.tvDateTime.setText(notification.getCreatedDate());
+        String date = notification.getCreatedDate().replace("T", " ").substring(0, 16);
+        holder.tvDateTime.setText(date);
 
         holder.btnRead.setOnClickListener(v -> {
             Toast.makeText(v.getContext(), "Đã đánh dấu là đã đọc", Toast.LENGTH_SHORT).show();
