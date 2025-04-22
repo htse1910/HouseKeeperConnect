@@ -14,6 +14,8 @@ namespace BusinessObject.Models
         [Required]
         [RegularExpression("^[0-9]*$", ErrorMessage = "Bank number must be numeric.")]
         public string BankNumber { get; set; }
+        [Required]
+        public string BankName { get; set; }
 
         public decimal Amount { get; set; }
         public DateTime RequestDate { get; set; }
