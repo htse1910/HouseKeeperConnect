@@ -81,6 +81,7 @@ namespace DataAccess
                     b.Booking.HousekeeperID == housekeeperId &&
                     b.SlotID == slotId &&
                     b.DayOfWeek == dayOfWeek &&
+                    b.Status == BookingSlotStatus.Active &&
                     b.Booking.Status != (int)BookingStatus.Canceled && // Exclude canceled bookings
                     context.JobDetail.Any(jd =>
                         jd.JobID == b.Booking.JobID &&
