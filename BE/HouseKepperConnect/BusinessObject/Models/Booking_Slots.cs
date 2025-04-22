@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BusinessObject.Models.Enum;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessObject.Models
@@ -19,6 +20,7 @@ namespace BusinessObject.Models
         public bool IsCheckedIn { get; set; } = false;
         public DateTime? CheckInTime { get; set; } // optional, for logging exact time
         public bool IsConfirmedByFamily { get; set; } = false;
+        public BookingSlotStatus Status { get; set; } = BookingSlotStatus.Active; // default to Active
         public DateTime? ConfirmedAt { get; set; }// optional
         public virtual Booking Booking { get; set; }
         public virtual Slot Slot { get; set; }
