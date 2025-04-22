@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    [Migration("20250422072625_InitNewDatabase")]
-    partial class InitNewDatabase
+    [Migration("20250422075931_Fix_Conflict")]
+    partial class Fix_Conflict
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -676,9 +676,9 @@ namespace BusinessObject.Migrations
                         new
                         {
                             FeeID = 1,
-                            CreatedDate = new DateTime(2025, 4, 22, 14, 26, 25, 331, DateTimeKind.Local).AddTicks(9427),
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Percent = 0.1m,
-                            UpdatedDate = new DateTime(2025, 4, 22, 14, 26, 25, 332, DateTimeKind.Local).AddTicks(9265)
+                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -1262,6 +1262,10 @@ namespace BusinessObject.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("BankNumber")
                         .IsRequired()
