@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardElevation="8dp"
+        app:cardCornerRadius="20dp"
+        android:backgroundTint="#FAFAFA">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:gravity="center_vertical">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvDepositTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💰 Nạp tiền vào ví"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/colorPrimary"
+                android:paddingBottom="8dp" />
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/tvDepositDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Vui lòng nhập số tiền bạn muốn nạp."
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@android:color/darker_gray"
+                android:paddingBottom="24dp" />
+
+            <!-- Label -->
+            <TextView
+                android:id="@+id/tvDepositLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Số tiền (VNĐ)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingBottom="4dp" />
+
+            <!-- Input Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_edit_text"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center_vertical">
+
+                <EditText
+                    android:id="@+id/etDepositAmount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Nhập số tiền"
+                    android:inputType="number"
+                    android:textSize="16sp"
+                    android:background="@android:color/transparent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VNĐ"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/darker_gray" />
+            </LinearLayout>
+
+            <!-- Deposit Button -->
+            <Button
+                android:id="@+id/btnDeposit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Xác nhận nạp tiền"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:backgroundTint="@color/successGreen"
+                android:paddingVertical="12dp"
+                android:elevation="2dp" />
+
+            <!-- Success Message -->
+            <TextView
+                android:id="@+id/tvDepositSuccess"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✅ Nạp tiền thành công!"
+                android:textColor="@android:color/holo_green_dark"
+                android:textSize="14sp"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                android:gravity="center_horizontal" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
