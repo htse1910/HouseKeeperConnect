@@ -54,7 +54,7 @@ namespace BusinessObject.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PlatformFee>().HasData(
-                new PlatformFee { FeeID = 1, Percent = 0.1m, CreatedDate = DateTime.Now, UpdatedDate = DateTime.Now }
+                new PlatformFee { FeeID = 1, Percent = 0.1m}
                 );
 
             modelBuilder.Entity<Role>().HasData(

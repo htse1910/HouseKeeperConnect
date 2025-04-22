@@ -134,4 +134,18 @@
         IDVerify = 3,
         Transaction = 4
     }
+
+    public enum Bank
+    {
+        Vietcombank = 1,
+        VietinBank = 2,
+        Techcombank = 3,
+        BIDV = 4,
+        MBBank = 5,
+        VPBank = 6,
+        ACB = 7,
+        TPBank = 8,
+        VIB = 9,
+        Agribank = 10,
+    }
 }
