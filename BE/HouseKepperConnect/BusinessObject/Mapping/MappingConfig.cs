@@ -35,6 +35,7 @@ namespace BusinessObject.Mapping
             Map_Verify_Request();
             Map_Create_IDVerification();
             Map_Update_IDVerification();
+            Map_Staff_Update_IDVerification();
             Map_Display_IDVerification();
             Map_Display_Transaction();
             Map_Display_Notification();
@@ -200,14 +201,17 @@ namespace BusinessObject.Mapping
 
         private void Map_Create_IDVerification()
         {
-            CreateMap<IDVerificationUpdateDTO, IDVerification>();
+            CreateMap<IDVerificationCreateDTO, IDVerification>();
         }
 
         private void Map_Update_IDVerification()
         {
             CreateMap<IDVerificationUpdateDTO, IDVerification>();
         }
-
+        private void Map_Staff_Update_IDVerification()
+        {
+            CreateMap<IDVerificationUpdateByStaffDTO, IDVerification>();
+        }
         private void Map_Display_IDVerification()
         {
             CreateMap<IDVerificationDisplayDTO, IDVerification>().ReverseMap();
