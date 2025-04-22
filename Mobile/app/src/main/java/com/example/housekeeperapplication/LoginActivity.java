@@ -83,6 +83,8 @@ public class LoginActivity extends AppCompatActivity {
                             String uToken = acc.getToken();
                             String uName = acc.getName();
                             int roleID = acc.getRoleID();
+                            boolean isLoggedIn = true;
+
 
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putInt("accountID", accountID);
@@ -90,6 +92,7 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("token", uToken);
                             editor.putInt("roleID", roleID);
                             editor.putString("name", uName);
+                            editor.putBoolean("isLoggedIn", isLoggedIn);
                             editor.apply();
 
                             APIServices api = APIClient.getClient(LoginActivity.this).create(APIServices.class);
@@ -136,7 +139,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     } else {
                         loginBtn.setEnabled(true);
-                        Toast.makeText(LoginActivity.this, "Login failed: " + response.message(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Email hoặc mật khẩu sai!" , Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -148,6 +151,31 @@ public class LoginActivity extends AppCompatActivity {
             });
 
         });
+
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Check if user is logged in
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
+        int roleID = prefs.getInt("roleID", 0);
+        String name = prefs.getString("name", "");
+
+        if (isLoggedIn) {
+            if(roleID ==1){
+                Toast.makeText(LoginActivity.this, "Welcome " + name, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LoginActivity.this, HomeHousekeeperActivity.class);
+                startActivity(intent);
+                finish();
+            }else if(roleID ==2){
+                Toast.makeText(LoginActivity.this, "Welcome " + name, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
     }
 
     }
