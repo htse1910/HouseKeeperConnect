@@ -226,6 +226,12 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            if (withdrawUpdateDTO.Status == (int)WithdrawStatus.OTPVerify)
+            {
+                Message = "Only choose success or failed!";
+                return BadRequest(Message);
+            }
+
             if (withdrawUpdateDTO.Picture != null && withdrawUpdateDTO.Status == (int)WithdrawStatus.Success)
             {
                 var storage = new Storage(_appWriteClient);
@@ -288,11 +294,13 @@ namespace HouseKeeperConnect_API.Controllers
             if (wi.Status == (int)WithdrawStatus.Success)
             {
                 trans.Status = (int)TransactionStatus.Completed;
+                trans.Description = "Rút " + wi.Amount + "VND" + " về STK: " + wi.BankNumber + " thành công!";
                 noti.Message = "Bạn đã rút " + wi.Amount + "VND" + " về STK: " + wi.BankNumber + " thành công!";
             }
             else
             {
                 trans.Status = (int)TransactionStatus.Canceled;
+                trans.Description = "Rút " + wi.Amount + "VND" + " về STK: " + wi.BankNumber + " thất bại!";
                 noti.Message = "Rút tiền thất bại. " + (int)wi.Amount + " VND" + " đã được hoàn về ví của bạn! Vui lòng thử lại hoặc liên hệ hỗ trợ!";
             }
 
@@ -336,6 +344,7 @@ namespace HouseKeeperConnect_API.Controllers
                 withdraw.TransactionID = orderCode;
                 withdraw.RequestDate = DateTime.Now;
                 withdraw.BankNumber = acc.BankAccountNumber;
+                withdraw.BankName = acc.BankAccountName;
                 withdraw.Status = (int)TransactionStatus.Pending;
                 withdraw.OTPCode = otp;
                 withdraw.OTPCreatedTime = DateTime.Now;
@@ -429,7 +438,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _withdrawService.UpdateWithdrawAsync(withdraw);
 
-                // Cập nhật Transaction tương ứng nếu có
+/*                // Cập nhật Transaction tương ứng nếu có
                 if (withdraw.TransactionID != 0)
                 {
                     var trans = await _transactionService.GetTransactionByIDAsync(withdraw.TransactionID);
@@ -440,7 +449,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                         await _transactionService.UpdateTransactionAsync(trans);
                     }
-                }
+                }*/
 
                 // Trừ tiền khỏi ví người dùng
                 var wallet = await _walletService.GetWalletByUserAsync(withdraw.AccountID);
