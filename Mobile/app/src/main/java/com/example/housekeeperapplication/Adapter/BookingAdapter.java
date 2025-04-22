@@ -109,30 +109,25 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         });
 
         holder.btnCompleteJob.setOnClickListener(v -> {
-            Date today = new Date();
-            Date jobEnd = parseDate(detail.endDate);
+            SharedPreferences prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+            int accountId = prefs.getInt("accountID", -1);
 
-            if (today.after(jobEnd)) {
-                SharedPreferences prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-                int accountId = prefs.getInt("accountID", -1);
+            apiServices.completeJobByHousekeeper(booking.jobID, accountId).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    Toast.makeText(context,
+                            response.isSuccessful() ? "🎉 Hoàn thành công việc!" : "❌ Hoàn thành thất bại",
+                            Toast.LENGTH_SHORT).show();
+                }
 
-                apiServices.completeJobByHousekeeper(booking.jobID, accountId).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        Toast.makeText(context,
-                                response.isSuccessful() ? "🎉 Hoàn thành công việc!" : "❌ Hoàn thành thất bại",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        Toast.makeText(context, "⚠️ Lỗi kết nối", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else {
-                Toast.makeText(context, "⏳ Công việc chưa kết thúc", Toast.LENGTH_SHORT).show();
-            }
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(context, "⚠️ Lỗi kết nối", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
+
+
 
         if (detail != null) {
             holder.tvJobTitle.setText("🧽 Công việc #" + detail.jobID);
@@ -189,31 +184,20 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         tvMatchedDate.setText("📋 Ngày này: " + new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date()));
 
         btnCheckIn.setOnClickListener(v -> {
-            Date today = new Date();
-            int todayDayOfWeek = (today.getDay() + 6) % 7; // convert Sunday=0 to Sunday=6
+            apiServices.checkIn(booking.bookingID).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    Toast.makeText(context,
+                            response.isSuccessful() ? "✅ Check-In thành công!" : "❌ Check-In thất bại",
+                            Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                }
 
-            // Check if today matches any allowed day
-            boolean isMatchingDay = booking.dayofWeek.contains(todayDayOfWeek);
-            Date jobStart = parseDate(detail.startDate);
-            Date jobEnd = parseDate(detail.endDate);
-
-            if (isMatchingDay && today.compareTo(jobStart) >= 0 && today.compareTo(jobEnd) <= 0) {
-                apiServices.checkIn(booking.bookingID).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        Toast.makeText(context,
-                                response.isSuccessful() ? "✅ Check-In thành công!" : "❌ Check-In thất bại",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        Toast.makeText(context, "⚠️ Lỗi kết nối", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else {
-                Toast.makeText(context, "📆 Không thể Check-In vào hôm nay", Toast.LENGTH_SHORT).show();
-            }
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(context, "⚠️ Lỗi kết nối", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
@@ -224,14 +208,6 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     private String formatDate(String rawDate) {
         if (rawDate == null || !rawDate.contains("T")) return rawDate;
         return rawDate.split("T")[0];
-    }
-    private Date parseDate(String rawDate) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            return sdf.parse(rawDate.split("T")[0]);
-        } catch (Exception e) {
-            return new Date(); // fallback to now
-        }
     }
 
     private String getSlotString(List<Integer> slots) {
