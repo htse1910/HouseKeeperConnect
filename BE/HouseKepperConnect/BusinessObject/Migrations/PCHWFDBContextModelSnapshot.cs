@@ -96,7 +96,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("RoleID");
 
-                    b.ToTable("Account");
+                    b.ToTable("Account", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Application", b =>
@@ -122,7 +122,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("JobID");
 
-                    b.ToTable("Application");
+                    b.ToTable("Application", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Booking", b =>
@@ -152,7 +152,7 @@ namespace BusinessObject.Migrations
                     b.HasIndex("JobID")
                         .IsUnique();
 
-                    b.ToTable("Booking");
+                    b.ToTable("Booking", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Booking_Slots", b =>
@@ -193,7 +193,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("SlotID");
 
-                    b.ToTable("Booking_Slots");
+                    b.ToTable("Booking_Slots", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Chat", b =>
@@ -223,7 +223,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("ToAccountID");
 
-                    b.ToTable("Chat");
+                    b.ToTable("Chat", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Family", b =>
@@ -248,7 +248,7 @@ namespace BusinessObject.Migrations
                     b.HasIndex("AccountID")
                         .IsUnique();
 
-                    b.ToTable("Family");
+                    b.ToTable("Family", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.HouseKeeperSkill", b =>
@@ -271,7 +271,7 @@ namespace BusinessObject.Migrations
 
                     b.HasKey("HouseKeeperSkillID");
 
-                    b.ToTable("HouseKeeperSkill");
+                    b.ToTable("HouseKeeperSkill", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Housekeeper", b =>
@@ -315,7 +315,7 @@ namespace BusinessObject.Migrations
                         .IsUnique()
                         .HasFilter("[VerifyID] IS NOT NULL");
 
-                    b.ToTable("Housekeeper");
+                    b.ToTable("Housekeeper", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.HousekeeperSkillMapping", b =>
@@ -338,7 +338,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("HousekeeperID");
 
-                    b.ToTable("HousekeeperSkillMapping");
+                    b.ToTable("HousekeeperSkillMapping", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Housekeeper_Violation", b =>
@@ -364,7 +364,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("ViolationID");
 
-                    b.ToTable("Housekeeper_Violation");
+                    b.ToTable("Housekeeper_Violation", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.IDVerification", b =>
@@ -407,7 +407,7 @@ namespace BusinessObject.Migrations
 
                     b.HasKey("VerifyID");
 
-                    b.ToTable("IDVerification");
+                    b.ToTable("IDVerification", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Job", b =>
@@ -442,7 +442,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("FamilyID");
 
-                    b.ToTable("Job");
+                    b.ToTable("Job", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.JobDetail", b =>
@@ -496,7 +496,7 @@ namespace BusinessObject.Migrations
                     b.HasIndex("JobID")
                         .IsUnique();
 
-                    b.ToTable("JobDetail");
+                    b.ToTable("JobDetail", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Job_Service", b =>
@@ -519,7 +519,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("ServiceID");
 
-                    b.ToTable("Job_Service");
+                    b.ToTable("Job_Service", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Job_Slots", b =>
@@ -545,7 +545,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("SlotID");
 
-                    b.ToTable("Job_Slots");
+                    b.ToTable("Job_Slots", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Notification", b =>
@@ -576,7 +576,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("AccountID");
 
-                    b.ToTable("Notification");
+                    b.ToTable("Notification", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Payment", b =>
@@ -612,7 +612,7 @@ namespace BusinessObject.Migrations
                     b.HasIndex("JobID")
                         .IsUnique();
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payment", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Payout", b =>
@@ -645,7 +645,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("HousekeeperID");
 
-                    b.ToTable("Payout");
+                    b.ToTable("Payout", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.PlatformFee", b =>
@@ -667,7 +667,7 @@ namespace BusinessObject.Migrations
 
                     b.HasKey("FeeID");
 
-                    b.ToTable("PlatformFee");
+                    b.ToTable("PlatformFee", (string)null);
 
                     b.HasData(
                         new
@@ -710,7 +710,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("HouseKeeperID");
 
-                    b.ToTable("Rating");
+                    b.ToTable("Rating", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Role", b =>
@@ -727,7 +727,7 @@ namespace BusinessObject.Migrations
 
                     b.HasKey("RoleID");
 
-                    b.ToTable("Role");
+                    b.ToTable("Role", (string)null);
 
                     b.HasData(
                         new
@@ -780,7 +780,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("ServiceTypeID");
 
-                    b.ToTable("Service");
+                    b.ToTable("Service", (string)null);
 
                     b.HasData(
                         new
@@ -944,7 +944,7 @@ namespace BusinessObject.Migrations
 
                     b.HasKey("ServiceTypeID");
 
-                    b.ToTable("ServiceType");
+                    b.ToTable("ServiceType", (string)null);
 
                     b.HasData(
                         new
@@ -998,7 +998,7 @@ namespace BusinessObject.Migrations
 
                     b.HasKey("SlotID");
 
-                    b.ToTable("Slot");
+                    b.ToTable("Slot", (string)null);
 
                     b.HasData(
                         new
@@ -1105,7 +1105,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("ReviewedBy");
 
-                    b.ToTable("SupportRequests");
+                    b.ToTable("SupportRequests", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Transaction", b =>
@@ -1150,7 +1150,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("WalletID");
 
-                    b.ToTable("Transaction");
+                    b.ToTable("Transaction", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.VerificationTask", b =>
@@ -1186,7 +1186,7 @@ namespace BusinessObject.Migrations
 
                     b.HasIndex("VerifyID");
 
-                    b.ToTable("VerificationTask");
+                    b.ToTable("VerificationTask", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Violation", b =>
@@ -1209,7 +1209,7 @@ namespace BusinessObject.Migrations
 
                     b.HasKey("ViolationID");
 
-                    b.ToTable("Violation");
+                    b.ToTable("Violation", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Wallet", b =>
@@ -1243,7 +1243,7 @@ namespace BusinessObject.Migrations
                     b.HasIndex("AccountID")
                         .IsUnique();
 
-                    b.ToTable("Wallet");
+                    b.ToTable("Wallet", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Withdraw", b =>
@@ -1259,10 +1259,6 @@ namespace BusinessObject.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("BankName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("BankNumber")
                         .IsRequired()
@@ -1300,7 +1296,7 @@ namespace BusinessObject.Migrations
                     b.HasIndex("TransactionID")
                         .IsUnique();
 
-                    b.ToTable("Withdraw");
+                    b.ToTable("Withdraw", (string)null);
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Account", b =>
