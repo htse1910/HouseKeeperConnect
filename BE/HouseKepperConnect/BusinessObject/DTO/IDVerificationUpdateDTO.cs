@@ -8,10 +8,6 @@ namespace BusinessObject.DTO
         [Required]
         public int VerifyID { get; set; }
 
-        public int? IDNumber { get; set; }
-        public string? RealName { get; set; }
-        public DateTime? DateOfBirth { get; set; }
-
         public IFormFile? FrontPhoto { get; set; }
         public IFormFile? BackPhoto { get; set; }
         public IFormFile? FacePhoto { get; set; }

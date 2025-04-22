@@ -193,8 +193,8 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(new { Message = "ID Verification created successfully!", VerifyID = verifyId });
         }
 
-        [HttpPut("UpdateIDVerification")] // staff
-        [Authorize(Policy = "Staff")]
+        [HttpPut("UpdateIDVerification")] // Housekeeper
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> UpdateIDVerification([FromForm] IDVerificationUpdateDTO idVerificationDTO)
         {
             try
@@ -271,16 +271,23 @@ namespace HouseKeeperConnect_API.Controllers
                     Message = "No verifyID";
                     return NotFound(Message);
                 }
-
-                id.IDNumber = idVerificationDTO.IDNumber;
-                id.RealName = idVerificationDTO.RealName;
-                id.DateOfBirth = idVerificationDTO.DateOfBirth;
                 id.FrontPhoto = frontUrl;
                 id.BackPhoto = backUrl;
                 id.FacePhoto = faceUrl;
                 id.Status = (int)VerificationStatus.Pending;
 
                 await _idVerificationService.UpdateIDVerifyAsync(id);
+
+
+
+                var verificationTask = new VerificationTask
+                {
+                    VerifyID = id.VerifyID,
+                    AssignedDate = DateTime.Now,
+                    Status = 1 // Pending
+                };
+
+                await _verificationTaskService.CreateVerificationTaskAsync(verificationTask);
 
                 return Ok("ID Verification updated successfully!");
             }
@@ -289,5 +296,33 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+        [HttpPut("StaffUpdateIDVerification")]
+        [Authorize(Policy = "Staff")]
+        public async Task<ActionResult> StaffUpdateIDVerification([FromForm] IDVerificationUpdateByStaffDTO idVerificationDTO)
+        {
+            try
+            {
+                var id = await _idVerificationService.GetIDVerifyByIDAsync(idVerificationDTO.VerifyID);
+                if (id == null)
+                {
+                    return NotFound("ID Verification not found.");
+                }
+
+                id.IDNumber = idVerificationDTO.IDNumber;
+                id.RealName = idVerificationDTO.RealName;
+                id.DateOfBirth = idVerificationDTO.DateOfBirth;
+                id.Status = (int)VerificationStatus.Verified;
+                id.UpdatedAt = DateTime.Now;
+
+                await _idVerificationService.UpdateIDVerifyAsync(id);
+
+                return Ok("ID Verification updated successfully by staff.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+        }
+
     }
 }
