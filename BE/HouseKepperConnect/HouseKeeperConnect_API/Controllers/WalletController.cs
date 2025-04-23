@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BusinessObject.DTO;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using BusinessObject.Models.PayOS;
@@ -105,7 +106,7 @@ namespace HouseKeeperConnect_API.Controllers
         // PUT api/<WalletController>/5
         [HttpPut("Deposit")]
         [Authorize]
-        public async Task<IActionResult> Deposit(int id, decimal balance)
+        public async Task<IActionResult> Deposit(int id, decimal balance, bool isMobile = false)
         {
             var acc = await _accountService.GetAccountByIDAsync(id);
 
@@ -153,7 +154,6 @@ namespace HouseKeeperConnect_API.Controllers
             };
 
             await _transactionService.AddTransactionAsync(trans);
-
             var paymentData = new CreatePaymentLinkRequest(
 
                 orderCode,
@@ -161,11 +161,14 @@ namespace HouseKeeperConnect_API.Controllers
                 (int)balance,
                 acc.Name,
                 acc.Email,
-                expiredAt
+                expiredAt,
+                isMobile
                 );
 
             var paymentUrl = await _paymentService.CreatePaymentLink(paymentData);
 
+            var returnUrl = new PaymentLinkDTO();
+            returnUrl.PaymentUrl = paymentUrl;
             wallet.OnHold += balance;
             /*wallet.Balance += balance;*/
             wallet.UpdatedAt = DateTime.Now;
@@ -173,7 +176,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _walletService.UpdateWalletAsync(wallet);
 
-            return Ok(paymentUrl);
+            return Ok(returnUrl);
         }
 
         /*[HttpPut("Withdraw")]

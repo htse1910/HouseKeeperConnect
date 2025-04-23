@@ -60,21 +60,33 @@ namespace Services
         public async Task<string> CreatePaymentLink(CreatePaymentLinkRequest body)
         {
             List<ItemData> items = new List<ItemData>();
-
-            PaymentData paymentData = new PaymentData(
-                body.transID,
-                body.price,
-                body.description,
-                items,
-                $"{_client}/family/deposit/return?status=cancelled&id={body.transID}",
-                $"{_client}/family/deposit/return?status=success&id={body.transID}",
-                null,
-                body.buyerName,
-                body.buyerEmail,
-                null,
-                null,
-                body.expriedAt
-            );
+            string successUrl = "";
+            string canceledUrl = "";
+            //Xử lý khi mobile request
+            if(!body.isMobile)
+            {
+                canceledUrl = $"{_client}/family/deposit/return?id={body.transID}";
+                successUrl = $"{_client}/family/deposit/return?id={body.transID}";
+            }
+            else
+            {
+                canceledUrl = "https://0qqx43v4-5280.asse.devtunnels.ms/api/Payment/cancel";
+                successUrl = "https://0qqx43v4-5280.asse.devtunnels.ms/api/Payment/success";
+            }
+                PaymentData paymentData = new PaymentData(
+                    body.transID,
+                    body.price,
+                    body.description,
+                    items,
+                    canceledUrl,
+                    successUrl,
+                    null,
+                    body.buyerName,
+                    body.buyerEmail,
+                    null,
+                    null,
+                    body.expriedAt
+                );
 
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
             if (createPayment == null || string.IsNullOrEmpty(createPayment.checkoutUrl))
