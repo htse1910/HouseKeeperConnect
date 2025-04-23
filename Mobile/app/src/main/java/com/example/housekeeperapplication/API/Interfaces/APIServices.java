@@ -13,6 +13,7 @@ import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayForFamily
 import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
+import com.example.housekeeperapplication.Model.DTOs.PaymentLinkDTO;
 import com.example.housekeeperapplication.Model.DTOs.TransactionInfo;
 import com.example.housekeeperapplication.Model.DTOs.WalletInfo;
 import com.example.housekeeperapplication.Model.Job;
@@ -63,6 +64,13 @@ public interface APIServices {
     Call<Wallet> getWalletById(
             @Query("id") int id);
 
+    @PUT("api/Wallet/Deposit")
+    Call<PaymentLinkDTO> deposit(
+            @Query("id") int accountID,
+            @Query("balance") double amount,
+            @Query("isMobile") boolean isMobile
+    );
+
     //Transaction APIs
     @GET("api/Transaction/GetTransactionByUserID")
     Call<List<Transaction>> getTransactionByUserID(
@@ -77,6 +85,10 @@ public interface APIServices {
             @Query("id") int accountID,
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
+    );
+    @GET("api/GetTotalUnReadNotiByUser")
+    Call<Integer> getTotalNotiByUser(
+        @Query("id") int accountID
     );
     //Withdraw APIs
     @POST("api/Withdraw/RequestWithdrawOTP")

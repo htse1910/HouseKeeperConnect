@@ -40,7 +40,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         holder.btnRead.setOnClickListener(v -> {
             Toast.makeText(v.getContext(), "Đã đánh dấu là đã đọc", Toast.LENGTH_SHORT).show();
-            // TODO: Thêm xử lý đánh dấu đã đọc nếu có
+
         });
     }
 
