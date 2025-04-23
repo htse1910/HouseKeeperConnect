@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
+import com.example.housekeeperapplication.Model.DTOs.Housekeeper;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +34,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class UploadIdentityActivity extends AppCompatActivity {
+public class UpdateIdentityActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSIONS = 200;
     private static final int PICK_IMAGE_FRONT = 1;
     private static final int PICK_IMAGE_BACK = 2;
@@ -46,11 +47,13 @@ public class UploadIdentityActivity extends AppCompatActivity {
     private APIServices apiServices;
     private SharedPreferences sharedPreferences;
 
+    private  int verifyID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_upload_identity);
+        setContentView(R.layout.activity_update_identity);
 
         btnFront = findViewById(R.id.btnUploadFront);
         btnBack = findViewById(R.id.btnUploadBack);
@@ -64,14 +67,34 @@ public class UploadIdentityActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> requestPermission(PICK_IMAGE_BACK));
         btnPortrait.setOnClickListener(v -> requestPermission(PICK_IMAGE_PORTRAIT));
 
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int accountId = prefs.getInt("accountID", -1); // -1 nếu chưa login
+        apiServices = APIClient.getClient(UpdateIdentityActivity.this).create(APIServices.class);
+        Call<Housekeeper> call = apiServices.getHousekeeperByAccountID(accountId);
+
+        call.enqueue(new Callback<Housekeeper>() {
+            @Override
+            public void onResponse(Call<Housekeeper> call, Response<Housekeeper> response) {
+                if (response.isSuccessful()) {
+                    Housekeeper hk = response.body();
+                    verifyID = hk.getVerifyID();
+                } else {
+                    Toast.makeText(UpdateIdentityActivity.this, "Không tìm thấy Housekeeper", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<Housekeeper> call, Throwable t) {
+                Toast.makeText(UpdateIdentityActivity.this, "Lỗi server: " + t.getMessage() , Toast.LENGTH_SHORT).show();
+                Log.d("HousekeeperInfo", t.getMessage() );
+            }
+        });
+
         btnSubmit.setOnClickListener(v -> {
             if (frontPath != null && backPath != null && portraitPath != null) {
-                int housekeeperId = sharedPreferences.getInt("housekeeperID", -1);
-                if (housekeeperId != -1) {
-                    uploadImages(housekeeperId);
-                } else {
-                    Toast.makeText(this, "Không tìm thấy thông tin Housekeeper", Toast.LENGTH_SHORT).show();
-                }
+                updateImages(verifyID);
+
             } else {
                 Toast.makeText(this, "Vui lòng chọn đủ 3 ảnh", Toast.LENGTH_SHORT).show();
             }
@@ -114,12 +137,11 @@ public class UploadIdentityActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadImages(int housekeeperId) {
+    private void updateImages(int verifyId) {
         File frontFile = new File(frontPath);
         File backFile = new File(backPath);
         File portraitFile = new File(portraitPath);
-
-
+        RequestBody verifyID = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(verifyId));
         MultipartBody.Part FrontPhoto = MultipartBody.Part.createFormData("FrontPhoto", frontFile.getName(),
                 RequestBody.create(MediaType.parse("image/*"), frontFile));
         MultipartBody.Part BackPhoto = MultipartBody.Part.createFormData("BackPhoto", backFile.getName(),
@@ -127,17 +149,17 @@ public class UploadIdentityActivity extends AppCompatActivity {
         MultipartBody.Part FacePhoto = MultipartBody.Part.createFormData("FacePhoto", portraitFile.getName(),
                 RequestBody.create(MediaType.parse("image/*"), portraitFile));
 
-        Call<ResponseBody> call = apiServices.uploadIDVerification(housekeeperId, FrontPhoto, BackPhoto, FacePhoto);
+        Call<ResponseBody> call = apiServices.updateIDVerification(verifyID, FrontPhoto, BackPhoto, FacePhoto);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(UploadIdentityActivity.this, "Gửi ảnh thành công!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UpdateIdentityActivity.this, "Cập nhật ảnh thành công!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Toast.makeText(UploadIdentityActivity.this, "Thất bại: " + response.message(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UpdateIdentityActivity.this, "Thất bại: " + response.message(), Toast.LENGTH_SHORT).show();
                     try {
-                        Log.e("Upload", response.errorBody().string());
+                        Log.e("Update", response.errorBody().string());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -146,12 +168,11 @@ public class UploadIdentityActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(UploadIdentityActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("Upload", t.getMessage());
+                Toast.makeText(UpdateIdentityActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("Update", t.getMessage());
             }
         });
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

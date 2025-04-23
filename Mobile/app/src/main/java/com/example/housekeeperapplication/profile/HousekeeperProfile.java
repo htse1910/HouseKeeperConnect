@@ -23,6 +23,7 @@ import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Adapter.ProfileOptionAdapter;
 import com.example.housekeeperapplication.HomeHousekeeperActivity;
+import com.example.housekeeperapplication.HousekeeperBookingActivity;
 import com.example.housekeeperapplication.IdentityVerificationActivity;
 import com.example.housekeeperapplication.LoginActivity;
 import com.example.housekeeperapplication.Model.Account;
@@ -155,9 +156,9 @@ public class HousekeeperProfile extends AppCompatActivity {
             if (itemId == R.id.nav_home) {
                 startActivity(new Intent(this, HomeHousekeeperActivity.class));
                 return true;
-            /*} else if (itemId == R.id.nav_activity) {
-                startActivity(new Intent(this, ActivityActivity.class));
-                return true;*/
+            } else if (itemId == R.id.nav_activity) {
+                startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                return true;
             } else if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
                 return true; // Đang ở trang thông báo
