@@ -7,10 +7,7 @@ namespace BusinessObject.DTO
     {
         public int AccountID { get; set; }
 
-        public string Name { get; set; }
-
-        [EmailAddress]
-        public string Email { get; set; }
+        public string Name { get; set; } 
 
         [Phone]
         public string? Phone { get; set; }

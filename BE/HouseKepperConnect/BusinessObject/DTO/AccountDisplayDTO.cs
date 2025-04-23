@@ -31,5 +31,7 @@ namespace BusinessObject.DTO
         public int Status { get; set; }
         public Gender Gender { get; set; }
         public string? Nickname { get; set; }
+        public string? Address { get; set; }
+        public string? Introduction { get; set; }
     }
 }

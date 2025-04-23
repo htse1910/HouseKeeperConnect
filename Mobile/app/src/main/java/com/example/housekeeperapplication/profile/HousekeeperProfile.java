@@ -86,6 +86,17 @@ public class HousekeeperProfile extends AppCompatActivity {
             }
         });
 
+        ImageView ivEditProfile = findViewById(R.id.ivEditProfile);
+
+        ivEditProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HousekeeperProfile.this, EditHousekeeperProfile.class);
+                startActivity(intent);
+            }
+        });
+
+
         logoutbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

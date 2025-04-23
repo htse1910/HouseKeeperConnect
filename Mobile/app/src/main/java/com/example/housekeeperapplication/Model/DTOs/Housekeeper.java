@@ -7,7 +7,7 @@ public class Housekeeper {
     private int gender;
     private String email;
     private String phone;
-    private String workType;
+    private int workType;
     private String localProfilePicture;
     private String googleProfilePicture;
     private String bankAccountNumber;
@@ -17,6 +17,25 @@ public class Housekeeper {
     private String frontPhoto;
     private String backPhoto;
     private String facePhoto;
+
+    public Housekeeper(int housekeeperID, int accountID, String name, int gender, String email, String phone, int workType, String localProfilePicture, String googleProfilePicture, String bankAccountNumber, String introduction, int verifyID, String address, String frontPhoto, String backPhoto, String facePhoto) {
+        this.housekeeperID = housekeeperID;
+        this.accountID = accountID;
+        this.name = name;
+        this.gender = gender;
+        this.email = email;
+        this.phone = phone;
+        this.workType = workType;
+        this.localProfilePicture = localProfilePicture;
+        this.googleProfilePicture = googleProfilePicture;
+        this.bankAccountNumber = bankAccountNumber;
+        this.introduction = introduction;
+        this.verifyID = verifyID;
+        this.address = address;
+        this.frontPhoto = frontPhoto;
+        this.backPhoto = backPhoto;
+        this.facePhoto = facePhoto;
+    }
 
     public int getHousekeeperID() {
         return housekeeperID;
@@ -66,11 +85,11 @@ public class Housekeeper {
         this.phone = phone;
     }
 
-    public String getWorkType() {
+    public int getWorkType() {
         return workType;
     }
 
-    public void setWorkType(String workType) {
+    public void setWorkType(int workType) {
         this.workType = workType;
     }
 

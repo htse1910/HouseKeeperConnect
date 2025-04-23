@@ -13,6 +13,8 @@ public class Account {
     private String googleProfilePicture;
     @Nullable
     private String localProfilePicture;
+    private String bankAccountNumber;
+    private String bankAccountName;
     @Nullable
     private String introduction;
     private int gender;
@@ -23,13 +25,15 @@ public class Account {
     private String token;
     public Account(){}
 
-    public Account(int accountID, String name, String address, int roleID, @Nullable String googleProfilePicture, @Nullable String localProfilePicture, @Nullable String introduction, int gender, String nickname, String email, String phone, String token) {
+    public Account(int accountID, String name, String address, int roleID, @Nullable String googleProfilePicture, @Nullable String localProfilePicture, String bankAccountNumber, String bankAccountName, @Nullable String introduction, int gender, String nickname, String email, String phone, String token) {
         this.accountID = accountID;
         this.name = name;
         this.address = address;
         this.roleID = roleID;
         this.googleProfilePicture = googleProfilePicture;
         this.localProfilePicture = localProfilePicture;
+        this.bankAccountNumber = bankAccountNumber;
+        this.bankAccountName = bankAccountName;
         this.introduction = introduction;
         this.gender = gender;
         this.nickname = nickname;
@@ -86,6 +90,22 @@ public class Account {
 
     public void setLocalProfilePicture(@Nullable String localProfilePicture) {
         this.localProfilePicture = localProfilePicture;
+    }
+
+    public String getBankAccountNumber() {
+        return bankAccountNumber;
+    }
+
+    public void setBankAccountNumber(String bankAccountNumber) {
+        this.bankAccountNumber = bankAccountNumber;
+    }
+
+    public String getBankAccountName() {
+        return bankAccountName;
+    }
+
+    public void setBankAccountName(String bankAccountName) {
+        this.bankAccountName = bankAccountName;
     }
 
     @Nullable

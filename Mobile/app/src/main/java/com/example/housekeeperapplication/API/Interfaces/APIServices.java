@@ -32,6 +32,7 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Query;
 
@@ -152,6 +153,22 @@ public interface APIServices {
     Call<Void> confirmJobCompletion(
             @Query("jobId") int jobId,
             @Query("accountID") int accountId
+    );
+
+    @Multipart
+    @PUT("api/HouseKeeper/UpdateHousekeeper")
+    Call<ResponseBody> updateHousekeeper(
+            @Part("AccountID") RequestBody accountID,
+            @Part("Name") RequestBody name,
+            @Part("Phone") RequestBody phone,
+            @Part("WorkType") RequestBody workType,
+            @Part("BankAccountNumber") RequestBody bankAccountNumber,
+            @Part("BankAccountName") RequestBody bankAccountName,
+            @Part("Introduction") RequestBody introduction,
+            @Part("Address") RequestBody address,
+            @Part("Gender") RequestBody gender,
+            @Part("Nickname") RequestBody nickname,
+            @Part MultipartBody.Part localProfilePicture
     );
 
 }

@@ -160,8 +160,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 Acc.Phone = familyDTO.Phone;
                 Acc.Introduction = familyDTO.Introduction;
-                Acc.Name = familyDTO.Name;
-                Acc.Email = familyDTO.Email;
+                Acc.Name = familyDTO.Name;    
                 Acc.BankAccountNumber = familyDTO.BankAccountNumber;
                 Acc.Address = familyDTO.Address;
                 Acc.UpdatedAt = DateTime.Now;
