@@ -97,6 +97,18 @@
                 android:textSize="16sp"
                 android:textColor="@android:color/white"
                 android:background="@drawable/rounded_button_primary" />
+            <!-- 🟧 Button to Chat Page -->
+            <Button
+                android:id="@+id/btnToChat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💬 Đến trang Chat"
+                android:textAllCaps="false"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="8dp"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/rounded_button_primary"/>
 
             <!-- RecyclerView content -->
             <androidx.recyclerview.widget.RecyclerView
