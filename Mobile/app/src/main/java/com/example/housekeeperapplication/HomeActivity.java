@@ -42,6 +42,11 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, FamilyJobListActivity.class);
             startActivity(intent);
         });
+        Button btnToChat = findViewById(R.id.btnToChat);
+        btnToChat.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, ChatListMockActivity.class);
+            startActivity(intent);
+        });
 
 
         // 👋 Set greeting with actual name
