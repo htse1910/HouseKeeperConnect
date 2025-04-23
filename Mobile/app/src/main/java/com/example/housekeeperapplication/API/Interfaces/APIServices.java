@@ -107,10 +107,20 @@ public interface APIServices {
     Call<Housekeeper> getHousekeeperByAccountID(@Query("id") int accountId);
 
     //IDVerification
+
+
     @Multipart
     @POST("api/IDVerifications/CreateIDVerification")
     Call<ResponseBody> uploadIDVerification(
             @Query("housekeeperId") int housekeeperId,
+            @Part MultipartBody.Part FrontPhoto,
+            @Part MultipartBody.Part BackPhoto,
+            @Part MultipartBody.Part FacePhoto
+    );
+    @Multipart
+    @PUT("api/IDVerifications/UpdateIDVerification")
+    Call<ResponseBody> updateIDVerification(
+            @Part("verifyID") RequestBody verifyID,
             @Part MultipartBody.Part FrontPhoto,
             @Part MultipartBody.Part BackPhoto,
             @Part MultipartBody.Part FacePhoto

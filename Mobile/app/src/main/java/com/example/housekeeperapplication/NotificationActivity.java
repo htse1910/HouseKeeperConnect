@@ -78,9 +78,9 @@ public class NotificationActivity extends AppCompatActivity {
             if (itemId == R.id.nav_home) {
                 startActivity(new Intent(this, HomeHousekeeperActivity.class));
                 return true;
-            /*} else if (itemId == R.id.nav_activity) {
-                startActivity(new Intent(this, ActivityActivity.class));
-                return true;*/
+            } else if (itemId == R.id.nav_activity) {
+                startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                return true;
             } else if (itemId == R.id.nav_notification) {
                 return true; // Đang ở trang thông báo
             /*} else if (itemId == R.id.nav_chat) {

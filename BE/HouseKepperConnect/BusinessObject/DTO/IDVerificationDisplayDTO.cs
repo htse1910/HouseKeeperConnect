@@ -9,5 +9,8 @@
         public int Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string FrontPhoto { get; set; }
+        public string BackPhoto { get; set; }
+        public string FacePhoto { get; set; }
     }
 }

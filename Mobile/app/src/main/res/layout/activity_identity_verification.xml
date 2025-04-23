@@ -41,7 +41,6 @@
         app:layout_constraintTop_toBottomOf="@id/tvFrontLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
     <!-- CCCD mặt sau -->
     <TextView
         android:id="@+id/tvBackLabel"
@@ -92,6 +91,22 @@
 
     <!-- Nút cập nhật -->
     <Button
+        android:id="@+id/btnUpload"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Xác minh giấy tờ"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:drawablePadding="8dp"
+        android:layout_marginTop="24dp"
+        android:padding="12dp"
+        android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/imgPortrait"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
         android:id="@+id/btnUpdate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -103,7 +118,9 @@
         android:layout_marginTop="24dp"
         android:padding="12dp"
         android:backgroundTint="@color/colorPrimary"
-        app:layout_constraintTop_toBottomOf="@id/imgPortrait"
+        app:layout_constraintTop_toBottomOf="@id/btnUpload"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

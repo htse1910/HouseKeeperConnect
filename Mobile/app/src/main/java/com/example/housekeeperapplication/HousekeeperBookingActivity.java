@@ -1,5 +1,6 @@
 package com.example.housekeeperapplication;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -14,6 +15,8 @@ import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Adapter.BookingAdapter;
 import com.example.housekeeperapplication.Model.DTOs.BookingHousekeeperDTO;
 import com.example.housekeeperapplication.R;
+import com.example.housekeeperapplication.profile.HousekeeperProfile;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
 
@@ -61,6 +64,27 @@ public class HousekeeperBookingActivity extends AppCompatActivity {
                 }
             });
         }
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                startActivity(new Intent(this, HomeHousekeeperActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_activity) {
+                return true;
+            } else if (itemId == R.id.nav_notification) {
+                startActivity(new Intent(this, NotificationActivity.class));
+                return true; // Đang ở trang thông báo
+            /*} else if (itemId == R.id.nav_chat) {
+                startActivity(new Intent(this, ChatActivity.class));
+                return true;*/
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(this, HousekeeperProfile.class));
+                return true;
+            }
+            return false;
+        });
     }
 
     private void showCheckInDialog(BookingHousekeeperDTO booking) {

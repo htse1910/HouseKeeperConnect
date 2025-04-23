@@ -29,18 +29,14 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home_housekeeper);
         RecyclerView recyclerJobs = findViewById(R.id.recyclerJobs);
         List<Job> jobs = new ArrayList<>();
-        Button btnBookingManagement = findViewById(R.id.btnBookingManagement);
-        btnBookingManagement.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeHousekeeperActivity.this, HousekeeperBookingActivity.class);
-            startActivity(intent);
-        });
+
 
         jobs.add(new Job("Dọn dẹp dịp lễ 30/4", "Gia đình Nguyễn Văn A", "TP.HCM", "75000", "Full-time"));
         jobs.add(new Job("Nấu ăn", "Gia đình Trần Văn B", "Hà Nội", "90000", "Part-time"));
 
 
         JobAdapter adapter = new JobAdapter(jobs, job -> {
-            Intent intent = new Intent(HomeHousekeeperActivity.this, JobDetailActivity.class);
+            Intent intent = new Intent(HomeHousekeeperActivity.this, JobHousekeeperDetailActivity.class);
             intent.putExtra("jobName", job.getJobName());
             intent.putExtra("familyName", job.getFamilyName());
             intent.putExtra("location", job.getLocation());
@@ -58,9 +54,9 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
                 return true;
-            /*} else if (itemId == R.id.nav_activity) {
-                startActivity(new Intent(this, ActivityActivity.class));
-                return true;*/
+            } else if (itemId == R.id.nav_activity) {
+                startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                return true;
             } else if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
                 return true; // Đang ở trang thông báo
