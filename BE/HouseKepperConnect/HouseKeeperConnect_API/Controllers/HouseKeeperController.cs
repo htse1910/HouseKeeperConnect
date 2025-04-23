@@ -293,8 +293,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 Acc.Phone = newAcc.Phone;
                 Acc.Introduction = newAcc.Introduction;
-                Acc.Name = newAcc.Name;
-                Acc.Email = newAcc.Email;
+                Acc.Name = newAcc.Name;               
                 Acc.BankAccountNumber = newAcc.BankAccountNumber;
                 Acc.Address = newAcc.Address;
                 Acc.UpdatedAt = DateTime.Now;
