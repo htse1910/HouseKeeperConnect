@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Công việc của tôi"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Tabs -->
+    <LinearLayout
+        android:id="@+id/tabContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Example tab item -->
+        <LinearLayout
+            android:id="@+id/tabAllContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tabAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tất cả"
+                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground" />
+
+            <View
+                android:id="@+id/underlineAll"
+                android:layout_width="24dp"
+                android:layout_height="2dp"
+                android:background="@color/colorPrimary"
+                android:visibility="visible" />
+        </LinearLayout>
+
+        <!-- Repeat similar blocks for the other tabs -->
+        <!-- Pending -->
+        <LinearLayout
+            android:id="@+id/tabPendingContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tabPending"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đang chờ"
+                android:textColor="@color/gray"
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground" />
+
+            <View
+                android:id="@+id/underlinePending"
+                android:layout_width="24dp"
+                android:layout_height="2dp"
+                android:background="@color/colorPrimary"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <!-- Accepted -->
+        <LinearLayout
+            android:id="@+id/tabAcceptedContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tabAccepted"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đã chấp nhận"
+                android:textColor="@color/gray"
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground" />
+
+            <View
+                android:id="@+id/underlineAccepted"
+                android:layout_width="24dp"
+                android:layout_height="2dp"
+                android:background="@color/colorPrimary"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <!-- Denied -->
+        <LinearLayout
+            android:id="@+id/tabDeniedContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tabDenied"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đã từ chối"
+                android:textColor="@color/gray"
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground" />
+
+            <View
+                android:id="@+id/underlineDenied"
+                android:layout_width="24dp"
+                android:layout_height="2dp"
+                android:background="@color/colorPrimary"
+                android:visibility="invisible" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerApplications"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tabContainer"
+        app:layout_constraintBottom_toTopOf="@id/btnViewOffers"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Button -->
+    <Button
+        android:id="@+id/btnViewOffers"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="📄 Xem danh sách công việc được mời bởi gia đình"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimary"
+        android:backgroundTint="@android:color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/recyclerApplications"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
