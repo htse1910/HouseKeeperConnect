@@ -37,7 +37,7 @@ public class JobDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_job_detail);
+        setContentView(R.layout.activity_family_job_detail);
 
         api = APIClient.getClient(this).create(APIServices.class);
         int jobID = getIntent().getIntExtra("jobID", -1);
