@@ -1,6 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp"
+    android:background="@android:color/white">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:backgroundTint="@android:color/white"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="6dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:gravity="center_horizontal">
+
+            <!-- Job Title -->
+            <TextView
+                android:id="@+id/tvJobName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🧽 Tên công việc"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Location + Salary -->
+            <TextView
+                android:id="@+id/tvLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📍 Địa điểm"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvSalary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💵 Lương"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp" />
+
+            <!-- Dates -->
+            <TextView
+                android:id="@+id/tvStartDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📅 Bắt đầu"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/tvEndDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📅 Kết thúc"
+                android:textSize="16sp"
+                android:layout_marginTop="2dp" />
+
+            <!-- Description -->
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📝 Mô tả"
+                android:textSize="16sp"
+                android:layout_marginTop="6dp" />
+
+            <!-- Schedule -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:weightSum="2">
+
+                <TextView
+                    android:id="@+id/tvDayOfWeek"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="📆 Thứ làm"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvSlot"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="🕐 Ca làm"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvServices"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🛎️ Dịch vụ"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp" />
+
+            <!-- Housekeeper Info -->
+            <TextView
+                android:id="@+id/tvHousekeeperName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👤 Người giúp việc"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@android:color/holo_blue_dark"
+                android:layout_marginTop="12dp" />
+
+            <ImageView
+                android:id="@+id/imgHousekeeper"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_launcher_background"
+                android:contentDescription="Ảnh người giúp việc" />
+
+            <!-- Action Buttons -->
+            <Button
+                android:id="@+id/btnConfirmSlotWorked"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="✅ Xác nhận đã Check-In"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/holo_green_dark"
+                android:layout_marginTop="8dp"
+                android:padding="12dp" />
+
+            <Button
+                android:id="@+id/btnConfirmJobCompletion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🎉 Xác nhận hoàn tất công việc"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@android:color/holo_orange_dark"
+                android:layout_marginTop="8dp"
+                android:padding="12dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</ScrollView>
