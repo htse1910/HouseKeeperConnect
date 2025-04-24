@@ -119,7 +119,7 @@ function FindJobsPage() {
     setShowSuggestions(true);
   };
 
-  const getJobTypeLabel = (type) => (type === 1 ? "Full-time" : type === 2 ? "Part-time" : "Không xác định");
+  const getJobTypeLabel = (type) => (type === 1 ? "Một lần duy nhất" : type === 2 ? "Định kỳ" : "Không xác định");
   const getJobStatusLabel = (status) => {
     switch (status) {
       case 1: return "Đang chờ duyệt";

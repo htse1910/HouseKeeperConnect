@@ -92,9 +92,18 @@ function RegisterPage() {
 
   const autoLoginAfterRegister = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/Account/Login?email=${encodeURIComponent(formData.email)}&password=${encodeURIComponent(formData.password)}`
-      );
+      const response = await axios.post(
+        `${API_BASE_URL}/Account/Login`,
+        {
+          email: formData.email,
+          password: formData.password
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );      
 
       if (response.status === 200) {
         const loginData = response.data;

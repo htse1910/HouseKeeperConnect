@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { serviceMap } from "../utils/serviceMap";
 import { toast } from "react-toastify";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
 
 const slotMap = {
   1: "8H - 9H",
@@ -14,13 +13,14 @@ const slotMap = {
 };
 
 const jobTypeMap = {
-  1: "Full-time",
-  2: "Part-time",
+  1: "Một lần duy nhất",
+  2: "Định kỳ",
 };
 
 const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [serviceNames, setServiceNames] = useState({});
   const authToken = localStorage.getItem("authToken");
   const accountID = localStorage.getItem("accountID");
 
@@ -35,6 +35,28 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
         });
         const data = await res.json();
         setJob(data);
+
+        // Fetch service names
+        if (data.serviceIDs?.length) {
+          const results = await Promise.all(
+            data.serviceIDs.map((id) =>
+              fetch(`${API_BASE_URL}/Service/GetServiceByID?id=${id}`, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  "Content-Type": "application/json",
+                },
+              })
+                .then((res) => res.ok ? res.json() : Promise.reject(res.status))
+                .then((service) => ({ id, name: service.serviceName }))
+                .catch(() => ({ id, name: `Dịch vụ không rõ (ID: ${id})` }))
+            )
+          );
+          const nameMap = {};
+          results.forEach(({ id, name }) => {
+            nameMap[id] = name;
+          });
+          setServiceNames(nameMap);
+        }
       } catch (err) {
         console.error("❌ Lỗi khi lấy chi tiết công việc:", err);
         toast.error("Không thể tải dữ liệu công việc.");
@@ -50,22 +72,19 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
 
   const handleAcceptJob = async () => {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/Job/AcceptJob?jobId=${jobID}&accountID=${accountID}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/Job/AcceptJob?jobId=${jobID}&accountID=${accountID}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
       const message = await res.text();
 
       if (res.ok) {
         toast.success(message || "Chấp nhận công việc thành công");
-        setTimeout(() => onClose(), 1000); // Delay closing to allow toast to show
+        setTimeout(() => onClose(), 1000);
       } else {
         toast.error(message || "Chấp nhận công việc thất bại");
       }
@@ -77,22 +96,19 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
 
   const handleRejectJob = async () => {
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/Job/DenyJob?jobId=${jobID}&accountID=${accountID}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/Job/DenyJob?jobId=${jobID}&accountID=${accountID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
       const message = await res.text();
 
       if (res.ok) {
         toast.success(message || "Từ chối công việc thành công");
-        setTimeout(() => onClose(), 1000); // Delay closing
+        setTimeout(() => onClose(), 1000);
       } else {
         toast.error(message || "Từ chối công việc thất bại");
       }
@@ -134,7 +150,6 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
 
       <div className="modal-dialog modal-dialog-scrollable" role="document">
         <div className="modal-content border-0 rounded-4 shadow-sm p-4">
-
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 className="fw-bold text-warning mb-0">Chi tiết công việc</h5>
             <button type="button" className="btn-close" onClick={onClose} aria-label="Đóng"></button>
@@ -158,7 +173,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
                     {job.serviceIDs.map((id, i) => (
                       <div className="info-row" key={i}>
                         <div className="info-label">•</div>
-                        <div className="info-value">{serviceMap[id] || `#${id}`}</div>
+                        <div className="info-value">{serviceNames[id] || `Đang tải (ID: ${id})`}</div>
                       </div>
                     ))}
                   </>

@@ -5,7 +5,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
-// Slot and day maps
 const slotMap = {
   1: "8H - 9H",
   2: "10H - 11H",
@@ -26,16 +25,6 @@ const dayOfWeekMap = {
   6: "Thứ Bảy",
 };
 
-const serviceDetailsMap = {
-  1: "Dọn dẹp theo giờ", 2: "Dọn dẹp định kỳ", 3: "Tổng vệ sinh nhà cửa", 4: "Dọn dẹp sau sự kiện/tết",
-  5: "Giữ trẻ theo giờ", 6: "Giữ trẻ tại nhà nguyên ngày", 7: "Chăm sóc người cao tuổi tại nhà",
-  8: "Nấu ăn theo bữa", 9: "Nấu ăn theo tuần/tháng", 10: "Mua sắm thực phẩm & lên thực đơn",
-  11: "Giặt ủi theo kg", 12: "Ủi quần áo theo bộ", 13: "Giặt hấp cao cấp", 14: "Chăm sóc cây cảnh",
-  15: "Tưới cây, cắt tỉa hàng tuần", 16: "Tắm & cắt tỉa lông thú cưng", 17: "Sửa chữa điện nước",
-  18: "Sơn sửa nội thất nhỏ", 19: "Thợ sửa chữa theo giờ", 20: "Giúp việc theo yêu cầu (dịch vụ VIP)",
-  21: "Dịch vụ giúp việc theo tháng", 22: "Hỗ trợ vận chuyển đồ đạc nhẹ",
-};
-
 function JobDetailsPage() {
   const { id } = useParams();
   const [job, setJob] = useState(null);
@@ -43,9 +32,10 @@ function JobDetailsPage() {
   const [applying, setApplying] = useState(false);
   const [familyName, setFamilyName] = useState("Không rõ");
   const [familyAccountID, setFamilyAccountID] = useState(null);
+  const [serviceDetails, setServiceDetails] = useState({});
   const jobTypeMap = {
-    1: "Full-time",
-    2: "Part-time",
+    1: "Một lần duy nhất",
+    2: "Định kỳ",
   };
 
   useEffect(() => {
@@ -63,7 +53,36 @@ function JobDetailsPage() {
         setJob(data);
         setLoading(false);
 
-        // Fetch family name using familyID -> accountID -> name
+        // Fetch service names dynamically
+        if (Array.isArray(data.serviceIDs)) {
+          Promise.all(
+            data.serviceIDs.map((sid) =>
+              fetch(`${API_BASE_URL}/Service/GetServiceByID?id=${sid}`, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  "Content-Type": "application/json"
+                }
+              })
+                .then((res) => {
+                  if (!res.ok) throw new Error(`Failed to fetch service ID ${sid}`);
+                  return res.json();
+                })
+                .then((service) => ({ id: sid, name: service.serviceName }))
+                .catch((err) => {
+                  console.warn(`Service fetch failed for ID ${sid}:`, err);
+                  return { id: sid, name: `Dịch vụ không rõ (ID: ${sid})` };
+                })
+            )
+          ).then((services) => {
+            const map = {};
+            services.forEach(({ id, name }) => {
+              map[id] = name;
+            });
+            setServiceDetails(map);
+          });
+        }
+
+        // Fetch family name
         if (data.familyID) {
           fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${data.familyID}`, {
             method: "GET",
@@ -85,8 +104,7 @@ function JobDetailsPage() {
             })
             .catch((err) => console.warn("Lỗi khi lấy tên gia đình:", err));
         }
-      })
-
+      });
   }, [id]);
 
   const handleApply = async () => {
@@ -125,11 +143,6 @@ function JobDetailsPage() {
     }
   };
 
-  const formatDays = (days) => days?.map((d) => dayOfWeekMap[d]).join(", ") || "Không rõ";
-  const formatSlots = (slots) => slots?.map((s) => slotMap[s]).join(", ") || "Không rõ";
-  const formatServices = (ids) =>
-    ids?.map((id) => serviceDetailsMap[id] ?? `Dịch vụ không rõ (ID: ${id})`).join(", ") || "Không rõ";
-
   if (loading) {
     return <div className="text-center py-5">Đang tải thông tin công việc...</div>;
   }
@@ -142,9 +155,7 @@ function JobDetailsPage() {
     <div className="container py-4">
       <ToastContainer position="top-center" autoClose={3000} />
       <div className="row">
-        {/* Left Column */}
         <div className="col-lg-8">
-          {/* Hero Section */}
           <div className="card shadow-sm border-0 mb-4 p-4 bg-light">
             <h2 className="fw-bold mb-3">{job.jobName}</h2>
             <div className="mb-2 text-muted">
@@ -162,7 +173,6 @@ function JobDetailsPage() {
             </p>
           </div>
 
-          {/* Job Details Section */}
           <div className="card shadow-sm border-0 mb-4 p-4">
             <h5 className="fw-bold mb-3">📝 Chi tiết công việc</h5>
             <ul className="list-unstyled mb-2">
@@ -170,7 +180,7 @@ function JobDetailsPage() {
                 <strong>Dịch vụ:</strong>
                 <ul className="mb-0 ps-4">
                   {job.serviceIDs?.map((id) => (
-                    <li key={id}>{serviceDetailsMap[id] ?? `Dịch vụ không rõ (ID: ${id})`}</li>
+                    <li key={id}>{serviceDetails[id] || `Đang tải dịch vụ (ID: ${id})`}</li>
                   ))}
                 </ul>
               </li>
@@ -203,7 +213,6 @@ function JobDetailsPage() {
             </ul>
           </div>
 
-          {/* Action Buttons */}
           <div className="d-flex gap-3">
             <button
               className="btn btn-warning text-white w-50 fw-semibold"
@@ -226,7 +235,6 @@ function JobDetailsPage() {
           </div>
         </div>
 
-        {/* Right Column - Sidebar */}
         <div className="col-lg-4">
           <div className="card shadow-sm border-0 p-4 bg-white">
             <h5 className="fw-bold mb-3">📌 Thông tin thêm</h5>
