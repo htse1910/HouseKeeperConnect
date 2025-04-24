@@ -1,18 +1,20 @@
 package com.example.housekeeperapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.Button;
+import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.housekeeperapplication.Adapter.JobAdapter;
+import com.example.housekeeperapplication.API.APIClient;
+import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.profile.HousekeeperProfile;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -20,36 +22,93 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class HomeHousekeeperActivity extends AppCompatActivity {
+
+    private RecyclerView recyclerJobs;
+    private JobAdapter jobAdapter;
+    private List<Job> jobList = new ArrayList<>();
+    private APIServices apiService;
+    private SharedPreferences sharedPreferences;
+    private TextView tvGreeting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home_housekeeper);
-        RecyclerView recyclerJobs = findViewById(R.id.recyclerJobs);
-        List<Job> jobs = new ArrayList<>();
 
+        // Initialize views
+        recyclerJobs = findViewById(R.id.recyclerJobs);
+        tvGreeting = findViewById(R.id.tvGreeting);
 
-        jobs.add(new Job("Dọn dẹp dịp lễ 30/4", "Gia đình Nguyễn Văn A", "TP.HCM", "75000", "Full-time"));
-        jobs.add(new Job("Nấu ăn", "Gia đình Trần Văn B", "Hà Nội", "90000", "Part-time"));
+        // Get user info from SharedPreference
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        String name = sharedPreferences.getString("name", "");
+        tvGreeting.setText("Chào " + name + " 👋");
 
-
-        JobAdapter adapter = new JobAdapter(jobs, job -> {
-            Intent intent = new Intent(HomeHousekeeperActivity.this, JobHousekeeperDetailActivity.class);
-            intent.putExtra("jobName", job.getJobName());
-            intent.putExtra("familyName", job.getFamilyName());
-            intent.putExtra("location", job.getLocation());
-            intent.putExtra("salary", job.getSalary());
-            intent.putExtra("type", job.getType());
-            startActivity(intent);
-        });
+        // Initialize RecyclerView
         recyclerJobs.setLayoutManager(new LinearLayoutManager(this));
-        recyclerJobs.setAdapter(adapter);
+        jobAdapter = new JobAdapter(jobList);
+        recyclerJobs.setAdapter(jobAdapter);
 
+        // Initialize API service
+        apiService = APIClient.getClient(this).create(APIServices.class);
 
+        // Load jobs and filter by status=3
+        loadJobs(1, 10);
+
+        // Setup bottom navigation
+        setupBottomNavigation();
+    }
+
+    private void loadJobs(int pageNumber, int pageSize) {
+        Call<List<Job>> call = apiService.getVerifyJob(pageNumber, pageSize);
+
+        call.enqueue(new Callback<List<Job>>() {
+            @Override
+            public void onResponse(Call<List<Job>> call, Response<List<Job>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    jobList.clear();
+
+                    for (Job job : response.body()) {
+                        if (job.getStatus() == 2) {
+                            jobList.add(job);
+                        }
+                    }
+
+                    jobAdapter.notifyDataSetChanged();
+
+                    if (jobList.isEmpty()) {
+                        Toast.makeText(HomeHousekeeperActivity.this,
+                                "Không có công việc hoàn thành nào",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(HomeHousekeeperActivity.this,
+                            "Lỗi khi tải công việc: " + response.message(),
+                            Toast.LENGTH_SHORT).show();
+                    Log.e("API_ERROR", "Error code: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Job>> call, Throwable t) {
+                Toast.makeText(HomeHousekeeperActivity.this,
+                        "Lỗi mạng: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+                Log.e("NETWORK_ERROR", t.getMessage(), t);
+            }
+        });
+    }
+
+    private void setupBottomNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
@@ -59,16 +118,19 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
-                return true; // Đang ở trang thông báo
-            /*} else if (itemId == R.id.nav_chat) {
-                startActivity(new Intent(this, ChatActivity.class));
-                return true;*/
+                return true;
             } else if (itemId == R.id.nav_profile) {
                 startActivity(new Intent(this, HousekeeperProfile.class));
                 return true;
             }
             return false;
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh data when returning to this activity
+        loadJobs(1, 10);
     }
 }

@@ -92,6 +92,29 @@
                 android:textColor="#555555"
                 android:textSize="14sp"/>
         </LinearLayout>
+        <!-- Trạng thái công việc -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_mark"
+
+                android:layout_marginEnd="6dp"/>
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đã duyệt"
+                android:textColor="#555555"
+                android:textSize="14sp"/>
+        </LinearLayout>
 
         <!-- Loại công việc -->
         <LinearLayout

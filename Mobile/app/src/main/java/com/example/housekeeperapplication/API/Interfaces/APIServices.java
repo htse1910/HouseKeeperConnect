@@ -16,6 +16,7 @@ import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.PaymentLinkDTO;
 import com.example.housekeeperapplication.Model.DTOs.TransactionInfo;
 import com.example.housekeeperapplication.Model.DTOs.WalletInfo;
+import com.example.housekeeperapplication.Model.Family;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.Model.Notification;
 import com.example.housekeeperapplication.Model.Transaction;
@@ -191,6 +192,11 @@ public interface APIServices {
             @Part("Gender") RequestBody gender,
             @Part("Nickname") RequestBody nickname,
             @Part MultipartBody.Part localProfilePicture
+    );
+    @GET("api/Job/JobList")
+    Call<List<Job>> getVerifyJob(
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize
     );
 
 }
