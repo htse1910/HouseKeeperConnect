@@ -16,38 +16,36 @@ import java.util.List;
 public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     private List<Job> jobList;
-    private OnItemClickListener listener;
 
-    public interface OnItemClickListener {
-        void onItemClick(Job job);
-    }
-
-    public JobAdapter(List<Job> jobList, OnItemClickListener listener) {
+    public JobAdapter(List<Job> jobList) {
         this.jobList = jobList;
-        this.listener = listener;
     }
 
     @NonNull
     @Override
     public JobViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_job_home_housekeeper, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_job_home_housekeeper, parent, false);
         return new JobViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull JobViewHolder holder, int position) {
         Job job = jobList.get(position);
-        holder.tvTitle.setText(job.getJobName());
-        holder.tvFamily.setText(job.getFamilyName());
-        holder.tvLocation.setText(job.getLocation());
-        holder.tvSalary.setText(job.getSalary());
-        holder.tvType.setText(job.getType());
 
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onItemClick(job);
-            }
-        });
+        holder.tvJobTitle.setText(job.getJobName());
+        holder.tvFamilyName.setText("Gia đình: " + job.getFamilyID());
+        holder.tvLocation.setText(job.getLocation());
+        holder.tvSalary.setText(String.format("%,.0f VND", job.getPrice()));
+        holder.tvStatus.setText("Đã duyệt");
+
+        // Set job type text based on jobType code
+        String typeText = "";
+        switch (job.getJobType()) {
+            case 1: typeText = "Part-time"; break;
+            case 2: typeText = "Full-time"; break;
+        }
+        holder.tvType.setText(typeText);
     }
 
     @Override
@@ -56,15 +54,22 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
     }
 
     public static class JobViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvFamily, tvLocation, tvSalary, tvType;
+        TextView tvJobTitle, tvFamilyName, tvLocation, tvSalary, tvStatus, tvType;
 
         public JobViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvTitle = itemView.findViewById(R.id.tvJobTitle);
-            tvFamily = itemView.findViewById(R.id.tvFamilyName);
+            tvJobTitle = itemView.findViewById(R.id.tvJobTitle);
+            tvFamilyName = itemView.findViewById(R.id.tvFamilyName);
             tvLocation = itemView.findViewById(R.id.tvLocation);
             tvSalary = itemView.findViewById(R.id.tvSalary);
+            tvStatus = itemView.findViewById(R.id.tvStatus);
             tvType = itemView.findViewById(R.id.tvType);
         }
+    }
+
+    public void updateData(List<Job> newJobs) {
+        jobList.clear();
+        jobList.addAll(newJobs);
+        notifyDataSetChanged();
     }
 }
