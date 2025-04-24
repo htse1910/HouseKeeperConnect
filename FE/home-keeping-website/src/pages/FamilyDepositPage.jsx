@@ -51,7 +51,10 @@ const FamilyDepositPage = () => {
   }, [accountID]);
 
   const handleDeposit = () => {
-    if (!amount || isNaN(amount) || Number(amount) <= 0 || isSubmitting) return;
+    if (!amount || isNaN(amount) || Number(amount) < 10000 || isSubmitting) {
+      setError(t("deposit.deposit_minimum")); // Optional: show a minimum amount warning
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);
@@ -61,11 +64,13 @@ const FamilyDepositPage = () => {
         params: {
           id: Number(accountID),
           balance: Number(amount),
+          isMobile: false, // ✅ Make sure it's included
         },
         headers,
       })
       .then((res) => {
-        const paymentUrl = res.data;
+        const paymentUrl = res.data?.paymentUrl || res.data;
+
         if (paymentUrl?.startsWith("http")) {
           window.location.href = paymentUrl;
         } else {
@@ -103,11 +108,12 @@ const FamilyDepositPage = () => {
           <div className="deposit-input-wrapper">
             <input
               type="number"
+              step="10000"          // ← makes the arrows step by 10,000
+              min="10000"
               placeholder={t("deposit.deposit_placeholder")}
               className="form-input"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              min="10000"
             />
             <span className="vnd-suffix">VNĐ</span>
           </div>
