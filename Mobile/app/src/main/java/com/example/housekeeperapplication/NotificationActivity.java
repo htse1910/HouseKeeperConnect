@@ -40,6 +40,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int accountID = prefs.getInt("accountID", 0);
+        int roleID = prefs.getInt("roleID", 0);
         int pageNumber = 1;
         int pageSize = 5;
         APIServices api = APIClient.getClient(NotificationActivity.this).create(APIServices.class);
@@ -72,11 +73,15 @@ public class NotificationActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.nav_notification); // Đánh dấu tab đang chọn
-
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                startActivity(new Intent(this, HomeHousekeeperActivity.class));
+                // Kiểm tra role để điều hướng về đúng trang Home
+                if (roleID == 1) { // Housekeeper
+                    startActivity(new Intent(this, HomeHousekeeperActivity.class));
+                } else if (roleID == 2) { // Family
+                    startActivity(new Intent(this, HomeActivity.class));
+                }
                 return true;
             } else if (itemId == R.id.nav_activity) {
                 startActivity(new Intent(this, HousekeeperBookingActivity.class));
@@ -87,7 +92,11 @@ public class NotificationActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ChatActivity.class));
                 return true;*/
             } else if (itemId == R.id.nav_profile) {
-                startActivity(new Intent(this, HousekeeperProfile.class));
+                if (roleID == 1) { // Housekeeper
+                    startActivity(new Intent(this, HousekeeperProfile.class));
+                } else if (roleID == 2) { // Family
+                    startActivity(new Intent(this, FamilyProfile.class));
+                }
                 return true;
             }
             return false;
