@@ -113,7 +113,5 @@ public class WalletHousekeeperActivity extends AppCompatActivity {
             Intent intent = new Intent(WalletHousekeeperActivity.this, RequestWithdrawActivity.class);
             startActivity(intent);
         });
-
-
     }
 }

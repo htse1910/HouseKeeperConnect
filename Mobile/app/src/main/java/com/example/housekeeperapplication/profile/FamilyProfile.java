@@ -19,10 +19,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.housekeeperapplication.Adapter.ProfileOptionAdapter;
 import com.example.housekeeperapplication.HomeActivity;
+import com.example.housekeeperapplication.IdentityVerificationActivity;
 import com.example.housekeeperapplication.LoginActivity;
 import com.example.housekeeperapplication.NotificationActivity;
 import com.example.housekeeperapplication.ProfileOption;
 import com.example.housekeeperapplication.R;
+import com.example.housekeeperapplication.WalletHousekeeperActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Arrays;
@@ -50,7 +52,23 @@ public class FamilyProfile extends AppCompatActivity {
                 new ProfileOption("Cài đặt", R.drawable.ic_settings)
         );
         ProfileOptionAdapter adapter = new ProfileOptionAdapter(options, option -> {
-            // Xử lý khi người dùng nhấn vào một mục
+            switch (option.getTitle()) {
+                case "Ví":
+                    startActivity(new Intent(FamilyProfile.this, WalletHousekeeperActivity.class));
+                    break;
+                case "Thanh toán":
+                    // ...
+                    break;
+                case "Trung tâm hỗ trợ":
+                    // ...
+                    break;
+                case "Chính sách & Quy định":
+                    // ...
+                    break;
+                case "Cài đặt":
+                    // ...
+                    break;
+            }
         });
         recyclerView.setAdapter(adapter);
 
@@ -69,6 +87,7 @@ public class FamilyProfile extends AppCompatActivity {
         });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.nav_profile);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
