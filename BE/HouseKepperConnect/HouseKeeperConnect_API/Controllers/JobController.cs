@@ -724,6 +724,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 FamilyID = oldJob.FamilyID,
                 JobName = oldJob.JobName,
+                JobType = oldJob.JobType,
                 Status = (int)JobStatus.Verified,
             };
             await _jobService.AddJobAsync(newJob);
