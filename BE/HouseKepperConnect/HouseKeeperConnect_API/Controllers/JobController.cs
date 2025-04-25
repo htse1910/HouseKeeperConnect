@@ -622,7 +622,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("ForceAbandonJobAndReassign")]
-        [Authorize(Policy = "Staff")]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<IActionResult> ForceAbandonJobAndReassign([FromQuery] int jobId, [FromQuery] DateTime abandonDate)
         {
             var oldJob = await _jobService.GetJobByIDAsync(jobId);

@@ -3,21 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp"
+    tools:context=".UploadIdentityActivity">
 
     <!-- Tiêu đề -->
+
+    <!-- Mô tả -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="📄 Xác minh giấy tờ tùy thân"
-        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        android:text="📄 Cập nhật giấy tờ tùy thân"
         android:textSize="18sp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Mô tả -->
     <TextView
         android:id="@+id/tvDescription"
         android:layout_width="0dp"
@@ -42,6 +47,17 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Upload 1 -->
+    <ImageView
+        android:id="@+id/imgFront"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_image_placeholder"
+        android:contentDescription="Ảnh CCCD mặt trước"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvFrontLabel" />
     <Button
         android:id="@+id/btnUploadFront"
         android:layout_width="0dp"
@@ -50,7 +66,7 @@
         android:background="@drawable/border_identity"
         android:textColor="@android:color/black"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvFrontLabel"
+        app:layout_constraintTop_toBottomOf="@id/imgFront"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -66,6 +82,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <ImageView
+        android:id="@+id/imgBack"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_image_placeholder"
+        android:scaleType="fitCenter"
+        android:contentDescription="Ảnh CCCD mặt sau"
+        app:layout_constraintTop_toBottomOf="@id/tvBackLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <!-- Upload 2 -->
     <Button
         android:id="@+id/btnUploadBack"
@@ -75,7 +102,7 @@
         android:background="@drawable/border_identity"
         android:textColor="@android:color/black"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvBackLabel"
+        app:layout_constraintTop_toBottomOf="@id/imgBack"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -91,6 +118,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <ImageView
+        android:id="@+id/imgPortrait"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_image_placeholder"
+        android:scaleType="fitCenter"
+        android:contentDescription="Ảnh chân dung"
+        app:layout_constraintTop_toBottomOf="@id/tvPortraitLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <!-- Upload 3 -->
     <Button
         android:id="@+id/btnUploadPortrait"
@@ -100,7 +138,7 @@
         android:background="@drawable/border_identity"
         android:textColor="@android:color/black"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/tvPortraitLabel"
+        app:layout_constraintTop_toBottomOf="@id/imgPortrait"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

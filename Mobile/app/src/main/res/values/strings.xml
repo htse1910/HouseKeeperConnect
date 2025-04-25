@@ -6,9 +6,21 @@
         <item>Nam</item>
         <item>Nữ</item>
     </string-array>
+    <string-array name="bank_array">
+        <item>Vietcombank</item>
+        <item>VietinBank</item>
+        <item>Techcombank</item>
+        <item>BIDV</item>
+        <item>MBBank</item>
+        <item>VPBank</item>
+        <item>ACB</item>
+        <item>TPBank</item>
+        <item>VIB</item>
+        <item>Agribank</item>
+    </string-array>
 
     <string-array name="job_type_array">
-        <item>Full-time</item>
-        <item>Part-time</item>
+        <item>Định kỳ</item>
+        <item>1 lần</item>
     </string-array>
 </resources>

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -21,6 +22,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +44,8 @@ public class UploadIdentityActivity extends AppCompatActivity {
     private Uri frontUri, backUri, portraitUri;
     private String frontPath, backPath, portraitPath;
 
-    Button btnFront, btnBack, btnPortrait, btnSubmit;
+    private Button btnFront, btnBack, btnPortrait, btnSubmit;
+    private ImageView frontV,backV, faceV;
     private APIServices apiServices;
     private SharedPreferences sharedPreferences;
 
@@ -56,6 +59,10 @@ public class UploadIdentityActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnUploadBack);
         btnPortrait = findViewById(R.id.btnUploadPortrait);
         btnSubmit = findViewById(R.id.btnSubmit);
+
+        frontV = findViewById(R.id.imgFront);
+        backV = findViewById(R.id.imgBack);
+        faceV = findViewById(R.id.imgPortrait);
 
         sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
         apiServices = APIClient.getClient(this).create(APIServices.class);
@@ -101,14 +108,17 @@ public class UploadIdentityActivity extends AppCompatActivity {
                 case PICK_IMAGE_FRONT:
                     frontUri = uri;
                     frontPath = realPath;
+                    Picasso.get().load(frontUri).into(frontV);
                     break;
                 case PICK_IMAGE_BACK:
                     backUri = uri;
                     backPath = realPath;
+                    Picasso.get().load(backUri).into(backV);
                     break;
                 case PICK_IMAGE_PORTRAIT:
                     portraitUri = uri;
                     portraitPath = realPath;
+                    Picasso.get().load(portraitUri).into(faceV);
                     break;
             }
         }
@@ -133,6 +143,8 @@ public class UploadIdentityActivity extends AppCompatActivity {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(UploadIdentityActivity.this, "Gửi ảnh thành công!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(UploadIdentityActivity.this, IdentityVerificationActivity.class);
+                    startActivity(intent);
                     finish();
                 } else {
                     Toast.makeText(UploadIdentityActivity.this, "Thất bại: " + response.message(), Toast.LENGTH_SHORT).show();

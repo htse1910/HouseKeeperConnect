@@ -50,7 +50,6 @@ public interface APIServices {
             @Part("name") RequestBody name,
             @Part("email") RequestBody email,
             @Part("password") RequestBody password,
-            @Part("bankAccountNumber") RequestBody bankNum,
             @Part("phone") RequestBody phone,
             @Part("roleID") RequestBody roleID,
             @Part("introduction") RequestBody description,
@@ -198,5 +197,7 @@ public interface APIServices {
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
     );
+
+    //Chat APIs
 
 }
