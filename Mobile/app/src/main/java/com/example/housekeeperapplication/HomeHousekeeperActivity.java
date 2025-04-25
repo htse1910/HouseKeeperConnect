@@ -52,7 +52,11 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
 
         // Initialize RecyclerView
         recyclerJobs.setLayoutManager(new LinearLayoutManager(this));
-        jobAdapter = new JobAdapter(jobList);
+        jobAdapter = new JobAdapter(jobList, job -> {
+            Intent intent = new Intent(this, JobHousekeeperDetailActivity.class);
+            intent.putExtra("jobID", job.getJobID());
+            startActivity(intent);
+        });
         recyclerJobs.setAdapter(jobAdapter);
 
         // Initialize API service
