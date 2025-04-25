@@ -2,11 +2,14 @@
 agp = "8.9.1"
 androidSdk = "latest-version"
 appwrite = "2.0.0"
+glide = "4.16.0"
 gson = "2.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
+jwtdecode = "2.0.2"
+jwtdecodeVersion = "2.0.2"
 loggingInterceptor = "4.9.0"
 material = "1.10.0"
 activity = "1.8.0"
@@ -20,15 +23,18 @@ retrofit = "2.9.0"
 sdkForAndroid = "7.0.0"
 
 [libraries]
+android-jwtdecode = { module = "com.auth0.android:jwtdecode", version.ref = "jwtdecodeVersion" }
 android-sdk = { module = "com.payos:android-sdk", version.ref = "androidSdk" }
 appwrite = { module = "io.appwrite:appwrite", version.ref = "appwrite" }
 commons-io = { module = "commons-io:commons-io" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+jwtdecode = { module = "com.auth0.android:jwtDecode", version.ref = "jwtdecode" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }

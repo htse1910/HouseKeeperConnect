@@ -64,6 +64,9 @@ public class IdentityVerificationActivity extends AppCompatActivity {
                         String backPhoto = housekeeper.getBackPhoto();
                         String facePhoto = housekeeper.getFacePhoto();
 
+                        btnUpdate.setEnabled(false);
+                        btnUpdate.setVisibility(View.INVISIBLE);
+
 
 
                         if (frontPhoto!=null) {
@@ -84,6 +87,8 @@ public class IdentityVerificationActivity extends AppCompatActivity {
                             Toast.makeText(IdentityVerificationActivity.this, "Đã gửi xác minh giấy tờ rồi, chỉ có thể cập nhật lại", Toast.LENGTH_SHORT).show();
                             btnUpload.setEnabled(false);
                             btnUpload.setVisibility(View.INVISIBLE);
+                            btnUpdate.setEnabled(true);
+                            btnUpdate.setVisibility(View.VISIBLE);
                         }
                     } else {
                         Toast.makeText(IdentityVerificationActivity.this, "Không thể tải dữ liệu", Toast.LENGTH_SHORT).show();

@@ -40,7 +40,7 @@ import okhttp3.ResponseBody;
 
 public class Register extends AppCompatActivity {
 
-    private EditText nameTxt, emailTxt, passTxt, rePassTxt, bankNumTxt,
+    private EditText nameTxt, emailTxt, passTxt, rePassTxt,
                      phoneTxt, addressTxt, nicknameTxt, introduceTxt;
     private RadioGroup accTypeRadio, genTypeRadio;
     private RadioButton hkRb, maleRb;
@@ -63,7 +63,6 @@ public class Register extends AppCompatActivity {
         emailTxt = findViewById(R.id.reg_email);
         passTxt = findViewById(R.id.reg_password);
         rePassTxt = findViewById(R.id.reg_confirm_password);
-        bankNumTxt = findViewById(R.id.reg_bank_account);
         phoneTxt = findViewById(R.id.reg_phone);
         addressTxt = findViewById(R.id.reg_address);
         nicknameTxt = findViewById(R.id.reg_nickname);
@@ -122,6 +121,9 @@ public class Register extends AppCompatActivity {
             public void onClick(View v) {
                 if (ContextCompat.checkSelfPermission(Register.this, android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(Register.this, new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_CODE_PERMISSIONS);
+                }else{
+                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
                 }
             }
         });
@@ -136,7 +138,6 @@ public class Register extends AppCompatActivity {
                 String email = emailTxt.getText().toString();
                 String pass = passTxt.getText().toString();
                 String rePass = rePassTxt.getText().toString();
-                String bankNum = bankNumTxt.getText().toString();
                 String phone = phoneTxt.getText().toString();
                 String address = addressTxt.getText().toString();
                 String nickname = nicknameTxt.getText().toString();
@@ -154,7 +155,6 @@ public class Register extends AppCompatActivity {
                 RequestBody nameBody = RequestBody.create(MediaType.parse("text/plain"), name);
                 RequestBody emailBody = RequestBody.create(MediaType.parse("text/plain"), email);
                 RequestBody passwordBody = RequestBody.create(MediaType.parse("text/plain"), pass);
-                RequestBody bankNumBody = RequestBody.create(MediaType.parse("text/plain"), bankNum);
                 RequestBody phoneBody = RequestBody.create(MediaType.parse("text/plain"), phone);
                 RequestBody roleIDBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(roleID));
                 RequestBody descriptionBody = RequestBody.create(MediaType.parse("text/plain"), introduce);
@@ -170,7 +170,7 @@ public class Register extends AppCompatActivity {
 
 
                 APIServices api = APIClient.getClient(Register.this).create(APIServices.class);
-                Call<ResponseBody> call = api.register(nameBody, emailBody, passwordBody, bankNumBody, phoneBody, roleIDBody, descriptionBody, addressBody, genderBody, nicknameBody, imageBody);
+                Call<ResponseBody> call = api.register(nameBody, emailBody, passwordBody, phoneBody, roleIDBody, descriptionBody, addressBody, genderBody, nicknameBody, imageBody);
                 if(call == null){
                     Toast.makeText(Register.this, "Lôĩ khi gửi yêu cầu server!", Toast.LENGTH_SHORT).show();
                     return;
@@ -191,7 +191,7 @@ public class Register extends AppCompatActivity {
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
-                            Toast.makeText(Register.this, "Không thể tạo tài khoản! Lỗi: "+response.message(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Register.this, "Không thể tạo tài khoản! Lỗi: "+response.errorBody().toString(), Toast.LENGTH_SHORT).show();
                             regBtn.setEnabled(true);
                         }
                     }

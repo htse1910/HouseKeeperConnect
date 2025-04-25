@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -38,6 +40,8 @@ public class EditHousekeeperProfile extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
     private ImageView profilePicture;
+    private Spinner bankSPN;
+    private String bankName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,19 @@ public class EditHousekeeperProfile extends AppCompatActivity {
         profilePicture = findViewById(R.id.edhkProfilePicture);
         Button btnSave = findViewById(R.id.btnSaveProfileFamily);
         Button btnSelectImage = findViewById(R.id.btnSelectImage);
+
+        Spinner bankNameSpinner = findViewById(R.id.edhkBankName);
+        bankNameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                bankName = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         // Load current profile data
         loadCurrentProfile();
@@ -105,7 +122,6 @@ public class EditHousekeeperProfile extends AppCompatActivity {
         String phone = ((EditText) findViewById(R.id.edhkPhone)).getText().toString();
         String address = ((EditText) findViewById(R.id.edhkAddress)).getText().toString();
         String bankAccountNumber = ((EditText) findViewById(R.id.edhkBank)).getText().toString();
-        String bankAccountName = ((EditText) findViewById(R.id.edhkBankName)).getText().toString();
         String introduction = ((EditText) findViewById(R.id.edhkDescription)).getText().toString();
         String nickname = ((EditText) findViewById(R.id.edhkNickname)).getText().toString();
 
@@ -135,7 +151,7 @@ public class EditHousekeeperProfile extends AppCompatActivity {
         RequestBody phoneBody = RequestBody.create(MediaType.parse("text/plain"), phone);
         RequestBody workTypeBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(workTypeValue));
         RequestBody bankAccountNumberBody = RequestBody.create(MediaType.parse("text/plain"), bankAccountNumber);
-        RequestBody bankAccountNameBody = RequestBody.create(MediaType.parse("text/plain"), bankAccountName);
+        RequestBody bankAccountNameBody = RequestBody.create(MediaType.parse("text/plain"), bankName);
         RequestBody introductionBody = RequestBody.create(MediaType.parse("text/plain"), introduction);
         RequestBody addressBody = RequestBody.create(MediaType.parse("text/plain"), address);
         RequestBody genderBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(genderValue));
@@ -220,7 +236,6 @@ public class EditHousekeeperProfile extends AppCompatActivity {
                     ((EditText) findViewById(R.id.edhkPhone)).setText(account.getPhone());
                     ((EditText) findViewById(R.id.edhkAddress)).setText(account.getAddress());
                     ((EditText) findViewById(R.id.edhkBank)).setText(account.getBankAccountNumber());
-                    ((EditText) findViewById(R.id.edhkBankName)).setText(account.getBankAccountName());
                     ((EditText) findViewById(R.id.edhkDescription)).setText(account.getIntroduction());
                     ((EditText) findViewById(R.id.edhkNickname)).setText(account.getNickname());
 

@@ -268,28 +268,35 @@ namespace HouseKeeperConnect_API.Controllers
                     Message = "No account found!";
                     return NotFound(Message);
                 }
+                if (hk.LocalProfilePicture == null)
+                {
 
-                var storage = new Storage(_appWriteClient);
-                var buckID = "67e3d029000d5b9dd68e";
-                var projectID = _configuration.GetValue<string>("Appwrite:ProjectId");
+                }
+                else
+                {
+                    var storage = new Storage(_appWriteClient);
+                    var buckID = "67e3d029000d5b9dd68e";
+                    var projectID = _configuration.GetValue<string>("Appwrite:ProjectId");
 
-                List<string> perms = new List<string>() { Permission.Write(Appwrite.Role.Any()), Permission.Read(Appwrite.Role.Any()) };
-                var idFr = Guid.NewGuid().ToString();
-                var avatar = InputFile.FromStream(
-                    hk.LocalProfilePicture.OpenReadStream(),
-                    hk.LocalProfilePicture.FileName,
-                    hk.LocalProfilePicture.ContentType
-                    );
-                var response = await storage.CreateFile(
-                            buckID,
-                            idFr,
-                            avatar,
-                            perms,
-                            null
-                            );
+                    List<string> perms = new List<string>() { Permission.Write(Appwrite.Role.Any()), Permission.Read(Appwrite.Role.Any()) };
+                    var idFr = Guid.NewGuid().ToString();
+                    var avatar = InputFile.FromStream(
+                        hk.LocalProfilePicture.OpenReadStream(),
+                        hk.LocalProfilePicture.FileName,
+                        hk.LocalProfilePicture.ContentType
+                        );
+                    var response = await storage.CreateFile(
+                                buckID,
+                                idFr,
+                                avatar,
+                                perms,
+                                null
+                                );
 
-                var avatarID = response.Id;
-                var avatarUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response.BucketId}/files/{avatarID}/view?project={projectID}";
+                    var avatarID = response.Id;
+                    var avatarUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response.BucketId}/files/{avatarID}/view?project={projectID}";
+                    Acc.LocalProfilePicture = avatarUrl;
+                }
 
                 Acc.Phone = newAcc.Phone;
                 Acc.Introduction = newAcc.Introduction;
@@ -297,7 +304,6 @@ namespace HouseKeeperConnect_API.Controllers
                 Acc.BankAccountNumber = newAcc.BankAccountNumber;
                 Acc.Address = newAcc.Address;
                 Acc.UpdatedAt = DateTime.Now;
-                Acc.LocalProfilePicture = avatarUrl;
                 Acc.Gender = newAcc.Gender;
                 Acc.Nickname = newAcc.Nickname;
                 Acc.BankAccountName = newAcc.BankAccountName;

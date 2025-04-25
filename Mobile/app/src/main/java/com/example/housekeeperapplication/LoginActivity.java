@@ -16,6 +16,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.auth0.android.jwt.JWT;
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Model.Account;
@@ -162,6 +163,19 @@ public class LoginActivity extends AppCompatActivity {
         boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
         int roleID = prefs.getInt("roleID", 0);
         String name = prefs.getString("name", "");
+        String token = prefs.getString("token", "");
+        SharedPreferences.Editor editor = prefs.edit();
+
+        if(!token.isEmpty()){
+            JWT jwt = new JWT(token);
+            boolean isExpired = jwt.isExpired(2);
+            if(isExpired){
+                editor.clear();
+                editor.apply();
+                Toast.makeText(LoginActivity.this, "Phiên đăng nhập hết hạn! Hãy đăng nhập lại!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
 
         if (isLoggedIn) {
             if(roleID ==1){
