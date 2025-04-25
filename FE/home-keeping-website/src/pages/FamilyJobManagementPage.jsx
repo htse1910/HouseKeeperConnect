@@ -9,6 +9,7 @@ import { useBackToTop, renderBackToTopButton } from "../utils/uiHelpers";
 import { getPagination } from "../utils/uiHelpers";
 import Pagination from "../components/Pagination";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import { toast } from "react-toastify";
 
 const FamilyJobManagementPage = () => {
   const { t } = useTranslation();
@@ -78,6 +79,21 @@ const FamilyJobManagementPage = () => {
   };
 
   const status4Jobs = jobs.filter((job) => job.status === 4).length;
+
+  const handleCancelJob = async (jobID) => {
+    try {
+      await axios.post(`${API_BASE_URL}/Job/CancelJob`, null, {
+        headers: { Authorization: `Bearer ${authToken}` },
+        params: { jobId: jobID, accountId: accountID }
+      });
+
+      toast.success("✅ Đã huỷ công việc.");
+      setJobs(prev => prev.map(j => j.jobID === jobID ? { ...j, status: 6 } : j));
+    } catch (err) {
+      console.error("Lỗi khi huỷ công việc:", err);
+      toast.error("❌ Không thể huỷ công việc.");
+    }
+  };
 
   return (
     <div className="container my-4">
@@ -163,6 +179,14 @@ const FamilyJobManagementPage = () => {
                       {job.status === 2 ? t("job.job.view_applicants") : t("job.job.view_detail")}
                     </button>
                   </div>
+                  {job.status === 3 && (
+                    <button
+                      className="btn btn-warning btn-sm ms-auto"
+                      onClick={() => handleCancelJob(job.jobID)}
+                    >
+                      🚫 {t("job.job.cancel")}
+                    </button>
+                  )}
                 </div>
               ))}
 

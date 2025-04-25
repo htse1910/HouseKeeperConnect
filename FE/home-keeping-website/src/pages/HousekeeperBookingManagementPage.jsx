@@ -18,12 +18,17 @@ import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 const slotMap = {
   1: "8H - 9H",
-  2: "10H - 11H",
-  3: "12H - 13H",
-  4: "14H - 15H",
-  5: "16H - 17H",
-  6: "18H - 19H",
-  7: "20H - 21H"
+  2: "9H - 10H",
+  3: "10H - 11H",
+  4: "11H - 12H",
+  5: "12H - 13H",
+  6: "13H - 14H",
+  7: "14H - 15H",
+  8: "15H - 16H",
+  9: "16H - 17H",
+  10: "17H - 18H",
+  11: "18H - 19H",
+  12: "19H - 20H",
 };
 
 const HousekeeperBookingManagementPage = () => {
@@ -161,6 +166,7 @@ const HousekeeperBookingManagementPage = () => {
               jobName: jobDetail?.jobName || "Đang cập nhật",
               familyName,
               status: booking.status,
+              jobStatus: jobDetail?.status ?? null, // ⬅️ Add this line
               location: jobDetail?.location || "Đang cập nhật",
               price: jobDetail?.price ? `${jobDetail.price.toLocaleString()} VND` : "Đang cập nhật",
               startDate: jobDetail?.startDate ? new Date(jobDetail.startDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
@@ -183,6 +189,21 @@ const HousekeeperBookingManagementPage = () => {
 
     if (housekeeperID && authToken) fetchData();
   }, [housekeeperID, authToken]);
+
+  const getJobStatusText = (status) => {
+    switch (status) {
+      case 1: return "🕐 Đang chờ duyệt";
+      case 2: return "📋 Đã duyệt";
+      case 3: return "✔️ Đã nhận";
+      case 4: return "✅ Hoàn thành";
+      case 5: return "⌛ Đã hết hạn";
+      case 6: return "❌ Đã hủy";
+      case 7: return "🚫 Không được phép";
+      case 8: return "⏳ Chờ gia đình xác nhận";
+      default: return "Không rõ";
+    }
+  };
+
 
   return (
     <div className="container py-4">
@@ -238,6 +259,11 @@ const HousekeeperBookingManagementPage = () => {
                   <strong>Mô tả:</strong> {row.description}
                 </div>
 
+                <div className="mb-1 small d-flex align-items-center">
+                  <FaCheckCircle className="me-1 text-success" />
+                  <strong>Trạng thái công việc:</strong> {getJobStatusText(row.jobStatus)}
+                </div>
+
                 <div className="d-flex flex-wrap">
                   <div className="col-12 col-md-4 small">
                     <strong>
@@ -278,27 +304,69 @@ const HousekeeperBookingManagementPage = () => {
                 </div>
 
                 <div className="text-end mt-2">
-                  {row.status === 1 && new Date(row.endDate.split("/").reverse().join("-")) < new Date() ? (
-                    <button
-                      className="btn btn-sm btn-success rounded-pill fw-bold"
-                      onClick={() => handleMarkComplete(row.jobID)}
-                    >
-                      <FaCheckCircle className="me-1" />
-                      Báo hoàn thành
-                    </button>
-                  ) : row.status === 4 ? (
-                    <span className="badge bg-success px-3 py-2 rounded-pill">
-                      Đã hoàn thành ✅
-                    </span>
-                  ) : row.status === 2 ? (
-                    <span className="badge bg-secondary px-3 py-2 rounded-pill">
-                      Đang thực hiện
-                    </span>
-                  ) : row.status === 6 ? null : (
-                    <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
-                      Chưa tới ngày xác nhận
-                    </span>
-                  )}
+                  <div className="d-flex justify-content-between align-items-center mt-2">
+
+                    {/* Job Status Button (Left Corner) */}
+                    {row.jobStatus === 3 && (
+                      <button
+                        className="btn btn-sm btn-danger rounded-pill"
+                        onClick={async () => {
+                          try {
+                            const response = await fetch(
+                              `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${row.jobID}&abandonDate=${new Date().toISOString()}`,
+                              {
+                                method: "POST",
+                                headers: {
+                                  Authorization: `Bearer ${authToken}`
+                                }
+                              }
+                            );
+                            const message = await response.text();
+                            if (response.ok) {
+                              toast.success(message || "✔️ Đã từ chối và gán lại công việc!");
+                              setRows((prev) =>
+                                prev.map((r) =>
+                                  r.jobID === row.jobID ? { ...r, jobStatus: 6 } : r
+                                )
+                              );
+                            } else {
+                              toast.error(message || "❌ Không thể từ chối công việc.");
+                            }
+                          } catch (err) {
+                            toast.error("❌ Lỗi hệ thống khi từ chối công việc.");
+                            console.error(err);
+                          }
+                        }}
+                      >
+                        ❌ Từ chối & Gán lại
+                      </button>
+                    )}
+
+                    {/* Booking Status (Right Corner) */}
+                    <div>
+                      {row.status === 1 && new Date(row.endDate.split("/").reverse().join("-")) < new Date() ? (
+                        <button
+                          className="btn btn-sm btn-success rounded-pill fw-bold"
+                          onClick={() => handleMarkComplete(row.jobID)}
+                        >
+                          <FaCheckCircle className="me-1" />
+                          Báo hoàn thành
+                        </button>
+                      ) : row.status === 4 ? (
+                        <span className="badge bg-success px-3 py-2 rounded-pill">
+                          Đã hoàn thành ✅
+                        </span>
+                      ) : row.status === 2 ? (
+                        <span className="badge bg-secondary px-3 py-2 rounded-pill">
+                          Đang thực hiện
+                        </span>
+                      ) : row.status === 6 ? null : (
+                        <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
+                          Chưa tới ngày xác nhận
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

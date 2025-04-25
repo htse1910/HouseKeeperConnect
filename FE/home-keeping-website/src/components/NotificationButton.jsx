@@ -13,6 +13,13 @@ const NotificationButton = () => {
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
 
+  useEffect(() => {
+    fetchNotifications();
+    // Optionally poll every 30s:
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const fetchNotifications = async () => {
     try {
       const response = await fetch(
@@ -51,8 +58,8 @@ const NotificationButton = () => {
 
   const handleOpen = async () => {
     setShowModal(true);
-    await fetchNotifications();
 
+    // Mark unread notifications as read after a delay
     setTimeout(() => {
       const unread = notifications.filter((n) => !n.isRead);
       unread.forEach((n) => markAsRead(n.notificationsID));
