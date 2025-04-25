@@ -7,12 +7,17 @@ import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const slotMap = {
   1: "8H - 9H",
-  2: "10H - 11H",
-  3: "12H - 13H",
-  4: "14H - 15H",
-  5: "16H - 17H",
-  6: "18H - 19H",
-  7: "20H - 21H",
+  2: "9H - 10H",
+  3: "10H - 11H",
+  4: "11H - 12H",
+  5: "12H - 13H",
+  6: "13H - 14H",
+  7: "14H - 15H",
+  8: "15H - 16H",
+  9: "16H - 17H",
+  10: "17H - 18H",
+  11: "18H - 19H",
+  12: "19H - 20H",
 };
 
 const dayOfWeekMap = {
