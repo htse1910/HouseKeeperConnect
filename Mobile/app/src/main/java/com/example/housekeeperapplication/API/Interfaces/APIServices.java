@@ -19,6 +19,7 @@ import com.example.housekeeperapplication.Model.DTOs.WalletInfo;
 import com.example.housekeeperapplication.Model.Family;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.Model.Notification;
+import com.example.housekeeperapplication.Model.Service;
 import com.example.housekeeperapplication.Model.Transaction;
 import com.example.housekeeperapplication.Model.Wallet;
 
@@ -50,6 +51,7 @@ public interface APIServices {
             @Part("name") RequestBody name,
             @Part("email") RequestBody email,
             @Part("password") RequestBody password,
+            @Part("bankAccountNumber") RequestBody bankNum,
             @Part("phone") RequestBody phone,
             @Part("roleID") RequestBody roleID,
             @Part("introduction") RequestBody description,
@@ -198,6 +200,8 @@ public interface APIServices {
             @Query("pageSize") int pageSize
     );
 
-    //Chat APIs
+
+    @GET("api/Service/GetServiceByID")
+    Call<Service> getServiceByID(@Query("id") int serviceID);
 
 }
