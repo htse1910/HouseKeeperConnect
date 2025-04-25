@@ -1,5 +1,7 @@
 package com.example.housekeeperapplication.Adapter;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,21 +10,35 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.housekeeperapplication.API.APIClient;
+import com.example.housekeeperapplication.API.Interfaces.APIServices;
+import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
+import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.R;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     private List<Job> jobList;
     private OnJobClickListener listener;
+    private APIServices apiService;
+    private Context context;
+
     public interface OnJobClickListener {
         void onJobClick(Job job);
     }
-    public JobAdapter(List<Job> jobList, OnJobClickListener listener) {
+
+    public JobAdapter(List<Job> jobList, OnJobClickListener listener, Context context) {
         this.jobList = jobList;
         this.listener = listener;
+        this.context = context;
+        this.apiService = APIClient.getClient(context).create(APIServices.class);
     }
 
     @NonNull
@@ -38,7 +54,6 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
         Job job = jobList.get(position);
 
         holder.tvJobTitle.setText(job.getJobName());
-        holder.tvFamilyName.setText("Gia đình: " + job.getFamilyID());
         holder.tvLocation.setText(job.getLocation());
         holder.tvSalary.setText(String.format("%,.0f VND", job.getPrice()));
         holder.tvStatus.setText("Đã duyệt");
@@ -51,7 +66,54 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
         }
         holder.tvType.setText(typeText);
 
+        // Initially set family name to "Loading..."
+        holder.tvFamilyName.setText("Đang tải...");
+
+        // Fetch family details
+        fetchFamilyName(job.getFamilyID(), holder.tvFamilyName);
+
         holder.itemView.setOnClickListener(v -> listener.onJobClick(job));
+    }
+
+    private void fetchFamilyName(int familyID, TextView tvFamilyName) {
+        // First get the family to get accountID
+        apiService.getFamilyByID(familyID).enqueue(new Callback<FamilyAccountMappingDTO>() {
+            @Override
+            public void onResponse(Call<FamilyAccountMappingDTO> call, Response<FamilyAccountMappingDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    int accountID = response.body().getAccountID();
+
+                    // Now get the family details with account info
+                    apiService.getFamilyByAccountID(accountID).enqueue(new Callback<FamilyAccountDetailDTO>() {
+                        @Override
+                        public void onResponse(Call<FamilyAccountDetailDTO> call, Response<FamilyAccountDetailDTO> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                String name = response.body().getName();
+                                tvFamilyName.setText("Gia đình: " + name);
+                            } else {
+                                tvFamilyName.setText("Gia đình: Không xác định");
+                                Log.e("API_ERROR", "Error getting family details: " + response.message());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<FamilyAccountDetailDTO> call, Throwable t) {
+                            tvFamilyName.setText("Gia đình: Không xác định");
+                            Log.e("NETWORK_ERROR", "Failed to get family details", t);
+                        }
+                    });
+                } else {
+                    tvFamilyName.setText("Gia đình: Không xác định");
+                    Log.e("API_ERROR", "Error getting family: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FamilyAccountMappingDTO> call, Throwable t) {
+                tvFamilyName.setText("Gia đình: Không xác định");
+                Log.e("NETWORK_ERROR", "Failed to get family", t);
+            }
+        });
     }
 
     @Override
