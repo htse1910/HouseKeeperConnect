@@ -181,6 +181,12 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            if (!hk.IsVerified)
+            {
+                Message = "Bạn cần phải xác nhận danh tính trước khi ứng tuyển!";
+                return BadRequest(Message);
+            }
+
             var job = await _jobService.GetJobByIDAsync(jobID);
             if (job == null)
             {
