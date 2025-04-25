@@ -723,8 +723,8 @@ namespace HouseKeeperConnect_API.Controllers
             var newJob = new Job
             {
                 FamilyID = oldJob.FamilyID,
+                JobName = oldJob.JobName,
                 Status = (int)JobStatus.Verified,
-                CreatedDate = DateTime.Now,
             };
             await _jobService.AddJobAsync(newJob);
 
@@ -733,6 +733,7 @@ namespace HouseKeeperConnect_API.Controllers
                 JobID = newJob.JobID,
                 Location = oldJobDetail.Location,
                 Price = refundAmount,
+                FeeID = oldJobDetail.FeeID,
                 PricePerHour = oldJobDetail.PricePerHour,
                 StartDate = abandonDate,
                 EndDate = oldJobDetail.EndDate,
