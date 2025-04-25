@@ -47,9 +47,6 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import HousekeeperBookingManagementPage from "./pages/HousekeeperBookingManagementPage";
 import UserNotifications from './pages/UserNotifications';
 import AdminDashboardPage from './pages/AdminDashboardPage';
-import AdminAccountPage from './pages/AdminAccountPage';
-import AdminServicesPage from './pages/AdminServicesPage';
-import AdminTransactionPage from './pages/AdminTransactionPage';
 import JobListOfFamily from './pages/JobListOfFamily.jsx';
 import JobsOfferedToMePage from './pages/JobsOfferedToMePage.jsx';
 import HouseKeeperPayoutsPage from './pages/HouseKeeperPayoutsPage.jsx';
@@ -57,6 +54,8 @@ import StaffWithdrawalVerificationPage from './pages/StaffWithdrawalVerification
 import HousekeeperSupportRequestPage from './pages/HousekeeperSupportRequestPage'; // ✅ New page
 import FamilySupportRequestPage from './pages/FamilySupportRequestPage'; // ✅ Import new page
 import StaffSupportRequestPage from './pages/StaffSupportRequestPage'; // ✅ Import it if you've created it
+import AdminUserListPage from './pages/AdminUserListPage.jsx';
+import AdminServiceListPage from './pages/AdminServicePgae.jsx';
 
 function AppRoutes() {
   return (
@@ -124,9 +123,9 @@ function AppRoutes() {
 
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-        <Route path="/admin/users" element={<AdminAccountPage />} />
-        <Route path="/admin/services" element={<AdminServicesPage />} />
-        <Route path="/admin/transaction" element={<AdminTransactionPage />} />
+        <Route path="/admin/users" element={<AdminUserListPage />} />
+        <Route path="/admin/services" element={<AdminServiceListPage />} />  // ✅ NEW SERVICE PAGE
+
       </Routes>
     </Layout>
   );
