@@ -6,6 +6,7 @@ public class JobDetailForBookingDTO {
     public int jobID;
     public int familyID;
     public int status; // <-- add this field if not present!
+    private String familyName;
     private String jobName;
     private int jobType;
     private String location;
@@ -141,6 +142,14 @@ public class JobDetailForBookingDTO {
 
     public void setDayofWeek(List<Integer> dayofWeek) {
         this.dayofWeek = dayofWeek;
+    }
+
+    public String getFamilyName() {
+        return familyName;
+    }
+
+    public void setFamilyName(String familyName) {
+        this.familyName = familyName;
     }
 
     public int getJobID() {

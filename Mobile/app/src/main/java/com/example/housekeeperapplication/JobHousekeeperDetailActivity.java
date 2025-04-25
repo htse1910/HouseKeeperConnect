@@ -13,6 +13,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
+import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
+import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.Service;
 
@@ -31,7 +33,7 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
     private TextView tvServices, tvSchedules, tvSlots, tvWorkType, tvDescription;
     private APIServices apiService;
     private int jobID;
-
+    private int familyID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +75,9 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
             public void onResponse(Call<JobDetailForBookingDTO> call, Response<JobDetailForBookingDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     JobDetailForBookingDTO jobDetail = response.body();
+                    familyID = jobDetail.getFamilyID();
                     bindJobDetail(jobDetail);
+                    fetchFamilyName(familyID);
                 } else {
                     Toast.makeText(JobHousekeeperDetailActivity.this, "Không thể tải chi tiết công việc", Toast.LENGTH_SHORT).show();
                     Log.e("API_ERROR", "Response: " + response.message());
@@ -87,10 +91,55 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
             }
         });
     }
+    private void fetchFamilyName(int familyID) {
+        // First set loading text
+        tvFamily.setText("Đang tải thông tin gia đình...");
+
+        // First get the family to get accountID
+        apiService.getFamilyByID(familyID).enqueue(new Callback<FamilyAccountMappingDTO>() {
+            @Override
+            public void onResponse(Call<FamilyAccountMappingDTO> call,
+                                   Response<FamilyAccountMappingDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    int accountID = response.body().getAccountID();
+
+                    // Now get the family details with account info
+                    apiService.getFamilyByAccountID(accountID).enqueue(new Callback<FamilyAccountDetailDTO>() {
+                        @Override
+                        public void onResponse(Call<FamilyAccountDetailDTO> call,
+                                               Response<FamilyAccountDetailDTO> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                String name = response.body().getName();
+                                tvFamily.setText("Gia đình: " + name);
+                            } else {
+                                tvFamily.setText("Gia đình: Không xác định");
+                                Log.e("API_ERROR", "Error getting family details: " + response.message());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<FamilyAccountDetailDTO> call, Throwable t) {
+                            tvFamily.setText("Gia đình: Không xác định");
+                            Log.e("NETWORK_ERROR", "Failed to get family details", t);
+                        }
+                    });
+                } else {
+                    tvFamily.setText("Gia đình: Không xác định");
+                    Log.e("API_ERROR", "Error getting family: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FamilyAccountMappingDTO> call, Throwable t) {
+                tvFamily.setText("Gia đình: Không xác định");
+                Log.e("NETWORK_ERROR", "Failed to get family", t);
+            }
+        });
+    }
 
     private void bindJobDetail(JobDetailForBookingDTO jobDetail) {
         tvJobTitle.setText(jobDetail.getJobName());
-        tvFamily.setText("Gia đình: " + jobDetail.getFamilyID());
+
         tvLocation.setText(jobDetail.getLocation());
         tvSalary.setText(String.format("%,.0f VND", jobDetail.getPrice()));
         tvDescription.setText(jobDetail.getDescription());

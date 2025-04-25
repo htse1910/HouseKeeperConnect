@@ -56,7 +56,7 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
             Intent intent = new Intent(this, JobHousekeeperDetailActivity.class);
             intent.putExtra("jobID", job.getJobID());
             startActivity(intent);
-        });
+        }, HomeHousekeeperActivity.this);  // Pass context as third parameter
         recyclerJobs.setAdapter(jobAdapter);
 
         // Initialize API service
