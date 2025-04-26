@@ -1,6 +1,10 @@
-﻿using AutoMapper;
+﻿using Appwrite;
+using Appwrite.Models;
+using Appwrite.Services;
+using AutoMapper;
 using BusinessObject.DTO;
 using BusinessObject.Models;
+using BusinessObject.Models.AppWrite;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -14,12 +18,16 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IAccountService _accountService;
         private string Message;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
+        private readonly Client _appWriteClient;
 
-        public FamiliesController(IFamilyProfileService familyService, IAccountService accountService, IMapper mapper)
+        public FamiliesController(IFamilyProfileService familyService, IAccountService accountService, IMapper mapper, Client appWriteClient, IConfiguration configuration)
         {
             _familyService = familyService;
             _accountService = accountService;
             _mapper = mapper;
+            _configuration = configuration;
+            _appWriteClient = appWriteClient;
         }
 
         [HttpGet("FamilyList")]
@@ -150,12 +158,28 @@ namespace HouseKeeperConnect_API.Controllers
 
                 if (familyDTO.LocalProfilePicture != null)
                 {
-                    byte[] pic;
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await familyDTO.LocalProfilePicture.CopyToAsync(memoryStream);
-                        pic = memoryStream.ToArray();
-                    }
+                    var storage = new Storage(_appWriteClient);
+                    var bucketId = "67e3d029000d5b9dd68e"; 
+
+                    List<string> perms = new List<string>()
+            {
+                Permission.Write(Appwrite.Role.Any()),
+                Permission.Read(Appwrite.Role.Any())
+            };
+
+                    var fileId = Guid.NewGuid().ToString();
+                    var avatar = InputFile.FromStream(
+                        familyDTO.LocalProfilePicture.OpenReadStream(),
+                        familyDTO.LocalProfilePicture.FileName,
+                        familyDTO.LocalProfilePicture.ContentType
+                    );
+
+                    var response = await storage.CreateFile(bucketId, fileId, avatar, perms, null);
+
+                    var projectID = _configuration.GetValue<string>("Appwrite:ProjectId");
+                    var avatarUrl = $"{_appWriteClient.Endpoint}/storage/buckets/{response.BucketId}/files/{response.Id}/view?project={projectID}";
+
+                    Acc.LocalProfilePicture = avatarUrl;
                 }
 
                 Acc.Phone = familyDTO.Phone;

@@ -1,12 +1,17 @@
 package com.example.housekeeperapplication.Model.DTOs;
 
 public class FamilyAccountDetailDTO {
-    public String name;
     private int accountID;
     private int familyID;
+    public String name;
     private String email;
     private String phone;
     private String address;
+    private int gender;
+    private String localProfilePicture;
+    private String googleProfilePicture;
+    private String bankAccountNumber;
+    private String introduction;
 
 
     public String getName() {
@@ -55,5 +60,45 @@ public class FamilyAccountDetailDTO {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
+    public String getLocalProfilePicture() {
+        return localProfilePicture;
+    }
+
+    public void setLocalProfilePicture(String localProfilePicture) {
+        this.localProfilePicture = localProfilePicture;
+    }
+
+    public String getGoogleProfilePicture() {
+        return googleProfilePicture;
+    }
+
+    public void setGoogleProfilePicture(String googleProfilePicture) {
+        this.googleProfilePicture = googleProfilePicture;
+    }
+
+    public String getBankAccountNumber() {
+        return bankAccountNumber;
+    }
+
+    public void setBankAccountNumber(String bankAccountNumber) {
+        this.bankAccountNumber = bankAccountNumber;
+    }
+
+    public String getIntroduction() {
+        return introduction;
+    }
+
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
     }
 }

@@ -12,6 +12,7 @@ import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.PaymentLinkDTO;
+import com.example.housekeeperapplication.Model.Family;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.Model.Notification;
 import com.example.housekeeperapplication.Model.Service;
@@ -99,7 +100,8 @@ public interface APIServices {
     );
     //Housekeeper APIs
     @GET("api/HouseKeeper/GetHousekeeperByAccountID")
-    Call<Housekeeper> getHousekeeperByAccountID(@Query("id") int accountId);
+    Call<Housekeeper>
+    getHousekeeperByAccountID(@Query("id") int accountId);
 
     //IDVerification
 
@@ -179,6 +181,22 @@ public interface APIServices {
             @Part("Name") RequestBody name,
             @Part("Phone") RequestBody phone,
             @Part("WorkType") RequestBody workType,
+            @Part("BankAccountNumber") RequestBody bankAccountNumber,
+            @Part("BankAccountName") RequestBody bankAccountName,
+            @Part("Introduction") RequestBody introduction,
+            @Part("Address") RequestBody address,
+            @Part("Gender") RequestBody gender,
+            @Part("Nickname") RequestBody nickname,
+            @Part MultipartBody.Part localProfilePicture
+    );
+
+
+    @Multipart
+    @PUT("api/Families/UpdateFamily")
+    Call<ResponseBody> updateFamily(
+            @Part("AccountID") RequestBody accountID,
+            @Part("Name") RequestBody name,
+            @Part("Phone") RequestBody phone,
             @Part("BankAccountNumber") RequestBody bankAccountNumber,
             @Part("BankAccountName") RequestBody bankAccountName,
             @Part("Introduction") RequestBody introduction,
