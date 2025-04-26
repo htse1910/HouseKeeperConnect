@@ -28,6 +28,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+        <Button
+            android:id="@+id/btnSelectImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chọn ảnh"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/edfProfilePicture"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Form Input -->
@@ -67,6 +76,7 @@
                 android:textColor="#000000"
                 android:layout_marginBottom="12dp"/>
 
+
             <EditText
                 android:id="@+id/edfAddress"
                 android:layout_width="match_parent"
@@ -78,11 +88,42 @@
                 android:textColorHint="#999999"
                 android:textColor="#000000"
                 android:layout_marginBottom="12dp"/>
+            <Spinner
+                android:id="@+id/edhkGender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/gender_array"
+                android:padding="12dp"
+                android:background="@drawable/bg_input"
+                android:textColor="#000000"
+                android:layout_marginBottom="12dp"/>
+
+
             <EditText
                 android:id="@+id/edfBank"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Địa chỉ"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_input"
+                android:hint="Số tài khoản"
+                android:inputType="textPostalAddress"
+                android:padding="12dp"
+                android:textColor="#000000"
+                android:textColorHint="#999999" />
+            <Spinner
+                android:id="@+id/edhkBankName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/bank_array"
+                android:padding="12dp"
+                android:background="@drawable/bg_input"
+                android:textColor="#000000"
+                android:layout_marginBottom="12dp"/>
+            <EditText
+                android:id="@+id/edfNickname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nickname"
                 android:inputType="textPostalAddress"
                 android:padding="12dp"
                 android:background="@drawable/bg_input"
@@ -100,17 +141,7 @@
                 android:textColorHint="#999999"
                 android:textColor="#000000"
                 android:layout_marginBottom="12dp"/>
-            <EditText
-                android:id="@+id/edfNickname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Nickname"
-                android:inputType="textPostalAddress"
-                android:padding="12dp"
-                android:background="@drawable/bg_input"
-                android:textColorHint="#999999"
-                android:textColor="#000000"
-                android:layout_marginBottom="12dp"/>
+
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
