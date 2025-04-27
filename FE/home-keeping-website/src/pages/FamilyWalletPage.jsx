@@ -159,6 +159,12 @@ const FamilyWalletPage = () => {
                                     >
                                         {t("dashboard.dashboard_payment.withdraw")}
                                     </button>
+                                    <button
+                                        className="btn-secondary wallet-btn"
+                                        onClick={() => (window.location.href = "/housekeeper/withdraw-details")}
+                                    >
+                                        Xem lịch sử rút tiền
+                                    </button>
                                 </div>
                             </>
                         ) : (
