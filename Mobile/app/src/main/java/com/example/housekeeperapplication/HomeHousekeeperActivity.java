@@ -16,6 +16,7 @@ import com.example.housekeeperapplication.Adapter.JobAdapter;
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Model.Job;
+import com.example.housekeeperapplication.profile.FamilyProfile;
 import com.example.housekeeperapplication.profile.HousekeeperProfile;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -48,6 +49,7 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
         // Get user info from SharedPreference
         sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
         String name = sharedPreferences.getString("name", "");
+        int roleID = sharedPreferences.getInt("roleID", 0);
         tvGreeting.setText("Chào " + name + " 👋");
 
         // Initialize RecyclerView
@@ -64,9 +66,41 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
 
         // Load jobs and filter by status=3
         loadJobs(1, 10);
-
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.nav_home); // Đánh dấu tab đang chọn
         // Setup bottom navigation
-        setupBottomNavigation();
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                if(roleID==1){
+                    startActivity(new Intent(this, HomeHousekeeperActivity.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, HomeActivity.class));
+                }
+                return true;
+            } else if (itemId == R.id.nav_activity) {
+                if(roleID==1){
+                    startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, FamilyJobListActivity.class));
+                }
+                return true;
+            } else if (itemId == R.id.nav_notification) {
+                startActivity(new Intent(this, NotificationActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_chat) {
+                startActivity(new Intent(this, ChatListMockActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                if(roleID==1){
+                    startActivity(new Intent(this, HousekeeperProfile.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, FamilyProfile.class));
+                }
+                return true;
+            }
+            return false;
+        });
     }
 
     private void loadJobs(int pageNumber, int pageSize) {
@@ -106,28 +140,6 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 Log.e("NETWORK_ERROR", t.getMessage(), t);
             }
-        });
-    }
-
-    private void setupBottomNavigation() {
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setSelectedItemId(R.id.nav_home);
-
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                return true;
-            } else if (itemId == R.id.nav_activity) {
-                startActivity(new Intent(this, HousekeeperBookingActivity.class));
-                return true;
-            } else if (itemId == R.id.nav_notification) {
-                startActivity(new Intent(this, NotificationActivity.class));
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                startActivity(new Intent(this, HousekeeperProfile.class));
-                return true;
-            }
-            return false;
         });
     }
 

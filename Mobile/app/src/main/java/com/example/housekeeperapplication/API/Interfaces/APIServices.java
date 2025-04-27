@@ -1,8 +1,9 @@
 package com.example.housekeeperapplication.API.Interfaces;
 
 import com.example.housekeeperapplication.Model.Account;
-import com.example.housekeeperapplication.Model.ChatMessage;
 import com.example.housekeeperapplication.Model.DTOs.BookingHousekeeperDTO;
+import com.example.housekeeperapplication.Model.DTOs.Chat;
+import com.example.housekeeperapplication.Model.DTOs.ChatReturnDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyJobSummaryDTO;
@@ -13,7 +14,6 @@ import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.PaymentLinkDTO;
-import com.example.housekeeperapplication.Model.Family;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.Model.Notification;
 import com.example.housekeeperapplication.Model.Service;
@@ -219,12 +219,17 @@ public interface APIServices {
     //Chat APIs
 
     @GET("api/Chat/GetChat")
-    Call<ChatMessage> getChat(
+    Call<List<Chat>> getChat(
         @Query("fromAccountId") int fromID,
         @Query("toAccountId") int toID
     );
+
+    @GET("api/Chat/GetChatUsersByUser")
+    Call<List<Integer>> getChatUsersByUser(
+        @Query("fromAccountId") int fromID
+    );
     @POST("api/Chat/Send")
-    Call<ChatMessage> sendChat(
+    Call<ChatReturnDTO> sendChat(
             @Query("fromAccountId") int fromID,
             @Query("toAccountId") int toID,
             @Query("message") String mess

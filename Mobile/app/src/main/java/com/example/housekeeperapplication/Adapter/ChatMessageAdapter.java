@@ -11,7 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.housekeeperapplication.Model.ChatMessage;
 import com.example.housekeeperapplication.R;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -43,12 +49,35 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ChatMessage message = messageList.get(position);
-        if (holder instanceof SentViewHolder) {
-            ((SentViewHolder) holder).tvMessageText.setText(message.getText());
-            ((SentViewHolder) holder).tvMessageTime.setText(message.getTime());
-        } else if (holder instanceof ReceivedViewHolder) {
-            ((ReceivedViewHolder) holder).tvMessageText.setText(message.getText());
-            ((ReceivedViewHolder) holder).tvMessageTime.setText(message.getTime());
+        try {
+
+            if (holder instanceof SentViewHolder) {
+                ((SentViewHolder) holder).tvMessageText.setText(message.getText());
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+                // Define the desired output format
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH:mm:ss", Locale.getDefault());
+
+                Date oDate = inputFormat.parse(message.getTime());
+                String formatedDate = outputFormat.format(oDate);
+
+                String date = formatedDate.replace("T", " ").substring(0, 16);
+                ((SentViewHolder) holder).tvMessageTime.setText(date);
+            } else if (holder instanceof ReceivedViewHolder) {
+                ((ReceivedViewHolder) holder).tvMessageText.setText(message.getText());
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+
+                // Define the desired output format
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH:mm:ss", Locale.getDefault());
+
+                Date oDate = inputFormat.parse(message.getTime());
+                String formatedDate = outputFormat.format(oDate);
+
+                String date = formatedDate.replace("T", " ").substring(0, 16);
+                ((ReceivedViewHolder) holder).tvMessageTime.setText(date);
+            }
+        }catch (ParseException e) {
+            throw new RuntimeException(e);
         }
     }
 

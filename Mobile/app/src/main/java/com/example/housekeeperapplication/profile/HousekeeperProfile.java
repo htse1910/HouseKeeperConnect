@@ -22,6 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Adapter.ProfileOptionAdapter;
+import com.example.housekeeperapplication.ChatListMockActivity;
+import com.example.housekeeperapplication.FamilyJobListActivity;
+import com.example.housekeeperapplication.HomeActivity;
 import com.example.housekeeperapplication.HomeHousekeeperActivity;
 import com.example.housekeeperapplication.HousekeeperBookingActivity;
 import com.example.housekeeperapplication.IdentityVerificationActivity;
@@ -59,6 +62,7 @@ public class HousekeeperProfile extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int accountId = prefs.getInt("accountID", -1); // -1 nếu chưa login
+        int roleID = prefs.getInt("roleID", 0);
 
         APIServices api = APIClient.getClient(HousekeeperProfile.this).create(APIServices.class);
         Call<Account> call = api.getAccountById(accountId);
@@ -153,18 +157,31 @@ public class HousekeeperProfile extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                startActivity(new Intent(this, HomeHousekeeperActivity.class));
+                if(roleID==1){
+                    startActivity(new Intent(this, HomeHousekeeperActivity.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, HomeActivity.class));
+                }
                 return true;
             } else if (itemId == R.id.nav_activity) {
-                startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                if(roleID==1){
+                    startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, FamilyJobListActivity.class));
+                }
                 return true;
             } else if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
-                return true; // Đang ở trang thông báo
-            /*} else if (itemId == R.id.nav_chat) {
-                startActivity(new Intent(this, ChatActivity.class));
-                return true;*/
+                return true;
+            } else if (itemId == R.id.nav_chat) {
+                startActivity(new Intent(this, ChatListMockActivity.class));
+                return true;
             } else if (itemId == R.id.nav_profile) {
+                if(roleID==1){
+                    startActivity(new Intent(this, HousekeeperProfile.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, FamilyProfile.class));
+                }
                 return true;
             }
             return false;

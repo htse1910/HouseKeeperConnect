@@ -515,7 +515,7 @@ namespace HouseKeeperConnect_API.Controllers
                 // 🔔 Send notification
                 var notification = new Notification
                 {
-                    AccountID = job.FamilyID,
+                    AccountID = job.Family.AccountID,
                     Message = $"Công việc của bạn '{job.JobName}' đã được chấp nhận bởi người giúp việc.",
                     CreatedDate = DateTime.Now,
                     IsRead = false

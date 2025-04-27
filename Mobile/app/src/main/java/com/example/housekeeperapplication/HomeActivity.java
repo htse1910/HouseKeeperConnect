@@ -40,22 +40,13 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        Button btnManageJobs = findViewById(R.id.btnManageJobs);
-        btnManageJobs.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, FamilyJobListActivity.class);
-            startActivity(intent);
-        });
-        Button btnToChat = findViewById(R.id.btnToChat);
-        btnToChat.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeActivity.this, ChatListMockActivity.class);
-            startActivity(intent);
-        });
 
 
         // 👋 Set greeting with actual name
         greetingTextView = findViewById(R.id.tvGreeting);
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         String name = prefs.getString("name", "");
+        int roleID = prefs.getInt("roleID", 0);
         greetingTextView.setText("Chào " + name + " 👋");
 
         // Recycler setup
@@ -73,18 +64,31 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
+                if(roleID==1){
+                    startActivity(new Intent(this, HomeHousekeeperActivity.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, HomeActivity.class));
+                }
                 return true;
-            } /*else if (itemId == R.id.nav_activity) {
-                startActivity(new Intent(this, HousekeeperBookingActivity.class));
+            } else if (itemId == R.id.nav_activity) {
+                if(roleID==1){
+                    startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, FamilyJobListActivity.class));
+                }
                 return true;
-            }*/ else if (itemId == R.id.nav_notification) {
+            } else if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
-                return true; // Đang ở trang thông báo
-            /*} else if (itemId == R.id.nav_chat) {
-                startActivity(new Intent(this, ChatActivity.class));
-                return true;*/
+                return true;
+            } else if (itemId == R.id.nav_chat) {
+                startActivity(new Intent(this, ChatListMockActivity.class));
+                return true;
             } else if (itemId == R.id.nav_profile) {
-                startActivity(new Intent(this, FamilyProfile.class));
+                if(roleID==1){
+                    startActivity(new Intent(this, HousekeeperProfile.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, FamilyProfile.class));
+                }
                 return true;
             }
             return false;

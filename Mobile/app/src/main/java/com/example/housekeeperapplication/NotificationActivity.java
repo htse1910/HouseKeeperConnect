@@ -76,25 +76,29 @@ public class NotificationActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.nav_home) {
-                // Kiểm tra role để điều hướng về đúng trang Home
-                if (roleID == 1) { // Housekeeper
+                if(roleID==1){
                     startActivity(new Intent(this, HomeHousekeeperActivity.class));
-                } else if (roleID == 2) { // Family
+                }else if(roleID==2){
                     startActivity(new Intent(this, HomeActivity.class));
                 }
                 return true;
             } else if (itemId == R.id.nav_activity) {
-                startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                if(roleID==1){
+                    startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, FamilyJobListActivity.class));
+                }
                 return true;
             } else if (itemId == R.id.nav_notification) {
-                return true; // Đang ở trang thông báo
-            /*} else if (itemId == R.id.nav_chat) {
-                startActivity(new Intent(this, ChatActivity.class));
-                return true;*/
+                startActivity(new Intent(this, NotificationActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_chat) {
+                startActivity(new Intent(this, ChatListMockActivity.class));
+                return true;
             } else if (itemId == R.id.nav_profile) {
-                if (roleID == 1) { // Housekeeper
+                if(roleID==1){
                     startActivity(new Intent(this, HousekeeperProfile.class));
-                } else if (roleID == 2) { // Family
+                }else if(roleID==2){
                     startActivity(new Intent(this, FamilyProfile.class));
                 }
                 return true;
