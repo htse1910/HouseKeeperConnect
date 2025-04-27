@@ -25,6 +25,7 @@ const FamilyProfileUpdatePage = () => {
     phone: "",
     introduction: "",
     bankAccountNumber: "",
+    bankAccountName: "", // <-- New
   });
 
   const [profilePicture, setProfilePicture] = useState(null);
@@ -52,6 +53,7 @@ const FamilyProfileUpdatePage = () => {
           phone: f.phone || "",
           introduction: f.introduction || "",
           bankAccountNumber: f.bankAccountNumber || "",
+          bankAccountName: f.bankAccountName || "", // <-- New
         };
         setFormData(initial);
         setOriginalData(initial);
@@ -95,6 +97,7 @@ const FamilyProfileUpdatePage = () => {
     payload.append("Phone", formData.phone);
     payload.append("Email", formData.email);
     payload.append("BankAccountNumber", formData.bankAccountNumber);
+    payload.append("BankAccountName", formData.bankAccountName); // <-- New
     payload.append("Introduction", formData.introduction);
     if (profilePicture) payload.append("LocalProfilePicture", profilePicture);
 
@@ -144,6 +147,21 @@ const FamilyProfileUpdatePage = () => {
 
         <label>{t("bank_account_number")}</label>
         <input name="bankAccountNumber" value={formData.bankAccountNumber} onChange={handleChange} />
+        
+        <label>{t("bank_account_name")}</label>
+        <select name="bankAccountName" value={formData.bankAccountName} onChange={handleChange}>
+          <option value="">Chọn ngân hàng</option>
+          <option value="Vietcombank">Vietcombank</option>
+          <option value="VietinBank">VietinBank</option>
+          <option value="Techcombank">Techcombank</option>
+          <option value="BIDV">BIDV</option>
+          <option value="MBBank">MBBank</option>
+          <option value="VPBank">VPBank</option>
+          <option value="ACB">ACB</option>
+          <option value="TPBank">TPBank</option>
+          <option value="VIB">VIB</option>
+          <option value="Agribank">Agribank</option>
+        </select>
 
         <label>{t("profile_picture")}</label>
         <input type="file" className="form-control mb-3" onChange={(e) => setProfilePicture(e.target.files[0])} />

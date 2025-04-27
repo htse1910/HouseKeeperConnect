@@ -20,6 +20,7 @@ function UpdateHousekeeperPage() {
   const [gender, setGender] = useState(0);
   const [nickname, setNickname] = useState("");
   const [workType, setWorkType] = useState(0);
+  const [bankAccountName, setBankAccountName] = useState("");
 
   useEffect(() => {
     if (!accountId || !authToken) {
@@ -44,6 +45,7 @@ function UpdateHousekeeperPage() {
         setGender(data.gender ?? 0);
         setNickname(data.nickname ?? "");
         setWorkType(data.workType ?? 0);
+        setBankAccountName(data.bankAccountName || "");
       })
       .catch((error) => {
         console.error("Error fetching housekeeper details:", error);
@@ -65,7 +67,8 @@ function UpdateHousekeeperPage() {
     formData.append("Gender", gender);
     formData.append("Nickname", nickname);
     formData.append("WorkType", workType);
-        
+    formData.append("BankAccountName", bankAccountName);
+
     if (localProfilePicture) formData.append("LocalProfilePicture", localProfilePicture);
 
     try {
@@ -116,6 +119,27 @@ function UpdateHousekeeperPage() {
           <div className="col-md-6">
             <label className="form-label">Số tài khoản ngân hàng</label>
             <input type="text" className="form-control" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} />
+          </div>
+          
+          <div className="col-md-6">
+            <label className="form-label">Ngân hàng</label>
+            <select
+              className="form-select"
+              value={bankAccountName}
+              onChange={(e) => setBankAccountName(e.target.value)}
+            >
+              <option value="">Chọn ngân hàng</option>
+              <option value="Vietcombank">Vietcombank</option>
+              <option value="VietinBank">VietinBank</option>
+              <option value="Techcombank">Techcombank</option>
+              <option value="BIDV">BIDV</option>
+              <option value="MBBank">MBBank</option>
+              <option value="VPBank">VPBank</option>
+              <option value="ACB">ACB</option>
+              <option value="TPBank">TPBank</option>
+              <option value="VIB">VIB</option>
+              <option value="Agribank">Agribank</option>
+            </select>
           </div>
 
           <div className="col-12">

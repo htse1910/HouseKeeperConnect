@@ -5,6 +5,7 @@ const ContactInfo = () => {
   const [phone, setPhone] = useState("Chưa cập nhật");
   const [email, setEmail] = useState("Chưa cập nhật");
   const [bankAccount, setBankAccount] = useState("Chưa cập nhật");
+  const [bankAccountName, setBankAccountName] = useState("Chưa cập nhật");
 
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
@@ -23,6 +24,7 @@ const ContactInfo = () => {
         setPhone(data.phone?.trim() || "Chưa cập nhật");
         setEmail(data.email?.trim() || "Chưa cập nhật");
         setBankAccount(data.bankAccountNumber?.trim() || "Chưa cập nhật");
+        setBankAccountName(data.bankAccountName?.trim() || "Chưa cập nhật");
       })
       .catch((error) => {
         console.error("Lỗi khi lấy thông tin liên hệ:", error);
@@ -57,6 +59,15 @@ const ContactInfo = () => {
               <div className="fw-semibold hover-gold">{bankAccount}</div>
             </div>
           </div>
+
+          <div className="col-12 d-flex align-items-start">
+            <FaCreditCard className="text-danger me-3 mt-1" />
+            <div>
+              <div className="text-muted small">Ngân hàng</div>
+              <div className="fw-semibold hover-gold">{bankAccountName}</div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
