@@ -11,6 +11,8 @@ const ProfileCard = () => {
   const [workArea, setWorkArea] = useState("Chưa có");
   const [rating, setRating] = useState(0);
   const [photo, setPhoto] = useState(null);
+  const [fallbackPhoto, setFallbackPhoto] = useState(null); // <-- New fallback
+
 
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
@@ -26,6 +28,16 @@ const ProfileCard = () => {
       .then((res) => res.json())
       .then((data) => {
         setNickname(data.nickname?.trim() || "Chưa có");
+
+        if (data.localProfilePicture) {
+          setPhoto(data.localProfilePicture);
+        } else if (data.googleProfilePicture) {
+          setPhoto(data.googleProfilePicture);
+        }
+
+        if (data.googleProfilePicture) {
+          setFallbackPhoto(data.googleProfilePicture); // Always remember fallback
+        }
       })
       .catch((err) => console.error("Lỗi khi lấy nickname:", err));
 
@@ -76,6 +88,14 @@ const ProfileCard = () => {
                 alt="Profile"
                 className="rounded-circle border"
                 style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                onError={(e) => {
+                  if (fallbackPhoto) {
+                    e.target.onerror = null; // prevent infinite loop
+                    e.target.src = fallbackPhoto;
+                  } else {
+                    e.target.src = ""; // blank if no fallback
+                  }
+                }}
               />
             ) : (
               <div

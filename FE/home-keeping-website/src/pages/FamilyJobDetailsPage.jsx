@@ -74,9 +74,32 @@ const FamilyJobDetailsPage = () => {
 
     useEffect(() => {
         if (!authToken || !accountID || !jobID) return;
+
         axios.get(`${API_BASE_URL}/Application/ApplicationListByJob?jobID=${jobID}&pageNumber=1&pageSize=5`, { headers })
-            .then(res => setApplicants(res.data || []))
-            .catch(err => console.error("Ứng tuyển error:", err));
+            .then(async (res) => {
+                const applicantsData = res.data || [];
+
+                const enrichedApplicants = await Promise.all(
+                    applicantsData.map(async (applicant) => {
+                        try {
+                            const accRes = await axios.get(`${API_BASE_URL}/Account/GetAccount`, {
+                                params: { id: applicant.accountID },
+                                headers
+                            });
+                            return {
+                                ...applicant,
+                                name: accRes.data.name, // attach the real full name
+                            };
+                        } catch (err) {
+                            console.error("Failed to fetch account for applicant:", applicant.accountID, err);
+                            return applicant; // fallback: still return basic info
+                        }
+                    })
+                );
+
+                setApplicants(enrichedApplicants);
+            })
+            .catch((err) => console.error("Ứng tuyển error:", err));
     }, [jobID]);
 
     useEffect(() => {
@@ -317,7 +340,17 @@ const FamilyJobDetailsPage = () => {
                                             </div>
                                             <div className="d-flex gap-2">
                                                 <button className="btn btn-outline-primary btn-sm" onClick={() => navigate(`/family/housekeeper/profile/${applicant.accountID}`)}>Xem hồ sơ</button>
-                                                <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate(`/family/messages?search=${applicant.nickname}`)}>Nhắn tin</button>
+                                                <button
+                                                    className="btn btn-outline-secondary btn-sm"
+                                                    onClick={() => {
+                                                        if (applicant.name) {
+                                                            window.location.href = `/messages?search=${encodeURIComponent(applicant.name)}`;
+                                                        }
+                                                    }}
+                                                    disabled={!applicant.name}
+                                                >
+                                                    Nhắn tin
+                                                </button>
                                             </div>
                                             {applicant.status === 1 && (
                                                 <div className="mt-2 d-flex gap-2">
