@@ -56,6 +56,7 @@ import FamilySupportRequestPage from './pages/FamilySupportRequestPage'; // ✅ 
 import StaffSupportRequestPage from './pages/StaffSupportRequestPage'; // ✅ Import it if you've created it
 import AdminUserListPage from './pages/AdminUserListPage.jsx';
 import AdminServiceListPage from './pages/AdminServicePgae.jsx';
+import WithdrawRequestPage from './pages/WithdrawRequestPage.jsx';
 
 function AppRoutes() {
   return (
@@ -92,7 +93,7 @@ function AppRoutes() {
         <Route path="/housekeeper/jobs-offered" element={<JobsOfferedToMePage />} />
         <Route path="/housekeeper/payouts" element={<HouseKeeperPayoutsPage />} />
         <Route path="/housekeeper/support-requests" element={<HousekeeperSupportRequestPage />} />
-
+        <Route path="/housekeeper/withdraw-details" element={<WithdrawRequestPage />} />
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
         <Route path="/dashboard/users" element={<StaffUserVerificationPage />} />
@@ -120,7 +121,7 @@ function AppRoutes() {
         <Route path="/family/jobs" element={<JobListOfFamily />} />
         <Route path="/family/support-requests" element={<FamilySupportRequestPage />} />
         <Route path="/dashboard/support" element={<StaffSupportRequestPage />} />
-
+        <Route path="/family/withdraw-details" element={<WithdrawRequestPage />} />
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUserListPage />} />

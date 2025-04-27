@@ -151,7 +151,7 @@ const HousekeeperWalletPage = () => {
                   <div className="small text-muted">
                     Cập nhật: {new Date(wallet.updatedAt).toLocaleString()}
                   </div>
-                  <div className="text-center mt-4">
+                  <div className="text-center mt-4 d-flex flex-column align-items-center gap-2">
                     <Button
                       variant="warning"
                       className="text-white fw-semibold rounded-pill px-4"
@@ -159,6 +159,14 @@ const HousekeeperWalletPage = () => {
                     >
                       <FaCashRegister className="me-2" />
                       Rút tiền
+                    </Button>
+
+                    <Button
+                      variant="secondary"
+                      className="fw-semibold rounded-pill px-4"
+                      onClick={() => window.location.href = "/housekeeper/withdraw-details"}
+                    >
+                      🧾 Xem lịch sử rút tiền
                     </Button>
                   </div>
                 </>
