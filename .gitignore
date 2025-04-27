@@ -400,3 +400,4 @@ Mobile/.idea/misc.xml
 Mobile/.idea/.name
 FE/.vscode/launch.json
 FE/package-lock.json
+Mobile/app/src/main/java/com/example/housekeeperapplication/API/APIClient.java

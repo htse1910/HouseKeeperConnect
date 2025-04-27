@@ -130,6 +130,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
             var nWi = _mapper.Map<List<WithdrawDisplayDTO>>(wi);
+            
             return Ok(nWi);
         }
 

@@ -109,7 +109,7 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     trans = await context.Transaction.Where(t => t.AccountID == uId && t.Status!=(int)TransactionStatus.Pending).
-                        AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                        OrderByDescending(t => t.UpdatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

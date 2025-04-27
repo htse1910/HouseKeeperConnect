@@ -1,6 +1,7 @@
 package com.example.housekeeperapplication.API.Interfaces;
 
 import com.example.housekeeperapplication.Model.Account;
+import com.example.housekeeperapplication.Model.ChatMessage;
 import com.example.housekeeperapplication.Model.DTOs.BookingHousekeeperDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
@@ -215,4 +216,17 @@ public interface APIServices {
     @GET("api/Service/GetServiceByID")
     Call<Service> getServiceByID(@Query("id") int serviceID);
 
+    //Chat APIs
+
+    @GET("api/Chat/GetChat")
+    Call<ChatMessage> getChat(
+        @Query("fromAccountId") int fromID,
+        @Query("toAccountId") int toID
+    );
+    @POST("api/Chat/Send")
+    Call<ChatMessage> sendChat(
+            @Query("fromAccountId") int fromID,
+            @Query("toAccountId") int toID,
+            @Query("message") String mess
+    );
 }
