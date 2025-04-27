@@ -44,6 +44,26 @@ namespace DataAccess
                 throw new Exception("Error retrieving chat history: " + ex.Message);
             }
         }
+        
+        public async Task<List<Chat>> GetChatUsersByUserAsync(int fromAccountId)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Chat
+                        .Where(c => c.FromAccountID == fromAccountId)
+                        .OrderByDescending(c => c.SendAt)
+                        .ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving chat history: " + ex.Message);
+            }
+        }
+
+        
 
         public async Task ChatAsync(Chat chat)
         {

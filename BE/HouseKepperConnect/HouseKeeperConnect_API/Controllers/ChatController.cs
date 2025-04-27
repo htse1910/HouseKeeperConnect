@@ -15,6 +15,7 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IChatService _chatService;
         private readonly IAccountService _accountService;
         private readonly IHubContext<ChatHub> _hubContext;
+        private string Message;
 
         public ChatController(IChatService chatService, IAccountService accountService, IHubContext<ChatHub> hubContext)
         {
@@ -29,9 +30,20 @@ namespace HouseKeeperConnect_API.Controllers
             var chats = await _chatService.GetChatsBetweenUsersAsync(fromAccountId, toAccountId);
             return Ok(chats);
         }
+        
+        [HttpGet("GetChatUsersByUser")]
+        public async Task<IActionResult> GetChatUsersByUSer(int fromAccountId)
+        {
+            var chats = await _chatService.GetChatUsersByUserAsync(fromAccountId);
+            List<int> uIds = new List<int>();
+            uIds = chats.Select(t => t.ToAccountID).Distinct().ToList();
+            
+            return Ok(uIds);
+        }
 
         [HttpPost("Send")]
-        public async Task<IActionResult> SendMessage([FromQuery] ChatDTO chatDto)
+        [Authorize]
+        public async Task<ActionResult<ChatReturnDTO>> SendMessage([FromQuery] ChatDTO chatDto)
         {
             if (chatDto == null || chatDto.FromAccountId <= 0 || chatDto.ToAccountId <= 0 || string.IsNullOrWhiteSpace(chatDto.Message))
             {
@@ -57,16 +69,17 @@ namespace HouseKeeperConnect_API.Controllers
                 SendAt = DateTime.Now
             };
 
-            try
-            {
                 await _chatService.ChatAsync(chat);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("Internal server error");
-            }
 
-            return Ok("Message sent successfully!");
+            Message = "Message sent successfully!";
+            var display = new ChatReturnDTO();
+            display.Content = chat.Content;
+            display.FromAccountID = chat.FromAccountID;
+            display.ToAccountID = chat.ToAccountID;
+            display.SendAt = chat.SendAt;
+
+
+            return Ok(display);
         }
     }
 }

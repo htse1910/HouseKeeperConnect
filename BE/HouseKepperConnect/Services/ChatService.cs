@@ -16,5 +16,7 @@ namespace Services
         public async Task<List<Chat>> GetChatsBetweenUsersAsync(int fromAccountId, int toAccountId) => await _chatRepository.GetChatsBetweenUsersAsync(fromAccountId, toAccountId);
 
         public async Task ChatAsync(Chat chat) => await _chatRepository.ChatAsync(chat);
+
+        public async Task<List<Chat>> GetChatUsersByUserAsync(int fromAccountId) => await _chatRepository.GetChatUsersByUserAsync(fromAccountId);
     }
 }

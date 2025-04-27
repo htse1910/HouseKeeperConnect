@@ -28,6 +28,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class WalletFamilyActivity extends AppCompatActivity {
+
+    private Button depositBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +38,16 @@ public class WalletFamilyActivity extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int accountId = prefs.getInt("accountID", -1); // -1 nếu chưa login
+
+        depositBtn = findViewById(R.id.btnDeposit);
+
+        depositBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent paymentIntent = new Intent(WalletFamilyActivity.this, DepositActivity.class);
+                startActivity(paymentIntent);
+            }
+        });
 
 
         APIServices api = APIClient.getClient(WalletFamilyActivity.this).create(APIServices.class);

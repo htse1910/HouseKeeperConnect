@@ -23,13 +23,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Adapter.ProfileOptionAdapter;
+import com.example.housekeeperapplication.ChatListMockActivity;
+import com.example.housekeeperapplication.FamilyJobListActivity;
 import com.example.housekeeperapplication.HomeActivity;
+import com.example.housekeeperapplication.HomeHousekeeperActivity;
+import com.example.housekeeperapplication.HousekeeperBookingActivity;
 import com.example.housekeeperapplication.IdentityVerificationActivity;
 import com.example.housekeeperapplication.LoginActivity;
 import com.example.housekeeperapplication.Model.Account;
 import com.example.housekeeperapplication.NotificationActivity;
 import com.example.housekeeperapplication.ProfileOption;
 import com.example.housekeeperapplication.R;
+import com.example.housekeeperapplication.WalletFamilyActivity;
 import com.example.housekeeperapplication.WalletHousekeeperActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.squareup.picasso.Picasso;
@@ -57,6 +62,7 @@ public class FamilyProfile extends AppCompatActivity {
 
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int accountId = prefs.getInt("accountID", -1); // -1 nếu chưa login
+        int roleID = prefs.getInt("roleID", 0);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewOptions);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -109,7 +115,7 @@ public class FamilyProfile extends AppCompatActivity {
         ProfileOptionAdapter adapter = new ProfileOptionAdapter(options, option -> {
             switch (option.getTitle()) {
                 case "Ví":
-                    startActivity(new Intent(FamilyProfile.this, WalletHousekeeperActivity.class));
+                    startActivity(new Intent(FamilyProfile.this, WalletFamilyActivity.class));
                     break;
                 case "Thanh toán":
                     // ...
@@ -145,23 +151,34 @@ public class FamilyProfile extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.nav_profile);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-
             if (itemId == R.id.nav_home) {
-                startActivity(new Intent(this, HomeActivity.class));
+                if(roleID==1){
+                    startActivity(new Intent(this, HomeHousekeeperActivity.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, HomeActivity.class));
+                }
                 return true;
-          /*  } else if (itemId == R.id.nav_activity) {
-                startActivity(new Intent(this, ActivityActivity.class));
-                return true;*/
+            } else if (itemId == R.id.nav_activity) {
+                if(roleID==1){
+                    startActivity(new Intent(this, HousekeeperBookingActivity.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, FamilyJobListActivity.class));
+                }
+                return true;
             } else if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
                 return true;
-           /* } else if (itemId == R.id.nav_chat) {
-                startActivity(new Intent(this, ChatActivity.class));
-                return true;*/
+            } else if (itemId == R.id.nav_chat) {
+                startActivity(new Intent(this, ChatListMockActivity.class));
+                return true;
             } else if (itemId == R.id.nav_profile) {
-                return true; // Đang ở trang Profile
+                if(roleID==1){
+                    startActivity(new Intent(this, HousekeeperProfile.class));
+                }else if(roleID==2){
+                    startActivity(new Intent(this, FamilyProfile.class));
+                }
+                return true;
             }
-
             return false;
         });
 

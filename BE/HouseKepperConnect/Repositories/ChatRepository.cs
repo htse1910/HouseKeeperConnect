@@ -9,5 +9,7 @@ namespace Repositories
         public async Task<List<Chat>> GetChatsBetweenUsersAsync(int fromAccountId, int toAccountId) => await ChatDAO.Instance.GetChatsBetweenUsersAsync(fromAccountId, toAccountId);
 
         public async Task ChatAsync(Chat chat) => await ChatDAO.Instance.ChatAsync(chat);
+
+        public async Task<List<Chat>> GetChatUsersByUserAsync(int fromAccountId) => await ChatDAO.Instance.GetChatUsersByUserAsync(fromAccountId);
     }
 }
