@@ -106,7 +106,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("HousekeeperList")] //Admin
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<IEnumerable<HousekeeperListDTO>>> GetListHousekeepersAsync(int pageNumber, int pageSize)
         {
             var trans = await _housekeeperService.GetAllHousekeepersAsync(pageNumber, pageSize);
@@ -389,7 +389,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("UpdateVerificationStatus")]
-        [Authorize]
+        [Authorize(Policy = "Staff")]
         public async Task<IActionResult> UpdateVerificationStatus([FromQuery] int housekeeperId, [FromQuery] bool isVerified)
         {
             try

@@ -105,7 +105,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         // PUT api/<WalletController>/5
         [HttpPut("Deposit")]
-        [Authorize]
+        [Authorize(Policy = "Family")]
         public async Task<IActionResult> Deposit(int id, decimal balance, bool isMobile = false)
         {
             var acc = await _accountService.GetAccountByIDAsync(id);

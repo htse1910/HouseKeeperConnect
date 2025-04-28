@@ -92,7 +92,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("UpdateTransaction")] //Staff Only
-        [Authorize]
+        [Authorize(Policy = "Staff")]
         public async Task<ActionResult<Transaction>> UpdateTransaction([FromQuery] TransactionUpdateDTO transactionUpdateDTO)
         {
             var trans = await _transactionService.GetTransactionByIDAsync(transactionUpdateDTO.TransactionID);

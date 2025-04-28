@@ -45,7 +45,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddViolation")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> AddViolationToHousekeeper([FromQuery] int accountId, [FromQuery] int violationId)
         {
             var housekeeper = await _housekeeperService.GetHousekeeperByUserAsync(accountId);
@@ -78,7 +78,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpDelete("RemoveViolation")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> RemoveViolationFromHousekeeper([FromQuery] int accountId, [FromQuery] int violationId)
         {
             var housekeeper = await _housekeeperService.GetHousekeeperByUserAsync(accountId);

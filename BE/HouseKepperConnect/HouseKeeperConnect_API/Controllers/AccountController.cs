@@ -217,8 +217,8 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         // PUT api/<AccountController>/5
-        [HttpPut("UpdateAccount")]
-        [Authorize]
+        [/*HttpPut("UpdateAccount")]
+        [Authorize(Policy ="Admin")]
         public async Task<IActionResult> Update(AccountUpdateDTO accountUpdateDTO)
         {
             var validationResult = await _accountService.ValidateUpdateAccountAsync(accountUpdateDTO);
@@ -234,10 +234,10 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("No Account Found!");
             }
 
-            /*            if (!string.IsNullOrEmpty(accountUpdateDTO.Password))
+            *//*            if (!string.IsNullOrEmpty(accountUpdateDTO.Password))
                         {
                             account.Password = _passwordHasher.HashPassword(account, accountUpdateDTO.Password);
-                        }*/
+                        }*//*
             else
             {
                 account.Password = u.Password;
@@ -245,7 +245,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _accountService.UpdateAccountAsync(account);
             return Ok("Account Updated!");
-        }
+        }*/
 
         [HttpPut("AdminUpdateAccount")]
         [Authorize(Policy = "Admin")]
@@ -313,7 +313,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("TotalAccount")]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
         public async Task<IActionResult> GetTotalAccount()
         {
             var (totalHousekeepers, totalFamilies) = await _accountService.GetTotalAccountAsync();

@@ -40,7 +40,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetAllIDVerifications")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult<IEnumerable<IDVerificationDisplayDTO>>> GetAllIDVerifications(int pageNumber, int pageSize)
         {
             try

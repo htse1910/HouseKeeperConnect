@@ -25,6 +25,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetChat")]
+        [Authorize]
         public async Task<IActionResult> GetChats(int fromAccountId, int toAccountId)
         {
             var chats = await _chatService.GetChatsBetweenUsersAsync(fromAccountId, toAccountId);
@@ -32,6 +33,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
         
         [HttpGet("GetChatUsersByUser")]
+        [Authorize]
         public async Task<IActionResult> GetChatUsersByUSer(int fromAccountId)
         {
             var chats = await _chatService.GetChatUsersByUserAsync(fromAccountId);
