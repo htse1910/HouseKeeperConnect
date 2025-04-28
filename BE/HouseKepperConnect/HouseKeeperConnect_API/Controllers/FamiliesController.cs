@@ -31,7 +31,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("FamilyList")]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
         public async Task<ActionResult<IEnumerable<FamilyDisplayDTO>>> GetAllFamilies(int pageNumber, int pageSize)
         {
             var families = await _familyService.GetAllFamilysAsync(pageNumber, pageSize);
@@ -130,7 +130,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpDelete("DeleteFamily")]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
         public async Task<IActionResult> DeleteFamily([FromQuery] int id)
         {
             var family = await _familyService.GetFamilyByIDAsync(id);

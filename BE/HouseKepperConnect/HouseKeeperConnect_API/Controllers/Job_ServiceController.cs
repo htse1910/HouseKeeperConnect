@@ -22,7 +22,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("Job_ServiceList")]
-        [Authorize]
+        [Authorize(Policy ="Staff")]
         public async Task<ActionResult<IEnumerable<Job_Service>>> GetJob_ServicesAsync()
         {
             var jobServices = await _jobServiceService.GetAllJob_ServicesAsync();
@@ -48,7 +48,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("AddJob_Service")]
-        [Authorize]
+        [Authorize(Policy ="Staff")]
         public async Task<ActionResult> AddJob_Service([FromQuery] Job_ServiceCreateDTO jobServiceCreateDTO)
         {
             if (jobServiceCreateDTO == null)
@@ -61,7 +61,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpDelete("DeleteJob_Service")]
-        [Authorize]
+        [Authorize(Policy ="Staff")]
         public async Task<ActionResult> DeleteJob_Service([FromQuery] int id)
         {
             await _jobServiceService.DeleteJob_ServiceAsync(id);
