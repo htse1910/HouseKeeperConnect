@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaLock, FaPhone, FaEnvelope, FaUser, FaCreditCard } from 'react-icons/fa';
+import { FaLock, FaPhone, FaEnvelope, FaUser } from 'react-icons/fa';
 
 function RegisterForm({ formData, onInputChange, onSubmit }) {
   return (
@@ -9,7 +9,6 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
       </h2>
 
       <form onSubmit={onSubmit}>
-        {/* Role Selection - Tick Option Style */}
         {/* Role Selection - Exclusive Checkboxes */}
         <div className="mb-4">
           <label className="form-label d-block">Vai trò</label>
@@ -18,8 +17,7 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
             {/* Gia đình */}
             <label
               htmlFor="role-family"
-              className={`flex-fill text-center py-2 m-0 d-flex align-items-center justify-content-center border-end ${formData.roleID === '2' ? 'bg-warning text-white fw-bold' : ''
-                }`}
+              className={`flex-fill text-center py-2 m-0 d-flex align-items-center justify-content-center border-end ${formData.roleID === '2' ? 'bg-warning text-white fw-bold' : ''}`}
               style={{ cursor: 'pointer' }}
             >
               <input
@@ -37,8 +35,7 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
             {/* Người giúp việc */}
             <label
               htmlFor="role-helper"
-              className={`flex-fill text-center py-2 m-0 d-flex align-items-center justify-content-center ${formData.roleID === '1' ? 'bg-warning text-white fw-bold' : ''
-                }`}
+              className={`flex-fill text-center py-2 m-0 d-flex align-items-center justify-content-center ${formData.roleID === '1' ? 'bg-warning text-white fw-bold' : ''}`}
               style={{ cursor: 'pointer' }}
             >
               <input
@@ -145,22 +142,6 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
               id="confirmPassword"
               type="password"
               value={formData.confirmPassword}
-              onChange={onInputChange}
-              className="form-control border-start-0"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Bank Account Number */}
-        <div className="mb-4">
-          <label htmlFor="bankAccountNumber" className="form-label">Số tài khoản ngân hàng</label>
-          <div className="input-group">
-            <span className="input-group-text bg-white border-end-0"><FaCreditCard /></span>
-            <input
-              id="bankAccountNumber"
-              type="text"
-              value={formData.bankAccountNumber}
               onChange={onInputChange}
               className="form-control border-start-0"
               required

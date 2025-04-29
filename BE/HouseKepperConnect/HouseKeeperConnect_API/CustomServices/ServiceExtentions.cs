@@ -70,7 +70,7 @@ public static class ServiceExtentions
             options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("https://home-keeping-website-qkb3gd5k7-tuanlam123456s-projects.vercel.app") // Allow frontend
+            policy.WithOrigins("https://home-keeping-website-qkb3gd5k7-tuanlam123456s-projects.vercel.app", "http://localhost:5173") // Allow frontend
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();

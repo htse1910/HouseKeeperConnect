@@ -217,7 +217,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         // PUT api/<AccountController>/5
-        [/*HttpPut("UpdateAccount")]
+        /*[HttpPut("UpdateAccount")]
         [Authorize(Policy ="Admin")]
         public async Task<IActionResult> Update(AccountUpdateDTO accountUpdateDTO)
         {

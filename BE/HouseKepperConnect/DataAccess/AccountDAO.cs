@@ -397,7 +397,7 @@ namespace DataAccess
         {
             var settings = new GoogleJsonWebSignature.ValidationSettings
             {
-                Audience = new List<string> { "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com" }
+                Audience = new List<string> { "681033702940-2pmjs4mfjeqjdd2k16qlo9fdl76ul3mg.apps.googleusercontent.com" }
             };
 
             var payload = await GoogleJsonWebSignature.ValidateAsync(googleToken, settings);

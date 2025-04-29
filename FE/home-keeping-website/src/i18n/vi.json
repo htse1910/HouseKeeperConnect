@@ -37,6 +37,7 @@
     "phone": "Số điện thoại"
   },
   "dashboard": {
+    "support_requests": "Yêu cầu hỗ trợ",
     "dashboard_welcome_message": "Chào mừng trở lại, {{name}}!",
     "dashboard_welcome_detail_housekeeper": "Khám phá những công việc phù hợp với bạn.",
     "dashboard_welcome_detail_family": "Khám phá những người đồng hành phù hợp với bạn.",

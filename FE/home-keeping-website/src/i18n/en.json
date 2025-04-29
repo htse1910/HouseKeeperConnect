@@ -37,6 +37,7 @@
     "phone": "Phone number"
   },
   "dashboard": {
+    "support_requests": "Support Requests",
     "dashboard_welcome_message": "Welcome back, {{name}}!",
     "dashboard_welcome_detail_housekeeper": "Explore jobs that suit you.",
     "dashboard_welcome_detail_family": "Find the right companions for your needs.",
@@ -132,8 +133,8 @@
   },
   "job": {
     "job": {
-      "posted": "Công việc đã đăng",
-      "completed": "Công việc đã hoàn thành",
+      "posted": "Jobs Posted",
+      "completed": "Jobs Completed",
       "type": "Loại công việc",
       "edit": "Chỉnh sửa",
       "delete": "Xóa",
@@ -266,12 +267,12 @@
     "fee": "Phí",
     "go_to": "Đi tới",
     "refresh": "Tải lại trang",
-    "housekeepers_waiting": "Người giúp việc đang chờ",
+    "housekeepers_waiting": "Housekeepers awaiting",
     "location": "Địa điểm",
     "no_description": "Không có mô tả",
     "no_jobs_found": "Không tìm thấy công việc nào",
     "no_transactions": "Không có giao dịch nào",
-    "post_now": "Tuyển ngay",
+    "post_now": "Recruit Now",
     "save_changes": "Lưu thay đổi",
     "posted_date": "Ngày đăng",
     "salary": "Mức lương",

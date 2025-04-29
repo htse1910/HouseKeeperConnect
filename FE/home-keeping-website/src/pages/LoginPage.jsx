@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserRoleContext } from "../components/UserRoleProvider";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
-const GOOGLE_CLIENT_ID = "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "681033702940-2pmjs4mfjeqjdd2k16qlo9fdl76ul3mg.apps.googleusercontent.com";
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
