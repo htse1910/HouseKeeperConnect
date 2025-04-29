@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import {
-  FaBriefcase, FaUsers, FaBell, FaPlusSquare, FaCalendarAlt
+  FaUsers, FaPlusSquare, FaCalendarAlt
 } from "react-icons/fa";
 import "../assets/styles/Dashboard.css";
 import { formatTotalCurrency, getTransactionFormatData } from "../utils/formatData";
@@ -11,6 +11,9 @@ import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 import { Modal, Button } from "react-bootstrap"; // Make sure it's imported
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import NotificationsCard from "../components/NotificationsCard"; // adjust path as needed
+import RecentTransactionsCard from "../components/RecentTransactionsCard"; // adjust path as needed
+
 function FamilyDashboardPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -122,7 +125,7 @@ function FamilyDashboardPage() {
       </div>
     );
   }
-  
+
   const submitSupportRequest = async () => {
     setSending(true);
     const formData = new FormData();
@@ -216,65 +219,15 @@ function FamilyDashboardPage() {
         </div>
       </div>
 
-      <div className="dashboard-grid">
-        <div className="dashboard-box">
-          <h5 className="dashboard-box-title">{t("uncategorized.notifications")}</h5>
-          <ul className="dashboard-notification-list">
-            {notifications.length === 0 ? (
-              <li className="text-muted">{t("status.transactionStatus.no_notifications")}</li>
-            ) : (
-              notifications.map((noti) => (
-                <li key={noti.notificationsID} className="dashboard-notification-item">
-                  <FaBell className="icon text-warning" />
-                  <div>
-                    <p className="dashboard-notification-text">{noti.message}</p>
-                    <small className="dashboard-notification-time">
-                      {new Date(noti.createdDate).toLocaleString("vi-VN")}
-                    </small>
-                  </div>
-                </li>
-              ))
-            )}
-          </ul>
+      <div className="row g-4 mt-2">
+        <div className="col-md-6">
+          <NotificationsCard />
         </div>
-
-        <div className="dashboard-box">
-          <h5 className="dashboard-box-title">{t("dashboard.dashboard_recent_transactions")}</h5>
-          <table className="dashboard-table">
-            <thead>
-              <tr>
-                <th>{t("misc.date")}</th>
-                <th>{t("transaction.transaction_type")}</th>
-                <th>{t("misc.housekeeper")}</th>
-                <th>{t("misc.amount")}</th>
-                <th>{t("status.status")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="text-center text-muted">
-                    {t("misc.no_transactions")}
-                  </td>
-                </tr>
-              ) : (
-                transactions.map((tx, index) => {
-                  const { statusLabel, statusClass, typeLabel } = getTransactionFormatData(tx.status, tx.transactionType, t);
-                  return (
-                    <tr key={index}>
-                      <td>{new Date(tx.createdDate).toLocaleDateString("vi-VN")}</td>
-                      <td>{typeLabel}</td>
-                      <td>{tx.receiverName || ""}</td>
-                      <td>{tx.amount.toLocaleString("vi-VN")} VNĐ</td>
-                      <td className={statusClass}>{statusLabel}</td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+        <div className="col-md-6">
+          <RecentTransactionsCard />
         </div>
       </div>
+
       <Modal show={showSupportModal} onHide={() => setShowSupportModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Gửi yêu cầu hỗ trợ</Modal.Title>
