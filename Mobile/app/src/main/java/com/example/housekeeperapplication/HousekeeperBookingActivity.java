@@ -3,6 +3,8 @@ package com.example.housekeeperapplication;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -29,6 +31,7 @@ public class HousekeeperBookingActivity extends AppCompatActivity {
 
     RecyclerView rvBookings;
     BookingAdapter bookingAdapter;
+    private TextView tvEmptyList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,7 @@ public class HousekeeperBookingActivity extends AppCompatActivity {
 
         rvBookings = findViewById(R.id.rvBookings);
         rvBookings.setLayoutManager(new LinearLayoutManager(this));
+        tvEmptyList = findViewById(R.id.tvEmptyList);
 
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int housekeeperId = prefs.getInt("housekeeperID", -1);
@@ -49,14 +53,17 @@ public class HousekeeperBookingActivity extends AppCompatActivity {
             call.enqueue(new Callback<List<BookingHousekeeperDTO>>() {
                 @Override
                 public void onResponse(Call<List<BookingHousekeeperDTO>> call, Response<List<BookingHousekeeperDTO>> response) {
-                    if (response.isSuccessful()) {
+                    if (response.isSuccessful() && response.body()!=null) {
+                        tvEmptyList.setVisibility(View.INVISIBLE);
+                        tvEmptyList.setEnabled(false);
                         List<BookingHousekeeperDTO> bookings = response.body();
                         bookingAdapter = new BookingAdapter(HousekeeperBookingActivity.this, bookings, booking -> {
                             showCheckInDialog(booking);
                         });
                         rvBookings.setAdapter(bookingAdapter);
-                    } else {
-                        Toast.makeText(HousekeeperBookingActivity.this, "Không tải được dữ liệu", Toast.LENGTH_SHORT).show();
+                    } else if(response.isSuccessful() && response.body()==null) {
+                        tvEmptyList.setEnabled(true);
+                        tvEmptyList.setVisibility(View.VISIBLE);
                     }
                 }
 

@@ -21,7 +21,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("HousekeeperSkillList")]
-        [Authorize(Policy = "Admin")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<HouseKeeperSkillDisplayDTO>>> GetAllHousekeeperSkills(int pageNumber, int pageSize)
         {
             try
