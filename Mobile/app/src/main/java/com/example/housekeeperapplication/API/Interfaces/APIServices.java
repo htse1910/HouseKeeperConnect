@@ -10,6 +10,7 @@ import com.example.housekeeperapplication.Model.DTOs.FamilyJobSummaryDTO;
 import com.example.housekeeperapplication.Model.DTOs.Housekeeper;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDetailDTO;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayForFamilyDTO;
+import com.example.housekeeperapplication.Model.DTOs.JobCreateDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
@@ -215,6 +216,8 @@ public interface APIServices {
 
     @GET("api/Service/GetServiceByID")
     Call<Service> getServiceByID(@Query("id") int serviceID);
+    @GET("api/Service/ServiceList")
+    Call<List<Service>> getServiceList();
 
     //Chat APIs
 
@@ -233,5 +236,20 @@ public interface APIServices {
             @Query("fromAccountId") int fromID,
             @Query("toAccountId") int toID,
             @Query("message") String mess
+    );
+    @POST("api/Job/AddJob")
+    Call<ResponseBody> addJob(
+            @Query("FamilyID") int familyId,
+            @Query("JobName") String jobName,
+            @Query("JobType") int jobType,
+            @Query("Location") String location,
+            @Query("Price") double price,
+            @Query("StartDate") String startDate,
+            @Query("EndDate") String endDate,
+            @Query("Description") String description,
+            @Query("IsOffered") boolean isOffered,
+            @Query("ServiceIDs") String serviceIds,
+            @Query("SlotIDs") String slotIds,
+            @Query("DayofWeek") String dayOfWeek
     );
 }
