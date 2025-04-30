@@ -58,16 +58,15 @@ export const formatPhone = (phone, t) => {
   return phone;
 };
 
-export const formatWorkTypeClass = (type) => {
-  if (!type) return "";
-  return type.toLowerCase().replace(/[^a-z]/g, "");
-};
+export function formatWorkTypeClass(type) {
+  if (type === 1) return "once";
+  if (type === 2) return "period";
+  return "";
+}
 
 export const formatWorkTypeLabel = (type, t) => {
-  if (!type) return "";
-  const normalized = type.toLowerCase();
-  if (normalized === "once") return t("job.jobPost.once");
-  if (normalized === "period") return t("job.jobPost.period");
+  if (type === 1) return t("job.jobPost.once");      // "Một lần duy nhất"
+  if (type === 2) return t("job.jobPost.period");    // "Định kỳ"
   return t("job.jobPost.jobTypePlaceholder");
 };
 

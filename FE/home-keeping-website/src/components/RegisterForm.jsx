@@ -11,7 +11,10 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
       <form onSubmit={onSubmit}>
         {/* Role Selection - Exclusive Checkboxes */}
         <div className="mb-4">
-          <label className="form-label d-block">Vai trò</label>
+          <label className="form-label d-block">
+            Vai trò
+            <span className="text-danger"> *</span> <small className="text-danger">required</small>
+          </label>
           <div className="d-flex border rounded overflow-hidden">
 
             {/* Gia đình */}
@@ -55,7 +58,10 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Full Name */}
         <div className="mb-4">
-          <label htmlFor="name" className="form-label">Họ và tên</label>
+          <label htmlFor="name" className="form-label">
+            Họ và tên
+            <span className="text-danger"> *</span> <small className="text-danger">required</small>
+          </label>
           <div className="input-group">
             <span className="input-group-text bg-white border-end-0"><FaUser /></span>
             <input
@@ -82,12 +88,14 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
             className="form-control"
             required
           />
-          <small className="text-muted">string</small>
         </div>
 
         {/* Email */}
         <div className="mb-4">
-          <label htmlFor="email" className="form-label">Email</label>
+          <label htmlFor="email" className="form-label">
+            Email
+            <span className="text-danger"> *</span> <small className="text-danger">required</small>
+          </label>
           <div className="input-group">
             <span className="input-group-text bg-white border-end-0"><FaEnvelope /></span>
             <input
@@ -103,7 +111,10 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Phone Number */}
         <div className="mb-4">
-          <label htmlFor="phone" className="form-label">Số điện thoại</label>
+          <label htmlFor="phone" className="form-label">
+            Số điện thoại
+            <span className="text-danger"> *</span> <small className="text-danger">required</small>
+          </label>
           <div className="input-group">
             <span className="input-group-text bg-white border-end-0"><FaPhone /></span>
             <input
@@ -119,7 +130,10 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Password */}
         <div className="mb-4">
-          <label htmlFor="password" className="form-label">Mật khẩu</label>
+          <label htmlFor="password" className="form-label">
+            Mật khẩu
+            <span className="text-danger"> *</span> <small className="text-danger">required</small>
+          </label>
           <div className="input-group">
             <span className="input-group-text bg-white border-end-0"><FaLock /></span>
             <input
@@ -135,7 +149,7 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Confirm Password */}
         <div className="mb-4">
-          <label htmlFor="confirmPassword" className="form-label">Xác nhận mật khẩu</label>
+          <label htmlFor="confirmPassword" className="form-label">Xác nhận mật khẩu<span className="text-danger"> *</span> <small className="text-danger">required</small></label>
           <div className="input-group">
             <span className="input-group-text bg-white border-end-0"><FaLock /></span>
             <input
@@ -151,7 +165,7 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Gender Selection */}
         <div className="mb-4">
-          <label htmlFor="genderID" className="form-label">Giới tính</label>
+          <label htmlFor="genderID" className="form-label">Giới tính<span className="text-danger"> *</span> <small className="text-danger">required</small></label>
           <select
             id="genderID"
             className="form-select"
@@ -167,7 +181,7 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Introduction */}
         <div className="mb-4">
-          <label htmlFor="introduction" className="form-label">Giới thiệu</label>
+          <label htmlFor="introduction" className="form-label">Giới thiệu<span className="text-danger"> *</span> <small className="text-danger">required</small></label>
           <textarea
             id="introduction"
             className="form-control"
@@ -179,7 +193,7 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Address */}
         <div className="mb-4">
-          <label htmlFor="address" className="form-label">Địa chỉ</label>
+          <label htmlFor="address" className="form-label">Địa chỉ<span className="text-danger"> *</span> <small className="text-danger">required</small></label>
           <input
             id="address"
             type="text"
@@ -192,7 +206,7 @@ function RegisterForm({ formData, onInputChange, onSubmit }) {
 
         {/* Profile Picture Upload */}
         <div className="mb-4">
-          <label htmlFor="localProfilePicture" className="form-label">Ảnh đại diện</label>
+          <label htmlFor="localProfilePicture" className="form-label">Ảnh đại diện<span className="text-danger"> *</span> <small className="text-danger">required</small></label>
           <input
             id="LocalProfilePicture"
             type="file"

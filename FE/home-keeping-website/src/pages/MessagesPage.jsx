@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FaSearch, FaPaperPlane, FaUserCircle } from "react-icons/fa";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
 
 function MessagesPage() {
   const authToken = localStorage.getItem("authToken");
@@ -13,12 +13,29 @@ function MessagesPage() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [profilePicture, setProfilePicture] = useState(null);
+  const [googlePicture, setGooglePicture] = useState(null);
   const [myProfilePicture, setMyProfilePicture] = useState(null);
-  const messagesEndRef = useRef(null);
+  const chatPanelRef = useRef(null);
   const pollingRef = useRef(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  useEffect(() => {
+    const panel = chatPanelRef.current;
+    if (!panel) return;
+
+    const handleScroll = () => {
+      const distanceFromBottom = panel.scrollHeight - panel.scrollTop - panel.clientHeight;
+      setShowScrollButton(distanceFromBottom > 100); // show if user scrolled up more than 100px
+    };
+
+    panel.addEventListener("scroll", handleScroll);
+    return () => panel.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatPanelRef.current) {
+      chatPanelRef.current.scrollTop = chatPanelRef.current.scrollHeight;
+    }
   };
 
   const fetchMessages = () => {
@@ -29,15 +46,10 @@ function MessagesPage() {
     })
       .then((res) => res.json())
       .then((data) => {
-        // Compare previous length or last message ID
         const latestLocal = messages[messages.length - 1];
         const latestRemote = data[data.length - 1];
-
         const isNew = !latestLocal || !latestRemote || latestLocal.chatID !== latestRemote.chatID;
-
         setMessages(data);
-
-        // Only scroll if message was sent by me or on initial load
         if (isNew && latestRemote?.fromAccountID === accountID) {
           scrollToBottom();
         }
@@ -79,6 +91,7 @@ function MessagesPage() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
       }
     ).catch((err) => console.error("Send failed:", err));
+    fetchMessages();
   };
 
   useEffect(() => {
@@ -88,18 +101,19 @@ function MessagesPage() {
   useEffect(() => {
     if (!selectedUser) return;
 
-    fetchMessages(); // Initial load
+    fetchMessages();
 
     fetch(`${API_BASE_URL}/Account/GetAccount?id=${selectedUser.accountID}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
-      .then((data) => setProfilePicture(data.localProfilePicture || null));
+      .then((data) => {
+        setProfilePicture(data.localProfilePicture || null);
+        setGooglePicture(data.googleProfilePicture || null);
+      });
 
     if (pollingRef.current) clearInterval(pollingRef.current);
-
-    pollingRef.current = setInterval(fetchMessages, 3000); // Poll every 3.0s
-
+    pollingRef.current = setInterval(fetchMessages, 3000);
     return () => clearInterval(pollingRef.current);
   }, [selectedUser]);
 
@@ -108,8 +122,20 @@ function MessagesPage() {
       headers: { Authorization: `Bearer ${authToken}` },
     })
       .then((res) => res.json())
-      .then((data) => setMyProfilePicture(data.localProfilePicture || null));
+      .then((data) => setMyProfilePicture(data.localProfilePicture || data.googleProfilePicture || null));
   }, []);
+
+  const renderAvatar = (src) =>
+    src ? (
+      <img
+        src={src}
+        alt="Avatar"
+        className="rounded-circle border"
+        style={{ width: 40, height: 40, objectFit: "cover" }}
+      />
+    ) : (
+      <FaUserCircle size={40} className="text-muted" />
+    );
 
   return (
     <div className="container-fluid px-3" style={{ height: "calc(100vh - 80px)" }}>
@@ -135,9 +161,7 @@ function MessagesPage() {
               className={`list-group-item list-group-item-action d-flex align-items-center shadow-sm rounded mb-2 ${selectedUser?.accountID === matchedUser.accountID ? "active" : ""}`}
               onClick={() => setSelectedUser(matchedUser)}
             >
-              {profilePicture ? (
-                <img src={profilePicture} alt="Avatar" className="me-3 rounded-circle border" style={{ width: 40, height: 40, objectFit: "cover" }} />
-              ) : <FaUserCircle size={40} className="me-3 text-muted" />}
+              {renderAvatar(profilePicture || googlePicture)}
               <div>
                 <h6 className="mb-0 fw-bold">{matchedUser.name}</h6>
                 <small className="text-muted">{matchedUser.email}</small>
@@ -148,12 +172,9 @@ function MessagesPage() {
 
         {/* Chat Panel */}
         <div className="col-md-8 col-lg-9 d-flex flex-column">
-          {/* Header */}
           {selectedUser && (
             <div className="p-3 border-bottom d-flex align-items-center bg-white">
-              {profilePicture ? (
-                <img src={profilePicture} alt="Receiver" className="me-3 rounded-circle border" style={{ width: 40, height: 40, objectFit: "cover" }} />
-              ) : <FaUserCircle size={40} className="me-3 text-muted" />}
+              {renderAvatar(profilePicture || googlePicture)}
               <div>
                 <h6 className="mb-0 fw-bold">{selectedUser.name}</h6>
                 <small className="text-muted">Gia đình</small>
@@ -163,26 +184,31 @@ function MessagesPage() {
 
           {/* Messages */}
           <div
+            ref={chatPanelRef}
             className="flex-grow-1 overflow-auto px-3 py-2"
             style={{
               backgroundColor: "#f9f9f9",
-              height: 0, // prevent extra growth
+              height: 0,
               minHeight: 0,
             }}
           >
+            {showScrollButton && (
+              <button
+                className="btn btn-warning position-absolute"
+                style={{ bottom: 80, right: 30, zIndex: 10, borderRadius: "50%" }}
+                onClick={scrollToBottom}
+                title="Scroll to bottom"
+              >
+                ⬇️
+              </button>
+            )}
+
             {messages.length > 0 ? (
               messages.map((msg) => {
                 const isMine = msg.fromAccountID === accountID;
                 return (
                   <div key={msg.chatID} className={`d-flex mb-2 ${isMine ? "justify-content-end" : "justify-content-start"}`}>
-                    {!isMine && (
-                      <img
-                        src={profilePicture || ""}
-                        alt="Them"
-                        className="rounded-circle me-2 border"
-                        style={{ width: "30px", height: "30px", objectFit: "cover" }}
-                      />
-                    )}
+                    {!isMine && renderAvatar(profilePicture || googlePicture)}
                     <div className={`p-2 rounded shadow-sm ${isMine ? "bg-warning text-white" : "bg-light text-dark"}`} style={{ maxWidth: "75%" }}>
                       {msg.content}
                       <div className="text-end">
@@ -205,7 +231,6 @@ function MessagesPage() {
             ) : (
               <p className="text-center text-muted mt-4">Không có tin nhắn nào.</p>
             )}
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}

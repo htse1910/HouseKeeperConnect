@@ -105,7 +105,7 @@ const FamilyHousekeeperSearchPage = () => {
         (h.address ?? "").toLowerCase().includes(location.trim().toLowerCase()) &&
         (selectedSkill === "" || h.skills?.includes(selectedSkill)) &&
         (selectedGender === "" || String(h.gender) === selectedGender) &&
-        (selectedWorkType === "" || h.workType === selectedWorkType)
+        (selectedWorkType === "" || String(h.workType) === selectedWorkType)
     )
     .sort((a, b) => {
       if (!selectedSalaryOrder) return 0;
@@ -180,9 +180,8 @@ const FamilyHousekeeperSearchPage = () => {
               onChange={(e) => setSelectedWorkType(e.target.value)}
             >
               <option value="">{t("job.job_type")}</option>
-              <option value="Once">{t("job.jobPost.once")}</option>
-              <option value="Period">{t("job.jobPost.period")}</option>
-
+              <option value="1">{t("job.jobPost.once")}</option>
+              <option value="2">{t("job.jobPost.period")}</option>
             </select>
 
             <button className="search-page-btn">{t("misc.search")}</button>
