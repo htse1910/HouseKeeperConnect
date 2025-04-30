@@ -50,4 +50,6 @@ dependencies {
     implementation libs.picasso
     implementation libs.glide
     implementation libs.android.jwtdecode
+    implementation 'com.auth0.android:jwtdecode:2.0.1'
+
 }

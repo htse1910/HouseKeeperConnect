@@ -175,9 +175,9 @@
                 android:id="@+id/btnCheckIn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/rounded_button_primary"
                 android:text="Check-In"
                 android:textAllCaps="false"
-                android:background="@drawable/rounded_button_primary"
                 android:textColor="@android:color/white" />
         </LinearLayout>
 

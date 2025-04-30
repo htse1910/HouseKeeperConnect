@@ -6,6 +6,7 @@ public class Service {
     private double price;
     private int serviceTypeID;
     private String description;
+    private ServiceType serviceType;
 
     public Service(int serviceID, String serviceName, double price, int serviceTypeID, String description) {
         this.serviceID = serviceID;
@@ -13,6 +14,26 @@ public class Service {
         this.price = price;
         this.serviceTypeID = serviceTypeID;
         this.description = description;
+    }
+    public static class ServiceType {
+        private int serviceTypeID;
+        private String serviceTypeName;
+
+        public int getServiceTypeID() {
+            return serviceTypeID;
+        }
+
+        public void setServiceTypeID(int serviceTypeID) {
+            this.serviceTypeID = serviceTypeID;
+        }
+
+        public String getServiceTypeName() {
+            return serviceTypeName;
+        }
+
+        public void setServiceTypeName(String serviceTypeName) {
+            this.serviceTypeName = serviceTypeName;
+        }
     }
 
     public int getServiceID() {
@@ -53,5 +74,13 @@ public class Service {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(ServiceType serviceType) {
+        this.serviceType = serviceType;
     }
 }

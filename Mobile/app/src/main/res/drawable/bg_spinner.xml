@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <!-- Nền trắng + viền + bo góc giống bg_input -->
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" />
+            <stroke
+                android:width="2dp"
+                android:color="#DDDDDD" />  <!-- Màu viền giống bg_input -->
+            <corners android:radius="12dp" />  <!-- Bo góc 12dp giống bg_input -->
+            <padding android:left="16dp" android:right="16dp" />  <!-- Thêm padding nếu muốn -->
+        </shape>
+    </item>
+
+    <item
+        android:drawable="@drawable/ic_down"
+        android:gravity="end|center_vertical"
+        android:right="16dp"
+        android:width="24dp"
+        android:height="24dp" />
+</layer-list>

@@ -18,6 +18,7 @@ import com.example.housekeeperapplication.R;
 import com.example.housekeeperapplication.profile.FamilyProfile;
 import com.example.housekeeperapplication.profile.HousekeeperProfile;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
@@ -37,6 +38,12 @@ public class FamilyJobListActivity extends AppCompatActivity {
 
         recyclerJobs = findViewById(R.id.recyclerFamilyJobs);
         recyclerJobs.setLayoutManager(new LinearLayoutManager(this));
+
+        FloatingActionButton fabAddJob = findViewById(R.id.fabAddJob);
+        fabAddJob.setOnClickListener(view -> {
+            Intent intent = new Intent(FamilyJobListActivity.this, AddJobActivity.class);
+            startActivity(intent);
+        });
 
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int accountId = prefs.getInt("accountID", -1); // -1 nếu chưa login
