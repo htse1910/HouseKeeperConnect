@@ -344,6 +344,8 @@ namespace HouseKeeperConnect_API.Controllers
                     oHk.VerifyID = nId.VerifyID;
                 }*/
 
+                oHk.WorkType = newHK.WorkType;
+
                 await _housekeeperService.UpdateHousekeeperAsync(oHk);
                 Message = "Housekeeper Updated!";
                 return Ok(Message);
