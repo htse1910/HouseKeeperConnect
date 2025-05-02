@@ -109,7 +109,7 @@ const HousekeeperWelcomeCard = () => {
             <p className="text-muted mb-0">Hãy khám phá các cơ hội công việc dành cho bạn.</p>
           </div>
           <Link to="/my-jobs" className="btn btn-outline-secondary rounded-pill">
-            Quản lý công việc của tôi
+            Quản lý đơn ứng tuyển của tôi
           </Link>
         </div>
 

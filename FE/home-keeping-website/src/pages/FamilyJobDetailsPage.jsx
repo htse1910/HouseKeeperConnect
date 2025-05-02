@@ -219,16 +219,22 @@ const FamilyJobDetailsPage = () => {
         axios.put(`${API_BASE_URL}/Application/UpdateApplication`, null, {
             params: { AppID: applicationID, status: 2 }, headers
         })
-            .then(() => window.location.reload())
-            .catch(() => alert("Không thể chấp nhận ứng viên."));
+            .then(() => {
+                toast.success("✅ Đã chấp nhận ứng viên!");
+                setTimeout(() => window.location.reload(), 1500); // give user time to see the toast
+            })
+            .catch(() => toast.error("❌ Không thể chấp nhận ứng viên."));
     };
 
     const handleReject = (applicationID) => {
         axios.put(`${API_BASE_URL}/Application/UpdateApplication`, null, {
             params: { AppID: applicationID, status: 3 }, headers
         })
-            .then(() => window.location.reload())
-            .catch(() => alert("Không thể từ chối ứng viên."));
+            .then(() => {
+                toast.success("🚫 Đã từ chối ứng viên.");
+                setTimeout(() => window.location.reload(), 1500); // optional delay for clarity
+            })
+            .catch(() => toast.error("❌ Không thể từ chối ứng viên."));
     };
 
     if (loading || error) {
@@ -282,7 +288,7 @@ const FamilyJobDetailsPage = () => {
                             {renderJobStatus(job.status)}
                             <p><FaClock /> {t("misc.created_at")}: {new Date(createdDate).toLocaleDateString("vi-VN")}</p>
                             <p><FaMapMarkerAlt /> {job.location}</p>
-                            <p>{t("misc.salary")}: {job.price?.toLocaleString("vi-VN")} VND/giờ</p>
+                            <p>{t("misc.salary")}: {job.price?.toLocaleString("vi-VN")} VNĐ</p>
                             {Array.isArray(job.dayofWeek) && job.dayofWeek.length > 0 && (
                                 <div className="mb-2">
                                     <strong>📅 Ngày làm việc:</strong>
@@ -339,7 +345,18 @@ const FamilyJobDetailsPage = () => {
                                                 {applicant.services?.map((s, i) => <span key={i} className="badge bg-secondary me-1">{s}</span>)}
                                             </div>
                                             <div className="d-flex gap-2">
-                                                <button className="btn btn-outline-primary btn-sm" onClick={() => navigate(`/family/housekeeper/profile/${applicant.accountID}`)}>Xem hồ sơ</button>
+                                                <button
+                                                    className="btn btn-outline-primary btn-sm"
+                                                    onClick={() =>
+                                                        navigate(`/family/housekeeper/profile/${applicant.accountID}`, {
+                                                            state: {
+                                                                applicantIDs: applicants.map(a => a.accountID),
+                                                            },
+                                                        })
+                                                    }
+                                                >
+                                                    Xem hồ sơ
+                                                </button>
                                                 <button
                                                     className="btn btn-outline-secondary btn-sm"
                                                     onClick={() => {

@@ -182,8 +182,8 @@ function FindJobsPage() {
             <div className="col-md-4 col-lg-3">
               <select className="form-select" name="jobType" value={filters.jobType} onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}>
                 <option value="">Tất cả loại</option>
-                <option value="fulltime">Full-time</option>
-                <option value="parttime">Part-time</option>
+                <option value="fulltime">Một lần duy nhất</option>
+                <option value="parttime">Định kỳ</option>
               </select>
             </div>
             <div className="col-md-4 col-lg-3">

@@ -33,65 +33,65 @@ const StaffDashboardPage = () => {
         totalHousekeepers: 120,
         totalFamilies: 85,
         newAccounts7Days: 11,
-        totalJobs: 200,
-        completedJobs: 155,
-        completedJobs7Days: 29,
+        totalJobs: 1, // Adjusted for demo
+        completedJobs: 0,
+        completedJobs7Days: 0,
         successfulTransactions: 540,
         successfulTransactions7Days: 25,
       });
       setLoading(false);
       return;
     }
-
+  
     const token = localStorage.getItem("authToken");
     const accountID = localStorage.getItem("accountID");
-
+  
     if (!token || !accountID) {
       setError(t("error_auth", "Authentication error."));
       setLoading(false);
       return;
     }
-
+  
     const headers = {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     };
-
+  
     axios
       .get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers })
       .then((accountRes) => {
         const account = accountRes.data;
         if (!account) throw new Error(t("error_auth", "Unauthorized"));
-
-        console.log("Logged in account:", account);
+  
         setAccountInfo(account);
-
-        // Proceed even if role is not 3 (staff), just skip sensitive fetch if needed
-        if (account.roleID !== "3") {
-          console.warn("Accessed staff dashboard with non-staff role:", account.roleID);
-        }
-
+  
         return Promise.allSettled([
           axios.get(`${API_BASE_URL}/Account/TotalAccount`, { headers }),
           axios.get(`${API_BASE_URL}/Account/NewAccounts`, { headers }),
           axios.get(`${API_BASE_URL}/Transaction/GetTotalTransactions`, { headers }),
           axios.get(`${API_BASE_URL}/Transaction/TransactionInPastWeek`, { headers }),
+          axios.get(`${API_BASE_URL}/Job/JobList?pageNumber=1&pageSize=100000`, { headers }), // <-- Add this
         ]);
       })
       .then((results) => {
-        const [accStats, newAccs, txTotal, txWeek] = results;
-
+        const [accStats, newAccs, txTotal, txWeek, jobList] = results;
+  
         const totalHousekeepers = accStats.status === "fulfilled" ? accStats.value.data.totalHousekeepers : 0;
         const totalFamilies = accStats.status === "fulfilled" ? accStats.value.data.totalFamilies : 0;
         const newAccounts7Days = newAccs.status === "fulfilled" ? newAccs.value.data.newAccounts7Days : 0;
         const successfulTransactions = txTotal.status === "fulfilled" ? txTotal.value.data : 0;
         const successfulTransactions7Days = txWeek.status === "fulfilled" ? txWeek.value.data.length : 0;
-
+  
+        let totalJobs = 0;
+        if (jobList.status === "fulfilled" && Array.isArray(jobList.value.data)) {
+          totalJobs = jobList.value.data.filter(job => job.status === 2).length; // Status 2 = Verified
+        }
+  
         setStatsData({
           totalHousekeepers,
           totalFamilies,
           newAccounts7Days,
-          totalJobs: 0,
+          totalJobs,
           completedJobs: 0,
           completedJobs7Days: 0,
           successfulTransactions,
@@ -100,7 +100,7 @@ const StaffDashboardPage = () => {
       })
       .catch(() => setError(t("error_loading", "Failed to load data.")))
       .finally(() => setLoading(false));
-  }, [isDemo, t]);
+  }, [isDemo, t]);  
 
   const CustomTooltip = ({ active, payload }) =>
     active && payload?.length ? (
