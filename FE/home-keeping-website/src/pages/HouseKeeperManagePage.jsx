@@ -11,7 +11,7 @@ import JobDetailModal from "../components/JobDetailModal";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
 
 function HouseKeeperManagePage() {
   const [activeTab, setActiveTab] = useState("all");
@@ -52,18 +52,22 @@ function HouseKeeperManagePage() {
 
             const accData = await accRes.json();
 
+            const isJobCompleted = jobData.status === 4;
+
             return {
               ...app,
               familyName: accData.name,
               price: jobData.price,
               startDate: jobData.startDate,
               endDate: jobData.endDate,
+              isJobCompleted
             };
           } catch {
             return {
               ...app,
               familyName: "Không rõ",
               price: null,
+              isJobCompleted: false
             };
           }
         })
@@ -89,9 +93,10 @@ function HouseKeeperManagePage() {
     denied: 3
   };
 
-  const visibleApplications = applications.filter(app =>
-    tabStatusMap[activeTab] === null || app.status === tabStatusMap[activeTab]
-  );
+  const visibleApplications = applications.filter(app => {
+    if (activeTab === "completedJobs") return app.status === 2 && app.isJobCompleted;
+    return tabStatusMap[activeTab] === null || app.status === tabStatusMap[activeTab];
+  });
 
   return (
     <div className="container my-4">
@@ -136,29 +141,37 @@ function HouseKeeperManagePage() {
       `}</style>
 
       <div className="card giant-card shadow-sm rounded-4 p-4 border-0">
-
-        {/* Header */}
-        <h4 className="fw-bold mb-4 text-warning text-center">Công việc của tôi</h4>
+        <h4 className="fw-bold mb-4 text-warning text-center">Quản lý đơn ứng tuyển của tôi</h4>
 
         {/* Summary Section */}
-        <div className="row row-cols-2 row-cols-md-4 g-3 mb-4">
-          {[{
-            label: "Tổng đơn",
-            count: applications.length,
-            icon: <FaBriefcase size={18} className="text-warning" />
-          }, {
-            label: "Đang chờ",
-            count: applications.filter(a => a.status === 1).length,
-            icon: <FaClock size={18} className="text-info" />
-          }, {
-            label: "Đã chấp nhận",
-            count: applications.filter(a => a.status === 2).length,
-            icon: <FaCheckCircle size={18} className="text-success" />
-          }, {
-            label: "Đã từ chối",
-            count: applications.filter(a => a.status === 3).length,
-            icon: <FaTimesCircle size={18} className="text-danger" />
-          }].map((item, i) => (
+        <div className="row row-cols-2 row-cols-md-5 g-3 mb-4">
+          {[
+            {
+              label: "Tổng đơn",
+              count: applications.length,
+              icon: <FaBriefcase size={18} className="text-warning" />
+            },
+            {
+              label: "Đang chờ",
+              count: applications.filter(a => a.status === 1).length,
+              icon: <FaClock size={18} className="text-info" />
+            },
+            {
+              label: "Đã chấp nhận",
+              count: applications.filter(a => a.status === 2).length,
+              icon: <FaCheckCircle size={18} className="text-success" />
+            },
+            {
+              label: "Đã từ chối",
+              count: applications.filter(a => a.status === 3).length,
+              icon: <FaTimesCircle size={18} className="text-danger" />
+            },
+            {
+              label: "Hoàn thành",
+              count: applications.filter(a => a.status === 2 && a.isJobCompleted).length,
+              icon: <FaCheckCircle size={18} className="text-primary" />
+            }
+          ].map((item, i) => (
             <div className="col" key={i}>
               <div className="d-flex flex-column align-items-center bg-light rounded-3 p-2 shadow-sm text-center h-100">
                 {item.icon}
@@ -168,6 +181,7 @@ function HouseKeeperManagePage() {
             </div>
           ))}
         </div>
+
         {/* Action Button */}
         <div className="d-flex justify-content-end mb-3">
           <button
@@ -184,7 +198,8 @@ function HouseKeeperManagePage() {
             { key: "all", label: "Tất cả" },
             { key: "pending", label: "Đang chờ" },
             { key: "accepted", label: "Đã chấp nhận" },
-            { key: "denied", label: "Đã từ chối" }
+            { key: "denied", label: "Đã từ chối" },
+            { key: "completedJobs", label: "Công việc đã hoàn thành" }
           ].map(tab => (
             <div
               key={tab.key}
@@ -209,8 +224,8 @@ function HouseKeeperManagePage() {
               <div key={app.applicationID} className="card app-card mb-3 p-3 shadow-sm border-0">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <h6 className="fw-bold mb-0"><JobName jobID={app.jobID} /></h6>
-                  <span className={`badge text-white bg-${app.status === 1 ? "info" : app.status === 2 ? "success" : "danger"}`}>
-                    {app.status === 1 ? "Đang chờ" : app.status === 2 ? "Đã chấp nhận" : "Đã từ chối"}
+                  <span className={`badge text-white ${app.isJobCompleted ? "bg-primary" : app.status === 1 ? "bg-info" : app.status === 2 ? "bg-success" : "bg-danger"}`}>
+                    {app.isJobCompleted ? "Hoàn thành" : app.status === 1 ? "Đang chờ" : app.status === 2 ? "Đã chấp nhận" : "Đã từ chối"}
                   </span>
                 </div>
 
@@ -238,7 +253,6 @@ function HouseKeeperManagePage() {
         </div>
       </div>
 
-      {/* Modal */}
       {selectedApplication && (
         <JobDetailModal
           jobID={selectedApplication.jobID}

@@ -10,6 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { shouldShowLoadingOrError } from "../utils/uiHelpers";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import { useLocation } from "react-router-dom";
 
 const FamilyHousekeeperViewPage = () => {
     const { t } = useTranslation();
@@ -30,6 +31,8 @@ const FamilyHousekeeperViewPage = () => {
     const token = localStorage.getItem("authToken");
     const accountID = localStorage.getItem("accountID");
     const headers = { Authorization: `Bearer ${token}` };
+    const location = useLocation();
+    const applicantIDs = location.state?.applicantIDs || [];
 
     useEffect(() => {
         const verifyAndLoad = async () => {
@@ -131,19 +134,24 @@ const FamilyHousekeeperViewPage = () => {
         </button>
     ));
     if (feedback) return feedback;
-
+    const alreadyApplied = applicantIDs.includes(Number(housekeeperAccountID));
+    
     return (
         <div className="profile-container view-housekeeper-container">
             <div className="view-housekeeper-header-action">
                 <button className="btn-secondary" onClick={() => navigate(-1)}>
                     ← {t("misc.back_to_search_housekeeper_page")}
                 </button>
-                <button
-                    className="btn-invite"
-                    onClick={() => navigate("/family/invite", { state: { housekeepers: [housekeeper] } })}
-                >
-                    🤝 {t("misc.invite_to_work")}
-                </button>
+                {!alreadyApplied && (
+                    <button
+                        className="btn-invite"
+                        onClick={() =>
+                            navigate("/family/invite", { state: { housekeepers: [housekeeper] } })
+                        }
+                    >
+                        🤝 {t("misc.invite_to_work")}
+                    </button>
+                )}
             </div>
 
             <div className="profile-header">
