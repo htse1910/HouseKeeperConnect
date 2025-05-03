@@ -57,6 +57,7 @@ import StaffSupportRequestPage from './pages/StaffSupportRequestPage'; // ✅ Im
 import AdminUserListPage from './pages/AdminUserListPage.jsx';
 import AdminServiceListPage from './pages/AdminServicePgae.jsx';
 import WithdrawRequestPage from './pages/WithdrawRequestPage.jsx';
+import ManageAcceptedJobsPage from './pages/ManageAcceptedJobsPage'; // ✅ New import
 
 function AppRoutes() {
   return (
@@ -100,6 +101,8 @@ function AppRoutes() {
         <Route path="/dashboard/jobs" element={<StaffJobModerationPage />} />
         <Route path="/dashboard/payouts" element={<StaffPayoutApprovalPage />} />
         <Route path="/dashboard/withdrawals" element={<StaffWithdrawalVerificationPage />} />
+        <Route path="/dashboard/accepted-jobs" element={<ManageAcceptedJobsPage />} />
+
 
         {/* Family Pages */}
         <Route path="/family/dashboard" element={<FamilyDashboardPage />} />

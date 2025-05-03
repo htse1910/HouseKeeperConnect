@@ -305,44 +305,6 @@ const HousekeeperBookingManagementPage = () => {
 
                 <div className="text-end mt-2">
                   <div className="d-flex justify-content-between align-items-center mt-2">
-
-                    {/* Job Status Button (Left Corner) */}
-                    {row.jobStatus === 3 && (
-                      <button
-                        className="btn btn-sm btn-danger rounded-pill"
-                        onClick={async () => {
-                          try {
-                            const response = await fetch(
-                              `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${row.jobID}&abandonDate=${new Date().toISOString()}`,
-                              {
-                                method: "POST",
-                                headers: {
-                                  Authorization: `Bearer ${authToken}`
-                                }
-                              }
-                            );
-                            const message = await response.text();
-                            if (response.ok) {
-                              toast.success(message || "✔️ Đã từ chối và gán lại công việc!");
-                              setRows((prev) =>
-                                prev.map((r) =>
-                                  r.jobID === row.jobID ? { ...r, jobStatus: 6 } : r
-                                )
-                              );
-                            } else {
-                              toast.error(message || "❌ Không thể từ chối công việc.");
-                            }
-                          } catch (err) {
-                            toast.error("❌ Lỗi hệ thống khi từ chối công việc.");
-                            console.error(err);
-                          }
-                        }}
-                      >
-                        ❌ Từ chối & Gán lại
-                      </button>
-                    )}
-
-                    {/* Booking Status (Right Corner) */}
                     <div>
                       {row.status === 1 && new Date(row.endDate.split("/").reverse().join("-")) < new Date() ? (
                         <button
