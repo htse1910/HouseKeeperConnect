@@ -533,7 +533,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("DenyJob")]
-        [Authorize(Policy = "Staff")]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> DenyJob([FromQuery] int jobId, int accountID)
         {
             if (jobId <= 0)
@@ -622,7 +622,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("ForceAbandonJobAndReassign")]
-        [Authorize(Policy = "Housekeeper")]
+        [Authorize(Policy = "Staff")]
         public async Task<IActionResult> ForceAbandonJobAndReassign([FromQuery] int jobId, [FromQuery] DateTime abandonDate)
         {
             var oldJob = await _jobService.GetJobByIDAsync(jobId);

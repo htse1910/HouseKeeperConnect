@@ -52,7 +52,8 @@ public class NotificationActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Notification>> call, Response<List<Notification>> response) {
                 if(response.isSuccessful() && response.body()!=null){
-                    notificationAdapter = new NotificationAdapter(olist, NotificationActivity.this);
+                    List<Notification> nList = response.body();
+                    notificationAdapter = new NotificationAdapter(nList, NotificationActivity.this);
                     recyclerViewNotifications.setAdapter(notificationAdapter);
 
 
