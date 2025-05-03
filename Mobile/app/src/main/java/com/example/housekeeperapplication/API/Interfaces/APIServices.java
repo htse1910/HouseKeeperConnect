@@ -237,6 +237,11 @@ public interface APIServices {
             @Query("toAccountId") int toID,
             @Query("message") String mess
     );
+
+    @PUT("api/Chat/IsRead")
+    Call<Integer> ChatIsRead(
+            @Query("id") int id
+    );
     @POST("api/Job/AddJob")
     Call<ResponseBody> addJob(
             @Query("FamilyID") int familyId,

@@ -32,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText emailTxt, passTxt;
     private Button loginBtn;
     private TextView regTxt;
+    private LinearLayout lnRegGoogle;
     private SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,15 @@ public class LoginActivity extends AppCompatActivity {
         passTxt = findViewById(R.id.password);
         loginBtn = findViewById(R.id.loginBTN);
         regTxt = findViewById(R.id.txt_register);
+
+        lnRegGoogle = findViewById(R.id.lvRegGoogle);
+        
+        lnRegGoogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(LoginActivity.this, "Tính năng này đang được phát triển!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         regTxt.setOnClickListener(new View.OnClickListener() {
             @Override

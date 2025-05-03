@@ -533,7 +533,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("DenyJob")]
-        [Authorize(Policy = "Housekeeper")]
+        [Authorize(Policy = "Staff")]
         public async Task<ActionResult> DenyJob([FromQuery] int jobId, int accountID)
         {
             if (jobId <= 0)

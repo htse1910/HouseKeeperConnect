@@ -1,5 +1,7 @@
 package com.example.housekeeperapplication.Adapter;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +12,25 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.housekeeperapplication.API.APIClient;
+import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Model.Notification;
 import com.example.housekeeperapplication.R;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
 
     private final List<Notification> notificationList;
+    private Context context;
 
-    public NotificationAdapter(List<Notification> notificationList) {
+    public NotificationAdapter(List<Notification> notificationList, Context context) {
         this.notificationList = notificationList;
+        this.context = context;
     }
 
     @NonNull
@@ -40,7 +50,20 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         holder.btnRead.setOnClickListener(v -> {
             Toast.makeText(v.getContext(), "Đã đánh dấu là đã đọc", Toast.LENGTH_SHORT).show();
+            APIServices api = APIClient.getClient(context).create(APIServices.class);
+            Call<Integer> call = api.ChatIsRead(notification.getNotificationsID());
+            call.enqueue(new Callback<Integer>() {
+                @Override
+                public void onResponse(Call<Integer> call, Response<Integer> response) {
+                    Toast.makeText(context, "Đã đọc!", Toast.LENGTH_SHORT).show();
+                }
 
+                @Override
+                public void onFailure(Call<Integer> call, Throwable t) {
+                    Log.d("NotificationError", t.getMessage());
+                    Toast.makeText(context, "Vấn đề khi tải dữ liệu!", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 
