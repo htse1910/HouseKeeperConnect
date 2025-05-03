@@ -21,6 +21,7 @@ const HousekeeperSupportRequestPage = () => {
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
   const navigate = useNavigate();
+  const [staffMap, setStaffMap] = useState({});
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -35,6 +36,26 @@ const HousekeeperSupportRequestPage = () => {
         );
         const data = await response.json();
         setRequests(data);
+
+        const uniqueStaffIDs = [...new Set(data.map(req => req.reviewedBy).filter(Boolean))];
+
+        const staffMapTemp = {};
+        await Promise.all(
+          uniqueStaffIDs.map(async (staffID) => {
+            try {
+              const res = await fetch(`${API_BASE_URL}/Account/GetAccount?id=${staffID}`, {
+                headers: { Authorization: `Bearer ${authToken}` }
+              });
+              const staffData = await res.json();
+              staffMapTemp[staffID] = staffData.name;
+            } catch (err) {
+              console.warn(`Failed to fetch staff name for ID ${staffID}`, err);
+              staffMapTemp[staffID] = "Không rõ";
+            }
+          })
+        );
+
+        setStaffMap(staffMapTemp);
       } catch (err) {
         console.error("Failed to fetch support requests:", err);
       } finally {
@@ -64,6 +85,8 @@ const HousekeeperSupportRequestPage = () => {
                 <th>Hình ảnh</th>
                 <th>Trạng thái</th>
                 <th>Ngày gửi</th>
+                <th>Câu trả lời từ nhân viên</th>
+                <th>Nhân viên phản hồi</th>
               </tr>
             </thead>
             <tbody>
@@ -87,6 +110,8 @@ const HousekeeperSupportRequestPage = () => {
                     </Badge>
                   </td>
                   <td>{new Date(req.createdDate).toLocaleString("vi-VN")}</td>
+                  <td>{req.reviewNote || "Chưa có"}</td>
+                  <td>{staffMap[req.reviewedBy] || "Chưa có"}</td>
                 </tr>
               ))}
             </tbody>

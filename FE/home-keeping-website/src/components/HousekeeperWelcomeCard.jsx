@@ -139,7 +139,7 @@ const HousekeeperWelcomeCard = () => {
                 <div className="text-muted small mb-1">Công việc chờ bạn</div>
                 <span className="fs-5 fw-bold">2M+</span>
               </div>
-              <Link to="/housekeeper/jobs" className="btn btn-warning text-white fw-semibold rounded-pill px-3">
+              <Link to="/jobs" className="btn btn-warning text-white fw-semibold rounded-pill px-3">
                 <FaRocket className="me-1" />
                 Tìm việc
               </Link>
