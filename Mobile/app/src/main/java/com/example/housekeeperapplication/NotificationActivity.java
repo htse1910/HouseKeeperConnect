@@ -43,15 +43,19 @@ public class NotificationActivity extends AppCompatActivity {
         int roleID = prefs.getInt("roleID", 0);
         int pageNumber = 1;
         int pageSize = 5;
+
+        List<Notification> olist = new ArrayList<>();
+
         APIServices api = APIClient.getClient(NotificationActivity.this).create(APIServices.class);
         Call<List<Notification>> call = api.getNotisByUserID(accountID, pageNumber, pageSize);
         call.enqueue(new Callback<List<Notification>>() {
             @Override
             public void onResponse(Call<List<Notification>> call, Response<List<Notification>> response) {
-                List<Notification> list = response.body();
                 if(response.isSuccessful() && response.body()!=null){
-                    notificationAdapter = new NotificationAdapter(list);
+                    notificationAdapter = new NotificationAdapter(olist, NotificationActivity.this);
                     recyclerViewNotifications.setAdapter(notificationAdapter);
+
+
                 }
 
                 if(response.body()==null){
