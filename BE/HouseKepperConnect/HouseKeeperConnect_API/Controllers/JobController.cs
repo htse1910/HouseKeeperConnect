@@ -622,9 +622,28 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPost("ForceAbandonJobAndReassign")]
-        [Authorize(Policy = "Staff")]
+        [Authorize]
         public async Task<IActionResult> ForceAbandonJobAndReassign([FromQuery] int jobId, [FromQuery] DateTime abandonDate)
         {
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+            if (jobDetail == null)
+                return NotFound("JobDetail not found.");
+            var userRole = User.FindFirst("Role").Value;
+            var userId = int.Parse(User.FindFirst("ID").Value);
+
+            if (userRole == "Housekeeper")
+            {
+                if (jobDetail.HousekeeperID != userId)
+                    return Forbid("You are not the assigned housekeeper.");
+            }
+            else if (userRole == "Staff")
+            {
+                // Allow it
+            }
+            else
+            {
+                return Forbid("Unauthorized role.");
+            }
             var oldJob = await _jobService.GetJobByIDAsync(jobId);
             if (oldJob == null)
                 return NotFound("Job not found.");
@@ -714,7 +733,9 @@ namespace HouseKeeperConnect_API.Controllers
 
             // Mark old job as canceled
             oldJobDetail.EndDate = abandonDate;
-            oldJob.Status = (int)JobStatus.Canceled;
+            oldJob.Status = userRole == "Housekeeper"
+            ? (int)JobStatus.HousekeeperQuitJob
+            : (int)JobStatus.Canceled;
 
             await _jobService.UpdateJobAsync(oldJob);
             await _jobService.UpdateJobDetailAsync(oldJobDetail);
@@ -782,6 +803,45 @@ namespace HouseKeeperConnect_API.Controllers
                 payoutToHK = payoutAmount,
                 refundToFamily = refundAmount
             });
+        }
+
+        [HttpGet("SuggestAvailableHousekeepers")]
+        [Authorize]
+        public async Task<IActionResult> SuggestAvailableHousekeepers([FromQuery] int jobId)
+        {
+            var job = await _jobService.GetJobByIDAsync(jobId);
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+            var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
+
+            if (job == null || jobDetail == null || !jobSlots.Any())
+                return BadRequest("Invalid job or job details.");
+
+            var allHousekeepers = await _houseKeeperService.GetAllHousekeepersAsync(1, 1000);
+            var availableHKs = new List<Housekeeper>();
+
+            foreach (var hk in allHousekeepers)
+            {
+                bool hasConflict = false;
+
+                foreach (var slot in jobSlots)
+                {
+                    if (await _bookingSlotsService.IsSlotBooked(
+                        hk.HousekeeperID,
+                        slot.SlotID,
+                        slot.DayOfWeek,
+                        jobDetail.StartDate,
+                        jobDetail.EndDate))
+                    {
+                        hasConflict = true;
+                        break;
+                    }
+                }
+
+                if (!hasConflict)
+                    availableHKs.Add(hk);
+            }
+
+            return Ok(availableHKs);
         }
 
 
