@@ -623,20 +623,26 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpPost("ForceAbandonJobAndReassign")]
         [Authorize]
-        public async Task<IActionResult> ForceAbandonJobAndReassign([FromQuery] int jobId, [FromQuery] DateTime abandonDate)
+        public async Task<IActionResult> ForceAbandonJobAndReassign([FromQuery] int jobId, [FromQuery] int accountID)
         {
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
             if (jobDetail == null)
                 return NotFound("JobDetail not found.");
-            var userRole = User.FindFirst("Role").Value;
-            var userId = int.Parse(User.FindFirst("ID").Value);
-
-            if (userRole == "Housekeeper")
+            var abandonDate = DateTime.Now;
+            var acc = await _accountService.GetAccountByIDAsync(accountID);
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(acc.AccountID);
+            if (hk == null)
             {
-                if (jobDetail.HousekeeperID != userId)
+                Message = "Housekeeper not found!";
+                return NotFound(Message);
+            }
+
+            if (acc.RoleID==1)
+            {
+                if (jobDetail.HousekeeperID != hk.HousekeeperID)
                     return Forbid("You are not the assigned housekeeper.");
             }
-            else if (userRole == "Staff")
+            else if (acc.RoleID==3)
             {
                 // Allow it
             }
@@ -733,7 +739,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             // Mark old job as canceled
             oldJobDetail.EndDate = abandonDate;
-            oldJob.Status = userRole == "Housekeeper"
+            oldJob.Status = hk.HousekeeperID==oldJobDetail.HousekeeperID
             ? (int)JobStatus.HousekeeperQuitJob
             : (int)JobStatus.Canceled;
 
