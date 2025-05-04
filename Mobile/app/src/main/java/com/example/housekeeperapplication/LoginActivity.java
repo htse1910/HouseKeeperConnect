@@ -107,6 +107,9 @@ public class LoginActivity extends AppCompatActivity {
                             editor.apply();
 
                             APIServices api = APIClient.getClient(LoginActivity.this).create(APIServices.class);
+/*                            Intent notificationIntent = new Intent(LoginActivity.this, NotificationActivity.class);
+                            notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(notificationIntent);*/
 
                             // Nếu là Housekeeper
                             if (roleID == 1) {
@@ -188,17 +191,21 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (isLoggedIn) {
-            if(roleID ==1){
-                Toast.makeText(LoginActivity.this, "Welcome " + name, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LoginActivity.this, HomeHousekeeperActivity.class);
-                startActivity(intent);
-                finish();
-            }else if(roleID ==2){
-                Toast.makeText(LoginActivity.this, "Welcome " + name, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                startActivity(intent);
-                finish();
+            String welcomeMessage = "Welcome " + name;
+            Toast.makeText(LoginActivity.this, welcomeMessage, Toast.LENGTH_SHORT).show();
+
+            Intent intent;
+            if (roleID == 1) {
+                intent = new Intent(LoginActivity.this, HomeHousekeeperActivity.class);
+            } else if (roleID == 2) {
+                intent = new Intent(LoginActivity.this, HomeActivity.class);
+            } else {
+                // Handle unknown role
+                return;
             }
+
+            startActivity(intent);
+            finish();
         }
     }
 
