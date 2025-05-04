@@ -3,6 +3,7 @@ package com.example.housekeeperapplication;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -29,6 +30,9 @@ public class NotificationActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewNotifications;
     private NotificationAdapter notificationAdapter;
+
+    private Runnable refreshNotificationTask;
+    private Handler handler = new Handler();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,16 +48,61 @@ public class NotificationActivity extends AppCompatActivity {
         int pageNumber = 1;
         int pageSize = 5;
 
-        List<Notification> olist = new ArrayList<>();
-
+        List<Notification> oList = new ArrayList<>();
         APIServices api = APIClient.getClient(NotificationActivity.this).create(APIServices.class);
+
+        refreshNotificationTask = new Runnable() {
+            @Override
+            public void run() {
+                Call<List<Notification>> call = api.getNotisByUserID(accountID, pageNumber, pageSize);
+                call.enqueue(new Callback<List<Notification>>() {
+                    @Override
+                    public void onResponse(Call<List<Notification>> call, Response<List<Notification>> response) {
+                        if(response.isSuccessful() && response.body()!=null){
+                            List<Notification> nList = response.body();
+
+
+                            notificationAdapter = new NotificationAdapter(nList);
+                            recyclerViewNotifications.setAdapter(notificationAdapter);
+                            Toast.makeText(NotificationActivity.this, "refreshed!", Toast.LENGTH_SHORT).show();
+
+                        }
+
+                        if(response.body()==null){
+                            Toast.makeText(NotificationActivity.this, "Không có thông báo nào!", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<Notification>> call, Throwable t) {
+                        Toast.makeText(NotificationActivity.this, "Khổng thể tải dữ liệu!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                handler.postDelayed(this, 3000);
+            }
+
+        };
+        handler.postDelayed(refreshNotificationTask, 3000);
+
         Call<List<Notification>> call = api.getNotisByUserID(accountID, pageNumber, pageSize);
         call.enqueue(new Callback<List<Notification>>() {
             @Override
             public void onResponse(Call<List<Notification>> call, Response<List<Notification>> response) {
                 if(response.isSuccessful() && response.body()!=null){
-                    List<Notification> nList = response.body();
-                    notificationAdapter = new NotificationAdapter(nList, NotificationActivity.this);
+                    List<Notification> list = response.body();
+                    for (var item : list
+                         ) {
+                        var noti = new Notification();
+                        noti.setRead(item.isRead());
+                        noti.setNotificationsID(item.getNotificationsID());
+                        noti.setCreatedDate(item.getCreatedDate());
+                        noti.setMessage(item.getMessage());
+                        noti.setAccountID(item.getAccountID());
+                        noti.setRedirectUrl(item.getRedirectUrl());
+                        oList.add(noti);
+                    }
+                    notificationAdapter = new NotificationAdapter(oList);
                     recyclerViewNotifications.setAdapter(notificationAdapter);
 
 
@@ -111,5 +160,11 @@ public class NotificationActivity extends AppCompatActivity {
             return false;
         });
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        finish();
     }
 }

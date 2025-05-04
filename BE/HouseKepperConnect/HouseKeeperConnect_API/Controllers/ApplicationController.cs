@@ -201,6 +201,18 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            if (jobDetail.HousekeeperID == hk.HousekeeperID)
+            {
+                Message = "Bạn đã ứng tuyển công việc này rồi!";
+                return Conflict(Message);
+            }
+
+            if(jobDetail.HousekeeperID != null)
+            {
+                Message = "Đã có người ứng tuyển công việc này rồi!";
+                return Conflict(Message);
+            }
+
             var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
             if (jobSlots == null || !jobSlots.Any())
             {
@@ -297,10 +309,10 @@ namespace HouseKeeperConnect_API.Controllers
             var noti = new Notification();
             noti.AccountID = app.HouseKepper.AccountID;
 
-            if (jobDetail.HousekeeperID != null)
+            if (jobDetail.HousekeeperID != null && status!=(int)ApplicationStatus.Accepted)
             {
                 Message = "Đã có người được tuyển cho công việc này!";
-                return Forbid(Message);
+                return Conflict(Message);
             }
             if (status == (int)ApplicationStatus.Accepted)
             {
