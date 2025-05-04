@@ -101,7 +101,7 @@ const FamilyWalletPage = () => {
             const message = await res.text();
 
             if (res.ok) {
-                toast.success("Rút tiền thành công!");
+                toast.success("OTP xác thực thành công. Yêu cầu rút tiền của bạn đã được tạo!");
                 setShowOtpModal(false);
                 setWithdrawAmount("");
                 setOtp("");

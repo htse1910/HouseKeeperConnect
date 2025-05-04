@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const StaffWithdrawalVerificationPage = () => {
   const [withdrawals, setWithdrawals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pictures, setPictures] = useState({}); // store selected pictures per withdrawID
+  const [pictures, setPictures] = useState({});
 
   const token = localStorage.getItem("authToken");
   const WithdrawStatus = {
@@ -47,7 +49,7 @@ const StaffWithdrawalVerificationPage = () => {
     const formData = new FormData();
     const picture = pictures[withdrawID];
     if (picture) formData.append("Picture", picture);
-    else formData.append("Picture", ""); // allow empty value
+    else formData.append("Picture", "");
 
     try {
       await axios.put(`${API_BASE_URL}/Withdraw/UpdateWithdraw`, formData, {
@@ -62,9 +64,14 @@ const StaffWithdrawalVerificationPage = () => {
       });
 
       setWithdrawals((prev) => prev.filter((w) => w.withdrawID !== withdrawID));
+      toast.success(
+        newStatus === WithdrawStatus.Success
+          ? "✅ Phê duyệt yêu cầu rút tiền thành công!"
+          : "❌ Từ chối yêu cầu rút tiền thành công!"
+      );
     } catch (err) {
       console.error("Update failed", err);
-      alert("Lỗi khi cập nhật trạng thái.");
+      toast.error("⚠️ Lỗi khi cập nhật trạng thái rút tiền.");
     }
   };
 
@@ -72,6 +79,7 @@ const StaffWithdrawalVerificationPage = () => {
 
   return (
     <div className="container py-4">
+      <ToastContainer position="top-center" autoClose={3000} />
       <h3 className="mb-4">Pending Withdrawal Requests</h3>
       {withdrawals.length === 0 ? (
         <p>No pending withdrawals found.</p>

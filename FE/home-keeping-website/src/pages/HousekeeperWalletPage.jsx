@@ -103,7 +103,7 @@ const HousekeeperWalletPage = () => {
       const message = await res.text();
 
       if (res.ok) {
-        toast.success("OTP xác thực thành công. Giao dịch hoàn tất!");
+        toast.success("OTP xác thực thành công. Yêu cầu rút tiền của bạn đã được tạo!");
         setShowOtpModal(false);
         setWithdrawAmount("");
         setOtp("");

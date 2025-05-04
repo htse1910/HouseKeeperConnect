@@ -204,6 +204,42 @@ const HousekeeperBookingManagementPage = () => {
     }
   };
 
+  // Inside the component, before return:
+  const handleForceAbandon = async (jobID) => {
+    if (!authToken || !accountID) {
+      toast.error("Vui lòng đăng nhập lại.");
+      return;
+    }
+
+    const abandonDate = new Date().toISOString();
+
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${jobID}&abandonDate=${abandonDate}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      const msg = await res.text();
+
+      if (res.ok) {
+        toast.success(msg || "✅ Đã huỷ và giao lại công việc!");
+        setRows(prev =>
+          prev.filter(row => row.jobID !== jobID)
+        );
+      } else {
+        toast.error(msg || "❌ Không thể huỷ công việc.");
+      }
+    } catch (err) {
+      toast.error("Lỗi khi gọi API.");
+      console.error(err);
+    }
+  };
 
   return (
     <div className="container py-4">
@@ -308,7 +344,7 @@ const HousekeeperBookingManagementPage = () => {
                     <div>
                       {row.status === 1 && new Date(row.endDate.split("/").reverse().join("-")) < new Date() ? (
                         <button
-                          className="btn btn-sm btn-success rounded-pill fw-bold"
+                          className="btn btn-sm btn-success rounded-pill fw-bold me-2"
                           onClick={() => handleMarkComplete(row.jobID)}
                         >
                           <FaCheckCircle className="me-1" />
@@ -328,8 +364,16 @@ const HousekeeperBookingManagementPage = () => {
                         </span>
                       )}
                     </div>
+                    <div>
+                      <button
+                        className="btn btn-outline-danger btn-sm rounded-pill fw-bold"
+                        onClick={() => handleForceAbandon(row.jobID)}
+                      >
+                        🛑 Huỷ & Giao lại
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </div>Z
               </div>
             </div>
           ))}

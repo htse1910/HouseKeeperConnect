@@ -15,6 +15,7 @@ function MessagesPage() {
   const [profilePicture, setProfilePicture] = useState(null);
   const [googlePicture, setGooglePicture] = useState(null);
   const [myProfilePicture, setMyProfilePicture] = useState(null);
+  const [chattedUsers, setChattedUsers] = useState([]);
   const chatPanelRef = useRef(null);
   const pollingRef = useRef(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -25,7 +26,7 @@ function MessagesPage() {
 
     const handleScroll = () => {
       const distanceFromBottom = panel.scrollHeight - panel.scrollTop - panel.clientHeight;
-      setShowScrollButton(distanceFromBottom > 100); // show if user scrolled up more than 100px
+      setShowScrollButton(distanceFromBottom > 100);
     };
 
     panel.addEventListener("scroll", handleScroll);
@@ -58,7 +59,11 @@ function MessagesPage() {
   };
 
   const handleSearch = () => {
-    if (!searchQuery.trim()) return setMatchedUser(null);
+    if (!searchQuery.trim()) {
+      setMatchedUser(null);
+      return;
+    }
+
     fetch(`${API_BASE_URL}/Account/SearchAccount?name=${encodeURIComponent(searchQuery)}`, {
       headers: { Authorization: `Bearer ${authToken}` },
     })
@@ -95,7 +100,9 @@ function MessagesPage() {
   };
 
   useEffect(() => {
-    if (searchQuery) handleSearch();
+    if (searchQuery) {
+      handleSearch();
+    }
   }, []);
 
   useEffect(() => {
@@ -124,6 +131,25 @@ function MessagesPage() {
       .then((res) => res.json())
       .then((data) => setMyProfilePicture(data.localProfilePicture || data.googleProfilePicture || null));
   }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      fetch(`${API_BASE_URL}/Chat/GetChatUsersByUser?fromAccountId=${accountID}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      })
+        .then((res) => res.json())
+        .then((ids) =>
+          Promise.all(
+            ids.map((id) =>
+              fetch(`${API_BASE_URL}/Account/GetAccount?id=${id}`, {
+                headers: { Authorization: `Bearer ${authToken}` },
+              }).then((res) => res.json())
+            )
+          ).then(setChattedUsers)
+        )
+        .catch((err) => console.error("Failed to fetch chatted users:", err));
+    }
+  }, [searchQuery]);
 
   const renderAvatar = (src) =>
     src ? (
@@ -156,9 +182,11 @@ function MessagesPage() {
             <button className="btn btn-warning" onClick={handleSearch}>Tìm</button>
           </div>
 
-          {matchedUser && (
+          {matchedUser ? (
             <button
-              className={`list-group-item list-group-item-action d-flex align-items-center shadow-sm rounded mb-2 ${selectedUser?.accountID === matchedUser.accountID ? "active" : ""}`}
+              className={`list-group-item list-group-item-action d-flex align-items-center shadow-sm rounded mb-2 ${
+                selectedUser?.accountID === matchedUser.accountID ? "active" : ""
+              }`}
               onClick={() => setSelectedUser(matchedUser)}
             >
               {renderAvatar(profilePicture || googlePicture)}
@@ -167,6 +195,22 @@ function MessagesPage() {
                 <small className="text-muted">{matchedUser.email}</small>
               </div>
             </button>
+          ) : (
+            chattedUsers.map((user) => (
+              <button
+                key={user.accountID}
+                className={`list-group-item list-group-item-action d-flex align-items-center shadow-sm rounded mb-2 ${
+                  selectedUser?.accountID === user.accountID ? "active" : ""
+                }`}
+                onClick={() => setSelectedUser(user)}
+              >
+                {renderAvatar(user.localProfilePicture || user.googleProfilePicture)}
+                <div>
+                  <h6 className="mb-0 fw-bold">{user.name}</h6>
+                  <small className="text-muted">{user.email}</small>
+                </div>
+              </button>
+            ))
           )}
         </div>
 
