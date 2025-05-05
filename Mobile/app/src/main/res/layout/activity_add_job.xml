@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
+    android:id="@+id/scrollView"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -347,18 +348,45 @@
 
             <!-- Các dịch vụ sẽ được thêm động vào đây -->
         </LinearLayout>
-
-        <!-- Tổng hợp chi phí -->
         <LinearLayout
-            android:id="@+id/layoutSalarySummary"
+            android:id="@+id/layoutWarningContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="16dp"
-            android:padding="16dp"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/layoutSelectedServices"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/tvBalanceWarning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#F44336"
+                android:layout_margin="8dp"/>
+        </LinearLayout>
+
+        <!-- Tổng hợp chi phí -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvPriceSummary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="8dp"
+            app:layout_constraintTop_toBottomOf="@id/layoutWarningContainer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:id="@+id/layoutSalarySummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="@android:color/white">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -436,6 +464,7 @@
                     android:textStyle="bold"/>
             </LinearLayout>
         </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <!-- Nút Tuyển ngay -->
         <Button
@@ -449,7 +478,7 @@
             android:textAllCaps="true"
             android:textStyle="bold"
             android:paddingVertical="16dp"
-            app:layout_constraintTop_toBottomOf="@id/layoutSalarySummary"
+            app:layout_constraintTop_toBottomOf="@id/cvPriceSummary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 

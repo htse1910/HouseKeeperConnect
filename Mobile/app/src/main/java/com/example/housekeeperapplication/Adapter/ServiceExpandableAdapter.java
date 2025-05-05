@@ -21,24 +21,37 @@ public class ServiceExpandableAdapter extends BaseExpandableListAdapter {
     private Context context;
     private List<ServiceTypeGroup> groupList;
     private Map<Integer, Boolean> childCheckStates;
+    private Map<Integer, Service> serviceMap;
     private ExpandableListViewHeightListener heightListener;
+    private OnServiceSelectionChangeListener selectionChangeListener;
 
     public interface ExpandableListViewHeightListener {
         void onHeightChanged(int newHeight);
     }
 
+    public interface OnServiceSelectionChangeListener {
+        void onServiceSelectionChanged(List<Service> selectedServices);
+    }
+
     public ServiceExpandableAdapter(Context context, List<Service> services, ExpandableListViewHeightListener listener) {
         this.context = context;
         this.childCheckStates = new HashMap<>();
+        this.serviceMap = new HashMap<>();
         this.groupList = processData(services);
         this.heightListener = listener;
         initializeCheckStates(services);
     }
 
+    public void setOnServiceSelectionChangeListener(OnServiceSelectionChangeListener listener) {
+        this.selectionChangeListener = listener;
+    }
+
     private List<ServiceTypeGroup> processData(List<Service> services) {
         Map<String, ServiceTypeGroup> groupMap = new HashMap<>();
+        serviceMap.clear();
 
         for (Service service : services) {
+            serviceMap.put(service.getServiceID(), service);
             String typeName = service.getServiceType().getServiceTypeName();
             if (!groupMap.containsKey(typeName)) {
                 groupMap.put(typeName, new ServiceTypeGroup(typeName, new ArrayList<>()));
@@ -95,44 +108,70 @@ public class ServiceExpandableAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+        GroupViewHolder holder;
         if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.expandable_group_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_group_item, parent, false);
+            holder = new GroupViewHolder(convertView);
+            convertView.setTag(holder);
+        } else {
+            holder = (GroupViewHolder) convertView.getTag();
         }
 
         ServiceTypeGroup group = (ServiceTypeGroup) getGroup(groupPosition);
-        TextView tvGroup = convertView.findViewById(R.id.tvGroupTitle);
-        tvGroup.setText(group.getTypeName());
+        holder.tvGroupTitle.setText(group.getTypeName());
+        holder.tvArrow.setText(isExpanded ? "▼" : "▶");
 
-        // Thêm icon mũi tên để chỉ trạng thái mở rộng/thu gọn
-        TextView tvArrow = convertView.findViewById(R.id.tvArrow);
-        tvArrow.setText(isExpanded ? "▼" : "▶");
+        // Đếm số dịch vụ đã chọn trong nhóm này
+        int selectedCount = 0;
+        for (Service service : group.getServices()) {
+            if (Boolean.TRUE.equals(childCheckStates.get(service.getServiceID()))) {
+                selectedCount++;
+            }
+        }
+
+        holder.tvSelectedCount.setVisibility(selectedCount > 0 ? View.VISIBLE : View.GONE);
+        holder.tvSelectedCount.setText(String.format("(%d)", selectedCount));
 
         return convertView;
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+        ChildViewHolder holder;
         if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.expandable_child_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_child_item, parent, false);
+            holder = new ChildViewHolder(convertView);
+            convertView.setTag(holder);
+        } else {
+            holder = (ChildViewHolder) convertView.getTag();
         }
 
         Service service = (Service) getChild(groupPosition, childPosition);
-        CheckBox cbService = convertView.findViewById(R.id.cbService);
-        TextView tvPrice = convertView.findViewById(R.id.tvPrice);
+        holder.cbService.setText(service.getServiceName());
+        holder.tvPrice.setText(String.format("%,d VND", (int) service.getPrice()));
 
-        cbService.setText(service.getServiceName());
-        tvPrice.setText(String.format("%,d VND", (int) service.getPrice()));
+        // Đặt trạng thái checked ban đầu
+        holder.cbService.setChecked(Boolean.TRUE.equals(childCheckStates.get(service.getServiceID())));
 
-        cbService.setChecked(Boolean.TRUE.equals(childCheckStates.get(service.getServiceID())));
-
-        cbService.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            childCheckStates.put(service.getServiceID(), isChecked);
+        // Xử lý sự kiện thay đổi trạng thái
+        holder.cbService.setOnCheckedChangeListener((buttonView, checked) -> {
+            childCheckStates.put(service.getServiceID(), checked);
+            notifySelectionChanged();
             notifyDataSetChanged();
+
+            // Cập nhật chiều cao của ExpandableListView
+            if (heightListener != null) {
+                heightListener.onHeightChanged(calculateTotalHeight((ExpandableListView) parent));
+            }
         });
 
         return convertView;
+    }
+
+    private void notifySelectionChanged() {
+        if (selectionChangeListener != null) {
+            selectionChangeListener.onServiceSelectionChanged(getSelectedServices());
+        }
     }
 
     @Override
@@ -150,37 +189,81 @@ public class ServiceExpandableAdapter extends BaseExpandableListAdapter {
         return selectedIds;
     }
 
+    public List<Service> getSelectedServices() {
+        List<Service> selectedServices = new ArrayList<>();
+        for (Map.Entry<Integer, Boolean> entry : childCheckStates.entrySet()) {
+            if (entry.getValue() && serviceMap.containsKey(entry.getKey())) {
+                selectedServices.add(serviceMap.get(entry.getKey()));
+            }
+        }
+        return selectedServices;
+    }
+
     public void setServiceChecked(int serviceId, boolean isChecked) {
         childCheckStates.put(serviceId, isChecked);
         notifyDataSetChanged();
+        notifySelectionChanged();
     }
 
-    // Phương thức mới để tính toán chiều cao tổng
     public int calculateTotalHeight(ExpandableListView listView) {
         int totalHeight = 0;
         int groupCount = getGroupCount();
 
+        // Chiều cao của tiêu đề
+        View listHeader = listView.getChildAt(0);
+        if (listHeader != null) {
+            totalHeight += listHeader.getHeight();
+        }
+
         for (int i = 0; i < groupCount; i++) {
             View groupView = getGroupView(i, false, null, listView);
-            groupView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            groupView.measure(
+                    View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            );
             totalHeight += groupView.getMeasuredHeight();
 
             if (listView.isGroupExpanded(i)) {
                 int childrenCount = getChildrenCount(i);
                 for (int j = 0; j < childrenCount; j++) {
                     View childView = getChildView(i, j, false, null, listView);
-                    childView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                    childView.measure(
+                            View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                    );
                     totalHeight += childView.getMeasuredHeight();
                 }
             }
         }
 
-        // Thêm padding và divider height
+        // Thêm divider height
         totalHeight += listView.getDividerHeight() * (groupCount - 1);
 
         return totalHeight;
+    }
+
+    // ViewHolder cho group item
+    private static class GroupViewHolder {
+        TextView tvGroupTitle;
+        TextView tvArrow;
+        TextView tvSelectedCount;
+
+        GroupViewHolder(View view) {
+            tvGroupTitle = view.findViewById(R.id.tvGroupTitle);
+            tvArrow = view.findViewById(R.id.tvArrow);
+            tvSelectedCount = view.findViewById(R.id.tvSelectedCount);
+        }
+    }
+
+    // ViewHolder cho child item
+    private static class ChildViewHolder {
+        CheckBox cbService;
+        TextView tvPrice;
+
+        ChildViewHolder(View view) {
+            cbService = view.findViewById(R.id.cbService);
+            tvPrice = view.findViewById(R.id.tvPrice);
+        }
     }
 
     public static class ServiceTypeGroup {

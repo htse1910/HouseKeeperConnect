@@ -12,8 +12,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class APIClient {
-    private static final String BASE_URL = "https://0qqx43v4-5280.asse.devtunnels.ms/"; // Địa chỉ API của bạn
-    //private static final String BASE_URL = "http://10.0.2.2:5280/"; // Địa chỉ API của bạn*/
+    //private static final String BASE_URL = "https://0qqx43v4-5280.asse.devtunnels.ms/"; // Địa chỉ API của bạn
+    private static final String BASE_URL = "http://10.0.2.2:5280/"; // Địa chỉ API của bạn*/
 
     private static Retrofit retrofit = null;
 
