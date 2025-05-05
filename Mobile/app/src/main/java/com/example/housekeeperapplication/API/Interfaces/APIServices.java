@@ -69,6 +69,9 @@ public interface APIServices {
             @Query("isMobile") boolean isMobile
     );
 
+    @GET("api/Wallet/GetWalletByAccountID")
+    Call<Wallet> getWalletByAccountID(@Query("id") int accountId);
+
     //Transaction APIs
     @GET("api/Transaction/GetTransactionByUserID")
     Call<List<Transaction>> getTransactionByUserID(
@@ -253,8 +256,9 @@ public interface APIServices {
             @Query("EndDate") String endDate,
             @Query("Description") String description,
             @Query("IsOffered") boolean isOffered,
-            @Query("ServiceIDs") String serviceIds,
-            @Query("SlotIDs") String slotIds,
-            @Query("DayofWeek") String dayOfWeek
+            @Query("ServiceIDs") List<Integer> serviceIds,
+            @Query("SlotIDs") List<Integer> slotIds,
+            @Query("DayofWeek") List<Integer> dayOfWeek
     );
+
 }
