@@ -21,7 +21,11 @@ namespace Services
 
         public async Task<List<Application>> GetAllApplicationsByJobIDAsync(int jobID, int pageNumber, int pageSize) => await _repository.GetAllApplicationsByJobIDAsync(jobID, pageNumber, pageSize);
 
+        public async Task<List<Application>> GetAllApplicationsByJobIDAsync(int jobID) => await _repository.GetAllApplicationsByJobIDAsync(jobID);
+
         public async Task<List<Application>> GetAllApplicationsByUserAsync(int uid, int pageNumber, int pageSize) => await _repository.GetAllApplicationsByUserAsync(uid, pageNumber, pageSize);
+
+        public async Task<List<Application>> GetAllApplicationsByUserAsync(int uid) => await _repository.GetAllApplicationsByUserAsync(uid);
 
         public async Task<Application> GetApplicationByHKIDAsync(int id) => await _repository.GetApplicationByHKIDAsync(id);
 

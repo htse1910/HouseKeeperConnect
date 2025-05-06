@@ -33,7 +33,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Housekeeper.Include(i => i.IDVerification).Include(a => a.Account).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Housekeeper.Include(i => i.IDVerification).Include(a => a.Account).Where(a => a.Account.RoleID==1).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

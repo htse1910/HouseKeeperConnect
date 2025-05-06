@@ -28,12 +28,15 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IPaymentService _paymentService;
         private readonly IPayoutService _payoutService;
         private readonly IPlatformFeeService _platformFeeService;
+        private readonly IApplicationService _applicationService;
         private string Message;
         private readonly IMapper _mapper;
 
         public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService, IBooking_SlotsService bookingSlotsService, INotificationService notificationService,
             IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService,
-            IServiceService serviceService, IAccountService accountService, ITransactionService transactionService, IWalletService walletService, IPaymentService paymentService, IPayoutService payoutService, IPlatformFeeService platformFeeService)
+            IServiceService serviceService, IAccountService accountService, ITransactionService transactionService, 
+            IWalletService walletService, IPaymentService paymentService, IPayoutService payoutService, 
+            IPlatformFeeService platformFeeService, IApplicationService applicationService)
         {
             _jobService = jobService;
             _jobServiceService = job_ServiceService;
@@ -51,6 +54,7 @@ namespace HouseKeeperConnect_API.Controllers
             _paymentService = paymentService;
             _payoutService = payoutService;
             _platformFeeService = platformFeeService;
+            _applicationService = applicationService;
         }
 
         [HttpGet("JobList")]
@@ -427,6 +431,7 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound("Housekeeper not found.");
                 }
 
+
                 var job = await _jobService.GetJobByIDAsync(jobId);
                 if (job == null)
                 {
@@ -447,6 +452,31 @@ namespace HouseKeeperConnect_API.Controllers
                 if (jobDetail.HousekeeperID == null)
                 {
                     jobDetail.HousekeeperID = hk.HousekeeperID;
+                }
+
+                var applications = await _applicationService.GetAllApplicationsByJobIDAsync(job.JobID);
+                if (applications.Count == 0)
+                {
+                    Message = "Chưa có đơn ứng tuyển nào cho công việc này!";
+                    return NotFound(Message);
+                }
+                foreach(var item in applications)
+                {
+                    if (item.HouseKeeperID != hk.HousekeeperID)
+                    {
+                        var app = new Application();
+                        app.ApplicationID = item.ApplicationID;
+                        app.Status = (int)ApplicationStatus.Denied;
+                        app.HouseKeeperID = item.HouseKeeperID;
+                        app.JobID = item.JobID;
+
+                        var noti = new Notification();
+                        noti.Message = "Đơn ứng tuyển của bạn cho công việc #" + job.JobID + " - " + job.JobName + " đã bị từ chối!";
+                        noti.AccountID = app.HouseKepper.AccountID;
+
+                        await _notificationService.AddNotificationAsync(noti);
+                        await _applicationService.UpdateApplicationAsync(app);
+                    }
                 }
 
                 var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
@@ -475,7 +505,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
 
                 // ✅ Accept job
-                job.Status = 3;
+                job.Status = (int)JobStatus.Accepted;
                 await _jobService.UpdateJobAsync(job);
 
                 // 📅 Create Booking
@@ -576,7 +606,7 @@ namespace HouseKeeperConnect_API.Controllers
                 // Send notification to the Family/Account who posted the job
                 var notification = new Notification
                 {
-                    AccountID = job.FamilyID, // Or use job.AccountID depending on your model
+                    AccountID = job.Family.AccountID, // Or use job.AccountID depending on your model
                     Message = $"Công việc của bạn '{job.JobName}' đã bị từ chối bởi người giúp việc.",
                     CreatedDate = DateTime.Now,
                     IsRead = false
@@ -584,7 +614,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _notificationService.AddNotificationAsync(notification);
 
-                return Ok("Job has been denied and the family has been notified.");
+                return Ok("Từ chối công việc thành công, gia đình đã được thông báo!");
             }
             catch (Exception ex)
             {

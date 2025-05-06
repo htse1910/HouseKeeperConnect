@@ -20,13 +20,14 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IJob_ServiceService _jobServiceService;
         private readonly IJob_SlotsService _jobSlotsService;
         private readonly IBooking_SlotsService _bookingSlotsService;
+        private readonly IHousekeeperSkillMappingService _housekeeperSkillMappingService;
         private readonly IMapper _mapper;
         private string Message;
 
         public ApplicationController(IApplicationService applicationService, IAccountService accountService,
             IHouseKeeperService houseKeeperService, IMapper mapper,
             IJobService jobService, INotificationService notificationService, IJob_ServiceService job_ServiceService,
-            IJob_SlotsService job_SlotsService, IBooking_SlotsService bookingSlotsService)
+            IJob_SlotsService job_SlotsService, IBooking_SlotsService bookingSlotsService, IHousekeeperSkillMappingService housekeeperSkillMappingService)
         {
             _applicationService = applicationService;
             _accountService = accountService;
@@ -37,6 +38,7 @@ namespace HouseKeeperConnect_API.Controllers
             _jobServiceService = job_ServiceService;
             _jobSlotsService = job_SlotsService;
             _bookingSlotsService = bookingSlotsService;
+            _housekeeperSkillMappingService = housekeeperSkillMappingService;
         }
 
         [HttpGet("ApplicationList")]
@@ -181,9 +183,15 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            var hkSkills = await _housekeeperSkillMappingService.GetSkillsByHousekeeperIdAsync(hk.HousekeeperID);
+            if(hkSkills.Count==0)
+            {
+                Message = "Bạn phải cập nhật kỹ năng của bạn trước khi ứng tuyển!";
+                return Conflict(Message);
+            }
             if (!hk.IsVerified)
             {
-                Message = "Bạn cần phải xác nhận danh tính trước khi ứng tuyển!";
+                Message = "Bạn cần phải xác nhận danh tính trước     khi ứng tuyển!";
                 return BadRequest(Message);
             }
 
@@ -292,6 +300,17 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            if (app.Status == (int)ApplicationStatus.Accepted && app.Status == status)
+            {
+                Message = "Bạn đã chấp nhận đơn ứng tuyển này rồi!";
+                return Conflict(Message);
+            }
+            if (app.Status == (int)ApplicationStatus.Denied && app.Status==status)
+            {
+                Message = "Bạn đã từ chối đơn ứng tuyển này rồi!";
+                return Conflict(Message);
+            }
+
             var job = await _jobService.GetJobByIDAsync(app.JobID);
             if (job == null)
             {
@@ -316,13 +335,13 @@ namespace HouseKeeperConnect_API.Controllers
             }
             if (status == (int)ApplicationStatus.Accepted)
             {
-                Message = "Application Accepted!";
+                Message = "Bạn đã chấp nhận đơn tuyển!";
                 noti.Message = "Đơn ứng tuyển của bạn cho công việc #" + job.JobID + " - " + job.JobName + " đã được chấp thuận!";
                 jobDetail.HousekeeperID = app.HouseKeeperID;
             }
             if (status == (int)ApplicationStatus.Denied)
             {
-                Message = "Đơn của bạn đã bị từ chối!";
+                Message = "Bạn đã từ chối đơn tuyển!";
                 noti.Message = "Đơn ứng tuyển của bạn cho công việc #" + job.JobID + " - " + job.JobName + " đã bị từ chối!";
             }
 
@@ -331,7 +350,6 @@ namespace HouseKeeperConnect_API.Controllers
             app.Status = status;
 
             await _applicationService.UpdateApplicationAsync(app);
-            Message = "Application status updated!";
             return Ok(Message);
         }
     }
