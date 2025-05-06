@@ -17,6 +17,18 @@ const slotMap = {
   12: "19H - 20H",
 };
 
+const jobStatusMap = {
+  1: "Chờ duyệt",
+  2: "Đã duyệt",
+  3: "Đã nhận",
+  4: "Hoàn thành",
+  5: "Hết hạn",
+  6: "Đã huỷ",
+  7: "Không đủ điều kiện",
+  8: "Chờ xác nhận từ gia đình",
+  9: "Giúp việc bỏ việc"
+};
+
 const jobTypeMap = {
   1: "Một lần duy nhất",
   2: "Định kỳ",
@@ -171,6 +183,10 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
                 <div className="info-row"><div className="info-label">Thời gian:</div><div className="info-value">{new Date(job.startDate).toLocaleDateString()} → {new Date(job.endDate).toLocaleDateString()}</div></div>
                 <div className="info-row"><div className="info-label">Mức lương:</div><div className="info-value">{job.price?.toLocaleString()} VND</div></div>
                 <div className="info-row"><div className="info-label">Loại công việc:</div><div className="info-value">{jobTypeMap[job.jobType] || "Không rõ"}</div></div>
+                <div className="info-row">
+                  <div className="info-label">Trạng thái công việc:</div>
+                  <div className="info-value">{jobStatusMap[job.status] || "Không rõ"}</div>
+                </div>
 
                 {job.serviceIDs?.length > 0 && (
                   <>
@@ -210,7 +226,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
                   </>
                 )}
 
-                {applicationStatus === 2 && (
+                {applicationStatus === 2 && job?.status !== 3 && (
                   <div className="d-flex justify-content-end gap-2 mt-4">
                     <button className="btn btn-outline-danger fw-semibold rounded-2" onClick={handleRejectJob}>
                       Từ chối
