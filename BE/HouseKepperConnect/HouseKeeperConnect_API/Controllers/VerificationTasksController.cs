@@ -15,16 +15,18 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IAccountService _accountService;
         private readonly IHouseKeeperService _housekeeperService;
         private readonly INotificationService _notificationService;
+        private readonly IIDVerificationService _iDVerificationService;
         private readonly IMapper _mapper;
 
         public VerificationTasksController(IVerificationTaskService verificationTaskService, IMapper mapper,
-                                          IAccountService accountService, IHouseKeeperService housekeeperService, INotificationService notificationService)
+                                          IAccountService accountService, IHouseKeeperService housekeeperService, INotificationService notificationService, IIDVerificationService iDVerificationService)
         {
             _verificationTaskService = verificationTaskService;
             _mapper = mapper;
             _accountService = accountService;
             _housekeeperService = housekeeperService;
             _notificationService = notificationService;
+            _iDVerificationService = iDVerificationService;
         }
 
         /*[HttpGet("VerificationTaskPending")]
@@ -103,26 +105,36 @@ namespace HouseKeeperConnect_API.Controllers
                     return Unauthorized("You do not have permission to approve verification.");
                 }
 
+
                 var hk = await _housekeeperService.GetHousekeepersByIDVerifyAsync(task.VerifyID);
                 if (hk == null)
                 {
                     return NotFound("Housekeeper not found!");
                 }
 
+                if (hk.VerifyID == null)
+                {
+                    return NotFound("Không tìm thấy thông tin giấy tờ!");
+                }
+
+
                 task.AccountID = request.AccountID;
                 task.Status = 2;
                 task.CompletedDate = DateTime.Now;
                 task.Notes = request.Notes;
                 task.IDVerification.Status = 2;
+                task.IDVerification.IDNumber = request.IDNumber;
+                task.IDVerification.DateOfBirth = request.DateOfBirth;
+                task.IDVerification.RealName = request.RealName;
 
                 var noti = new Notification();
                 noti.AccountID = hk.AccountID;
                 noti.Message = "CCCD/CMND của bạn đã được duyệt!";
 
-                await _notificationService.AddNotificationAsync(noti);
                 await _verificationTaskService.UpdateVerificationTaskAsync(task);
-
                 await _housekeeperService.UpdateIsVerifiedAsync(task.IDVerification.VerifyID, true);
+                await _notificationService.AddNotificationAsync(noti);
+
                 return Ok("Verification task approved successfully.");
             }
             catch (Exception ex)

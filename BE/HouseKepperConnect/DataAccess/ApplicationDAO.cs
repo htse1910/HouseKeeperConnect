@@ -59,6 +59,22 @@ namespace DataAccess
             }
             return list;
         }
+        public async Task<List<Application>> GetAllApplicationsByUserAsync(int uid)
+        {
+            var list = new List<Application>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Application.Include(a => a.HouseKepper.Account).Include(a => a.Job.Family).Where(a => a.HouseKeeperID == uid).AsNoTracking().ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
 
         public async Task<List<Application>> GetAllApplicationsByJobIDAsync(int jobID, int pageNumber, int pageSize)
         {
@@ -68,6 +84,22 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     list = await context.Application.Include(a => a.HouseKepper.Account).Where(a => a.JobID == jobID).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
+        public async Task<List<Application>> GetAllApplicationsByJobIDAsync(int jobID)
+        {
+            var list = new List<Application>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Application.Include(a => a.HouseKepper.Account).Where(a => a.JobID == jobID).AsNoTracking().ToListAsync();
                 }
             }
             catch (Exception ex)

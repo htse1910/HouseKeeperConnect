@@ -19,10 +19,6 @@ namespace BusinessObject.DTO
         public string Location { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue, ErrorMessage = "Price must be at least 0.")]
-        public decimal Price { get; set; }
-
-        [Required]
         public DateTime StartDate { get; set; }
 
         [Required]
