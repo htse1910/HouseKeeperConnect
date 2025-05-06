@@ -38,9 +38,15 @@ const ManageAcceptedJobsPage = () => {
   }, [authToken]);
 
   const handleAbandonJob = async (jobID) => {
+    const accountID = localStorage.getItem("accountID");
+    if (!authToken || !accountID) {
+      toast.error("Vui lòng đăng nhập lại.");
+      return;
+    }
+  
     try {
       const response = await fetch(
-        `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${jobID}&abandonDate=${new Date().toISOString()}`,
+        `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${jobID}&accountID=${accountID}`,
         {
           method: "POST",
           headers: {
@@ -48,9 +54,9 @@ const ManageAcceptedJobsPage = () => {
           }
         }
       );
-
+  
       const message = await response.text();
-
+  
       if (response.ok) {
         toast.success("✔️ Công việc đã được từ chối và giao lại!");
         setJobs(prev => prev.filter(job => job.jobID !== jobID));
@@ -61,7 +67,7 @@ const ManageAcceptedJobsPage = () => {
       toast.error("❌ Lỗi khi từ chối công việc.");
       console.error("Abandon error:", error);
     }
-  };
+  };  
 
   return (
     <div className="container py-4">

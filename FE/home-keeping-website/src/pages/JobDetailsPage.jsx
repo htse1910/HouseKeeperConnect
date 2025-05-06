@@ -58,7 +58,6 @@ function JobDetailsPage() {
         setJob(data);
         setLoading(false);
 
-        // Fetch service names dynamically
         if (Array.isArray(data.serviceIDs)) {
           Promise.all(
             data.serviceIDs.map((sid) =>
@@ -68,15 +67,9 @@ function JobDetailsPage() {
                   "Content-Type": "application/json"
                 }
               })
-                .then((res) => {
-                  if (!res.ok) throw new Error(`Failed to fetch service ID ${sid}`);
-                  return res.json();
-                })
+                .then((res) => res.ok ? res.json() : Promise.reject(`Failed to fetch service ID ${sid}`))
                 .then((service) => ({ id: sid, name: service.serviceName }))
-                .catch((err) => {
-                  console.warn(`Service fetch failed for ID ${sid}:`, err);
-                  return { id: sid, name: `Dịch vụ không rõ (ID: ${sid})` };
-                })
+                .catch(() => ({ id: sid, name: `Dịch vụ không rõ (ID: ${sid})` }))
             )
           ).then((services) => {
             const map = {};
@@ -87,7 +80,6 @@ function JobDetailsPage() {
           });
         }
 
-        // Fetch family name
         if (data.familyID) {
           fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${data.familyID}`, {
             method: "GET",
@@ -135,10 +127,12 @@ function JobDetailsPage() {
         }
       );
 
+      const message = await response.text();
+
       if (response.ok) {
-        toast.success("🎉 Ứng tuyển thành công!");
+        toast.success(message || "🎉 Ứng tuyển thành công!");
       } else {
-        toast.error("❌ Ứng tuyển thất bại. Vui lòng thử lại.");
+        toast.error(message || "❌ Ứng tuyển thất bại. Vui lòng thử lại.");
       }
     } catch (error) {
       console.error("Error applying for job:", error);

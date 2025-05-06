@@ -42,7 +42,8 @@ const FamilyJobManagementPage = () => {
     5: t("job.job_expired"),
     6: t("job.job_canceled"),
     8: t("job.job_pending_family_confirmation"),
-  }), [t]);
+    9: t("job.job_housekeeper_quit") // ⬅️ Add this
+  }), [t]);  
 
   const serviceTypes = useMemo(
     () => Array.from(new Set(jobs.flatMap(job => job.serviceTypes || []))),

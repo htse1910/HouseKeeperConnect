@@ -33,9 +33,9 @@ const JobCard = ({ job, jobStatusMap, onEdit, onDelete, onView, onCancel }) => {
       </div>
 
       <div className="mt-3 d-flex gap-2">
-        <button className="btn btn-outline-secondary btn-sm" onClick={() => onEdit(job.jobID)}>
+        {/* <button className="btn btn-outline-secondary btn-sm" onClick={() => onEdit(job.jobID)}>
           {t("job.job.edit")}
-        </button>
+        </button> */}
         <button className="btn btn-outline-danger btn-sm" onClick={() => onDelete(job)}>
           {t("job.job.delete")}
         </button>

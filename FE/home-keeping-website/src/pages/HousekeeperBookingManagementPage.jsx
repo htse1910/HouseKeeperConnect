@@ -200,6 +200,7 @@ const HousekeeperBookingManagementPage = () => {
       case 6: return "❌ Đã hủy";
       case 7: return "🚫 Không được phép";
       case 8: return "⏳ Chờ gia đình xác nhận";
+      case 9: return "🚪 Người giúp việc đã bỏ việc";
       default: return "Không rõ";
     }
   };
@@ -211,11 +212,9 @@ const HousekeeperBookingManagementPage = () => {
       return;
     }
 
-    const abandonDate = new Date().toISOString();
-
     try {
       const res = await fetch(
-        `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${jobID}&abandonDate=${abandonDate}`,
+        `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${jobID}&accountID=${accountID}`,
         {
           method: "POST",
           headers: {
@@ -229,9 +228,7 @@ const HousekeeperBookingManagementPage = () => {
 
       if (res.ok) {
         toast.success(msg || "✅ Đã huỷ và giao lại công việc!");
-        setRows(prev =>
-          prev.filter(row => row.jobID !== jobID)
-        );
+        setRows(prev => prev.filter(row => row.jobID !== jobID));
       } else {
         toast.error(msg || "❌ Không thể huỷ công việc.");
       }
@@ -365,15 +362,17 @@ const HousekeeperBookingManagementPage = () => {
                       )}
                     </div>
                     <div>
-                      <button
-                        className="btn btn-outline-danger btn-sm rounded-pill fw-bold"
-                        onClick={() => handleForceAbandon(row.jobID)}
-                      >
-                        🛑 Huỷ & Giao lại
-                      </button>
+                      {row.jobStatus === 3 && (
+                        <button
+                          className="btn btn-outline-danger btn-sm rounded-pill fw-bold"
+                          onClick={() => handleForceAbandon(row.jobID)}
+                        >
+                          🛑 Huỷ & Giao lại
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>Z
+                </div>
               </div>
             </div>
           ))}

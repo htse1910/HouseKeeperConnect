@@ -13,10 +13,21 @@ const StaffUserVerificationPage = () => {
   const [emptyMessage, setEmptyMessage] = useState("");
   const [selectedHousekeeper, setSelectedHousekeeper] = useState(null);
   const [note, setNote] = useState("");
+  const [realName, setRealName] = useState("");
+  const [idNumber, setIdNumber] = useState("");
+  const [dob, setDob] = useState("");
 
   useEffect(() => {
     reloadPendingList();
   }, []);
+
+  useEffect(() => {
+    if (selectedHousekeeper) {
+      setRealName(selectedHousekeeper.realName || "");
+      setIdNumber(selectedHousekeeper.idNumber || "");
+      setDob(selectedHousekeeper.dateOfBirth || "");
+    }
+  }, [selectedHousekeeper]);
 
   const reloadPendingList = async () => {
     setLoading(true);
@@ -48,7 +59,7 @@ const StaffUserVerificationPage = () => {
       setEmptyMessage(detailedList.length === 0 ? "Không có hồ sơ đang chờ xác minh." : "");
     } catch (err) {
       console.error("Error loading housekeepers:", err);
-      setError("Không thể tải danh sách.");
+      setError("Chưa có hồ sơ cần duyệt");
     } finally {
       setLoading(false);
     }
@@ -67,16 +78,27 @@ const StaffUserVerificationPage = () => {
     const accountID = localStorage.getItem("accountID");
 
     try {
-      await axios.put(`${API_BASE_URL}/VerificationTasks/Approve`, null, {
-        params: { taskId, accountID, notes: note },
+      const res = await axios.put(`${API_BASE_URL}/VerificationTasks/Approve`, null, {
+        params: {
+          taskId,
+          accountID,
+          IDNumber: idNumber,
+          RealName: realName,
+          DateOfBirth: dob,
+          Notes: note || ""
+        },
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success("✅ Hồ sơ đã được duyệt!");
+
+      toast.success(typeof res.data === "string" ? res.data : res.data?.message || "✅ Hồ sơ đã được duyệt!");
       setSelectedHousekeeper(null);
       reloadPendingList();
     } catch (err) {
       console.error(err);
-      toast.error("❌ Lỗi khi duyệt hồ sơ.");
+      const msg = typeof err.response?.data === "string"
+        ? err.response.data
+        : err.response?.data?.message || "❌ Lỗi khi duyệt hồ sơ.";
+      toast.error(msg);
     }
   };
 
@@ -85,16 +107,27 @@ const StaffUserVerificationPage = () => {
     const accountID = localStorage.getItem("accountID");
 
     try {
-      await axios.put(`${API_BASE_URL}/VerificationTasks/Reject`, null, {
-        params: { taskId, accountID, notes: note },
+      const res = await axios.put(`${API_BASE_URL}/VerificationTasks/Reject`, null, {
+        params: {
+          taskId,
+          accountID,
+          IDNumber: idNumber,
+          RealName: "",
+          DateOfBirth: "",
+          Notes: ""
+        },
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success("✅ Hồ sơ đã bị từ chối.");
+
+      toast.success(typeof res.data === "string" ? res.data : res.data?.message || "✅ Hồ sơ đã bị từ chối.");
       setSelectedHousekeeper(null);
       reloadPendingList();
     } catch (err) {
       console.error(err);
-      toast.error("❌ Lỗi khi từ chối hồ sơ.");
+      const msg = typeof err.response?.data === "string"
+        ? err.response.data
+        : err.response?.data?.message || "❌ Lỗi khi từ chối hồ sơ.";
+      toast.error(msg);
     }
   };
 
@@ -191,6 +224,40 @@ const StaffUserVerificationPage = () => {
                     <img src={selectedHousekeeper.facePhoto} alt="Face" className="img-fluid rounded border" />
                   </div>
                 </div>
+
+                <div className="mb-3">
+                  <label htmlFor="realName" className="form-label fw-semibold">Họ tên</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="realName"
+                    value={realName}
+                    onChange={(e) => setRealName(e.target.value)}
+                    placeholder="Nhập họ tên..."
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="idNumber" className="form-label fw-semibold">Số CCCD</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    id="idNumber"
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
+                    placeholder="Nhập số CCCD..."
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="dob" className="form-label fw-semibold">Ngày sinh</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    id="dob"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                  />
+                </div>
+
                 <div className="mb-3">
                   <label htmlFor="note" className="form-label fw-semibold">Ghi chú</label>
                   <textarea
