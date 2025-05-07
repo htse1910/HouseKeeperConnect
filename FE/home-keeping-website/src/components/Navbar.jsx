@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -63,6 +64,30 @@ function Navbar() {
     };
   }, []);
 
+  const [avatarUrl, setAvatarUrl] = useState(userAvatar);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    const accountID = localStorage.getItem("accountID");
+
+    if (token && accountID) {
+      axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then((res) => {
+          const data = res.data;
+          const avatarFromAPI = data.localProfilePicture || data.googleProfilePicture;
+          if (avatarFromAPI) {
+            setAvatarUrl(avatarFromAPI);
+            localStorage.setItem("avatar", avatarFromAPI);
+          }
+        })
+        .catch((err) => {
+          console.error("❌ Avatar fetch error:", err);
+        });
+    }
+  }, []);
+
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     localStorage.setItem("i18nextLng", lng);
@@ -114,7 +139,12 @@ function Navbar() {
               onClick={() => setUserMenuVisible((prev) => !prev)}
               style={{ cursor: "pointer" }}
             >
-              <img src={userAvatar} alt="User Avatar" className="user-avatar" />
+              <img
+                src={avatarUrl}
+                alt="User Avatar"
+                className="user-avatar"
+                onError={() => setAvatarUrl(userAvatar)}
+              />
 
               {userMenuVisible && (
                 <div className="user-dropdown position-absolute end-0 mt-2">

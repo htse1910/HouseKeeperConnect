@@ -20,7 +20,13 @@ const FamilyJobPostingPage = () => {
 
     const nextWeek = new Date();
     nextWeek.setDate(today.getDate() + 7);
-    const defaultEnd = nextWeek.toISOString().split("T")[0];
+
+    function getDefaultEndDate(startDate, jobType) {
+        const start = new Date(startDate);
+        const offset = parseInt(jobType) === 2 ? 30 : 7;
+        start.setDate(start.getDate() + offset);
+        return start.toISOString().split("T")[0];
+    }
 
     const [formData, setFormData] = useState({
         JobName: "",
@@ -28,7 +34,7 @@ const FamilyJobPostingPage = () => {
         Location: "",
         Price: "",
         StartDate: defaultStart,
-        EndDate: defaultEnd,
+        EndDate: getDefaultEndDate(defaultStart, 1),
         Description: "",
         DayofWeek: [],
         ServiceIDs: [],
@@ -79,6 +85,19 @@ const FamilyJobPostingPage = () => {
             DayofWeek: days,
         }));
     };
+
+    function getValidDaysInRange(start, end) {
+        const days = new Set();
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+
+        while (startDate <= endDate) {
+            days.add(startDate.getDay());
+            startDate.setDate(startDate.getDate() + 1);
+        }
+
+        return Array.from(days);
+    }
 
     const shouldShowLoadingOrError = loading || error;
 
@@ -162,6 +181,21 @@ const FamilyJobPostingPage = () => {
                         ? [...prev.SlotIDs, slotID]
                         : prev.SlotIDs.filter((id) => id !== slotID)
                     : [slotID], // fallback nếu SlotIDs bị undefined
+            }));
+        } else if (name === "JobType") {
+            setFormData((prev) => ({
+                ...prev,
+                JobType: value,
+                EndDate: getDefaultEndDate(prev.StartDate, value) // cập nhật EndDate
+            }));
+        } else if (name === "StartDate") {
+            const newStart = value;
+            const newEnd = getDefaultEndDate(newStart, formData.JobType || 1);
+
+            setFormData((prev) => ({
+                ...prev,
+                StartDate: newStart,
+                EndDate: newEnd
             }));
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
@@ -345,6 +379,12 @@ const FamilyJobPostingPage = () => {
         calculatePrice();
     }, [formData, services]);
 
+    function getMinEndDate(startDate) {
+        const start = new Date(startDate);
+        start.setDate(start.getDate() + 30);
+        return start.toISOString().split("T")[0]; // format yyyy-MM-dd
+    }
+
     if (shouldShowLoadingOrError) {
         return (
             <div className="job-container">
@@ -365,6 +405,15 @@ const FamilyJobPostingPage = () => {
             </div>
         );
     }
+
+    const dateDiffInDays =
+        (new Date(formData.EndDate) - new Date(formData.StartDate)) /
+        (1000 * 60 * 60 * 24);
+
+    const validDays =
+        dateDiffInDays < 7
+            ? getValidDaysInRange(formData.StartDate, formData.EndDate)
+            : [0, 1, 2, 3, 4, 5, 6];
 
     return (
         <div className="job-posting-container">
@@ -471,6 +520,7 @@ const FamilyJobPostingPage = () => {
                             className="job-posting-input"
                             value={formData.StartDate}
                             onChange={handleChange}
+                            min={defaultStart}
                             placeholder={t("job.jobPost.startDatePlaceholder")}
                             required
                         />
@@ -484,6 +534,11 @@ const FamilyJobPostingPage = () => {
                             className="job-posting-input"
                             value={formData.EndDate}
                             onChange={handleChange}
+                            min={
+                                parseInt(formData.JobType) === 2 && formData.StartDate
+                                    ? getMinEndDate(formData.StartDate)
+                                    : formData.StartDate || ""
+                            }
                             placeholder={t("job.jobPost.endDatePlaceholder")}
                             required
                         />
@@ -515,8 +570,13 @@ const FamilyJobPostingPage = () => {
                                     value={d}
                                     checked={formData.DayofWeek.includes(d)}
                                     onChange={handleChange}
+                                    disabled={!validDays.includes(d)}
                                 />
-                                <span>{t(`service.workingDays.${["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][d]}`)}</span>
+                                <span
+                                    style={!validDays.includes(d) ? { opacity: 0.5, cursor: "not-allowed" } : {}}
+                                >
+                                    {t(`service.workingDays.${["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][d]}`)}
+                                </span>
                             </label>
                         ))}
                     </div>
