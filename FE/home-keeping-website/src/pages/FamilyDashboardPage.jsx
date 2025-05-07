@@ -166,17 +166,20 @@ function FamilyDashboardPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-box shadow-box">
-        <div className="d-flex justify-content-between align-items-center mb-2">
+        <div className="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
           <h2 className="dashboard-heading mb-0">
             {t("dashboard.dashboard_welcome_message", { name: userName })}
           </h2>
-          <button
-            className="btn btn-outline-info btn-sm"
-            onClick={() => setShowSupportModal(true)}
-          >
-            🛠 {t("dashboard.support_requests") || "Yêu cầu hỗ trợ"}
-          </button>
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-outline-info btn-sm"
+              onClick={() => setShowSupportModal(true)}
+            >
+              🛠 {t("dashboard.support_requests") || "Yêu cầu hỗ trợ"}
+            </button>
+          </div>
         </div>
+
         <p className="dashboard-subtext">{t("dashboard.dashboard_family_subtext")}</p>
 
         {/* Thẻ thống kê */}
