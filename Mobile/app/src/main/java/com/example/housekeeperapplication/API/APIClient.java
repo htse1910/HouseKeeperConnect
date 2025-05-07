@@ -13,8 +13,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class APIClient {
-    //private static final String BASE_URL = "https://housekeeper-connect-87a84574bb44.herokuapp.com/"; // Địa chỉ API của bạn
-    private static final String BASE_URL = "http://10.0.2.2:5280/"; // Địa chỉ API của bạn*/
+    private static final String BASE_URL = "https://housekeeper-connect-87a84574bb44.herokuapp.com/"; // Địa chỉ API của bạn
+    //private static final String BASE_URL = "http://10.0.2.2:5280/"; // Địa chỉ API của bạn*/
 
     private static Retrofit retrofit = null;
 

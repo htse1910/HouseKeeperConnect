@@ -209,6 +209,22 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            var jobApps = await _applicationService.GetAllApplicationsByJobIDAsync(job.JobID);
+            if (jobApps.Count == 0)
+            {
+                Message = "Danh sách đơn ứng tuyển của công việc này trống!";
+                return NotFound(Message);
+            }
+
+            foreach(var j in jobApps)
+            {
+                if (j.HouseKeeperID == hk.HousekeeperID)
+                {
+                    Message = "Bạn nộp ứng tuyển cho công việc này rồi!";
+                    return Conflict(Message);
+                }
+            }
+
             if (jobDetail.HousekeeperID == hk.HousekeeperID && !jobDetail.IsOffered)
             {
                 Message = "Bạn đã ứng tuyển công việc này rồi!";
