@@ -22,7 +22,11 @@
     "users": "Người dùng",
     "approval": "Kiểm duyệt",
     "analytics": "Phân tích",
-    "management": "Quản lý"
+    "management": "Quản lý",
+    "jobs": "Công việc",
+    "payouts": "Giao dịch rút tiền",
+    "withdrawals": "Yêu cầu rút tiền",
+    "services": "Dịch vụ"
   },
   "user": {
     "profile": "Trang cá nhân",
@@ -129,7 +133,8 @@
     "deposit_return_note_fail": "Thanh toán không thành công hoặc gặp lỗi. Vui lòng thử lại.",
     "deposit_return_success": "Nạp tiền thành công!",
     "deposit_return_note_success": "Cảm ơn bạn đã thanh toán. Hệ thống sẽ tự động chuyển hướng.",
-    "deposit_amount": "Số tiền"
+    "deposit_amount": "Số tiền",
+    "deposit_minimum": "Bạn phải nạp ít nhất 10.000 VNĐ"
   },
   "job": {
     "job": {
