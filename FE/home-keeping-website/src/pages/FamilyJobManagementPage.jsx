@@ -40,7 +40,7 @@ const FamilyJobManagementPage = () => {
     4: t("job.job_completed"),
     5: t("job.job_expired"),
     6: t("job.job_canceled"),
-    8: t("job.job_pending_family_confirmation"),
+    8: "Chờ gia đình xác nhận",
     9: "Người giúp việc bỏ"
   }), [t]);
 
