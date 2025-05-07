@@ -1,9 +1,6 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 
 const DeleteJobModal = ({ job, onConfirm, onCancel }) => {
-  const { t } = useTranslation();
-
   if (!job) return null;
 
   return (
@@ -11,18 +8,22 @@ const DeleteJobModal = ({ job, onConfirm, onCancel }) => {
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">{t("popup.popup.confirm_delete_title")}</h5>
+            <h5 className="modal-title">Gửi yêu cầu xoá công việc</h5>
             <button type="button" className="btn-close" onClick={onCancel}></button>
           </div>
           <div className="modal-body">
-            <p>{t("popup.popup.confirm_delete_text", { title: job.jobName })}</p>
+            <p>Bạn có chắc muốn gửi yêu cầu <strong>xóa công việc</strong> này không?</p>
+            <p><strong>Loại yêu cầu:</strong> Job (2)</p>
+            <p><strong>Nội dung:</strong><br />
+              Please delete the job <strong>{job.jobName}</strong>, ID: <strong>{job.jobID}</strong>
+            </p>
           </div>
           <div className="modal-footer">
-            <button className="btn btn-danger" onClick={onConfirm}>
-              {t("confirm")}
+            <button className="btn btn-primary" onClick={onConfirm}>
+              Gửi yêu cầu
             </button>
             <button className="btn btn-secondary" onClick={onCancel}>
-              {t("cancel")}
+              Huỷ
             </button>
           </div>
         </div>
