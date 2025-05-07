@@ -154,4 +154,10 @@
         VIB = 9,
         Agribank = 10,
     }
+    public enum Roles
+    {
+        Housekeeper = 1,
+        Family = 2,
+        Staff = 3,
+    }
 }

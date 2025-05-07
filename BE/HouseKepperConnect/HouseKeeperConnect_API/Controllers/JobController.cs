@@ -841,44 +841,58 @@ namespace HouseKeeperConnect_API.Controllers
             });
         }
 
-        [HttpGet("SuggestAvailableHousekeepers")]
-        [Authorize]
-        public async Task<IActionResult> SuggestAvailableHousekeepers([FromQuery] int jobId)
-        {
-            var job = await _jobService.GetJobByIDAsync(jobId);
-            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
-            var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
+            [HttpGet("SuggestAvailableHousekeepers")]
+            [Authorize]
+            public async Task<IActionResult> SuggestAvailableHousekeepers([FromQuery] int jobId)
+            {
+                var job = await _jobService.GetJobByIDAsync(jobId);
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+                var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
 
-            if (job == null || jobDetail == null || !jobSlots.Any())
+                if (job == null || jobDetail == null || !jobSlots.Any())
                 return BadRequest("Invalid job or job details.");
 
-            var allHousekeepers = await _houseKeeperService.GetAllHousekeepersAsync(1, 1000);
-            var availableHKs = new List<Housekeeper>();
+    var allHousekeepers = await _houseKeeperService.GetAllHousekeepersAsync(1, 1000);
+    var availableHKs = new List<Housekeeper>();
 
-            foreach (var hk in allHousekeepers)
+    foreach (var hk in allHousekeepers)
+    {
+        bool hasConflict = false;
+
+        foreach (var slot in jobSlots)
+        {
+            if (await _bookingSlotsService.IsSlotBooked(
+                hk.HousekeeperID,
+                slot.SlotID,
+                slot.DayOfWeek,
+                jobDetail.StartDate,
+                jobDetail.EndDate))
             {
-                bool hasConflict = false;
-
-                foreach (var slot in jobSlots)
-                {
-                    if (await _bookingSlotsService.IsSlotBooked(
-                        hk.HousekeeperID,
-                        slot.SlotID,
-                        slot.DayOfWeek,
-                        jobDetail.StartDate,
-                        jobDetail.EndDate))
-                    {
-                        hasConflict = true;
-                        break;
-                    }
-                }
-
-                if (!hasConflict)
-                    availableHKs.Add(hk);
+                hasConflict = true;
+                break;
             }
-
-            return Ok(availableHKs);
         }
+
+        if (!hasConflict)
+            availableHKs.Add(hk);
+    }
+
+    //Map to DTOs
+    var result = availableHKs.Select(h => new HousekeeperListDTO
+    {
+        HousekeeperID = h.HousekeeperID,
+        Nickname = h.Account.Nickname,
+        Address = h.Account.Address,
+        Phone = h.Account.Phone,
+        Email = h.Account.Email,
+        Gender = h.Account.Gender ?? 0,
+        WorkType = h.WorkType,
+        Rating = h.Rating,
+        LocalProfilePicture = h.Account.LocalProfilePicture
+    });
+
+    return Ok(result);
+}
 
 
         [HttpPut("OfferJob")]
