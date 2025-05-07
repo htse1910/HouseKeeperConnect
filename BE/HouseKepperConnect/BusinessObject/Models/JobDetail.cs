@@ -15,6 +15,9 @@ namespace BusinessObject.Models
         [Required]
         [StringLength(255)]
         public string Location { get; set; }
+        [Required]
+        [StringLength(255)]
+        public string DetailLocation { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18, 2)")]

@@ -5,11 +5,14 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -38,8 +41,13 @@ public class NotificationActivity extends AppCompatActivity {
     private RecyclerView recyclerViewNotifications;
     private NotificationAdapter notificationAdapter;
 
+    private Button testNotiBtn;
+
     private Runnable refreshNotificationTask;
     private Handler handler = new Handler();
+
+    private static final int NOTIFICATION_PERMISSION_CODE = 1;
+    private static final int REQUEST_CODE_PERMISSIONS = 101;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,13 +57,29 @@ public class NotificationActivity extends AppCompatActivity {
         recyclerViewNotifications = findViewById(R.id.recyclerViewNotifications);
         recyclerViewNotifications.setLayoutManager(new LinearLayoutManager(this));
 
+        testNotiBtn = findViewById(R.id.testNotiBtn);
+
+
+
         createNotificationChannel();
+
+        testNotiBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendNotification("Thông báo", "Đây là tin nhắn test!");
+            }
+        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_CODE);
+            }
+        }
 
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int accountID = prefs.getInt("accountID", 0);
         int roleID = prefs.getInt("roleID", 0);
         int pageNumber = 1;
-        int pageSize = 5;
+        int pageSize = 6;
 
         List<Notification> oList = new ArrayList<>();
         APIServices api = APIClient.getClient(NotificationActivity.this).create(APIServices.class);
@@ -70,18 +94,12 @@ public class NotificationActivity extends AppCompatActivity {
                         if(response.isSuccessful() && response.body()!=null){
                             List<Notification> nList = response.body();
 
-                            for (Notification nItem: nList
-                                 ) {
-                                boolean exist = false;
-                                for (Notification oItem: oList
-                                     ) {
-                                    if(oItem.getMessage().equals(nItem.getMessage()) && oItem.getCreatedDate().equals(nItem.getCreatedDate())){
-                                        exist = true;
-                                        break;
-                                    }
-                                }
-                                if(!exist){
-                                    sendNotification("Thông báo",nItem.getMessage());
+                            for (Notification nItem : nList) {
+                                boolean exist = oList.stream()
+                                        .anyMatch(oItem -> oItem.getMessage().equals(nItem.getMessage()) &&
+                                                oItem.getCreatedDate().equals(nItem.getCreatedDate()));
+                                if (!exist) {
+                                    sendNotification("Thông báo", nItem.getMessage());
                                 }
                             }
 
@@ -103,11 +121,11 @@ public class NotificationActivity extends AppCompatActivity {
                         Toast.makeText(NotificationActivity.this, "Khổng thể tải dữ liệu!", Toast.LENGTH_SHORT).show();
                     }
                 });
-                handler.postDelayed(this, 10000);
+                handler.postDelayed(this, 60000);
             }
 
         };
-        handler.postDelayed(refreshNotificationTask, 10000);
+        handler.postDelayed(refreshNotificationTask, 60000);
 
         Call<List<Notification>> call = api.getNotisByUserID(accountID, pageNumber, pageSize);
         call.enqueue(new Callback<List<Notification>>() {
@@ -203,7 +221,7 @@ public class NotificationActivity extends AppCompatActivity {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "CHANNEL_ID")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "1")
                 .setSmallIcon(R.drawable.ic_notification) // Replace with your icon
                 .setContentTitle(title)
                 .setContentText(message)
@@ -211,6 +229,18 @@ public class NotificationActivity extends AppCompatActivity {
                 .setSound(soundUri);
 
         notificationManager.notify(1, builder.build());
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permission granted to post notifications", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permission denied to post notifications", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override

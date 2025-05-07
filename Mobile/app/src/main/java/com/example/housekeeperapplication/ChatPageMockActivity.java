@@ -219,7 +219,6 @@ public class ChatPageMockActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
-                finish();
                 return true;
             } else if (itemId == R.id.nav_chat) {
                 startActivity(new Intent(this, ChatListMockActivity.class));
