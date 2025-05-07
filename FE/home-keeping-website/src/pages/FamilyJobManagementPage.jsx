@@ -42,7 +42,7 @@ const FamilyJobManagementPage = () => {
     5: t("job.job_expired"),
     6: t("job.job_canceled"),
     8: t("job.job_pending_family_confirmation"),
-    9: t("job.job_housekeeper_quit") // ⬅️ Add this
+    9: "Người giúp việc bỏ" // ⬅️ Add this
   }), [t]);  
 
   const serviceTypes = useMemo(

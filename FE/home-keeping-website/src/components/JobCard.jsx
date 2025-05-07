@@ -1,9 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaMoneyBillWave, FaCalendarCheck } from "react-icons/fa";
 
 const JobCard = ({ job, jobStatusMap, onEdit, onDelete, onView, onCancel }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const daysAgo = Math.floor((Date.now() - new Date(job.createdDate)) / 86400000);
 
@@ -44,12 +46,21 @@ const JobCard = ({ job, jobStatusMap, onEdit, onDelete, onView, onCancel }) => {
         </button>
       </div>
 
-      {job.status === 3 && (
+      {/* {job.status === 3 && (
         <button
           className="btn btn-warning btn-sm ms-auto mt-2"
           onClick={() => onCancel(job.jobID)}
         >
-          🚫 {t("job.job.cancel")}
+          🚫 Hủy công việc
+        </button>
+      )} */}
+
+      {job.status === 9 && (
+        <button
+          className="btn btn-outline-warning btn-sm ms-auto mt-2"
+          onClick={() => navigate(`/family/abandoned-jobs?jobID=${job.jobID}`)}
+        >
+          🧹 Người giúp việc mới
         </button>
       )}
     </div>
