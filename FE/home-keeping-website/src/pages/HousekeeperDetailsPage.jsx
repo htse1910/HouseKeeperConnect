@@ -24,25 +24,12 @@ const HousekeeperProfilePage = () => {
           <HousekeeperReviewList />
         </div>
       </div>
+      
       <div className="row mt-3">
-        {/* Skills */}
-        <div className="col-md-6 d-flex">
+        <div className="col-12">
           <HouseKeeperSkillsCard />
         </div>
-
-        {/* Work Schedule */}
-        <div className="col-md-6 d-flex">
-          <div className="card p-4 shadow-sm w-100 h-100">
-            <h5 className="fw-bold">Lịch làm việc</h5>
-            <ul className="list-unstyled">
-              <li>Thứ 2 - Thứ 6 <span className="text-success ms-3">8:00 - 17:00</span></li>
-              <li>Thứ 7 <span className="text-success ms-3">8:00 - 12:00</span></li>
-              <li>Chủ nhật <span className="text-danger ms-3">Nghỉ</span></li>
-            </ul>
-          </div>
-        </div>
       </div>
-
 
       <div className="row mt-3">
         {/* Contact Information */}

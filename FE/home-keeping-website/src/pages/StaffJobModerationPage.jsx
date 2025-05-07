@@ -18,6 +18,8 @@ const StaffJobModerationPage = () => {
   const recordsPerPage = 10;
   const MAX_VISIBLE_PAGES = 15;
   const [inputPage, setInputPage] = useState("");
+  const [jobToReject, setJobToReject] = useState(null);
+  const [showRejectConfirm, setShowRejectConfirm] = useState(false);
 
   const reloadPendingJobs = async () => {
     setLoading(true);
@@ -100,9 +102,6 @@ const StaffJobModerationPage = () => {
   };
 
   const handleReject = async (id) => {
-    const reason = prompt(t("misc.enter_reject_reason"));
-    if (!reason) return;
-
     const token = localStorage.getItem("authToken");
 
     try {
@@ -212,7 +211,13 @@ const StaffJobModerationPage = () => {
                         <button className="btn btn-success btn-sm" onClick={() => handleApprove(job.id)}>
                           {t("verification.approve")}
                         </button>
-                        <button className="btn btn-danger btn-sm" onClick={() => handleReject(job.id)}>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => {
+                            setJobToReject(job.id);
+                            setShowRejectConfirm(true);
+                          }}
+                        >
                           {t("verification.reject")}
                         </button>
                       </div>
@@ -221,7 +226,35 @@ const StaffJobModerationPage = () => {
                 ))}
               </tbody>
             </table>
-
+            {showRejectConfirm && (
+              <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                <div className="modal-dialog">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">Xác nhận từ chối</h5>
+                      <button type="button" className="btn-close" onClick={() => setShowRejectConfirm(false)}></button>
+                    </div>
+                    <div className="modal-body">
+                      <p>Bạn có chắc chắn muốn từ chối công việc này không?</p>
+                    </div>
+                    <div className="modal-footer">
+                      <button className="btn btn-secondary" onClick={() => setShowRejectConfirm(false)}>
+                        Hủy
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => {
+                          setShowRejectConfirm(false);
+                          handleReject(jobToReject);
+                        }}
+                      >
+                        Từ chối
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Pagination */}
             <div className="d-flex flex-wrap justify-content-between align-items-center mt-3">
               <div>
