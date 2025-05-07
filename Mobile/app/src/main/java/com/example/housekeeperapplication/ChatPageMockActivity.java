@@ -115,11 +115,11 @@ public class ChatPageMockActivity extends AppCompatActivity {
                         Toast.makeText(ChatPageMockActivity.this, "Không thể tải dữ liệu chat! Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-                handler.postDelayed(this, 3000); // 3000 milliseconds = 3 seconds
+                handler.postDelayed(this, 5000); // 3000 milliseconds = 3 seconds
             }
 
         };
-        handler.postDelayed(refreshMessagesTask, 3000); // Start the first refresh
+        handler.postDelayed(refreshMessagesTask, 5000); // Start the first refresh
 
         Call<List<Chat>> call = api.getChat(fromAcc, toAcc);
         call.enqueue(new Callback<List<Chat>>() {
@@ -207,6 +207,7 @@ public class ChatPageMockActivity extends AppCompatActivity {
                 }else if(roleID==2){
                     startActivity(new Intent(this, HomeActivity.class));
                 }
+                finish();
                 return true;
             } else if (itemId == R.id.nav_activity) {
                 if(roleID==1){
@@ -214,12 +215,15 @@ public class ChatPageMockActivity extends AppCompatActivity {
                 }else if(roleID==2){
                     startActivity(new Intent(this, FamilyJobListActivity.class));
                 }
+                finish();
                 return true;
             } else if (itemId == R.id.nav_notification) {
                 startActivity(new Intent(this, NotificationActivity.class));
+                finish();
                 return true;
             } else if (itemId == R.id.nav_chat) {
                 startActivity(new Intent(this, ChatListMockActivity.class));
+                finish();
                 return true;
             } else if (itemId == R.id.nav_profile) {
                 if(roleID==1){
@@ -227,6 +231,7 @@ public class ChatPageMockActivity extends AppCompatActivity {
                 }else if(roleID==2){
                     startActivity(new Intent(this, FamilyProfile.class));
                 }
+                finish();
                 return true;
             }
             return false;

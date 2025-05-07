@@ -174,13 +174,13 @@ namespace HouseKeeperConnect_API.Controllers
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountId);
             if (hk == null)
             {
-                Message = "No housekeeper found";
+                Message = "Không tìm thấy thông tin người giúp việc!";
                 return NotFound(Message);
             }
             var jobs = await _jobService.GetJobsOfferedByHKAsync(hk.HousekeeperID, pageNumber, pageSize);
             if (jobs == null || !jobs.Any())
             {
-                Message = "No records!";
+                Message = "Chưa có công việc nào được offer!";
                 return NotFound(Message);
             }
 
@@ -210,13 +210,13 @@ namespace HouseKeeperConnect_API.Controllers
             var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountId);
             if (fa == null)
             {
-                Message = "No account found";
+                Message = "Không tìm thấy tài khoản gia đình!";
                 return NotFound(Message);
             }
             var jobs = await _jobService.GetJobsByAccountIDAsync(fa.FamilyID, pageNumber, pageSize);
             if (jobs == null || !jobs.Any())
             {
-                Message = "No records!";
+                Message = "Gia đình chưa đăng công việc nào";
                 return NotFound(Message);
             }
 
@@ -325,7 +325,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Not enough balance to create the job.",
+                    message = "Không đủ số dư để tạo công việc!",
                     requiredAmount = chargeAmount,
                     currentBalance = wallet.Balance,
                     topUpNeeded = chargeAmount - wallet.Balance
@@ -402,7 +402,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            return Ok("Job created successfully!");
+            return Ok("Tạo công việc thành công!");
         }
 
 
@@ -428,7 +428,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
                 if (hk == null)
                 {
-                    return NotFound("Housekeeper not found.");
+                    return NotFound("Không tìm thấy người giúp việc!");
                 }
 
 
@@ -455,7 +455,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
 
                 var applications = await _applicationService.GetAllApplicationsByJobIDAsync(job.JobID);
-                if (applications.Count == 0)
+                if (applications.Count == 0 && !jobDetail.IsOffered)
                 {
                     Message = "Chưa có đơn ứng tuyển nào cho công việc này!";
                     return NotFound(Message);

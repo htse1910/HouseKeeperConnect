@@ -153,7 +153,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     } else {
                         loginBtn.setEnabled(true);
-                        Toast.makeText(LoginActivity.this, "Email hoặc mật khẩu sai!" , Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Server error: "+response.body() , Toast.LENGTH_SHORT).show();
                     }
                 }
 
