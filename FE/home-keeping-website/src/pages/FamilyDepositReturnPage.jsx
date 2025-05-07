@@ -106,7 +106,7 @@ function FamilyDepositReturnPage() {
       <p className="payment-note mt-3">{t("misc.redirecting_dashboard")}</p>
 
       <button className="btn-secondary mt-2" onClick={() => navigate("/family/dashboard")}>
-        {t("misc.return_now")}
+        {t("uncategorized.return_now")}
       </button>
     </div>
   );
