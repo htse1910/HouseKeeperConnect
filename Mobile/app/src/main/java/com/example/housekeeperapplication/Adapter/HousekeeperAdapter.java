@@ -16,16 +16,35 @@ import com.bumptech.glide.Glide;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayForFamilyDTO;
 import com.example.housekeeperapplication.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HousekeeperAdapter extends RecyclerView.Adapter<HousekeeperAdapter.HousekeeperViewHolder> {
 
-    private final List<HousekeeperDisplayForFamilyDTO> housekeepers;
+    private final List<HousekeeperDisplayForFamilyDTO> originalHousekeepers;
+    private List<HousekeeperDisplayForFamilyDTO> filteredHousekeepers;
     private final Context context;
 
     public HousekeeperAdapter(Context context, List<HousekeeperDisplayForFamilyDTO> housekeepers) {
         this.context = context;
-        this.housekeepers = housekeepers;
+        this.originalHousekeepers = new ArrayList<>(housekeepers);
+        this.filteredHousekeepers = new ArrayList<>(housekeepers);
+    }
+    public void filter(String text) {
+        filteredHousekeepers.clear();
+
+        if (text.isEmpty()) {
+            filteredHousekeepers.addAll(originalHousekeepers);
+        } else {
+            String searchText = text.toLowerCase().trim();
+            for (HousekeeperDisplayForFamilyDTO hk : originalHousekeepers) {
+                if (hk.getName() != null &&
+                        hk.getName().toLowerCase().contains(searchText)) {
+                    filteredHousekeepers.add(hk);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -37,7 +56,11 @@ public class HousekeeperAdapter extends RecyclerView.Adapter<HousekeeperAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull HousekeeperViewHolder holder, int position) {
-        HousekeeperDisplayForFamilyDTO hk = housekeepers.get(position);
+        if (position < 0 || position >= filteredHousekeepers.size()) {
+            return; // Bảo vệ khỏi index out of bounds
+        }
+
+        HousekeeperDisplayForFamilyDTO hk = filteredHousekeepers.get(position);
 
         holder.tvName.setText(hk.getName());
         holder.tvIntro.setText(hk.getIntroduction());
@@ -57,7 +80,12 @@ public class HousekeeperAdapter extends RecyclerView.Adapter<HousekeeperAdapter.
 
     @Override
     public int getItemCount() {
-        return housekeepers.size();
+        return filteredHousekeepers != null ? filteredHousekeepers.size() : 0;
+    }
+    public void updateData(List<HousekeeperDisplayForFamilyDTO> newHousekeepers) {
+        originalHousekeepers.clear();
+        originalHousekeepers.addAll(newHousekeepers);
+        filter(""); // Reset filter
     }
 
     private void showDetailsDialog(HousekeeperDisplayForFamilyDTO hk) {

@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chi tiết công việc"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Close button (X) -->
+    <ImageView
+        android:id="@+id/btnClose"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+
+        android:layout_gravity="end"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Job Details Table -->
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="1">
+
+        <!-- Job Name -->
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tên công việc:"
+                android:textColor="@color/gray"/>
+
+            <TextView
+                android:id="@+id/tvJobName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dọn Dẹp #1"
+                android:textColor="@color/black"
+                android:layout_marginStart="16dp"/>
+        </TableRow>
+
+        <!-- Location -->
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Địa điểm:"
+                android:textColor="@color/gray"/>
+
+            <TextView
+                android:id="@+id/tvJobLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quận 1"
+                android:textColor="@color/black"
+                android:layout_marginStart="16dp"/>
+        </TableRow>
+
+        <!-- Description -->
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mô tả:"
+                android:textColor="@color/gray"/>
+
+            <TextView
+                android:id="@+id/tvJobDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dọn dẹp"
+                android:textColor="@color/black"
+                android:layout_marginStart="16dp"/>
+        </TableRow>
+
+        <!-- Time -->
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thời gian:"
+                android:textColor="@color/gray"/>
+
+            <TextView
+                android:id="@+id/tvJobTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5/5/2025 → 6/5/2025"
+                android:textColor="@color/black"
+                android:layout_marginStart="16dp"/>
+        </TableRow>
+
+        <!-- Salary -->
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mức lương:"
+                android:textColor="@color/gray"/>
+
+            <TextView
+                android:id="@+id/tvJobSalary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="500.000 VND"
+                android:textColor="@color/successGreen"
+                android:layout_marginStart="16dp"/>
+        </TableRow>
+
+        <!-- Job Type -->
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loại công việc:"
+                android:textColor="@color/gray"/>
+
+            <TextView
+                android:id="@+id/tvJobType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Một lần duy nhất"
+                android:textColor="@color/black"
+                android:layout_marginStart="16dp"/>
+        </TableRow>
+    </TableLayout>
+
+    <!-- Services Included -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dịch vụ bao gồm"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Tổng vệ sinh nhà cửa"
+            android:textColor="@color/gray"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Nấu ăn theo tuần/tháng"
+            android:textColor="@color/gray"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Sửa chữa điện nước"
+            android:textColor="@color/gray"/>
+    </LinearLayout>
+
+    <!-- Work Schedule -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lịch làm việc"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Thứ Hai"
+            android:textColor="@color/gray"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Thứ Tư"
+            android:textColor="@color/gray"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Thứ Sáu"
+            android:textColor="@color/gray"/>
+    </LinearLayout>
+
+    <!-- Work Shift -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ca làm việc"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="• 8H - 9H"
+        android:textColor="@color/gray"/>
+
+    <!-- Close Button -->
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="24dp"
+        android:weightSum="3">
+
+        <Button
+            android:id="@+id/btnReject"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Từ chối"
+            android:textColor="@color/white"
+            android:backgroundTint="#F80C12"/>
+
+        <Button
+            android:id="@+id/btnAccept"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Chấp nhận"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/successGreen"/>
+
+        <Button
+            android:id="@+id/btnCloseDialog"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Đóng"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/colorPrimary"/>
+    </LinearLayout>
+
+
+</LinearLayout>

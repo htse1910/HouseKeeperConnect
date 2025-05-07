@@ -8,22 +8,26 @@ import com.google.gson.GsonBuilder;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class APIClient {
-    private static final String BASE_URL = "https://housekeeper-connect-87a84574bb44.herokuapp.com/"; // Địa chỉ API của bạn
-    //private static final String BASE_URL = "http://10.0.2.2:5280/"; // Địa chỉ API của bạn*/
+    //private static final String BASE_URL = "https://housekeeper-connect-87a84574bb44.herokuapp.com/"; // Địa chỉ API của bạn
+    private static final String BASE_URL = "http://10.0.2.2:5280/"; // Địa chỉ API của bạn*/
 
     private static Retrofit retrofit = null;
 
     // Chuyển getClient() nhận thêm Context
     public static Retrofit getClient(Context context) {
         if (retrofit == null) {
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
                     .writeTimeout(30, TimeUnit.SECONDS)
+                    .addInterceptor(logging)
                     .addInterceptor(new AuthInterceptor(context))  // Thêm interceptor để gắn token
                     .build();
 
@@ -35,4 +39,5 @@ public class APIClient {
         }
         return retrofit;
     }
+
 }

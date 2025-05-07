@@ -17,6 +17,7 @@ import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -25,20 +26,38 @@ import retrofit2.Response;
 
 public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
-    private List<Job> jobList;
+    private List<Job> originalJobs;
+    private List<Job> filteredJobs;
     private OnJobClickListener listener;
     private APIServices apiService;
-    private Context context;
+    private Context context;;
 
     public interface OnJobClickListener {
         void onJobClick(Job job);
     }
 
     public JobAdapter(List<Job> jobList, OnJobClickListener listener, Context context) {
-        this.jobList = jobList;
+        this.originalJobs = new ArrayList<>(jobList);
+        this.filteredJobs = new ArrayList<>(jobList);
         this.listener = listener;
         this.context = context;
         this.apiService = APIClient.getClient(context).create(APIServices.class);
+    }
+    public void filter(String text) {
+        filteredJobs.clear();
+
+        if(text.isEmpty()) {
+            filteredJobs.addAll(originalJobs);
+        } else {
+            String searchText = text.toLowerCase().trim();
+            for(Job job : originalJobs) {
+                if(job.getJobName() != null &&
+                        job.getJobName().toLowerCase().contains(searchText)) {
+                    filteredJobs.add(job);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -51,7 +70,11 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull JobViewHolder holder, int position) {
-        Job job = jobList.get(position);
+        if (position < 0 || position >= filteredJobs.size()) {
+            return; // Bảo vệ khỏi index out of bounds
+        }
+
+        Job job = filteredJobs.get(position);
 
         holder.tvJobTitle.setText(job.getJobName());
         holder.tvLocation.setText(job.getLocation());
@@ -118,7 +141,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
 
     @Override
     public int getItemCount() {
-        return jobList.size();
+        return filteredJobs != null ? filteredJobs.size() : 0;
     }
 
     public static class JobViewHolder extends RecyclerView.ViewHolder {
@@ -136,8 +159,8 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
     }
 
     public void updateData(List<Job> newJobs) {
-        jobList.clear();
-        jobList.addAll(newJobs);
-        notifyDataSetChanged();
+        originalJobs.clear();
+        originalJobs.addAll(newJobs);
+        filter(""); // Reset filter khi cập nhật dữ liệu mới
     }
 }

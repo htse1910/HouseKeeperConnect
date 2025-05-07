@@ -3,8 +3,11 @@ package com.example.housekeeperapplication;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +38,7 @@ public class HomeActivity extends AppCompatActivity {
     private List<HousekeeperDisplayForFamilyDTO> housekeeperList = new ArrayList<>();
     private APIServices apiService;
     private TextView greetingTextView;
-
+    private EditText etSearch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +55,10 @@ public class HomeActivity extends AppCompatActivity {
         // Recycler setup
         recyclerJobs = findViewById(R.id.recyclerJobs);
         recyclerJobs.setLayoutManager(new LinearLayoutManager(this));
+
+        //search
+        etSearch = findViewById(R.id.etSearch);
+        setupSearch();
 
         adapter = new HousekeeperAdapter(this, housekeeperList);
         recyclerJobs.setAdapter(adapter);
@@ -94,6 +101,20 @@ public class HomeActivity extends AppCompatActivity {
             return false;
         });
     }
+    private void setupSearch() {
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.filter(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
 
     private void loadHousekeepers() {
         apiService.getHousekeepersForFamily(1, 100).enqueue(new Callback<List<HousekeeperDisplayForFamilyDTO>>() {
@@ -101,6 +122,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onResponse(Call<List<HousekeeperDisplayForFamilyDTO>> call, Response<List<HousekeeperDisplayForFamilyDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<HousekeeperDisplayForFamilyDTO> displayList = response.body();
+                    List<HousekeeperDisplayForFamilyDTO> validHousekeepers = new ArrayList<>();
 
                     for (HousekeeperDisplayForFamilyDTO hk : displayList) {
                         apiService.getAccountById(hk.getAccountID()).enqueue(new Callback<Account>() {
@@ -110,8 +132,15 @@ public class HomeActivity extends AppCompatActivity {
                                     Account acc = accountResponse.body();
                                     if (acc.getRoleID() == 1) {
                                         hk.setName(acc.getName());
-                                        housekeeperList.add(hk);
-                                        adapter.notifyItemInserted(housekeeperList.size() - 1);
+                                        validHousekeepers.add(hk);
+
+                                        // Cập nhật adapter khi có dữ liệu mới
+                                        if (adapter == null) {
+                                            adapter = new HousekeeperAdapter(HomeActivity.this, validHousekeepers);
+                                            recyclerJobs.setAdapter(adapter);
+                                        } else {
+                                            adapter.updateData(validHousekeepers);
+                                        }
                                     }
                                 }
                             }

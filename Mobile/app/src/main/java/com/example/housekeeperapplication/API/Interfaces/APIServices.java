@@ -1,6 +1,7 @@
 package com.example.housekeeperapplication.API.Interfaces;
 
 import com.example.housekeeperapplication.Model.Account;
+import com.example.housekeeperapplication.Model.DTOs.ApplicationDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.BookingHousekeeperDTO;
 import com.example.housekeeperapplication.Model.DTOs.Chat;
 import com.example.housekeeperapplication.Model.DTOs.ChatReturnDTO;
@@ -15,6 +16,7 @@ import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.PaymentLinkDTO;
+import com.example.housekeeperapplication.Model.Family;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.Model.Notification;
 import com.example.housekeeperapplication.Model.Service;
@@ -259,6 +261,12 @@ public interface APIServices {
             @Query("ServiceIDs") List<Integer> serviceIds,
             @Query("SlotIDs") List<Integer> slotIds,
             @Query("DayofWeek") List<Integer> dayOfWeek
+    );
+    @GET("api/Application/GetApplicationsByAccountID")
+    Call<List<ApplicationDisplayDTO>> getApplicationsByAccountId(
+            @Query("uid") int userId,
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize
     );
 
 }

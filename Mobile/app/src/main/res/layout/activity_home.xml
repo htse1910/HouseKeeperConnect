@@ -74,7 +74,7 @@
                         android:id="@+id/etSearch"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:hint="Bạn muốn tìm công việc nào?"
+                        android:hint="Bạn muốn tìm người giúp việc nào?"
                         android:background="@android:color/transparent"
                         android:textColorHint="#888888"
                         android:paddingStart="8dp"
