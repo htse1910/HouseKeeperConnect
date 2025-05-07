@@ -82,6 +82,7 @@ public class NotificationActivity extends AppCompatActivity {
         int pageSize = 6;
 
         List<Notification> oList = new ArrayList<>();
+        notificationAdapter = new NotificationAdapter(oList);
         APIServices api = APIClient.getClient(NotificationActivity.this).create(APIServices.class);
 
         refreshNotificationTask = new Runnable() {
@@ -100,11 +101,18 @@ public class NotificationActivity extends AppCompatActivity {
                                                 oItem.getCreatedDate().equals(nItem.getCreatedDate()));
                                 if (!exist) {
                                     sendNotification("Thông báo", nItem.getMessage());
+                                    var noti = new Notification();
+                                    noti.setRead(nItem.isRead());
+                                    noti.setNotificationsID(nItem.getNotificationsID());
+                                    noti.setCreatedDate(nItem.getCreatedDate());
+                                    noti.setMessage(nItem.getMessage());
+                                    noti.setAccountID(nItem.getAccountID());
+                                    noti.setRedirectUrl(nItem.getRedirectUrl());
+                                    oList.add(noti);
                                 }
                             }
 
-                            notificationAdapter = new NotificationAdapter(nList);
-                            recyclerViewNotifications.setAdapter(notificationAdapter);
+                            notificationAdapter.notifyDataSetChanged();
 
 
 
@@ -144,7 +152,7 @@ public class NotificationActivity extends AppCompatActivity {
                         noti.setRedirectUrl(item.getRedirectUrl());
                         oList.add(noti);
                     }
-                    notificationAdapter = new NotificationAdapter(oList);
+                    notificationAdapter.notifyDataSetChanged();
                     recyclerViewNotifications.setAdapter(notificationAdapter);
 
 
