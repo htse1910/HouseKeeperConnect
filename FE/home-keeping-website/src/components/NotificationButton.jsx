@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaBell } from "react-icons/fa";
+import { FaBell, FaSyncAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import API_BASE_URL from "../config/apiConfig";
@@ -8,6 +8,7 @@ const NotificationButton = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [spinning, setSpinning] = useState(false);
   const navigate = useNavigate();
 
   const accountID = localStorage.getItem("accountID");
@@ -15,19 +16,17 @@ const NotificationButton = () => {
 
   useEffect(() => {
     fetchNotifications();
-    // Optionally poll every 30s:
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
 
   const fetchNotifications = async () => {
     try {
+      setSpinning(true);
       const response = await fetch(
         `${API_BASE_URL}/Notification/GetNotificationByUserID?id=${accountID}&pageNumber=1&pageSize=10`,
         {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+          headers: { Authorization: `Bearer ${authToken}` },
         }
       );
       if (!response.ok) throw new Error("Failed to fetch notifications");
@@ -37,6 +36,8 @@ const NotificationButton = () => {
       setUnreadCount(data.filter((n) => !n.isRead).length);
     } catch (error) {
       console.error("Notification fetch error:", error);
+    } finally {
+      setTimeout(() => setSpinning(false), 500);
     }
   };
 
@@ -56,10 +57,8 @@ const NotificationButton = () => {
     }
   };
 
-  const handleOpen = async () => {
+  const handleOpen = () => {
     setShowModal(true);
-
-    // Mark unread notifications as read after a delay
     setTimeout(() => {
       const unread = notifications.filter((n) => !n.isRead);
       unread.forEach((n) => markAsRead(n.notificationsID));
@@ -68,18 +67,76 @@ const NotificationButton = () => {
 
   return (
     <>
-      <div className="position-relative mx-2">
+      <div
+        style={{
+          display: "flex",
+          gap: "16px",
+          padding: "12px",
+          backgroundColor: "#f9f9f9",
+          borderRadius: "12px",
+          border: "1px solid #ddd",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "fit-content",
+        }}
+      >
+        {/* Notification Button */}
         <button
-          className="btn btn-light position-relative rounded-circle border"
-          title="Notifications"
           onClick={handleOpen}
+          title="Notifications"
+          style={{
+            width: "50px",
+            height: "50px",
+            borderRadius: "50%",
+            backgroundColor: "#fff",
+            border: "1px solid #888",
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "22px",
+          }}
         >
-          <FaBell size={16} />
+          <FaBell />
           {unreadCount > 0 && (
-            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            <span
+              style={{
+                position: "absolute",
+                top: "-5px",
+                right: "-5px",
+                backgroundColor: "#dc3545",
+                color: "#fff",
+                borderRadius: "50%",
+                padding: "3px 6px",
+                fontSize: "10px",
+                fontWeight: "bold",
+              }}
+            >
               {unreadCount}
             </span>
           )}
+        </button>
+
+        {/* Refresh Button */}
+        <button
+          onClick={fetchNotifications}
+          title="Refresh"
+          style={{
+            width: "50px",
+            height: "50px",
+            borderRadius: "50%",
+            backgroundColor: "#e0f0ff",
+            border: "1px solid #5dade2",
+            color: "#3498db",
+            fontSize: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "transform 0.3s",
+            transform: spinning ? "rotate(360deg)" : "none",
+          }}
+        >
+          <FaSyncAlt />
         </button>
       </div>
 
@@ -107,8 +164,7 @@ const NotificationButton = () => {
                       {new Date(notification.createdDate).toLocaleString()}
                     </small>
                     <span
-                      className={`badge ${notification.isRead ? "bg-secondary" : "bg-warning text-dark"
-                        }`}
+                      className={`badge ${notification.isRead ? "bg-secondary" : "bg-warning text-dark"}`}
                     >
                       {notification.isRead ? "Read" : "Unread"}
                     </span>
@@ -128,7 +184,7 @@ const NotificationButton = () => {
               navigate("/account/notifications");
             }}
           >
-            🔗 Xem tất cả
+            🔗 View All
           </Button>
         </Modal.Footer>
       </Modal>

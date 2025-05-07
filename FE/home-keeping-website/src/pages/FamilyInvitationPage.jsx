@@ -20,7 +20,6 @@ const FamilyInvitationPage = () => {
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filterAbandoned, setFilterAbandoned] = useState(false);
 
   const authToken = localStorage.getItem("authToken");
   const accountID = localStorage.getItem("accountID");
@@ -34,13 +33,12 @@ const FamilyInvitationPage = () => {
     axios
       .get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountID=${accountID}&pageNumber=1&pageSize=10`, { headers })
       .then((res) => {
-        const desiredStatus = filterAbandoned ? 9 : 2; // 9 = Quit, 2 = Verified
-        const list = res.data?.filter((j) => !j.isOffered && j.status === desiredStatus) || [];
+        const list = res.data?.filter((j) => !j.isOffered && (j.status === 2 || j.status === 9)) || [];
         setJobs(list);
       })
       .catch(() => setError(t("error.error_loading")))
       .finally(() => setLoading(false));
-  }, [filterAbandoned]);
+  }, []);
 
   useEffect(() => {
     if (!jobID) {
@@ -82,7 +80,7 @@ const FamilyInvitationPage = () => {
       default: return "Không rõ";
     }
   };
-  
+
   const handleInvite = async () => {
     if (!jobID || !housekeeper) {
       alert(t("misc.confirm"));
@@ -148,25 +146,24 @@ const FamilyInvitationPage = () => {
 
       <div className="mb-3">
         <button
-          className={`btn ${filterAbandoned ? "btn-outline-primary" : "btn-primary"} me-2`}
-          onClick={() => setFilterAbandoned(false)}
+          onClick={() => navigate("/family/post-job")}
+          style={{
+            backgroundColor: "#FFA500",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            padding: "10px 20px",
+            fontWeight: "bold",
+            fontSize: "16px"
+          }}
         >
-          ✅ {t("job.job_verified")}
-        </button>
-        <button
-          className={`btn ${filterAbandoned ? "btn-primary" : "btn-outline-primary"}`}
-          onClick={() => setFilterAbandoned(true)}
-        >
-          🚪 {t("job.job_housekeeper_quit")}
+          Tạo công việc mới
         </button>
       </div>
 
       {jobs.length === 0 ? (
         <>
           <p>{t("misc.no_jobs_found")}</p>
-          <button className="btn-primary" onClick={() => navigate("/family/post-job")}>
-            {t("misc.create_new_job")}
-          </button>
         </>
       ) : (
         <>

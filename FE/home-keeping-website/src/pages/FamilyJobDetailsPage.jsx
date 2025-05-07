@@ -168,11 +168,21 @@ const FamilyJobDetailsPage = () => {
         const today = new Date();
         const currentWeekDay = today.getDay();
 
-        const matched = new Date(today);
-        matched.setDate(today.getDate() + (dayIndex - currentWeekDay));
+        let matched;
+        if (currentWeekDay === dayIndex) {
+            matched = new Date(today);
+        } else {
+            matched = new Date(today);
+            matched.setDate(today.getDate() + ((dayIndex + 7 - currentWeekDay) % 7));
+        }
 
-        if (matched >= start && matched <= end) {
-            const isSameDate = today.toDateString() === matched.toDateString();
+        const normalize = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const matchedNorm = normalize(matched);
+        const startNorm = normalize(start);
+        const endNorm = normalize(end);
+
+        if (matchedNorm >= startNorm && matchedNorm <= endNorm) {
+            const isSameDate = matched.toDateString() === today.toDateString();
 
             setSelectedDayIndex(dayIndex);
             setMatchedDate(matched);
@@ -384,7 +394,7 @@ const FamilyJobDetailsPage = () => {
                 </div>
 
                 {/* Sidebar */}
-                <div className="col-lg-4">
+                {/* <div className="col-lg-4">
                     <div className="card mb-4 text-center">
                         <div className="card-body">
                             <img
@@ -412,7 +422,7 @@ const FamilyJobDetailsPage = () => {
                             <a href="#" className="btn btn-link">{t("job.view_detail")}</a>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
 
             {/* Modal */}
