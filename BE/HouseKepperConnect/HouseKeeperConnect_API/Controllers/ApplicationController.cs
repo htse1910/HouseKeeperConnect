@@ -179,7 +179,7 @@ namespace HouseKeeperConnect_API.Controllers
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
             if (hk == null)
             {
-                Message = "Account not found!";
+                Message = "Không tìm thấy tài khoản ứng tuyển!";
                 return NotFound(Message);
             }
 
@@ -191,25 +191,25 @@ namespace HouseKeeperConnect_API.Controllers
             }
             if (!hk.IsVerified)
             {
-                Message = "Bạn cần phải xác nhận danh tính trước     khi ứng tuyển!";
+                Message = "Bạn cần phải xác nhận danh tính trước khi ứng tuyển!";
                 return BadRequest(Message);
             }
 
             var job = await _jobService.GetJobByIDAsync(jobID);
             if (job == null)
             {
-                Message = "Job not found!";
+                Message = "Không tìm thấy thông tin công việc!";
                 return NotFound(Message);
             }
 
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
             if (jobDetail == null)
             {
-                Message = "Job not found!";
+                Message = "Không tìm thấy thông tin chi tiết công việc!";
                 return NotFound(Message);
             }
 
-            if (jobDetail.HousekeeperID == hk.HousekeeperID)
+            if (jobDetail.HousekeeperID == hk.HousekeeperID && !jobDetail.IsOffered)
             {
                 Message = "Bạn đã ứng tuyển công việc này rồi!";
                 return Conflict(Message);
@@ -224,7 +224,7 @@ namespace HouseKeeperConnect_API.Controllers
             var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
             if (jobSlots == null || !jobSlots.Any())
             {
-                return BadRequest("No slots found for the job.");
+                return BadRequest("Không tìm thấy giở làm việc của công việc!");
             }
 
             List<string> bookedSlotMessages = new List<string>(); // Collect errors
@@ -243,7 +243,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                     if (isSlotBooked)
                     {
-                        bookedSlotMessages.Add($"Slot {slot.SlotID} on day {slot.DayOfWeek} is already booked.");
+                        bookedSlotMessages.Add($"Slot {slot.SlotID} trong ngày {slot.DayOfWeek} bị bận!.");
                     }
                 }
                 currentDate = currentDate.AddDays(7);
@@ -252,7 +252,7 @@ namespace HouseKeeperConnect_API.Controllers
             // ✅ If any slot is already booked, do NOT create the booking
             if (bookedSlotMessages.Any())
             {
-                return Conflict($"Booking cannot be created because the following slots are already booked:\n{string.Join("\n", bookedSlotMessages)}");
+                return Conflict($"Những khung giờ bị bận:\n{string.Join("\n", bookedSlotMessages)}");
             }
 
             var app = new Application();
@@ -279,7 +279,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _notificationService.AddNotificationAsync(notF);
 
-            Message = ("Application Added!");
+            Message = ("Ứng tuyển thành công");
             return Ok(Message);
         }
 
@@ -296,7 +296,7 @@ namespace HouseKeeperConnect_API.Controllers
             var app = await _applicationService.GetApplicationByIDAsync(AppID);
             if (app == null)
             {
-                Message = "No application found!";
+                Message = "Không tìm thấy đơn ứng tuyển!";
                 return NotFound(Message);
             }
 
@@ -314,14 +314,14 @@ namespace HouseKeeperConnect_API.Controllers
             var job = await _jobService.GetJobByIDAsync(app.JobID);
             if (job == null)
             {
-                Message = "No job found!";
+                Message = "Không tìm thấy thông tin công việc!";
                 return NotFound(Message);
             }
 
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
             if (jobDetail == null)
             {
-                Message = "No job found!";
+                Message = "Không tìm thấy thông tin chi tiết công việc!";
                 return NotFound(Message);
             }
 
