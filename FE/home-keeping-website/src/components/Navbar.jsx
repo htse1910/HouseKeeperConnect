@@ -16,6 +16,7 @@ import {
 import userAvatar from "../assets/images/default-avatar.png";
 import { UserRoleContext } from "./UserRoleProvider";
 import { useMenuItems } from "./menuConfig";
+import API_BASE_URL from "../config/apiConfig";
 import NotificationButton from "./NotificationButton";
 
 function Navbar() {
@@ -71,7 +72,7 @@ function Navbar() {
     const accountID = localStorage.getItem("accountID");
 
     if (token && accountID) {
-      axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, {
+      axios.get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then((res) => {

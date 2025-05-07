@@ -14,10 +14,10 @@ const FamilyDepositPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [accountInfo, setAccountInfo] = useState(null);
   const [error, setError] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
-  const isDemo = new URLSearchParams(window.location.search).get("demo") === "true";
 
   const headers = {
     Authorization: `Bearer ${authToken}`,
@@ -25,12 +25,6 @@ const FamilyDepositPage = () => {
   };
 
   useEffect(() => {
-    if (isDemo) {
-      setAccountInfo({ accountID: 1, name: "Demo User" });
-      setLoading(false);
-      return;
-    }
-
     if (!accountID || !authToken) {
       setError(t("error.error_auth"));
       setLoading(false);
@@ -52,25 +46,24 @@ const FamilyDepositPage = () => {
 
   const handleDeposit = () => {
     if (!amount || isNaN(amount) || Number(amount) < 10000 || isSubmitting) {
-      setError(t("deposit.deposit_minimum")); // Optional: show a minimum amount warning
+      setErrorMessage(t("deposit.deposit_minimum"));
       return;
     }
 
     setIsSubmitting(true);
-    setError(null);
+    setErrorMessage("");
 
     axios
       .put(`${API_BASE_URL}/Wallet/Deposit`, null, {
         params: {
           id: Number(accountID),
           balance: Number(amount),
-          isMobile: false, // ✅ Make sure it's included
+          isMobile: false,
         },
         headers,
       })
       .then((res) => {
         const paymentUrl = res.data?.paymentUrl || res.data;
-
         if (paymentUrl?.startsWith("http")) {
           window.location.href = paymentUrl;
         } else {
@@ -87,14 +80,7 @@ const FamilyDepositPage = () => {
       });
   };
 
-  const loadingOrError = shouldShowLoadingOrError(loading, error, t, !isDemo && (
-    <button
-      className="btn-secondary"
-      onClick={() => (window.location.search = "?demo=true")}
-    >
-      {t("misc.view_demo")}
-    </button>
-  ));
+  const loadingOrError = shouldShowLoadingOrError(loading, error, t);
   if (loadingOrError) return loadingOrError;
 
   return (
@@ -105,10 +91,13 @@ const FamilyDepositPage = () => {
 
         <div className="deposit-form">
           <label className="form-label">{t("deposit.deposit_placeholder")}</label>
+          {errorMessage && (
+            <p style={{ color: "red", marginTop: 8 }}>{errorMessage}</p>
+          )}
           <div className="deposit-input-wrapper">
             <input
               type="number"
-              step="10000"          // ← makes the arrows step by 10,000
+              step="10000"
               min="10000"
               placeholder={t("deposit.deposit_placeholder")}
               className="form-input"
