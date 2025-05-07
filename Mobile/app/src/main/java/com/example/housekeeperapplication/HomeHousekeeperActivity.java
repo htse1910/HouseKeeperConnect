@@ -3,7 +3,10 @@ package com.example.housekeeperapplication;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +38,8 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
     private APIServices apiService;
     private SharedPreferences sharedPreferences;
     private TextView tvGreeting;
+    private EditText etSearch;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +50,9 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
         // Initialize views
         recyclerJobs = findViewById(R.id.recyclerJobs);
         tvGreeting = findViewById(R.id.tvGreeting);
-
+        //search job
+        etSearch = findViewById(R.id.etSearch);
+        setupSearch();
         // Get user info from SharedPreference
         sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
         String name = sharedPreferences.getString("name", "");
@@ -102,6 +109,20 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
             return false;
         });
     }
+    private void setupSearch() {
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                jobAdapter.filter(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
 
     private void loadJobs(int pageNumber, int pageSize) {
         Call<List<Job>> call = apiService.getVerifyJob(pageNumber, pageSize);
@@ -111,14 +132,18 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
             public void onResponse(Call<List<Job>> call, Response<List<Job>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     jobList.clear();
-
                     for (Job job : response.body()) {
                         if (job.getStatus() == 2) {
                             jobList.add(job);
                         }
                     }
+                    jobAdapter = new JobAdapter(jobList, job -> {
+                        Intent intent = new Intent(HomeHousekeeperActivity.this, JobHousekeeperDetailActivity.class);
+                        intent.putExtra("jobID", job.getJobID());
+                        startActivity(intent);
+                    }, HomeHousekeeperActivity.this);
 
-                    jobAdapter.notifyDataSetChanged();
+                    recyclerJobs.setAdapter(jobAdapter);
 
                     if (jobList.isEmpty()) {
                         Toast.makeText(HomeHousekeeperActivity.this,

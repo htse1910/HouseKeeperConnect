@@ -27,6 +27,7 @@ import com.example.housekeeperapplication.FamilyJobListActivity;
 import com.example.housekeeperapplication.HomeActivity;
 import com.example.housekeeperapplication.HomeHousekeeperActivity;
 import com.example.housekeeperapplication.HousekeeperBookingActivity;
+import com.example.housekeeperapplication.HousekeeperJob;
 import com.example.housekeeperapplication.IdentityVerificationActivity;
 import com.example.housekeeperapplication.LoginActivity;
 import com.example.housekeeperapplication.Model.Account;
@@ -121,6 +122,7 @@ public class HousekeeperProfile extends AppCompatActivity {
         List<ProfileOption> options = Arrays.asList(
                 new ProfileOption("Ví", R.drawable.ic_wallet),
                 new ProfileOption("Xác thực danh tính", R.drawable.ic_verify),
+                new ProfileOption("Công việc của tôi", R.drawable.ic_job2),
                 new ProfileOption("Thanh toán", R.drawable.ic_payment),
                 new ProfileOption("Trung tâm hỗ trợ", R.drawable.ic_support),
                 new ProfileOption("Chính sách & Quy định", R.drawable.ic_policy),
@@ -134,6 +136,9 @@ public class HousekeeperProfile extends AppCompatActivity {
                     break;
                 case "Xác thực danh tính":
                     startActivity(new Intent(HousekeeperProfile.this, IdentityVerificationActivity.class));
+                    break;
+                case "Công việc của tôi":
+                    startActivity(new Intent(HousekeeperProfile.this, HousekeeperJob.class));
                     break;
                 case "Thanh toán":
                     // ...
