@@ -13,7 +13,6 @@ export function useMenuItems() {
       { label: t("navigation.home"), link: "/housekeeper/dashboard" },
       { label: t("navigation.find_jobs"), link: "/jobs" },
       { label: t("navigation.my_jobs"), link: "/my-jobs" },
-      { label: t("navigation.jobs_offered"), link: "/housekeeper/jobs-offered" },
       { label: t("navigation.messages"), link: "/messages" },
       { label: t("navigation.support"), link: "/housekeeper/support-requests", dropdown: true },
     ],

@@ -22,7 +22,10 @@
     "users": "Người dùng",
     "approval": "Kiểm duyệt",
     "analytics": "Phân tích",
-    "management": "Quản lý"
+    "management": "Quản lý",
+    "jobs": "Công việc",
+    "payouts": "Giao dịch rút tiền",
+    "withdrawals": "Yêu cầu rút tiền"
   },
   "user": {
     "profile": "Trang cá nhân",
