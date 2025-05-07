@@ -84,7 +84,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    trans = await context.Notification.Where(t => t.AccountID == uId).OrderBy(n => n.IsRead).ThenByDescending(n=> n.CreatedDate)
+                    trans = await context.Notification.Where(t => t.AccountID == uId).OrderBy(n => !n.IsRead).ThenByDescending(n=> n.CreatedDate)
                         .Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
