@@ -22,15 +22,17 @@ function JobsOfferedToMePage() {
           headers: { Authorization: `Bearer ${authToken}` },
         }
       );
-      if (!res.ok) throw new Error("Failed to accept job");
-
-      toast.success("✅ Đã chấp nhận công việc!");
+  
+      const data = await res.text(); // Read text response even on non-OK
+      if (!res.ok) throw new Error(data);
+  
+      toast.success(data || "✅ Đã chấp nhận công việc!");
       setSelectedJob(null);
     } catch (err) {
       console.error(err);
-      toast.error("❌ Lỗi khi chấp nhận công việc.");
+      toast.error(err.message || "❌ Lỗi khi chấp nhận công việc.");
     }
-  };
+  };  
 
   const handleDenyJob = async (jobId) => {
     try {

@@ -29,7 +29,6 @@ const FamilyJobManagementPage = () => {
     setJobs,
   } = useFamilyJobs({ accountID, authToken, t });
 
-  const shouldShowLoadingOrError = loading || error;
   const [filter, setFilter] = useState({ status: "all", serviceType: "all", start_date: "" });
   const [jobToDelete, setJobToDelete] = useState(null);
   const showBackToTop = useBackToTop();
@@ -42,8 +41,8 @@ const FamilyJobManagementPage = () => {
     5: t("job.job_expired"),
     6: t("job.job_canceled"),
     8: t("job.job_pending_family_confirmation"),
-    9: t("job.job_housekeeper_quit") // ⬅️ Add this
-  }), [t]);  
+    9: "Người giúp việc bỏ"
+  }), [t]);
 
   const serviceTypes = useMemo(
     () => Array.from(new Set(jobs.flatMap(job => job.serviceTypes || []))),
@@ -58,23 +57,31 @@ const FamilyJobManagementPage = () => {
     return true;
   });
 
-  const status4Jobs = jobs.filter(job => job.status === 4).length;
-
   const confirmDelete = async () => {
     if (!jobToDelete) return;
+
+    const content = `Please delete the job ${jobToDelete.jobName}, ID: ${jobToDelete.jobID}`;
+    const formData = new FormData();
+    formData.append("Picture", "");
+
+    const query = new URLSearchParams({
+      RequestedBy: accountID,
+      Type: 2,
+      Content: content
+    });
+
     try {
-      await axios.delete(`${API_BASE_URL}/Job/DeleteJob`, {
+      await axios.post(`${API_BASE_URL}/SupportRequest/AddSupportRequest?${query}`, formData, {
         headers: {
           Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
         },
-        params: { id: jobToDelete.jobID },
       });
-      setJobs(prev => prev.filter(j => j.jobID !== jobToDelete.jobID));
+      toast.success("✅ Đã gửi yêu cầu xoá công việc.");
       setJobToDelete(null);
+      navigate("/family/support-requests"); // <-- add this
     } catch (err) {
-      console.error("Lỗi xoá công việc:", err);
-      alert(t("job.delete_failed"));
+      console.error("Lỗi gửi yêu cầu xoá:", err);
+      toast.error("❌ Không thể gửi yêu cầu xoá.");
     }
   };
 
@@ -96,7 +103,7 @@ const FamilyJobManagementPage = () => {
     <div className="container my-4">
       <JobStatistics
         jobsCount={jobs.length}
-        completedCount={status4Jobs}
+        completedCount={jobs.filter(j => j.status === 4).length}
         housekeepers={housekeepers}
       />
 
@@ -111,7 +118,7 @@ const FamilyJobManagementPage = () => {
         </div>
 
         <div className="col-md-8">
-          {shouldShowLoadingOrError ? (
+          {loading || error ? (
             <div className="alert alert-info">{t("misc.loading_data")}</div>
           ) : filteredJobs.length === 0 ? (
             <div className="alert alert-warning">

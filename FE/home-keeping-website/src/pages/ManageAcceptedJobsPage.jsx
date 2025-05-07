@@ -58,7 +58,7 @@ const ManageAcceptedJobsPage = () => {
       const message = await response.text();
   
       if (response.ok) {
-        toast.success("✔️ Công việc đã được từ chối và giao lại!");
+        toast.success("✔️ Công việc đã hủy và hoàn tiền!");
         setJobs(prev => prev.filter(job => job.jobID !== jobID));
       } else {
         toast.error(message || "❌ Không thể từ chối công việc.");
@@ -108,7 +108,7 @@ const ManageAcceptedJobsPage = () => {
                     className="btn btn-sm btn-danger"
                     onClick={() => handleAbandonJob(job.jobID)}
                   >
-                    ❌ Từ chối & Gán lại
+                    ❌ Từ chối & Hoàn tiền
                   </button>
                 </div>
               </div>
