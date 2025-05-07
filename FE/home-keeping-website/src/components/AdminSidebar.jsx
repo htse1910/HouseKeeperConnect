@@ -10,6 +10,7 @@ const AdminSidebar = () => {
     { path: "/admin/users", icon: <FaTable />, label: "Bảng Tài Khoản" },
     { path: "/admin/services", icon: <FaTools />, label: "Dịch vụ" },
     { path: "/admin/staff", icon: <FaUserShield />, label: "Nhân viên" },
+    { path: "/admin/platform-fees", icon: <FaUserShield />, label: "Phí nền tảng" },
   ];
 
   return (

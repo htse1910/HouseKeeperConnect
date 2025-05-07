@@ -50,6 +50,14 @@ const FamilyJobPostingPage = () => {
         "Content-Type": "application/json",
     };
 
+    const hcmDistricts = [
+        "Quận 1", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8",
+        "Quận 10", "Quận 11", "Quận 12", "Quận Bình Tân", "Quận Bình Thạnh",
+        "Quận Gò Vấp", "Quận Phú Nhuận", "Quận Tân Bình", "Quận Tân Phú",
+        "Huyện Bình Chánh", "Huyện Cần Giờ", "Huyện Củ Chi", "Huyện Hóc Môn", "Huyện Nhà Bè",
+        "Thành phố Thủ Đức"
+    ];
+
     const slotList = [
         { slotID: 1, time: "8:00 - 9:00" },
         { slotID: 2, time: "9:00 - 10:00" },
@@ -407,16 +415,21 @@ const FamilyJobPostingPage = () => {
                     </div>
                     <div className="job-posting-row">
                         <label>{t("misc.location")}</label>
-                        <input
+                        <select
                             ref={locationRef}
-                            type="text"
                             name="Location"
                             className="job-posting-input"
                             value={formData.Location}
                             onChange={handleChange}
-                            placeholder={t("job.jobPost.locationPlaceholder")}
                             required
-                        />
+                        >
+                            <option value="">{t("job.jobPost.locationPlaceholder")}</option>
+                            {hcmDistricts.map((district) => (
+                                <option key={district} value={district}>
+                                    {district}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 

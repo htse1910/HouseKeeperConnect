@@ -76,6 +76,57 @@ const HousekeeperBookingManagementPage = () => {
     }
   };
 
+  const getVNDate = (date = new Date()) => {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .formatToParts(date)
+      .reduce((acc, part) => {
+        if (part.type === "year") acc.year = part.value;
+        if (part.type === "month") acc.month = part.value;
+        if (part.type === "day") acc.day = part.value;
+        return acc;
+      }, {});
+    return new Date(`${parts.year}-${parts.month}-${parts.day}`);
+  };
+
+  const openDayModal = (booking, dayIndex) => {
+    const start = new Date(booking.startDate.split("/").reverse().join("-"));
+    const end = new Date(booking.endDate.split("/").reverse().join("-"));
+    const todayVN = getVNDate();
+    const currentVNDay = todayVN.getDay();
+
+    const diff = dayIndex - currentVNDay;
+    const matched = new Date(todayVN);
+    matched.setDate(todayVN.getDate() + diff);
+    const normalizeDate = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const startNorm = normalizeDate(start);
+    const endNorm = normalizeDate(end);
+    const matchedNorm = normalizeDate(matched);
+
+    console.log("▶️ start:", start);
+    console.log("▶️ end:", end);
+    console.log("▶️ todayVN:", todayVN);
+    console.log("▶️ matched:", matched);
+    console.log("▶️ selected day index:", dayIndex);
+
+    if (matchedNorm >= startNorm && matchedNorm <= endNorm) {
+      const isSameDate = todayVN.toDateString() === matched.toDateString();
+      console.log("✅ Show modal. isToday:", isSameDate);
+
+      setSelectedBooking(booking);
+      setSelectedDay(dayNames[dayIndex]);
+      setMatchedDate(matched);
+      setIsToday(isSameDate);
+      setShowModal(true);
+    } else {
+      console.warn("❌ Ngày này không nằm trong phạm vi công việc.");
+    }
+  };
+
   const handleCheckIn = async () => {
     if (!selectedBooking) return;
 
@@ -99,30 +150,6 @@ const HousekeeperBookingManagementPage = () => {
     } catch (err) {
       toast.error("Lỗi khi check-in.");
       console.error(err);
-    }
-  };
-
-  const openDayModal = (booking, dayIndex) => {
-    const start = new Date(booking.startDate.split("/").reverse().join("-"));
-    const end = new Date(booking.endDate.split("/").reverse().join("-"));
-
-    const now = new Date();
-    const currentWeekDay = now.getDay();
-    const diff = dayIndex - currentWeekDay;
-    const matched = new Date(now);
-    matched.setDate(now.getDate() + diff);
-
-    if (matched >= start && matched <= end) {
-      const today = new Date();
-      const isSameDate = today.toDateString() === matched.toDateString();
-
-      setSelectedBooking(booking);
-      setSelectedDay(dayNames[dayIndex]);
-      setMatchedDate(matched);
-      setIsToday(isSameDate);
-      setShowModal(true);
-    } else {
-      alert("Ngày này không nằm trong phạm vi công việc.");
     }
   };
 
@@ -173,8 +200,8 @@ const HousekeeperBookingManagementPage = () => {
               endDate: jobDetail?.endDate ? new Date(jobDetail.endDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
               description: jobDetail?.description || "Đang cập nhật",
               slot: Array.isArray(jobDetail?.slotIDs) ? jobDetail.slotIDs.map(s => slotMap[s] || `Slot ${s}`) : [],
-              days: Array.isArray(jobDetail?.dayofWeek) ? jobDetail.dayofWeek.map(d => dayNames[d]) : [],
-              services: Array.isArray(jobDetail?.serviceIDs) ? jobDetail.serviceIDs.map(id => serviceMap[id]) : []
+              days: Array.isArray(jobDetail?.dayofWeek) ? jobDetail.dayofWeek : [],
+              services: Array.isArray(jobDetail?.serviceIDs) ? jobDetail.serviceIDs.map(id => serviceMap[id]) : [],
             };
           })
         );
@@ -241,7 +268,7 @@ const HousekeeperBookingManagementPage = () => {
   return (
     <div className="container py-4">
       <ToastContainer />
-      <h4 className="fw-bold mb-4 text-primary">📋 Danh sách đặt công việc</h4>
+      <h4 className="fw-bold mb-4 text-primary">📋 Danh sách công việc đã nhận</h4>
 
       {loading ? (
         <p className="text-muted">⏳ Đang tải dữ liệu...</p>
@@ -311,8 +338,8 @@ const HousekeeperBookingManagementPage = () => {
                   <div className="col-12 col-md-4 small">
                     <strong>📅 Thứ:</strong>
                     <ul className="ps-3 mb-0">
-                      {row.days.map((d, i) => {
-                        const dayIndex = dayNames.indexOf(d);
+                      {row.days.map((dayIndex, i) => {
+                        const dayLabel = dayNames[dayIndex];
                         return (
                           <li
                             key={i}
@@ -320,7 +347,7 @@ const HousekeeperBookingManagementPage = () => {
                             style={{ cursor: "pointer", textDecoration: "underline" }}
                             onClick={() => openDayModal(row, dayIndex)}
                           >
-                            {d}
+                            {dayLabel}
                           </li>
                         );
                       })}

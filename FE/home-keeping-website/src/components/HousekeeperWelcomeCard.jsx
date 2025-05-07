@@ -154,7 +154,7 @@ const HousekeeperWelcomeCard = () => {
             Hỗ trợ kỹ thuật
           </Button>
           <Link to="/housekeeper/bookings" className="btn btn-primary rounded-pill px-4 fw-semibold">
-            Quản lý đặt lịch
+            Quản lý công việc
           </Link>
         </div>
       </div>

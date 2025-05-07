@@ -78,15 +78,18 @@ function JobsOfferedToMePage() {
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 1: return "Đang chờ";
-      case 2: return "Đã xác nhận";
-      case 3: return "Đã chấp nhận";
-      case 4: return "Đã hoàn thành";
-      case 5: return "Đã hết hạn";
-      case 6: return "Đã hủy";
+      case 1: return "Đang chờ";                        // Pending
+      case 2: return "Đã xác thực";                     // Verified
+      case 3: return "Đã chấp nhận";                    // Accepted
+      case 4: return "Đã hoàn thành";                   // Completed
+      case 5: return "Đã hết hạn";                      // Expired
+      case 6: return "Đã hủy";                          // Canceled
+      case 7: return "Không được phép";                 // NotPermitted
+      case 8: return "Chờ gia đình xác nhận";           // PendingFamilyConfirmation
+      case 9: return "Người giúp việc đã bỏ việc";      // HousekeeperQuitJob
       default: return "Không xác định";
     }
-  };
+  };  
 
   return (
     <div className="container my-4">

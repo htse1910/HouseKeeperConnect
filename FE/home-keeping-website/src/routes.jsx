@@ -58,6 +58,8 @@ import AdminUserListPage from './pages/AdminUserListPage.jsx';
 import AdminServiceListPage from './pages/AdminServicePgae.jsx';
 import WithdrawRequestPage from './pages/WithdrawRequestPage.jsx';
 import ManageAcceptedJobsPage from './pages/ManageAcceptedJobsPage'; // ✅ New import
+import ManagePlatformFeesPage from "./pages/ManagePlatformFeesPage";
+import StaffTransactionListPage from './pages/StaffTransactionListPage.jsx';
 
 function AppRoutes() {
   return (
@@ -102,8 +104,9 @@ function AppRoutes() {
         <Route path="/dashboard/payouts" element={<StaffPayoutApprovalPage />} />
         <Route path="/dashboard/withdrawals" element={<StaffWithdrawalVerificationPage />} />
         <Route path="/dashboard/accepted-jobs" element={<ManageAcceptedJobsPage />} />
-
-
+        <Route path="/dashboard/platform-fees" element={<ManagePlatformFeesPage />} />
+        <Route path="/dashboard/support" element={<StaffSupportRequestPage />} />
+        <Route path="/dashboard/transactions" element={<StaffTransactionListPage />} />
         {/* Family Pages */}
         <Route path="/family/dashboard" element={<FamilyDashboardPage />} />
         <Route path="/family/profile" element={<FamilyProfilePage />} />
@@ -123,13 +126,12 @@ function AppRoutes() {
         <Route path="/family/messages" element={<FamilyMessagesPage />} />
         <Route path="/family/jobs" element={<JobListOfFamily />} />
         <Route path="/family/support-requests" element={<FamilySupportRequestPage />} />
-        <Route path="/dashboard/support" element={<StaffSupportRequestPage />} />
         <Route path="/family/withdraw-details" element={<WithdrawRequestPage />} />
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUserListPage />} />
         <Route path="/admin/services" element={<AdminServiceListPage />} />  // ✅ NEW SERVICE PAGE
-
+        <Route path="/admin/platform-fees" element={<ManagePlatformFeesPage />} />
       </Routes>
     </Layout>
   );

@@ -91,7 +91,7 @@ function Navbar() {
         ))}
       </ul>
 
-      {/* Search box */}
+      {/* Search box
       <div className="navbar-search-container" ref={searchRef}>
         {searchVisible && (
           <input type="text" placeholder={t("search")} className="navbar-search-input" />
@@ -99,7 +99,7 @@ function Navbar() {
         <button className="search-btn" onClick={() => setSearchVisible(!searchVisible)}>
           <FaSearch />
         </button>
-      </div>
+      </div> */}
 
       <div className="navbar-user-container d-flex align-items-center gap-2">
         {userRole && userRole !== "Guest" ? (
