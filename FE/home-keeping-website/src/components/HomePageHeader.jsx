@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HouseKeeper from "./images/homepage-housekeeper.png";
 
 function HomePageHeader() {
+  const navigate = useNavigate();
+
   return (
     <div className="container py-5">
       <div className="row align-items-center">
@@ -23,10 +26,16 @@ function HomePageHeader() {
             năng lực, trách nhiệm và trung thực.
           </p>
           <div className="d-flex flex-wrap gap-3">
-            <button className="btn btn-warning text-white fw-bold px-4 py-2 rounded-pill shadow-sm">
+            <button
+              className="btn btn-warning text-white fw-bold px-4 py-2 rounded-pill shadow-sm"
+              onClick={() => navigate('/login?role=2')}
+            >
               Tôi muốn tìm giúp việc
             </button>
-            <button className="btn btn-outline-warning fw-bold px-4 py-2 rounded-pill shadow-sm">
+            <button
+              className="btn btn-outline-warning fw-bold px-4 py-2 rounded-pill shadow-sm"
+              onClick={() => navigate('/login?role=1')}
+            >
               Tôi là người giúp việc
             </button>
           </div>

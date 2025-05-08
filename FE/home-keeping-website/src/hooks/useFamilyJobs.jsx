@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE_URL from "../config/apiConfig"; // ✅ Added this
 
 const useFamilyJobs = ({ accountID, authToken, t }) => {
   const [jobs, setJobs] = useState([]);
@@ -31,11 +32,11 @@ const useFamilyJobs = ({ accountID, authToken, t }) => {
       let tempServices = [];
 
       try {
-        const accRes = await axios.get(`http://localhost:5280/api/Account/GetAccount?id=${accountID}`, { headers });
+        const accRes = await axios.get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers });
         const account = accRes.data;
         if (!account?.accountID) throw new Error(t("error.error_auth"));
 
-        const famRes = await axios.get(`http://localhost:5280/api/Families/SearchFamilyByAccountId?accountId=${accountID}`, { headers });
+        const famRes = await axios.get(`${API_BASE_URL}/Families/SearchFamilyByAccountId?accountId=${accountID}`, { headers });
         const family = famRes.data?.[0];
         if (!family) {
           setIsNoProfile(true);
@@ -44,8 +45,8 @@ const useFamilyJobs = ({ accountID, authToken, t }) => {
 
         try {
           const [servicesRes, totalAccRes] = await Promise.all([
-            axios.get(`http://localhost:5280/api/Service/ServiceList`, { headers }).catch(() => ({ data: [] })),
-            axios.get(`http://localhost:5280/api/Account/TotalAccount`, { headers }).catch(() => ({ data: {} })),
+            axios.get(`${API_BASE_URL}/Service/ServiceList`, { headers }).catch(() => ({ data: [] })),
+            axios.get(`${API_BASE_URL}/Account/TotalAccount`, { headers }).catch(() => ({ data: {} })),
           ]);
 
           tempServices = servicesRes.data || [];
@@ -56,7 +57,7 @@ const useFamilyJobs = ({ accountID, authToken, t }) => {
         }
 
         try {
-          const jobRes = await axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=1&pageSize=1000000`, { headers });
+          const jobRes = await axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=1&pageSize=1000000`, { headers });
           const jobList = jobRes.data;
 
           if (!Array.isArray(jobList)) {
@@ -65,7 +66,7 @@ const useFamilyJobs = ({ accountID, authToken, t }) => {
           }
 
           const detailPromises = jobList.map((job) =>
-            axios.get(`http://localhost:5280/api/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
+            axios.get(`${API_BASE_URL}/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
               .then((res) => res.data)
               .catch(() => null)
           );
