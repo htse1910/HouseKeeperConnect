@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import "../assets/styles/Job.css";
+import { toast, ToastContainer } from "react-toastify";
 import { renderWorkingTime, formatGender } from "../utils/formatData";
 import { shouldShowLoadingOrError } from "../utils/uiHelpers";
 import API_BASE_URL from "../config/apiConfig";
@@ -21,6 +22,9 @@ const FamilyInvitationPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const authToken = localStorage.getItem("authToken");
   const accountID = localStorage.getItem("accountID");
 
@@ -31,7 +35,7 @@ const FamilyInvitationPage = () => {
 
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountID=${accountID}&pageNumber=1&pageSize=100000`, { headers })
+      .get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountID=${accountID}&pageNumber=1&pageSize=10`, { headers })
       .then((res) => {
         const list = res.data?.filter((j) => !j.isOffered && (j.status === 2 || j.status === 9)) || [];
         setJobs(list);
@@ -67,29 +71,28 @@ const FamilyInvitationPage = () => {
   }, [jobID]);
 
   const getJobStatusText = (status) => {
-    switch (status) {
-      case 1: return "🕐 Đang chờ duyệt";
-      case 2: return "📋 Đã duyệt";
-      case 3: return "✔️ Đã nhận";
-      case 4: return "✅ Hoàn thành";
-      case 5: return "⌛ Đã hết hạn";
-      case 6: return "❌ Đã hủy";
-      case 7: return "🚫 Không được phép";
-      case 8: return "⏳ Chờ gia đình xác nhận";
-      case 9: return "🚪 Người giúp việc đã bỏ việc";
-      default: return "Không rõ";
-    }
-  };
+    const statusMap = {
+      1: "pending",
+      2: "verified",
+      3: "accepted",
+      4: "completed",
+      5: "expired",
+      6: "canceled",
+      7: "not_permitted",
+      8: "pending_family_confirmation",
+      9: "housekeeper_quit"
+    };
+  
+    const key = statusMap[status];
+    return key ? t(`job.jobStatus.${key}`) : t("job.job.not_sure");
+  };  
 
-  const handleInvite = async () => {
-    if (!jobID || !housekeeper) {
-      alert(t("misc.confirm"));
-      return;
-    }
-
-    const confirmed = window.confirm(`${t("misc.confirm")} " mời " ${housekeeper.name} "?"`);
-    if (!confirmed) return;
-
+  const sendInvitation = async () => {
+    setIsSubmitting(true);
+    setShowConfirmDialog(false);
+  
+    const toastId = toast.loading(t("job.jobPost.posting"));
+  
     try {
       await axios.put(`${API_BASE_URL}/Job/OfferJob`, null, {
         headers,
@@ -98,13 +101,32 @@ const FamilyInvitationPage = () => {
           housekeeperId: housekeeper.housekeeperID
         }
       });
-
-      alert("🎉 " + t("job.jobPost.offer_success"));
-      navigate("/family/find-housekeepers");
-    } catch (err) {
-      console.error(err);
-      alert(t("error.unexpected_error"));
+  
+      toast.update(toastId, {
+        render: t("job.jobPost.offer_success"),
+        type: "success",
+        isLoading: false,
+        autoClose: 2000,
+        onClose: () => navigate("/family/find-housekeepers")
+      });
+    } catch (error) {
+      toast.update(toastId, {
+        render: t("error.unexpected_error"),
+        type: "error",
+        isLoading: false,
+        autoClose: 3000
+      });
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+  
+  const handleInvite = () => {
+    if (!jobID || !housekeeper) {
+      toast.warn(t("misc.confirm"));
+      return;
+    }
+    setShowConfirmDialog(true);
   };
 
   const feedback = shouldShowLoadingOrError(loading, error, t);
@@ -128,7 +150,7 @@ const FamilyInvitationPage = () => {
             onError={(e) => (e.target.src = "/avatar0.png")}
           />
           <div>
-            <label><strong>{housekeeper.name}</strong> ({housekeeper.gender})</label>
+            <h2>{housekeeper.name}</h2>
             {housekeeper.skills?.length > 0 && (
               <div className="job-detail-tags">
                 {housekeeper.skills.map((skill, i) => (
@@ -145,19 +167,10 @@ const FamilyInvitationPage = () => {
       )}
 
       <div className="mb-3">
-        <button
+        <button className="btn-primary"
           onClick={() => navigate("/family/post-job")}
-          style={{
-            backgroundColor: "#FFA500",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            padding: "10px 20px",
-            fontWeight: "bold",
-            fontSize: "16px"
-          }}
         >
-          Tạo công việc mới
+          {t("misc.create_new_job")}
         </button>
       </div>
 
@@ -178,10 +191,10 @@ const FamilyInvitationPage = () => {
           </select>
 
           {jobDetail && (
-            <div className="job-detail-card" style={{ marginTop: "24px" }}>
+            <div className="job-detail-card">
               <h3 className="job-detail-section-title">{t("misc.job_detail")}</h3>
               <p><strong>{t("job.job_title")}:</strong> {jobDetail.jobName}</p>
-              <p><strong>Trạng thái:</strong> {getJobStatusText(jobDetail.status)}</p>
+              <p><strong>{t("status.status")}:</strong> {getJobStatusText(jobDetail.status)}</p>
               <p><strong>{t("misc.location")}:</strong> {jobDetail.location}</p>
               <p><strong>{t("misc.salary")}:</strong> {jobDetail.price?.toLocaleString()} {t("job.jobPost.salaryUnit")}</p>
               <p><strong>{t("job.jobDetail.workingSchedule")}:</strong> {renderWorkingTime(jobDetail.dayofWeek, jobDetail.slotIDs, t)}</p>
@@ -228,6 +241,51 @@ const FamilyInvitationPage = () => {
           </button>
         </>
       )}
+
+      {showConfirmDialog && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>{t("invite.confirm")}</h3>
+            <p>{t("invite.invite_confirm_text", {
+              name: housekeeper.name,
+              job: jobDetail?.jobName || `#${jobID}`
+            })}</p>
+            <div className="modal-actions">
+              <button
+                className="btn-secondary"
+                onClick={() => setShowConfirmDialog(false)}
+                disabled={isSubmitting}
+              >
+                {t("invite.cancel")}
+              </button>
+              <button
+                className="btn-primary"
+                onClick={sendInvitation}
+                disabled={isSubmitting}
+              >
+                {t("invite.confirm")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <>
+
+        <ToastContainer
+          position="top-right"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
+      </>
+
     </div>
   );
 };

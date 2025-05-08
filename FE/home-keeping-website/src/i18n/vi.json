@@ -30,6 +30,7 @@
   },
   "user": {
     "profile": "Trang cá nhân",
+    "profile_update": "Chỉnh sửa thông tin cá nhân",
     "nickname": "Tên thường gọi",
     "account_verification": "Xác minh tài khoản",
     "staff": "Nhân viên",
@@ -89,7 +90,7 @@
   "error": {
     "error_loading": "Không thể tải dữ liệu.",
     "loading_data": "Đang tải dữ liệu...",
-    "error_auth": "Không tìm thấy thông tin đăng nhập.",
+    "error_auth": "Không tìm thấy thông tin đăng nhập. Vui lòng đăng nhập lại.",
     "error_account": "Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại.",
     "error_skill": "Kỹ năng chưa có thông tin để hiển thị.",
     "error_review": "Đánh giá chưa có thông tin để hiển thị.",
@@ -164,6 +165,17 @@
       "fullTime": "Thời gian từ {{start}} đến {{end}}",
       "splitTime": "Thời gian {{blocks}}",
       "lunchBreak": "Được nghỉ trưa 1 tiếng, từ {{start}} đến {{end}}"
+    },
+    "jobStatus": {
+      "pending": "Đang chờ duyệt",
+      "verified": "Đã xác minh",
+      "accepted": "Đã được chấp nhận",
+      "completed": "Đã hoàn thành",
+      "expired": "Đã hết hạn",
+      "canceled": "Đã huỷ",
+      "not_permitted": "Không đủ điều kiện",
+      "pending_family_confirmation": "Chờ gia đình xác nhận",
+      "housekeeper_quit": "Người giúp việc đã bỏ việc"
     },
     "jobPost": {
       "once": "Một lần duy nhất",
@@ -277,10 +289,18 @@
       "rejected": "Bị từ chối"
     }
   },
+  "invite": {
+    "confirm": "Xác nhận người giúp việc",
+    "cancel": "Hủy xác nhận",
+    "invite_confirm_text": "Bạn có muốn mời {{name}} cho công việc \"{{job}}\"?"
+  },
   "misc": {
     "welcome": "Chào mừng bạn đến với HouseKeeperConnect!",
     "actions": "Hành động",
     "back_to_top": "Lên đầu trang",
+    "bank_account_number": "Số tài khoản ngân hàng",
+    "bank_account_name": "Tên ngân hàng",
+    "profile_picture": "Ảnh đại diện",
     "cancel": "Hủy",
     "confirm": "Xác nhận",
     "created_date": "Ngày tạo",
