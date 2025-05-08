@@ -8,8 +8,9 @@ public class JobItem {
     private String startDate;
     private String endDate;
     private int status;
+    private int familyId;
 
-    public JobItem(int jobId, String jobName, String familyName, double salary, String startDate, String endDate, int status) {
+    public JobItem(int jobId, String jobName, String familyName, double salary, String startDate, String endDate, int status, int familyId) {
         this.jobId = jobId;
         this.jobName = jobName;
         this.familyName = familyName;
@@ -17,6 +18,15 @@ public class JobItem {
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = status;
+        this.familyId = familyId;
+    }
+
+    public int getFamilyId() {
+        return familyId;
+    }
+
+    public void setFamilyId(int familyId) {
+        this.familyId = familyId;
     }
 
     public int getJobId() {
