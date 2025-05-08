@@ -863,7 +863,7 @@ const FamilyJobPostingPage = () => {
                             </strong> {formatTotalCurrency(paymentInfo.fee, t)}</p>
                             <p><strong>{t("job.jobInfo.payout")}:</strong> {formatTotalCurrency(paymentInfo.housekeeperEarnings, t)}</p>
                             <p className="payment-balance">
-                                {t("misc.current_balance")}: {formatTotalCurrency(wallet.balance, t)}
+                                {t("misc.current_balance")}: {formatTotalCurrency(wallet.balance - paymentInfo.amount, t)}
                             </p>
                         </div>
 
