@@ -118,9 +118,15 @@ function UpdateHousekeeperPage() {
 
           <div className="col-md-6">
             <label className="form-label">Số tài khoản ngân hàng</label>
-            <input type="text" className="form-control" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} />
+            <input
+              type="text"
+              className="form-control"
+              value={bankAccount}
+              onChange={(e) => setBankAccount(e.target.value)}
+            />
+            <small className="text-danger">Bạn phải nhập đúng số tài khoản của bạn để tránh chuyển sai tài khoản</small>
           </div>
-          
+
           <div className="col-md-6">
             <label className="form-label">Ngân hàng</label>
             <select
@@ -140,6 +146,7 @@ function UpdateHousekeeperPage() {
               <option value="VIB">VIB</option>
               <option value="Agribank">Agribank</option>
             </select>
+            <small className="text-danger">Bạn phải chọn đúng tên ngân hàng để giao dịch thành công</small>
           </div>
 
           <div className="col-12">
