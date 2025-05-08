@@ -285,10 +285,24 @@ namespace HouseKeeperConnect_API.Controllers
             decimal pricePerHour = totalServicePrice / jobCreateDTO.ServiceIDs.Count;
 
             // Calculate total number of weeks and slots
-            TimeSpan dateRange = jobCreateDTO.EndDate.Date - jobCreateDTO.StartDate.Date;
+            /*TimeSpan dateRange = jobCreateDTO.EndDate.Date - jobCreateDTO.StartDate.Date;
             int numberOfWeeks = (int)Math.Ceiling(dateRange.TotalDays / 7.0);
             int slotsPerWeek = jobCreateDTO.SlotIDs.Count * jobCreateDTO.DayofWeek.Count;
-            int totalSlots = slotsPerWeek * numberOfWeeks;
+            int totalSlots = slotsPerWeek * numberOfWeeks;*/
+            var startDate = jobCreateDTO.StartDate.Date;
+            var endDate = jobCreateDTO.EndDate.Date;
+            var selectedDays = jobCreateDTO.DayofWeek; // e.g., [1, 3, 5] for Mon/Wed/Fri
+            var slotsPerDay = jobCreateDTO.SlotIDs.Count;
+
+            int totalSlots = 0;
+
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                if (selectedDays.Contains((int)date.DayOfWeek)) // DayOfWeek enum: Sunday = 0, Monday = 1, ...
+                {
+                    totalSlots += slotsPerDay;
+                }
+            }
 
             // ✅ Calculate total job price
             decimal totalJobPrice = pricePerHour * totalSlots;
@@ -660,15 +674,15 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("JobDetail not found.");
             var abandonDate = DateTime.Now;
             var acc = await _accountService.GetAccountByIDAsync(accountID);
-            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(acc.AccountID);
-            if (hk == null)
-            {
-                Message = "Housekeeper not found!";
-                return NotFound(Message);
-            }
-
+            var hk = new Housekeeper();
             if (acc.RoleID==1)
             {
+                hk = await _houseKeeperService.GetHousekeeperByUserAsync(acc.AccountID);
+                if (hk == null)
+                {
+                    Message = "Housekeeper not found!";
+                    return NotFound(Message);
+                }
                 if (jobDetail.HousekeeperID != hk.HousekeeperID)
                     return Forbid("You are not the assigned housekeeper.");
             }
