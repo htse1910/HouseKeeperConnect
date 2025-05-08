@@ -75,6 +75,7 @@ namespace HouseKeeperConnect_API.Controllers
                 d.JobName = j.JobName;
                 d.FamilyID = j.FamilyID;
                 d.Location = jobDetail.Location;
+                d.DetailLocation = jobDetail.DetailLocation;
                 d.Price = jobDetail.Price;
                 d.CreatedAt = j.CreatedDate;
                 d.Status = j.Status;
@@ -192,6 +193,7 @@ namespace HouseKeeperConnect_API.Controllers
                 d.JobName = j.JobName;
                 d.FamilyID = j.FamilyID;
                 d.Location = jobDetail.Location;
+                d.DetailLocation = jobDetail.DetailLocation;
                 d.Price = jobDetail.Price;
                 d.CreatedAt = j.CreatedDate;
                 d.Status = j.Status;
@@ -228,6 +230,7 @@ namespace HouseKeeperConnect_API.Controllers
                 d.JobName = j.JobName;
                 d.FamilyID = j.FamilyID;
                 d.Location = jobDetail.Location;
+                d.DetailLocation = jobDetail.DetailLocation;
                 d.Price = jobDetail.Price;
                 d.CreatedAt = j.CreatedDate;
                 d.Status = j.Status;
@@ -244,12 +247,12 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult> AddJob([FromQuery] JobCreateDTO jobCreateDTO)
         {
             if (!ModelState.IsValid)
-                return BadRequest("Invalid job data.");
+                return BadRequest("Dữ liệu công việc không phù hợp!");
 
             if (jobCreateDTO.IsOffered)
             {
                 if (!jobCreateDTO.HousekeeperID.HasValue)
-                    return BadRequest("HousekeeperID is required when IsOffered is true.");
+                    return BadRequest("Phải có thông tin của người giúp việc nếu được cộng việc offer!");
 
                 foreach (var slotID in jobCreateDTO.SlotIDs)
                 {
@@ -277,7 +280,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 var service = await _serviceService.GetServiceByIDAsync(serviceID);
                 if (service == null)
-                    return BadRequest($"Service ID {serviceID} not found.");
+                    return BadRequest($"Dịch vụ với mã {serviceID} không tìm thấy!.");
                 totalServicePrice += service.Price;
             }
 
@@ -310,16 +313,16 @@ namespace HouseKeeperConnect_API.Controllers
             // ✅ Determine PlatformFee ID by JobType
             int platformFeeID;
             if (jobCreateDTO.JobType == 1)
-                platformFeeID = 1; // Subscription (8%)
+                platformFeeID = 1;
             else if (jobCreateDTO.JobType == 2)
-                platformFeeID = 2; // One-time (10%)
+                platformFeeID = 2; 
             else
-                return BadRequest("Invalid job type.");
+                return BadRequest("Loại công việc không phù hợp");
 
             // ✅ Fetch fee percent from DB
             var platformFeeRecord = await _platformFeeService.GetPlatformFeeByIDAsync(platformFeeID);
             if (platformFeeRecord == null)
-                return StatusCode(500, $"Platform fee with ID {platformFeeID} not found.");
+                return StatusCode(500, $"Phí nền tảng với mã ID {platformFeeID} không tìm thấy!.");
 
             decimal feePercent = platformFeeRecord.Percent;
 
@@ -330,10 +333,10 @@ namespace HouseKeeperConnect_API.Controllers
 
             // Wallet and balance check
             var acc = await _familyProfileService.GetFamilyByIDAsync(jobCreateDTO.FamilyID);
-            if (acc == null) return NotFound("Family account not found.");
+            if (acc == null) return NotFound("Không tìm thấy thông tin gia đình!");
 
             var wallet = await _walletService.GetWalletByUserAsync(acc.AccountID);
-            if (wallet == null) return NotFound("Wallet not found.");
+            if (wallet == null) return NotFound("Không tìm thấy ví người dùng!");
 
             if (wallet.Balance < chargeAmount)
             {
@@ -433,7 +436,7 @@ namespace HouseKeeperConnect_API.Controllers
         {
             if (jobId <= 0)
             {
-                return BadRequest("Invalid Job ID.");
+                return BadRequest("Mã ID công việc không phù hợp!");
             }
 
             try
@@ -447,18 +450,18 @@ namespace HouseKeeperConnect_API.Controllers
                 var job = await _jobService.GetJobByIDAsync(jobId);
                 if (job == null)
                 {
-                    return NotFound("Job not found.");
+                    return NotFound("Không tìm thấy công việc!");
                 }
 
                 if (job.Status == 3)
                 {
-                    return BadRequest("Job has already been accepted.");
+                    return BadRequest("Công việc này đã được ứng tuyển rồi!");
                 }
 
                 var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
                 if (jobDetail == null)
                 {
-                    return NotFound("Job detail not found.");
+                    return NotFound("Không tìm thấy chi tiết công việc!");
                 }
 
                 if (jobDetail.HousekeeperID == null)
@@ -494,7 +497,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
                 if (jobSlots == null || !jobSlots.Any())
                 {
-                    return BadRequest("No slots found for the job.");
+                    return BadRequest("Không tìm thấy slot làm việc của công việc!");
                 }
 
                 // 🔒 Check for conflicting bookings
@@ -512,7 +515,7 @@ namespace HouseKeeperConnect_API.Controllers
                     {
                         job.Status = 2;
                         await _jobService.UpdateJobAsync(job);
-                        return Conflict($"Slot {slot.SlotID} on day {slot.DayOfWeek} is already booked.");
+                        return Conflict($"Slot {slot.SlotID} vào ngày {slot.DayOfWeek} bị bận!");
                     }
                 }
 
@@ -565,7 +568,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _notificationService.AddNotificationAsync(notification);
 
-                return Ok("Job accepted, booking and booking slots created successfully.");
+                return Ok("Đã chấp nhận công việc!");
             }
             catch (Exception ex)
             {
@@ -580,7 +583,7 @@ namespace HouseKeeperConnect_API.Controllers
         {
             if (jobId <= 0)
             {
-                return BadRequest("Invalid Job ID.");
+                return BadRequest("Mã ID công việc không hợp lệ!");
             }
 
             try
@@ -588,24 +591,24 @@ namespace HouseKeeperConnect_API.Controllers
                 var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
                 if (hk == null)
                 {
-                    return NotFound("Housekeeper not found.");
+                    return NotFound("Không tìm thấy thông tin người giúp việc!");
                 }
 
                 var job = await _jobService.GetJobByIDAsync(jobId);
                 if (job == null)
                 {
-                    return NotFound("Job not found.");
+                    return NotFound("Không tìm thấy thông tin công việc!");
                 }
 
                 var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
                 if (jobDetail == null)
                 {
-                    return NotFound("Job detail not found.");
+                    return NotFound("Không tìm thấy chi tiết công việc!");
                 }
 
                 if (jobDetail.HousekeeperID != hk.HousekeeperID)
                 {
-                    return Forbid("You are not permitted to deny this job.");
+                    return Forbid("Bạn không có quyền để từ chối công việc này!");
                 }
 
                 // Update status and remove HousekeeperID
@@ -642,7 +645,7 @@ namespace HouseKeeperConnect_API.Controllers
             var job = await _jobService.GetJobByIDAsync(jobUpdateDTO.JobID);
             if (job == null)
             {
-                Message = "No records!";
+                Message = "Không có thông tin công việc!";
                 return NotFound(Message);
             }
 
@@ -653,23 +656,23 @@ namespace HouseKeeperConnect_API.Controllers
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobUpdateDTO.JobID);
             if (jobDetail == null)
             {
-                Message = "No record!";
+                Message = "Không có thông tin chi tiết công việc!";
                 return NotFound(Message);
             }
             detail.JobDetailID = jobDetail.JobDetailID;
             await _jobService.UpdateJobDetailAsync(detail);
 
-            Message = "Job updated successfully!";
+            Message = "Cập nhật công việc thành công!";
             return Ok(Message);
         }
 
         [HttpPost("ForceAbandonJobAndReassign")]
         [Authorize]
-        public async Task<IActionResult> ForceAbandonJobAndReassign([FromQuery] int jobId, [FromQuery] int accountID)
+        public async Task<ActionResult> ForceAbandonJobAndReassign([FromQuery] int jobId, [FromQuery] int accountID)
         {
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
             if (jobDetail == null)
-                return NotFound("JobDetail not found.");
+                return NotFound("Không tìm thấy thong tin chi tiết công việc!");
             var abandonDate = DateTime.Now;
             var acc = await _accountService.GetAccountByIDAsync(accountID);
             var hk = new Housekeeper();
@@ -678,11 +681,14 @@ namespace HouseKeeperConnect_API.Controllers
                 hk = await _houseKeeperService.GetHousekeeperByUserAsync(acc.AccountID);
                 if (hk == null)
                 {
-                    Message = "Housekeeper not found!";
+                    Message = "Không tim thấy thông tin người giúp việc!";
                     return NotFound(Message);
                 }
                 if (jobDetail.HousekeeperID != hk.HousekeeperID)
-                    return Forbid("You are not the assigned housekeeper.");
+                {
+                    Message = "Bạn không phải người giúp việc được chỉ định cho công việc!";
+                    return Forbid(Message);
+                }
             }
             else if (acc.RoleID == 3)
             {
@@ -690,18 +696,18 @@ namespace HouseKeeperConnect_API.Controllers
             }
             else
             {
-                return Forbid("Unauthorized role.");
+                return Forbid("Bạn có không quyền truy cập!");
             }
             var oldJob = await _jobService.GetJobByIDAsync(jobId);
             if (oldJob == null)
-                return NotFound("Job not found.");
+                return NotFound("Không tìm thấy thông tin công việc!");
 
             var oldJobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
             if (oldJobDetail == null)
-                return NotFound("JobDetail not found.");
+                return NotFound("Không tìm thấy thông tin chi tiết công việc!");
 
             if (oldJobDetail.HousekeeperID == null)
-                return BadRequest("Job does not have a housekeeper assigned.");
+                return BadRequest("Công việc chưa có người giúp việc nào được ứng tuyển!");
 
             var bookings = await _bookingService.GetBookingsByJobIDAsync(oldJob.JobID);
             var allSlots = new List<Booking_Slots>();
@@ -739,7 +745,7 @@ namespace HouseKeeperConnect_API.Controllers
             var hkWallet = await _walletService.GetWalletByUserAsync(hkAccountId.Value);
 
             if (familyWallet == null || hkWallet == null)
-                return NotFound("Wallets not found.");
+                return NotFound("Không tìm thấy thông tin ví người dùng!");
 
             // Refund to family
             familyWallet.Balance += refundAmount;
@@ -754,7 +760,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Amount = refundAmount,
                 Fee = 0,
                 CreatedDate = DateTime.Now,
-                Description = $"Refund for unworked days of job {jobId}",
+                Description = $"Hoàn tiền cho những ngày chưa làm của công việc #{jobId}",
                 UpdatedDate = DateTime.Now,
                 TransactionType = (int)TransactionType.Refund,
                 Status = (int)TransactionStatus.Completed
@@ -773,7 +779,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Amount = payoutAmount,
                 Fee = 0,
                 CreatedDate = DateTime.Now,
-                Description = $"Payout for worked days of job {jobId}",
+                Description = $"Lương cho những ngày đã làm của công việc #{jobId}",
                 UpdatedDate = DateTime.Now,
                 TransactionType = (int)TransactionType.Payout,
                 Status = (int)TransactionStatus.Completed
@@ -845,7 +851,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(new
             {
-                message = "Job abandoned and reassigned successfully.",
+                message = "Đã hủy bỏ công việc!",
                 oldJobId = oldJob.JobID,
                 newJobId = newJob.JobID,
                 payoutToHK = payoutAmount,
@@ -930,7 +936,7 @@ namespace HouseKeeperConnect_API.Controllers
             var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
 
             if (job == null || jobDetail == null || !jobSlots.Any())
-                return BadRequest("Invalid job or job details.");
+                return BadRequest("Thông tin chi tiết công việc không phù hợp!");
 
             var allHousekeepers = await _houseKeeperService.GetAllHousekeepersAsync(1, 1000);
             var availableHKs = new List<Housekeeper>();
@@ -980,27 +986,27 @@ namespace HouseKeeperConnect_API.Controllers
         {
             if (jobId <= 0 || housekeeperId <= 0)
             {
-                return BadRequest("Invalid job ID or housekeeper ID.");
+                return BadRequest("Mã ID công việc hoặc người giúp việc không phù hợp!");
             }
 
             // Get the job and job detail
             var job = await _jobService.GetJobByIDAsync(jobId);
             if (job == null)
             {
-                return NotFound("Job not found.");
+                return NotFound("Không tìm thấy thông tin công việc!");
             }
 
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
             if (jobDetail == null)
             {
-                return NotFound("Job detail not found.");
+                return NotFound("Không tìm thấy thông tin chi tiết công việc!");
             }
 
             // Get job slots
             var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
             if (jobSlots == null || !jobSlots.Any())
             {
-                return BadRequest("Job does not contain any slot data.");
+                return BadRequest("Công việc không có slot làm việc nào!");
             }
 
             // Check if any of the slots conflict with the housekeeper's existing bookings
@@ -1016,7 +1022,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 if (isSlotBooked)
                 {
-                    return Conflict($"Slot {slot.SlotID} on day {slot.DayOfWeek} is already booked for this housekeeper during the selected date range.");
+                    return Conflict($"Slot {slot.SlotID} vào ngày {slot.DayOfWeek} của người giúp việc bị bận trong thời gian được chọn!.");
                 }
             }
 
@@ -1028,7 +1034,7 @@ namespace HouseKeeperConnect_API.Controllers
             var hk = await _houseKeeperService.GetHousekeeperByIDAsync(housekeeperId);
             if (hk == null)
             {
-                Message = "No housekeeper found!";
+                Message = "Không tìm tháy thông tin người giúp việc!";
                 return NotFound();
             }
 
@@ -1040,7 +1046,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _jobService.UpdateJobDetailAsync(jobDetail);
 
-            return Ok("Job has been offered to the housekeeper successfully.");
+            return Ok("Công việc đã được offer cho người giúp việc!");
         }
 
         [HttpPut("VerifyJob")]
@@ -1050,7 +1056,7 @@ namespace HouseKeeperConnect_API.Controllers
             // Validate allowed statuses
             if (status != (int)JobStatus.Verified && status != (int)JobStatus.NotPermitted)
             {
-                Message = "Invalid status. Only Verified (2) or NotPermitted (7) are allowed.";
+                Message = "Chỉ có status Verified(2) và NotPermited(7) là được phép duyệt!";
                 return BadRequest(Message);
             }
 
@@ -1058,14 +1064,14 @@ namespace HouseKeeperConnect_API.Controllers
             var job = await _jobService.GetJobByIDAsync(jobId);
             if (job == null)
             {
-                Message = "Job not found!";
+                Message = "Không tiềm thấy thông tin công việc!";
                 return NotFound(Message);
             }
 
             // Only allow verify if job is still Pending
             if (job.Status != (int)JobStatus.Pending)
             {
-                Message = "Only jobs with Pending status can be verified.";
+                Message = "Chỉ có công việc có status là Verified mới được duyệt!";
                 return StatusCode(StatusCodes.Status403Forbidden, Message);
             }
 
@@ -1074,8 +1080,8 @@ namespace HouseKeeperConnect_API.Controllers
             await _jobService.UpdateJobAsync(job);
 
             Message = status == (int)JobStatus.Verified
-                ? "Job verified successfully!"
-                : "Job marked as not permitted.";
+                ? "Công việc đã được duyệt thành công!"
+                : "Cộng việc này không được duyệt!";
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
             var housekeeper = await _houseKeeperService.GetHousekeeperByIDAsync(jobDetail.HousekeeperID.GetValueOrDefault());
             if (housekeeper != null)
@@ -1128,25 +1134,25 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 var job = await _jobService.GetJobByIDAsync(jobId);
                 if (job == null)
-                    return NotFound("Job not found.");
+                    return NotFound("Thông tìm thấy thông tin công việc!");
 
                 // ⛔️ Prevent canceling completed jobs
                 if (job.Status == (int)JobStatus.Completed)
-                    return BadRequest("Cannot cancel a job that is already completed.");
+                    return BadRequest("Không thể hủy công việc có status Completed!");
 
                 var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
                 if (jobDetail == null)
-                    return NotFound("Job detail not found.");
+                    return NotFound("Không tìm thấy thông tin chi tiết công việc!");
 
                 var family = await _familyProfileService.GetFamilyByIDAsync(job.FamilyID);
                 if (family == null)
-                    return NotFound("Family not found.");
+                    return NotFound("Không tìm thấy thông tin gia đình!");
 
                 bool isFamily = family.AccountID == accountId;
                 bool isHousekeeper = jobDetail.Housekeeper.AccountID == accountId;
 
                 if (!isFamily && !isHousekeeper)
-                    return Forbid("You are not authorized to cancel this job.");
+                    return Forbid("Bạn không có quyền để hủy công việc này!");
 
                 bool isAccepted = job.Status == (int)JobStatus.Accepted;
 
@@ -1171,7 +1177,7 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     var housekeeper = await _houseKeeperService.GetHousekeeperByIDAsync(jobDetail.HousekeeperID.Value);
                     if (housekeeper == null)
-                        return NotFound("Housekeeper not found.");
+                        return NotFound("Không tìm thấy thông tin người giúp việc!");
 
                     int housekeeperAccountId = housekeeper.AccountID;
 
@@ -1180,7 +1186,7 @@ namespace HouseKeeperConnect_API.Controllers
                         await _notificationService.AddNotificationAsync(new Notification
                         {
                             AccountID = housekeeperAccountId,
-                            Message = "A job you were offered by the family has been canceled.",
+                            Message = "Cộng việc bạn được offer đã bị hủy!",
                             RedirectUrl = null,
                             IsRead = false,
                             CreatedDate = DateTime.Now
@@ -1191,7 +1197,7 @@ namespace HouseKeeperConnect_API.Controllers
                         await _notificationService.AddNotificationAsync(new Notification
                         {
                             AccountID = family.AccountID,
-                            Message = "The housekeeper has canceled the job.",
+                            Message = "Người giúp việc đã hủy việc!",
                             RedirectUrl = null,
                             IsRead = false,
                             CreatedDate = DateTime.Now
@@ -1199,7 +1205,7 @@ namespace HouseKeeperConnect_API.Controllers
                     }
                 }
 
-                return Ok("Job canceled successfully.");
+                return Ok("Hủy công việc thành công!");
             }
             catch (Exception ex)
             {
@@ -1218,11 +1224,11 @@ namespace HouseKeeperConnect_API.Controllers
             // ✅ Retrieve all booking slots for this booking and today's date
             var todaySlots = await _bookingSlotsService.GetBookingSlotsByDateAndBookingIDAsync(bookingId, today);
             if (todaySlots == null || !todaySlots.Any())
-                return NotFound("No booking slots found for today.");
+                return NotFound("Không tìm thấy slot làm việc hôm nay!");
 
             // 🚫 Check if all slots are already checked in
             if (todaySlots.All(s => s.IsCheckedIn))
-                return BadRequest("You have already checked in for all today's slots.");
+                return BadRequest("Bạn đã check-on tất cả slot của ngày hốm nay!");
 
             // 🔁 Loop through and mark each slot as checked in
             foreach (var slot in todaySlots)
@@ -1247,11 +1253,11 @@ namespace HouseKeeperConnect_API.Controllers
             // 🔍 Get today's booking slots for this booking
             var todaySlots = await _bookingSlotsService.GetBookingSlotsByDateAndBookingIDAsync(bookingId, today);
             if (todaySlots == null || !todaySlots.Any())
-                return NotFound("No booking slots found for today.");
+                return NotFound("Không có slot nào cho ngày hôm nay!");
 
             // 🚫 Check if all slots are already confirmed
             if (todaySlots.All(s => s.IsConfirmedByFamily))
-                return BadRequest("All today's slots have already been confirmed.");
+                return BadRequest("Bạn đã xác nhận check-in các slot làm việc của người giúp việc hôm nay!");
 
             // 🔁 Loop through and confirm each slot if eligible
             foreach (var slot in todaySlots)
@@ -1259,7 +1265,7 @@ namespace HouseKeeperConnect_API.Controllers
                 if (!slot.IsConfirmedByFamily)
                 {
                     if (!slot.IsCheckedIn)
-                        return BadRequest($"Housekeeper did not check in for slot {slot.SlotID}.");
+                        return BadRequest($"Người giúp việc chưa check-in cho Slot {slot.SlotID}.");
 
                     slot.IsConfirmedByFamily = true;
                     slot.ConfirmedAt = DateTime.Now;
@@ -1268,7 +1274,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            return Ok("Today's slots confirmed successfully.");
+            return Ok("Đã xác nhận check0in ngày hôm nay!");
         }
 
         [HttpPost("HousekeeperCompleteJob")]
@@ -1278,33 +1284,33 @@ namespace HouseKeeperConnect_API.Controllers
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
             if (hk == null)
             {
-                Message = "Account not found!";
+                Message = "Không tìm thấy người giúp việc!";
                 return NotFound(Message);
             }
 
             // Get the job
             var job = await _jobService.GetJobByIDAsync(jobId);
             if (job == null)
-                return NotFound("Job not found.");
+                return NotFound("Không tìm thấy thông tin người giúp việc!");
 
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
             if (jobDetail == null)
-                return NotFound("JobDetail not found.");
+                return NotFound("Không tìm thấy chi tiết công việc!");
 
             var fa = await _familyProfileService.GetFamilyByIDAsync(job.FamilyID);
             if (fa == null)
             {
-                Message = "Account not found!";
+                Message = "Không tìm thấy thông tin gia đình";
                 return NotFound(Message);
             }
 
             if (job.Status != (int)JobStatus.Accepted)
-                return BadRequest("Job is not in a state that can be marked as completed.");
+                return BadRequest("Công việc hiện tại chưa thể báo hoàn thành!");
 
             // Get the booking associated with this job
             var bookings = await _bookingService.GetBookingsByJobIDAsync(jobId);
             if (bookings == null || !bookings.Any())
-                return NotFound("No bookings found for this job.");
+                return NotFound("Không tìm thấy danh");
 
             // Filter out canceled bookings
             var booking = bookings.FirstOrDefault(b => b.Status != (int)BookingStatus.Canceled);
@@ -1347,7 +1353,7 @@ namespace HouseKeeperConnect_API.Controllers
                 CreatedDate = DateTime.Now
             });
 
-            return Ok("Job marked as completed, awaiting family confirmation.");
+            return Ok("Đã báo hoàn thành công việc, hãy chờ gia đình xác nhận!");
         }
 
         [HttpPost("ConfirmJobCompletion")]
@@ -1393,7 +1399,7 @@ namespace HouseKeeperConnect_API.Controllers
             var hk = await _houseKeeperService.GetHousekeeperByIDAsync(booking.HousekeeperID);
             if (hk == null)
             {
-                Message = "Account not found!";
+                Message = "không tìm thấy tài khoản!";
                 return NotFound(Message);
             }
 
@@ -1402,7 +1408,7 @@ namespace HouseKeeperConnect_API.Controllers
             var wallet = await _walletService.GetWalletByUserAsync(hk.AccountID);
             if (wallet == null)
             {
-                Message = "Wallet not found!";
+                Message = "Không tìm thấy ví!";
                 return NotFound(Message);
             }
 
@@ -1419,7 +1425,7 @@ namespace HouseKeeperConnect_API.Controllers
             var payout = await _payoutService.GetPayoutByJobIDAsync(job.JobID);
             if (payout == null)
             {
-                Message = "No payout found!";
+                Message = "Không tìm thời hóa đơn tiền lương!";
                 return NotFound(Message);
             }
             payout.Status = (int)PayoutStatus.Completed;
@@ -1467,7 +1473,7 @@ namespace HouseKeeperConnect_API.Controllers
                 CreatedDate = DateTime.Now
             });
 
-            return Ok("Job and booking successfully marked as completed.");
+            return Ok("Công việc đã được xác nhận hoàn thành!");
         }
     }
 }
