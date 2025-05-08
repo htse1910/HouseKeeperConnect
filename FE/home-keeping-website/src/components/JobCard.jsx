@@ -9,6 +9,11 @@ const JobCard = ({ job, jobStatusMap, onEdit, onDelete, onView, onCancel }) => {
 
   const daysAgo = Math.floor((Date.now() - new Date(job.createdDate)) / 86400000);
 
+  const jobTypeMap = {
+    1: "Một lần duy nhất",
+    2: "Định kỳ"
+  };
+
   return (
     <div className="border rounded shadow-sm p-3">
       <div className="d-flex justify-content-between align-items-start">
@@ -27,6 +32,9 @@ const JobCard = ({ job, jobStatusMap, onEdit, onDelete, onView, onCancel }) => {
               <FaMoneyBillWave className="me-1" />
               {job.salary?.toLocaleString("vi-VN") || t("job.job.not_sure")} VNĐ
             </span>
+            <span>
+              🧾 {jobTypeMap[job.jobType]}
+            </span>
           </div>
         </div>
         <span className={`badge ${job.status === 8 ? "bg-info text-dark" : "bg-secondary"}`}>
@@ -35,9 +43,6 @@ const JobCard = ({ job, jobStatusMap, onEdit, onDelete, onView, onCancel }) => {
       </div>
 
       <div className="mt-3 d-flex gap-2">
-        {/* <button className="btn btn-outline-secondary btn-sm" onClick={() => onEdit(job.jobID)}>
-          {t("job.job.edit")}
-        </button> */}
         <button className="btn btn-outline-danger btn-sm" onClick={() => onDelete(job)}>
           {t("job.job.delete")}
         </button>
@@ -45,15 +50,6 @@ const JobCard = ({ job, jobStatusMap, onEdit, onDelete, onView, onCancel }) => {
           {job.status === 2 ? t("job.job.view_applicants") : t("job.job.view_detail")}
         </button>
       </div>
-
-      {/* {job.status === 3 && (
-        <button
-          className="btn btn-warning btn-sm ms-auto mt-2"
-          onClick={() => onCancel(job.jobID)}
-        >
-          🚫 Hủy công việc
-        </button>
-      )} */}
 
       {job.status === 9 && (
         <button
