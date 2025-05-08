@@ -1,3 +1,3 @@
-const API_BASE_URL = "https://house-keeper-connect-mo9s.vercel.app/api";
+const API_BASE_URL = "https://housekeeper-connect-87a84574bb44.herokuapp.com/api";
 
 export default API_BASE_URL;
