@@ -125,12 +125,13 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
     }
 
     private void loadJobs(int pageNumber, int pageSize) {
-        Call<List<Job>> call = apiService.getVerifyJob(pageNumber, pageSize);
+        Call<List<Job>> call = apiService.getVerifyJob(pageNumber, 50);
 
         call.enqueue(new Callback<List<Job>>() {
             @Override
             public void onResponse(Call<List<Job>> call, Response<List<Job>> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    Log.d("API_RESPONSE", "Total jobs received: " + response.body().size());
                     jobList.clear();
                     for (Job job : response.body()) {
                         if (job.getStatus() == 2) {

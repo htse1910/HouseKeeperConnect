@@ -32,6 +32,7 @@ import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Adapter.ServiceExpandableAdapter;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
+import com.example.housekeeperapplication.Model.DTOs.FeeDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobCreateDTO;
 import com.example.housekeeperapplication.Model.JobType;
 import com.example.housekeeperapplication.Model.Service;
@@ -329,51 +330,112 @@ public class AddJobActivity extends AppCompatActivity {
             Date startDate = sdf.parse(edtStartDate.getText().toString());
             Date endDate = sdf.parse(edtEndDate.getText().toString());
 
-            // Calculate according to backend formula
-            // 1. Calculate total service price
+            // Calculate total service price
             double totalServicePrice = 0;
             for (Service service : selectedServices) {
                 totalServicePrice += service.getPrice();
             }
 
-            // 2. Calculate average price per hour
+            // Calculate average price per hour
             double pricePerHour = totalServicePrice / selectedServices.size();
 
-            // 3. Calculate number of weeks and slots
-            long diffInDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-            int numberOfWeeks = (int) Math.ceil(diffInDays / 7.0);
-            int slotsPerWeek = selectedSlotIds.size() * selectedDayOfWeek.size();
-            int totalSlots = slotsPerWeek * numberOfWeeks;
+            // Calculate total slots
+            int totalSlots = 0;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(startDate);
 
-            // 4. Calculate total job price
+            while (!calendar.getTime().after(endDate)) {
+                int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1; // Sunday=0, Monday=1, etc.
+                if (selectedDayOfWeek.contains(dayOfWeek)) {
+                    totalSlots += selectedSlotIds.size();
+                }
+                calendar.add(Calendar.DAY_OF_YEAR, 1);
+            }
+
+            // Calculate total job price
             double totalJobPrice = pricePerHour * totalSlots;
 
-            // 5. Calculate platform fee (8% for full-time, 10% for part-time)
-            double feePercent = selectedJobType == JobType.FULL_TIME ? 0.08 : 0.10;
-            double platformFee = totalJobPrice * feePercent;
-            double totalAmount = totalJobPrice + platformFee;
+            // Determine platform fee ID based on job type (1 = Full-time, 2 = Part-time)
+            int platformFeeID = determinePlatformFeeID();
 
-            // Display results
-            tvBaseSalary.setText(String.format(Locale.getDefault(), "%,d VNĐ", (int)totalJobPrice));
-            tvPlatformFeeLabel.setText(String.format(Locale.getDefault(),
-                    "Phí nền tảng (%.0f%%)", feePercent * 100));
-            tvPlatformFee.setText(String.format(Locale.getDefault(), "%,d VNĐ", (int)platformFee));
-            tvTotalSalary.setText(String.format(Locale.getDefault(), "%,d VNĐ", (int)totalAmount));
-
-            // Display calculation details
-            String calculationDetails = String.format(Locale.getDefault(),
-                    "• Giá dịch vụ trung bình: %,d VNĐ/giờ\n" +
-                            "• Số ngày làm việc/tuần: %d ngày\n" +
-                            "• Số khung giờ/ngày: %d khung\n" +
-                            "• Tổng số tuần: %d tuần",
-                    (int)pricePerHour, selectedDayOfWeek.size(), selectedSlotIds.size(), numberOfWeeks);
-
-            tvCalculationDetails.setText(calculationDetails);
+            // Get platform fee from API
+            getPlatformFeeAndCalculate(platformFeeID, totalJobPrice, pricePerHour, totalSlots);
 
         } catch (ParseException e) {
             e.printStackTrace();
             resetPriceDisplay();
         }
+    }
+    private int determinePlatformFeeID() {
+        return (selectedJobType == JobType.FULL_TIME) ? 1 : 2;
+    }
+    private void getPlatformFeeAndCalculate(int platformFeeID, double totalJobPrice,
+                                            double pricePerHour, int totalSlots) {
+        showLoading();
+
+        APIServices apiService = APIClient.getClient(this).create(APIServices.class);
+        Call<FeeDisplayDTO> call = apiService.getPlatformFeeByID(platformFeeID);
+
+        call.enqueue(new Callback<FeeDisplayDTO>() {
+            @Override
+            public void onResponse(Call<FeeDisplayDTO> call, Response<FeeDisplayDTO> response) {
+                dismissLoading();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    FeeDisplayDTO fee = response.body();
+                    double feePercent = fee.getPercent();
+                    calculateAndShowPrice(totalJobPrice, feePercent, pricePerHour, totalSlots);
+                } else {
+                    handleFeeError(platformFeeID, totalJobPrice, pricePerHour, totalSlots,
+                            "Không thể lấy thông tin phí từ server");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FeeDisplayDTO> call, Throwable t) {
+                dismissLoading();
+                handleFeeError(platformFeeID, totalJobPrice, pricePerHour, totalSlots,
+                        "Lỗi kết nối: " + t.getMessage());
+            }
+        });
+    }
+
+    // Xử lý lỗi khi không lấy được phí
+    private void handleFeeError(int platformFeeID, double totalJobPrice,
+                                double pricePerHour, int totalSlots, String errorMessage) {
+        runOnUiThread(() -> {
+            Toast.makeText(AddJobActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+            // Không tính phí nếu không lấy được từ server
+            calculateAndShowPrice(totalJobPrice, 0.0, pricePerHour, totalSlots);
+        });
+    }
+
+    // Phương thức tính toán và hiển thị giá
+    private void calculateAndShowPrice(double totalJobPrice, double feePercent,
+                                       double pricePerHour, int totalSlots) {
+        double platformFee = totalJobPrice * feePercent;
+        double totalAmount = totalJobPrice + platformFee;
+
+        updatePriceUI(totalJobPrice, feePercent, platformFee, totalAmount,
+                pricePerHour, totalSlots);
+    }
+
+    private void updatePriceUI(double totalJobPrice, double feePercent, double platformFee,
+                               double totalAmount, double pricePerHour, int totalSlots) {
+        tvBaseSalary.setText(String.format(Locale.getDefault(), "%,d VNĐ", (int)totalJobPrice));
+        tvPlatformFeeLabel.setText(String.format(Locale.getDefault(),
+                "Phí nền tảng (%.0f%%)", feePercent * 100));
+        tvPlatformFee.setText(String.format(Locale.getDefault(), "%,d VNĐ", (int)platformFee));
+        tvTotalSalary.setText(String.format(Locale.getDefault(), "%,d VNĐ", (int)totalAmount));
+
+        String calculationDetails = String.format(Locale.getDefault(),
+                "• Giá dịch vụ trung bình: %,d VNĐ/giờ\n" +
+                        "• Số ngày làm việc/tuần: %d ngày\n" +
+                        "• Số khung giờ/ngày: %d khung\n" +
+                        "• Tổng số slot: %d slot",
+                (int)pricePerHour, selectedDayOfWeek.size(), selectedSlotIds.size(), totalSlots);
+
+        tvCalculationDetails.setText(calculationDetails);
     }
 
     private void resetPriceDisplay() {
@@ -437,18 +499,13 @@ public class AddJobActivity extends AppCompatActivity {
         if (!validateForm()) {
             return;
         }
-
-        // Ẩn cảnh báo cũ nếu có
         layoutWarningContainer.setVisibility(View.GONE);
-
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int accountId = prefs.getInt("accountID", -1);
         if (accountId == -1) {
             Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // Lấy số tiền cần thanh toán từ giao diện
         String totalPriceStr = tvTotalSalary.getText().toString().replaceAll("[^0-9]", "");
         double requiredAmount = totalPriceStr.isEmpty() ? 0 : Double.parseDouble(totalPriceStr);
 
@@ -481,17 +538,17 @@ public class AddJobActivity extends AppCompatActivity {
                     }
                 } else {
                     dismissLoading();
-                    handleApiError(response);
-                    Toast.makeText(AddJobActivity.this, "Không thể kiểm tra số dư ví", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddJobActivity.this,
+                            "Không thể kiểm tra số dư ví",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Wallet> call, Throwable t) {
                 dismissLoading();
-                Log.e("API_ERROR", "Kiểm tra ví thất bại", t);
                 Toast.makeText(AddJobActivity.this,
-                        t instanceof IOException ? "Lỗi kết nối mạng" : "Lỗi không mong muốn",
+                        "Lỗi kết nối: " + t.getMessage(),
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -508,13 +565,12 @@ public class AddJobActivity extends AppCompatActivity {
             tvBalanceWarning.setText(warning);
             layoutWarningContainer.setVisibility(View.VISIBLE);
 
-            // Thêm nút nạp tiền
+
             Button btnTopUp = new Button(this);
             btnTopUp.setText("Nạp tiền ngay");
             btnTopUp.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
             btnTopUp.setTextColor(Color.WHITE);
             btnTopUp.setOnClickListener(v -> {
-                // TODO: Thêm intent chuyển đến màn hình nạp tiền
                 Intent intent = new Intent(AddJobActivity.this, DepositActivity.class);
                 startActivity(intent);
             });
@@ -522,8 +578,6 @@ public class AddJobActivity extends AppCompatActivity {
             layoutWarningContainer.removeAllViews();
             layoutWarningContainer.addView(tvBalanceWarning);
             layoutWarningContainer.addView(btnTopUp);
-
-            // Cuộn đến vị trí cảnh báo (kiểm tra null trước khi scroll)
             if (scrollView != null) {
                 scrollView.post(() -> scrollView.smoothScrollTo(0, layoutWarningContainer.getTop()));
             } else {
@@ -569,54 +623,68 @@ public class AddJobActivity extends AppCompatActivity {
     }
 
     private void createJob(int familyId) {
+        // Lấy thông tin từ form
         String jobName = ((EditText) findViewById(R.id.edtJobTitle)).getText().toString();
         String location = ((EditText) findViewById(R.id.edtLocation)).getText().toString();
         String description = ((EditText) findViewById(R.id.edtDescription)).getText().toString();
-        String startDate = convertToApiDateFormat(((EditText) findViewById(R.id.edtStartDate)).getText().toString());
-        String endDate = convertToApiDateFormat(((EditText) findViewById(R.id.edtEndDate)).getText().toString());
-
-        // Get calculated price from UI
+        String startDate = ((EditText) findViewById(R.id.edtStartDate)).getText().toString();
+        String endDate = ((EditText) findViewById(R.id.edtEndDate)).getText().toString();
+        String detailLocation = ((EditText) findViewById(R.id.edtDetaillLocation)).getText().toString();
+            // Lấy giá từ UI
         String totalPriceStr = tvTotalSalary.getText().toString().replaceAll("[^0-9]", "");
         double price = totalPriceStr.isEmpty() ? 0 : Double.parseDouble(totalPriceStr);
 
-        List<Integer> serviceIdsList = adapter.getSelectedServiceIds();
-        List<Integer> slotIdsList = selectedSlotIds;
-        List<Integer> dayOfWeekList = selectedDayOfWeek;
+            // Xác định loại công việc (1 = Full-time, 2 = Part-time)
+        int jobType = (selectedJobType == JobType.FULL_TIME) ? 1 : 2;
 
+            // Gọi API
         APIServices apiService = APIClient.getClient(this).create(APIServices.class);
         Call<ResponseBody> call = apiService.addJob(
-                familyId,
-                jobName,
-                selectedJobType.ordinal(),
-                location,
-                price,
-                startDate,
-                endDate,
-                description,
-                false,
-                serviceIdsList,
-                slotIdsList,
-                dayOfWeekList
-        );
+                    familyId,
+                    jobName,
+                    jobType,
+                    location,
+                    detailLocation,
+                    price,
+                    convertToApiDateFormat(startDate),
+                    convertToApiDateFormat(endDate),
+                    description,
+                    false,
+                    adapter.getSelectedServiceIds(),
+                    selectedSlotIds,
+                    selectedDayOfWeek
+            );
 
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                dismissLoading();
-                if (response.isSuccessful()) {
-                    Toast.makeText(AddJobActivity.this, "Tạo công việc thành công", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    handleApiError(response);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    dismissLoading();
+                    if (response.isSuccessful()) {
+                        Toast.makeText(AddJobActivity.this, "Tạo công việc thành công", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            Toast.makeText(AddJobActivity.this,
+                                    "Lỗi khi tạo công việc: " + errorBody,
+                                    Toast.LENGTH_LONG).show();
+                        } catch (IOException e) {
+                            Toast.makeText(AddJobActivity.this,
+                                    "Lỗi khi xử lý phản hồi",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                dismissLoading();
-                Toast.makeText(AddJobActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    dismissLoading();
+                    Toast.makeText(AddJobActivity.this,
+                            "Lỗi kết nối: " + t.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+
     }
     private void handleApiError(Response<?> response) {
         try {
@@ -646,14 +714,5 @@ public class AddJobActivity extends AppCompatActivity {
         }
     }
 
-    private String convertListToString(List<Integer> list) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            sb.append(list.get(i));
-            if (i < list.size() - 1) {
-                sb.append(",");
-            }
-        }
-        return sb.toString();
-    }
+
 }

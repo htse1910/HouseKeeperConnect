@@ -81,6 +81,24 @@
             app:layout_constraintTop_toBottomOf="@id/tvLocationLabel"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+        <!-- Địa điểm -->
+        <TextView
+            android:id="@+id/tvDetailLocationLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Địa điểm làm việc chi tiết"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/edtLocation"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/edtDetaillLocation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Nhập chi tiết địa điểm làm việc"
+            app:layout_constraintTop_toBottomOf="@id/tvDetailLocationLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Loại công việc nhiều lựa chọn -->
         <TextView
@@ -89,7 +107,7 @@
             android:layout_height="wrap_content"
             android:text="Loại công việc (nhiều lựa chọn)"
             android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/edtLocation"
+            app:layout_constraintTop_toBottomOf="@id/edtDetaillLocation"
             app:layout_constraintStart_toStartOf="parent" />
 
         <LinearLayout
