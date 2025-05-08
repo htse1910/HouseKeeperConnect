@@ -34,8 +34,8 @@ namespace HouseKeeperConnect_API.Controllers
 
         public JobController(IJobService jobService, IMapper mapper, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBookingService bookingService, IBooking_SlotsService bookingSlotsService, INotificationService notificationService,
             IFamilyProfileService familyProfileService, IHouseKeeperService houseKeeperService,
-            IServiceService serviceService, IAccountService accountService, ITransactionService transactionService, 
-            IWalletService walletService, IPaymentService paymentService, IPayoutService payoutService, 
+            IServiceService serviceService, IAccountService accountService, ITransactionService transactionService,
+            IWalletService walletService, IPaymentService paymentService, IPayoutService payoutService,
             IPlatformFeeService platformFeeService, IApplicationService applicationService)
         {
             _jobService = jobService;
@@ -419,7 +419,6 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok("Tạo công việc thành công!");
         }
 
-
         /*
                 private DateTime GetNextDayOfWeek(DateTime startDate, int dayOfWeek)
                 {
@@ -444,7 +443,6 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     return NotFound("Không tìm thấy người giúp việc!");
                 }
-
 
                 var job = await _jobService.GetJobByIDAsync(jobId);
                 if (job == null)
@@ -474,7 +472,7 @@ namespace HouseKeeperConnect_API.Controllers
                     Message = "Chưa có đơn ứng tuyển nào cho công việc này!";
                     return NotFound(Message);
                 }
-                foreach(var item in applications)
+                foreach (var item in applications)
                 {
                     if (item.HouseKeeperID != hk.HousekeeperID)
                     {
@@ -675,7 +673,7 @@ namespace HouseKeeperConnect_API.Controllers
             var abandonDate = DateTime.Now;
             var acc = await _accountService.GetAccountByIDAsync(accountID);
             var hk = new Housekeeper();
-            if (acc.RoleID==1)
+            if (acc.RoleID == 1)
             {
                 hk = await _houseKeeperService.GetHousekeeperByUserAsync(acc.AccountID);
                 if (hk == null)
@@ -686,7 +684,7 @@ namespace HouseKeeperConnect_API.Controllers
                 if (jobDetail.HousekeeperID != hk.HousekeeperID)
                     return Forbid("You are not the assigned housekeeper.");
             }
-            else if (acc.RoleID==3)
+            else if (acc.RoleID == 3)
             {
                 // Allow it
             }
@@ -783,7 +781,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             // Mark old job as canceled
             oldJobDetail.EndDate = abandonDate;
-            oldJob.Status = hk.HousekeeperID==oldJobDetail.HousekeeperID
+            oldJob.Status = hk.HousekeeperID == oldJobDetail.HousekeeperID
             ? (int)JobStatus.HousekeeperQuitJob
             : (int)JobStatus.Canceled;
 
@@ -855,59 +853,126 @@ namespace HouseKeeperConnect_API.Controllers
             });
         }
 
-            [HttpGet("SuggestAvailableHousekeepers")]
-            [Authorize]
-            public async Task<IActionResult> SuggestAvailableHousekeepers([FromQuery] int jobId)
-            {
-                var job = await _jobService.GetJobByIDAsync(jobId);
-                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
-                var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
-
-                if (job == null || jobDetail == null || !jobSlots.Any())
-                return BadRequest("Invalid job or job details.");
-
-    var allHousekeepers = await _houseKeeperService.GetAllHousekeepersAsync(1, 1000);
-    var availableHKs = new List<Housekeeper>();
-
-    foreach (var hk in allHousekeepers)
-    {
-        bool hasConflict = false;
-
-        foreach (var slot in jobSlots)
+        [HttpPut("DeleteJobAndRefund")]
+        [Authorize(Policy = "Staff")]
+        public async Task<IActionResult> DeleteJobRefund([FromQuery] int jobId)
         {
-            if (await _bookingSlotsService.IsSlotBooked(
-                hk.HousekeeperID,
-                slot.SlotID,
-                slot.DayOfWeek,
-                jobDetail.StartDate,
-                jobDetail.EndDate))
+            var job = await _jobService.GetJobByIDAsync(jobId);
+            if (job == null)
             {
-                hasConflict = true;
-                break;
+                Message = "không tìm thấy công việc!";
+                return NotFound(Message);
             }
+
+            if (job.Status != (int)JobStatus.Verified)
+            {
+                Message = "Công việc đang trong trạng thái không thể xóa!";
+                return Conflict(Message);
+            }
+
+            // Update and save
+            job.Status = (int)JobStatus.NotPermitted;
+            await _jobService.UpdateJobAsync(job);
+
+           
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+            if(jobDetail == null)
+            {
+                Message = "Không tìm thấy chi tiết công việc!";
+                return NotFound(Message);
+            }
+
+            var wallet = await _walletService.GetWalletByUserAsync(job.Family.AccountID);
+            if(wallet == null)
+            {
+                Message = "Không tìm thấy thông tin ví của người dùng!";
+                return NotFound(Message);
+            }
+
+            wallet.Balance += jobDetail.Price;
+            wallet.UpdatedAt = DateTime.Now;
+
+            await _walletService.UpdateWalletAsync(wallet);
+
+            var transactionId = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+
+            var trans = new Transaction();
+
+            trans.TransactionID = transactionId;
+            trans.TransactionType = (int)TransactionType.Refund;
+            trans.AccountID = job.Family.AccountID;
+            trans.Status = (int)TransactionStatus.Completed;
+            trans.CreatedDate = DateTime.Now;
+            trans.UpdatedDate = DateTime.Now;
+            trans.Fee = 0;
+            trans.Amount = jobDetail.Price;
+            trans.Description = "Hủy công việc!";
+            trans.WalletID = wallet.WalletID;
+
+            await _transactionService.AddTransactionAsync(trans);
+
+
+            var noti = new Notification();
+            noti.Message = "Công việc #" + job.JobID + " - " + job.JobName + " đã được hủy, tiền đã được hoàn về ví của bạn!";
+            noti.AccountID = job.Family.AccountID;
+
+            await _notificationService.AddNotificationAsync(noti);
+            Message = "Hủy công việc và hoàn tiền thành công!";
+            return Ok(Message);
         }
 
-        if (!hasConflict)
-            availableHKs.Add(hk);
-    }
+        [HttpGet("SuggestAvailableHousekeepers")]
+        [Authorize]
+        public async Task<IActionResult> SuggestAvailableHousekeepers([FromQuery] int jobId)
+        {
+            var job = await _jobService.GetJobByIDAsync(jobId);
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
+            var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
 
-    //Map to DTOs
-    var result = availableHKs.Select(h => new HousekeeperListDTO
-    {
-        HousekeeperID = h.HousekeeperID,
-        Nickname = h.Account.Nickname,
-        Address = h.Account.Address,
-        Phone = h.Account.Phone,
-        Email = h.Account.Email,
-        Gender = h.Account.Gender ?? 0,
-        WorkType = h.WorkType,
-        Rating = h.Rating,
-        LocalProfilePicture = h.Account.LocalProfilePicture
-    });
+            if (job == null || jobDetail == null || !jobSlots.Any())
+                return BadRequest("Invalid job or job details.");
 
-    return Ok(result);
-}
+            var allHousekeepers = await _houseKeeperService.GetAllHousekeepersAsync(1, 1000);
+            var availableHKs = new List<Housekeeper>();
 
+            foreach (var hk in allHousekeepers)
+            {
+                bool hasConflict = false;
+
+                foreach (var slot in jobSlots)
+                {
+                    if (await _bookingSlotsService.IsSlotBooked(
+                        hk.HousekeeperID,
+                        slot.SlotID,
+                        slot.DayOfWeek,
+                        jobDetail.StartDate,
+                        jobDetail.EndDate))
+                    {
+                        hasConflict = true;
+                        break;
+                    }
+                }
+
+                if (!hasConflict)
+                    availableHKs.Add(hk);
+            }
+
+            //Map to DTOs
+            var result = availableHKs.Select(h => new HousekeeperListDTO
+            {
+                HousekeeperID = h.HousekeeperID,
+                Nickname = h.Account.Nickname,
+                Address = h.Account.Address,
+                Phone = h.Account.Phone,
+                Email = h.Account.Email,
+                Gender = h.Account.Gender ?? 0,
+                WorkType = h.WorkType,
+                Rating = h.Rating,
+                LocalProfilePicture = h.Account.LocalProfilePicture
+            });
+
+            return Ok(result);
+        }
 
         [HttpPut("OfferJob")]
         [Authorize]
@@ -1170,7 +1235,7 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            return Ok("Checked in successfully for all today's slots.");
+            return Ok("Đã check-in thành công cho tất cả slot ngày hôm nay!");
         }
 
         [HttpPost("ConfirmSlotWorked")]

@@ -101,19 +101,12 @@ public class NotificationActivity extends AppCompatActivity {
                                                 oItem.getCreatedDate().equals(nItem.getCreatedDate()));
                                 if (!exist) {
                                     sendNotification("Thông báo", nItem.getMessage());
-                                    var noti = new Notification();
-                                    noti.setRead(nItem.isRead());
-                                    noti.setNotificationsID(nItem.getNotificationsID());
-                                    noti.setCreatedDate(nItem.getCreatedDate());
-                                    noti.setMessage(nItem.getMessage());
-                                    noti.setAccountID(nItem.getAccountID());
-                                    noti.setRedirectUrl(nItem.getRedirectUrl());
-                                    oList.add(noti);
+                                    oList.add(nItem);
                                 }
                             }
 
                             notificationAdapter.notifyDataSetChanged();
-
+                            recyclerViewNotifications.setAdapter(notificationAdapter);
 
 
                         }
