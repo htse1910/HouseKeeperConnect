@@ -37,7 +37,7 @@ namespace HouseKeeperConnect_API.Controllers
             var families = await _familyService.GetAllFamilysAsync(pageNumber, pageSize);
             if (families.Count == 0)
             {
-                return NotFound("Family list is empty!");
+                return NotFound("Danh sách gia đình trống!");
             }
 
             var familyList = new List<FamilyDisplayDTO>();
@@ -71,7 +71,7 @@ namespace HouseKeeperConnect_API.Controllers
             var family = await _familyService.GetFamilyByIDAsync(id);
             if (family == null)
             {
-                return NotFound("Family not found!");
+                return NotFound("Không tìm thấy gia đình!");
             }
 
             //var familyDTO = _mapper.Map<FamilyDisplayDTO>(family);
@@ -85,13 +85,13 @@ namespace HouseKeeperConnect_API.Controllers
             var account = await _accountService.GetAccountByIDAsync(id);
             if (account == null)
             {
-                return NotFound("No account found!");
+                return NotFound("Không tìm thấy thông tin tài khoản!");
             }
 
             var family = await _familyService.GetFamilyByAccountIDAsync(account.AccountID);
             if (family == null)
             {
-                return NotFound("No family found!");
+                return NotFound("Không tìm thấy thông tin gia đình!");
             }
 
             var displayFamily = new FamilyDisplayDTO();
@@ -153,7 +153,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var Acc = await _accountService.GetAccountByIDAsync(familyDTO.AccountID);
                 if (Acc == null)
                 {
-                    return NotFound("No account found!");
+                    return NotFound("Không tìm thấy tài khoản!");
                 }
 
                 if (familyDTO.LocalProfilePicture != null)
@@ -197,12 +197,12 @@ namespace HouseKeeperConnect_API.Controllers
                 var Family = await _familyService.GetFamilyByAccountIDAsync(familyDTO.AccountID);
                 if (Family == null)
                 {
-                    return NotFound("No family profile found!");
+                    return NotFound("Không tìm thấy gia đình!");
                 }
 
                 await _familyService.UpdateFamilyAsync(Family);
 
-                return Ok("Family Profile Updated!");
+                return Ok("Thông tin gia đình cập nhật thành công!");
             }
             catch (Exception ex)
             {
@@ -218,7 +218,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (families == null || !families.Any())
             {
-                return NotFound("No families found for this account!");
+                return NotFound("Không tìm thấy gia đình liên kết với tài khoản này!");
             }
 
             var familyDTOs = _mapper.Map<List<FamilyDisplayDTO>>(families);

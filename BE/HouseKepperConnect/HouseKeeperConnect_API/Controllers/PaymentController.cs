@@ -127,14 +127,14 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (check.status != "PAID")
             {
-                Message = "Payment is not paid!";
+                Message = "Giao dịch chưa thành công!";
                 return BadRequest(Message);
             }
 
             var trans = await _transactionService.GetTransactionByIDAsync(orderCode);
             if (trans == null)
             {
-                Message = "No transaction found!";
+                Message = "Không tìm thấy lịch sử giao dịch!";
                 return NotFound(Message);
             }
 
@@ -146,7 +146,7 @@ namespace HouseKeeperConnect_API.Controllers
             var wallet = await _walletService.GetWalletByIDAsync(trans.WalletID);
             if (wallet == null)
             {
-                Message = "No wallet found!";
+                Message = "Không tìm thấy ví";
                 return NotFound(Message);
             }
 
@@ -176,7 +176,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var trans = await _transactionService.GetTransactionByIDAsync(orderCode);
                 if (trans == null)
                 {
-                    Message = "No transaction found!";
+                    Message = "Không tìm thấy lịch sử giao dịch!";
                     return NotFound(Message);
                 }
 
@@ -188,7 +188,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var wallet = await _walletService.GetWalletByIDAsync(trans.WalletID);
                 if (wallet == null)
                 {
-                    Message = "No wallet found!";
+                    Message = "Không tìm thấy ví";
                     return NotFound(Message);
                 }
 
@@ -204,7 +204,7 @@ namespace HouseKeeperConnect_API.Controllers
                 await _notificationService.AddNotificationAsync(noti);
                 return Ok("CANCELLED");
             }
-            Message = "Payment is paid!";
+            Message = "Giao dịch đã hoàn thành rồi!";
             return Ok(Message);
         }
 

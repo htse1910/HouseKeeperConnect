@@ -30,7 +30,7 @@ namespace HouseKeeperConnect_API.Controllers
             var wi = await _notificationService.GetAllNotificationsAsync(pageNumber, pageSize);
             if (wi == null)
             {
-                Message = "No records!";
+                Message = "Không có thông báo nào!";
                 return NotFound(Message);
             }
             var nWi = _mapper.Map<List<NotificationDisplayDTO>>(wi);
@@ -44,7 +44,7 @@ namespace HouseKeeperConnect_API.Controllers
             var num = await _notificationService.GetTotalNotisByUserAsync(id);
             if (num == 0)
             {
-                Message = "No records!";
+                Message = "Không có thông báo nào!";
                 return NotFound(Message);
             }
 
@@ -58,7 +58,7 @@ namespace HouseKeeperConnect_API.Controllers
             var wi = await _notificationService.GetNotificationByIDAsync(id);
             if (wi == null)
             {
-                Message = "No Records!";
+                Message = "Không tìm thấy thông báo!";
                 return NotFound(Message);
             }
             var nWi = _mapper.Map<NotificationDisplayDTO>(wi);
@@ -72,7 +72,7 @@ namespace HouseKeeperConnect_API.Controllers
             var wi = await _notificationService.GetNotificationsByUserAsync(id, pageNumber, pageSize);
             if (wi == null)
             {
-                Message = "No Records!";
+                Message = "Không có thông báo nào!";
                 return NotFound(Message);
             }
             var nWi = _mapper.Map<List<NotificationDisplayDTO>>(wi);
@@ -86,14 +86,14 @@ namespace HouseKeeperConnect_API.Controllers
             var acc = await _accountService.GetAccountByIDAsync(notificationCreateDTO.AccountID);
             if (acc == null)
             {
-                Message = "No account found!";
+                Message = "Không có tìm thấy tài khoản";
                 return NotFound(Message);
             }
             var noti = _mapper.Map<Notification>(notificationCreateDTO);
             noti.AccountID = acc.AccountID;
 
             await _notificationService.AddNotificationAsync(noti);
-            Message = "Account " + acc.Email + " is notified!";
+            Message = "Tài khoản " + acc.Email + " đã được thông báo!";
             return Ok(Message);
         }
 
@@ -104,14 +104,14 @@ namespace HouseKeeperConnect_API.Controllers
             var noti = await _notificationService.GetNotificationByIDAsync(id);
             if (noti == null)
             {
-                Message = "No records!";
+                Message = "Không có thông báo nào!";
                 return NotFound(Message);
             }
 
             noti.IsRead = true;
 
             await _notificationService.UpdateNotificationAsync(noti);
-            Message = "Notification is read!";
+            Message = "Thông báo đã được đọc!";
             return Ok(Message);
         }
     }

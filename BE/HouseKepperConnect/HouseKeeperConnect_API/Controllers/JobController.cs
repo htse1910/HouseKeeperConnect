@@ -878,7 +878,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             // Update and save
-            job.Status = (int)JobStatus.NotPermitted;
+            job.Status = (int)JobStatus.Canceled;
             await _jobService.UpdateJobAsync(job);
 
            
@@ -1311,7 +1311,7 @@ namespace HouseKeeperConnect_API.Controllers
             // Get the booking associated with this job
             var bookings = await _bookingService.GetBookingsByJobIDAsync(jobId);
             if (bookings == null || !bookings.Any())
-                return NotFound("Không tìm thấy danh");
+                return NotFound("Không tìm thấy danh sách công việc đã nhận!");
 
             // Filter out canceled bookings
             var booking = bookings.FirstOrDefault(b => b.Status != (int)BookingStatus.Canceled);
@@ -1319,7 +1319,20 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("No valid (non-canceled) booking found for this job.");
 
             if (booking.HousekeeperID != hk.HousekeeperID)
-                return Unauthorized("You are not the assigned housekeeper for this booking.");
+                return Unauthorized("Bạn không phải người giúp việc của công việc này!");
+
+            var booking_Slots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(booking.BookingID);
+            if (booking_Slots.Count==0)
+            {
+                Message = "Danh sách slot công việc đã nhận trống!";
+                return NotFound(Message);
+            }
+
+            foreach(var slot in booking_Slots)
+            {
+                slot.Status= BookingSlotStatus.Canceled;
+                await _bookingSlotsService.UpdateBooking_SlotAsync(slot);
+            }
             //Tạo đơn payout cho HK
             var payout = new Payout();
             payout.PayoutDate = null;
@@ -1349,7 +1362,7 @@ namespace HouseKeeperConnect_API.Controllers
             await _notificationService.AddNotificationAsync(new Notification
             {
                 AccountID = fa.AccountID,
-                Message = $"Housekeeper đã báo công việc #{job.JobID} đã hoàn thành. Hãy xác nhận.",
+                Message = $"Người giúp việc đã báo công việc #{job.JobID} đã hoàn thành. Hãy xác nhận.",
                 RedirectUrl = $"/jobs/{job.JobID}",
                 CreatedDate = DateTime.Now
             });
@@ -1366,36 +1379,36 @@ namespace HouseKeeperConnect_API.Controllers
             var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountID);
             if (fa == null)
             {
-                Message = "Account not found!";
+                Message = "Không tìm thấy gia đình!";
                 return NotFound(Message);
             }
             // Get the job
             var job = await _jobService.GetJobByIDAsync(jobId);
             if (job == null)
-                return NotFound("Job not found.");
+                return NotFound("Không tìm thấy công việc!");
 
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
             if (jobDetail == null)
-                return NotFound("JobDetail not found.");
+                return NotFound("Không tìm thấy công việc chi tiết!");
 
             if (job.FamilyID != fa.FamilyID)
-                return Unauthorized("You are not the owner of this job.");
+                return Unauthorized("Bạn không phải người tạo công việc này!");
 
             if (job.Status != (int)JobStatus.PendingFamilyConfirmation)
-                return BadRequest("Job is not awaiting confirmation.");
+                return BadRequest("Công việc đang đợi gia đình xác nhận hoàn thành!");
 
             // Get the booking for the job
             var bookings = await _bookingService.GetBookingsByJobIDAsync(jobId);
 
             if (bookings == null || !bookings.Any())
-                return NotFound("No bookings found for this job.");
+                return NotFound("Không tìm thấy danh sách công việc đã nhận!");
 
             var booking = bookings.FirstOrDefault(b => b.Status != (int)BookingStatus.Canceled);
             if (booking == null)
                 return NotFound("No valid (non-canceled) booking found.");
 
             if (booking.Status != (int)BookingStatus.PendingFamilyConfirmation)
-                return BadRequest("Booking is not awaiting confirmation.");
+                return BadRequest("Trạng thái công việc đã nhận chưa chờ gia đình xác nhận!");
 
             var hk = await _houseKeeperService.GetHousekeeperByIDAsync(booking.HousekeeperID);
             if (hk == null)
@@ -1469,7 +1482,7 @@ namespace HouseKeeperConnect_API.Controllers
             await _notificationService.AddNotificationAsync(new Notification
             {
                 AccountID = hk.AccountID,
-                Message = $"Gia định đã chấp nhận hoàn thành công việc #{job.JobID}. Chúc mừng",
+                Message = $"Gia định đã xác nhận hoàn thành công việc #{job.JobID}. Chúc mừng",
                 RedirectUrl = $"/jobs/{job.JobID}",
                 CreatedDate = DateTime.Now
             });

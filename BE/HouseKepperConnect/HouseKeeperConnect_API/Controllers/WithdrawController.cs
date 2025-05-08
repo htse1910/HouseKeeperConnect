@@ -147,26 +147,32 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (string.IsNullOrWhiteSpace(acc.BankAccountNumber))
             {
-                Message = "Please update your bank number info in order to withdraw!";
+                Message = "Hãy cập nhật thông tin ngân hàng của bạn trước khi rút tiền!";
                 return BadRequest(Message);
             }
 
             var wallet = await _walletService.GetWalletByUserAsync(acc.AccountID);
             if (wallet == null)
             {
-                Message = "Wallet not found!";
+                Message = "Không tìm thấy ví!";
                 return NotFound(Message);
+            }
+
+            if(wallet.Balance < 0)
+            {
+                Message = "Số tiền cần rút không được âm!";
+                return BadRequest(Message);
             }
 
             if (wallet.Balance < withdrawCreateDTO.Amount)
             {
-                Message = "Not enough money to withdraw!";
+                Message = "Không đủ tiền để rút!";
                 return BadRequest(Message);
             }
 
-            if (withdrawCreateDTO.Amount < 1000)
+            if (withdrawCreateDTO.Amount < 10000)
             {
-                Message = "Need to withdraw atleast 1.000VND!";
+                Message = "Cần phải rút ít nhất 10,000VNĐ!";
                 return BadRequest(Message);
             }
 
@@ -184,7 +190,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Amount = withdrawCreateDTO.Amount,
                 Fee = 0,
                 CreatedDate = DateTime.Now,
-                Description = "Rút tiền về tài khoản bank",
+                Description = "Rút tiền về tài khoản ngân hàng",
                 UpdatedDate = DateTime.Now,
                 TransactionType = (int)TransactionType.Withdrawal,
                 Status = (int)TransactionStatus.Pending,
@@ -205,7 +211,7 @@ namespace HouseKeeperConnect_API.Controllers
             noti.Message = "Bạn đã tạo đơn rút " + wi.Amount + " VND" + " về STK: " + wi.BankNumber + " thành công!";
 
             await _notificationService.AddNotificationAsync(noti);
-            Message = "Withdrawal Requested!";
+            Message = "Yêu cầu rút tiền thành công!";
             return Ok(Message);
         }
 
@@ -223,13 +229,13 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (wi.BankNumber == null)
             {
-                Message = "Bank number not found!";
+                Message = "Không tìm thấy STK ngân hàng!";
                 return NotFound(Message);
             }
 
             if (withdrawUpdateDTO.Status == (int)WithdrawStatus.OTPVerify)
             {
-                Message = "Only choose success or failed!";
+                Message = "Chỉ xác nhận hoặc từ chối!";
                 return BadRequest(Message);
             }
 
@@ -267,7 +273,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (wallet == null)
             {
-                Message = "Not account found!";
+                Message = "Không tìm thấy ví!";
                 return NotFound(Message);
             }
 
@@ -286,7 +292,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (trans == null)
             {
-                Message = "No records!";
+                Message = "Không tìm thấy lịch sử giao dịch!";
                 return NotFound(Message);
             }
 
@@ -308,7 +314,7 @@ namespace HouseKeeperConnect_API.Controllers
             await _transactionService.UpdateTransactionAsync(trans);
 
             await _notificationService.AddNotificationAsync(noti);
-            Message = "Updated!";
+            Message = "Đơn đã được xử lý!";
             return Ok(Message);
         }
 
@@ -320,23 +326,28 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 var acc = await _accountService.GetAccountByIDAsync(withdrawCreateDTO.AccountID);
                 if (acc == null)
-                    return NotFound("Account not found!");
+                    return NotFound("Không tìm thấy tài khoản!");
 
                 if (string.IsNullOrWhiteSpace(acc.BankAccountNumber))
-                    return BadRequest("Please update your bank number info in order to withdraw!");
+                    return BadRequest("Xin hãy cập nhật thông tin ngân hàng trước khi rút tiền!");
 
                 var wallet = await _walletService.GetWalletByUserAsync(acc.AccountID);
                 if (wallet == null)
-                    return NotFound("Wallet not found!");
+                    return NotFound("Không tìm thấy ví!");
+
+                if(withdrawCreateDTO.Amount == 0)
+                {
+                    return BadRequest("Số tiền muốn rút không được âm");
+                }
 
                 if (wallet.Balance < withdrawCreateDTO.Amount)
-                    return BadRequest("Not enough money to withdraw!");
+                    return BadRequest("Không đủ tiền để rút!");
 
-                if (withdrawCreateDTO.Amount < 1000)
-                    return BadRequest("Need to withdraw at least 1.000 VND!");
+                if (withdrawCreateDTO.Amount < 10000)
+                    return BadRequest("Cần rút tối thiểu 10,000VNĐ!");
 
                 if (string.IsNullOrEmpty(acc.Email))
-                    return BadRequest("Email not found for the account!");
+                    return BadRequest("Không tìm thấy email của tài khoản!");
 
                 int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
                 var otp = GenerateOTP();

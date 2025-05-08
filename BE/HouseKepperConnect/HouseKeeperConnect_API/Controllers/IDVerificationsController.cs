@@ -67,7 +67,7 @@ namespace HouseKeeperConnect_API.Controllers
             var idVerification = await _idVerificationService.GetIDVerifyByIDAsync(id);
             if (idVerification == null)
             {
-                return NotFound("ID Verification not found!");
+                return NotFound("Không tìm thấy giấy tờ tùy thân!");
             }
 
             var idVerificationDTO = _mapper.Map<IDVerificationDisplayDTO>(idVerification);
@@ -80,7 +80,7 @@ namespace HouseKeeperConnect_API.Controllers
         {
             if (idVerificationDTO == null)
             {
-                return BadRequest("Invalid data.");
+                return BadRequest("Dữ liệu không hợp lệ!");
             }
 
             if (idVerificationDTO.FrontPhoto == null || idVerificationDTO.FrontPhoto.Length == 0)
@@ -93,11 +93,11 @@ namespace HouseKeeperConnect_API.Controllers
             var housekeeper = await _houseKeeperService.GetHousekeeperByIDAsync(housekeeperId);
             if (housekeeper == null)
             {
-                return NotFound("Housekeeper not found.");
+                return NotFound("Không tìm thấy giúp việc!");
             }
             if (housekeeper.VerifyID.HasValue)
             {
-                return BadRequest("This Housekeeper already has an ID Verification.");
+                return BadRequest("Người giúp việc này đã có chứng minh thư rồi!");
             }
 
             var storage = new Storage(_appWriteClient);
@@ -173,7 +173,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (verifyId == 0)
             {
-                throw new Exception("Failed to create IDVerification.");
+                throw new Exception("Lỗi khi tạo phê duyệt ID");
             }
 
             // Cập nhật VerifyID vào Housekeeper
@@ -190,7 +190,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             await _verificationTaskService.CreateVerificationTaskAsync(verificationTask);
 
-            return Ok(new { Message = "ID Verification created successfully!", VerifyID = verifyId });
+            return Ok(new { Message = "Đã tạo thông tin giấy tờ tùy thân!", VerifyID = verifyId });
         }
 
         [HttpPut("UpdateIDVerification")] // Housekeeper
@@ -268,7 +268,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var id = await _idVerificationService.GetIDVerifyByIDAsync(idVerificationDTO.VerifyID);
                 if (id == null)
                 {
-                    Message = "No verifyID";
+                    Message = "Không tìm thấy mã VerifyID!";
                     return NotFound(Message);
                 }
                 id.FrontPhoto = frontUrl;
@@ -289,7 +289,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _verificationTaskService.CreateVerificationTaskAsync(verificationTask);
 
-                return Ok("ID Verification updated successfully!");
+                return Ok("Cập nhật giấy tờ tùy thân thành công!");
             }
             catch (Exception ex)
             {
@@ -305,7 +305,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var id = await _idVerificationService.GetIDVerifyByIDAsync(idVerificationDTO.VerifyID);
                 if (id == null)
                 {
-                    return NotFound("ID Verification not found.");
+                    return NotFound("Không tìm thấy mã xác nhận giấy tờ tùy thân!");
                 }
 
                 id.IDNumber = idVerificationDTO.IDNumber;
@@ -316,7 +316,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _idVerificationService.UpdateIDVerifyAsync(id);
 
-                return Ok("ID Verification updated successfully by staff.");
+                return Ok("Nhân viên đã cập nhật giấy tờ thành công!");
             }
             catch (Exception ex)
             {
