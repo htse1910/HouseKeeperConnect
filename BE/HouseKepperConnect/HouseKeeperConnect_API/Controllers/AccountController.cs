@@ -139,7 +139,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (await _accountService.IsEmailExistsAsync(accountRegisterDTO.Email))
             {
-                Message = "Email already exists!";
+                Message = "Email đã tồn tại!";
                 return Conflict(Message);
             }
 
