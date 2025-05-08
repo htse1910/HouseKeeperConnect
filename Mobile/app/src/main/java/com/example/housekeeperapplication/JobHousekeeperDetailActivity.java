@@ -1,7 +1,11 @@
 package com.example.housekeeperapplication;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,11 +22,13 @@ import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.Service;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,6 +40,8 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
     private APIServices apiService;
     private int jobID;
     private int familyID;
+    private Button btnApply;
+    private Button btnMessage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +60,65 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Không tìm thấy công việc", Toast.LENGTH_SHORT).show();
             finish();
         }
+        btnApply = findViewById(R.id.btnApply);
+        btnMessage = findViewById(R.id.btnMessage);
+        btnMessage.setOnClickListener(v -> {
+            Intent intent = new Intent(JobHousekeeperDetailActivity.this, ChatListMockActivity.class);
+            startActivity(intent);
+        });
+        btnApply.setOnClickListener(v -> applyForJob());
+    }
+    private void applyForJob() {
+        // Lấy accountID từ SharedPreferences hoặc nơi bạn lưu thông tin người dùng
+        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int accountID = sharedPreferences.getInt("accountID", -1);
+
+        if (accountID == -1) {
+            Toast.makeText(this, "Vui lòng đăng nhập để ứng tuyển", Toast.LENGTH_SHORT).show();
+            // Chuyển về màn hình đăng nhập
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        if (jobID == -1) {
+            Toast.makeText(this, "Không tìm thấy công việc", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Hiển thị dialog loading
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Đang gửi đơn ứng tuyển...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        Call<ResponseBody> call = apiService.addApplication(accountID, jobID);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                progressDialog.dismiss();
+
+                if (response.isSuccessful()) {
+                    Toast.makeText(JobHousekeeperDetailActivity.this, "Ứng tuyển thành công!", Toast.LENGTH_SHORT).show();
+                    finish(); // Đóng activity sau khi ứng tuyển thành công
+                } else {
+                    try {
+                        String errorMessage = response.errorBody().string();
+                        Toast.makeText(JobHousekeeperDetailActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        Toast.makeText(JobHousekeeperDetailActivity.this, "Lỗi khi ứng tuyển", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(JobHousekeeperDetailActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("APPLY_ERROR", t.getMessage(), t);
+            }
+        });
     }
 
     private void initViews() {

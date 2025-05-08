@@ -273,5 +273,7 @@ public interface APIServices {
 
     @POST("api/Job/AcceptJob")
     Call<Void> acceptJob(@Query("jobId") int jobId, @Query("accountID") int accountID);
+    @POST("api/Application/AddApplication")
+    Call<ResponseBody> addApplication(@Query("accountID") int accountID, @Query("jobID") int jobID);
 
 }
