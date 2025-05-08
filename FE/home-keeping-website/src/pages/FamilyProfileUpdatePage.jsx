@@ -147,6 +147,7 @@ const FamilyProfileUpdatePage = () => {
 
         <label>{t("bank_account_number")}</label>
         <input name="bankAccountNumber" value={formData.bankAccountNumber} onChange={handleChange} />
+        <small className="text-danger">Bạn phải nhập đúng số tài khoản của bạn để tránh chuyển sai tài khoản</small>
         
         <label>{t("bank_account_name")}</label>
         <select name="bankAccountName" value={formData.bankAccountName} onChange={handleChange}>
@@ -162,6 +163,7 @@ const FamilyProfileUpdatePage = () => {
           <option value="VIB">VIB</option>
           <option value="Agribank">Agribank</option>
         </select>
+        <small className="text-danger">Bạn phải chọn đúng tên ngân hàng để giao dịch thành công</small>
 
         <label>{t("profile_picture")}</label>
         <input type="file" className="form-control mb-3" onChange={(e) => setProfilePicture(e.target.files[0])} />
