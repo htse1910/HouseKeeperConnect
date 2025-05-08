@@ -98,6 +98,7 @@ const useFamilyJobs = ({ accountID, authToken, t }) => {
               description: jobDetail.description,
               serviceIDs: serviceIDs,
               serviceTypes: serviceTypes,
+              jobType: jobDetail.jobType, // <-- Add this line
             };
           });
 

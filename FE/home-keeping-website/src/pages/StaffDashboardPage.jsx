@@ -145,9 +145,9 @@ const StaffDashboardPage = () => {
     { name: t("transaction.transactions", "Transactions"), icon: <FaMoneyBillWave />, path: "/dashboard/transactions" },
     { name: t("uncategorized.reviews", "Reviews"), icon: <FaStar />, path: "/dashboard/reviews" },
     { name: t("uncategorized.faqs_policies", "FAQs & Policies"), icon: <FaBook />, path: "/dashboard/faqs-policies" },
-    { name: t("uncategorized.withdrawal_verification", "Withdrawal Verification"), icon: <FaMoneyBillWave />, path: "/dashboard/withdrawals" },
+    { name: t("uncategorized.withdrawal_verification", "Xác nhận rút tiền"), icon: <FaMoneyBillWave />, path: "/dashboard/withdrawals" },
     { name: t("uncategorized.staff_support", "Technical Support Requests"), icon: <FaLifeRing />, path: "/dashboard/support" },
-    { name: t("uncategorized.manage_accepted_jobs", "Manage Accepted Jobs"), icon: <FaBriefcase />, path: "/dashboard/accepted-jobs" },
+    { name: t("uncategorized.manage_accepted_jobs", "Quản lý công việc đã được chấp nhận"), icon: <FaBriefcase />, path: "/dashboard/accepted-jobs" },
   ];
 
   return (

@@ -22,9 +22,9 @@ function Footer() {
           <div className="col-md-4 text-center">
             <h5 className="fw-bold text-warning">Thông tin liên lạc</h5>
             <ul className="list-unstyled mt-3 text-muted">
-              <li>📧 support@example.com</li>
-              <li>📞 (+84) XXX-XXX-XXXX</li>
-              <li>📍 123 Đường ABC, Quận XYZ, TP. Hồ Chí Minh, Việt Nam</li>
+              <li>📧 HouseKeeperConnect@gmail.com</li>
+              <li>📞 (+84) 987-654-3210 </li>
+              <li>📍 456 Đường Nguyễn Văn A, Phường 9, Quận Bình Thạnh, TP. Hồ Chí Minh, Việt Nam</li>
             </ul>
           </div>
 
