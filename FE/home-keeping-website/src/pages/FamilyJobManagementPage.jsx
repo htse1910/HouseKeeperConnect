@@ -29,7 +29,11 @@ const FamilyJobManagementPage = () => {
     setJobs,
   } = useFamilyJobs({ accountID, authToken, t });
 
-  const [filter, setFilter] = useState({ status: "all", serviceType: "all", start_date: "" });
+  const [filter, setFilter] = useState({
+    status: "all",
+    jobType: "all",
+    start_date: ""
+  });  
   const [jobToDelete, setJobToDelete] = useState(null);
   const showBackToTop = useBackToTop();
 
@@ -49,12 +53,11 @@ const FamilyJobManagementPage = () => {
     [jobs]
   );
 
-  const filteredJobs = jobs.filter(job => {
-    const { status, serviceType, start_date } = filter;
-    if (status !== "all" && job.status !== parseInt(status)) return false;
-    if (serviceType !== "all" && (!Array.isArray(job.serviceTypes) || !job.serviceTypes.includes(serviceType))) return false;
-    if (start_date && new Date(job.createdDate).setHours(0, 0, 0, 0) < new Date(start_date).setHours(0, 0, 0, 0)) return false;
-    return true;
+  const filteredJobs = jobs.filter((job) => {
+    const matchStatus = filter.status === "all" || job.status?.toString() === filter.status;
+    const matchJobType = filter.jobType === "all" || job.jobType?.toString() === filter.jobType;
+    const matchStartDate = !filter.start_date || new Date(job.startDate).toISOString().split("T")[0] === filter.start_date;
+    return matchStatus && matchJobType && matchStartDate;
   });
 
   const confirmDelete = async () => {
