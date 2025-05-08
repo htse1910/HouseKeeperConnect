@@ -313,7 +313,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("TotalAccount")]
-        [Authorize(Policy ="Staff")]
+        [Authorize]
         public async Task<IActionResult> GetTotalAccount()
         {
             var (totalHousekeepers, totalFamilies) = await _accountService.GetTotalAccountAsync();
