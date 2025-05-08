@@ -227,7 +227,7 @@ const HousekeeperBookingManagementPage = () => {
       case 6: return "❌ Đã hủy";
       case 7: return "🚫 Không được phép";
       case 8: return "⏳ Chờ gia đình xác nhận";
-      case 9: return "🚪 Người giúp việc đã bỏ việc";
+      case 9: return "🚪 Bạn đã bỏ việc";
       default: return "Không rõ";
     }
   };
@@ -366,7 +366,8 @@ const HousekeeperBookingManagementPage = () => {
                 <div className="text-end mt-2">
                   <div className="d-flex justify-content-between align-items-center mt-2">
                     <div>
-                      {row.status === 1 && new Date(row.endDate.split("/").reverse().join("-")) < new Date() ? (
+                      {row.jobStatus === 3 &&
+                        getVNDate() >= new Date(row.endDate.split("/").reverse().join("-")) ? (
                         <button
                           className="btn btn-sm btn-success rounded-pill fw-bold me-2"
                           onClick={() => handleMarkComplete(row.jobID)}
@@ -382,11 +383,18 @@ const HousekeeperBookingManagementPage = () => {
                         <span className="badge bg-secondary px-3 py-2 rounded-pill">
                           Đang thực hiện
                         </span>
-                      ) : row.status === 6 ? null : (
+                      ) : row.jobStatus === 3 &&
+                        (() => {
+                          const todayVN = new Date().toLocaleDateString("vi-VN");
+                          const start = row.startDate;
+                          const end = row.endDate;
+                          return todayVN >= start && todayVN <= end;
+                        })() ? (
                         <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
                           Chưa tới ngày xác nhận
                         </span>
-                      )}
+                      ) : null
+                      }
                     </div>
                     <div>
                       {row.jobStatus === 3 && (
@@ -394,7 +402,7 @@ const HousekeeperBookingManagementPage = () => {
                           className="btn btn-outline-danger btn-sm rounded-pill fw-bold"
                           onClick={() => handleForceAbandon(row.jobID)}
                         >
-                          🛑 Huỷ & Giao lại
+                          🛑 Huỷ việc
                         </button>
                       )}
                     </div>

@@ -56,7 +56,7 @@ const useFamilyJobs = ({ accountID, authToken, t }) => {
         }
 
         try {
-          const jobRes = await axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=1&pageSize=10`, { headers });
+          const jobRes = await axios.get(`http://localhost:5280/api/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=1&pageSize=1000000`, { headers });
           const jobList = jobRes.data;
 
           if (!Array.isArray(jobList)) {
