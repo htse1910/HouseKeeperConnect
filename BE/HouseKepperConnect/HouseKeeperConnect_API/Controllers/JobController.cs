@@ -1216,7 +1216,7 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult> CheckIn([FromQuery] int bookingId)
         {
             // 🔍 Get today's date
-            var today = DateTime.Today;
+            var today = DateTime.Today.AddDays(1);
 
             // ✅ Retrieve all booking slots for this booking and today's date
             var todaySlots = await _bookingSlotsService.GetBookingSlotsByDateAndBookingIDAsync(bookingId, today);
