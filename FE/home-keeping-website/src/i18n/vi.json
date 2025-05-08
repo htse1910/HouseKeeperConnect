@@ -178,8 +178,8 @@
       "housekeeper_quit": "Người giúp việc đã bỏ việc"
     },
     "jobPost": {
-      "once": "Một lần duy nhất",
-      "period": "Định kỳ",
+      "once": "Làm một lần",
+      "period": "Làm định kỳ",
       "post_now": "Đăng ngay",
       "cancelBillModel": "Tạo công việc mới",
       "backToManagementPage": "Đến Quản lý công việc",
@@ -294,6 +294,27 @@
     "cancel": "Hủy xác nhận",
     "invite_confirm_text": "Bạn có muốn mời {{name}} cho công việc \"{{job}}\"?"
   },
+  "support": {
+    "family_support_intro": "Trang này cung cấp các hướng dẫn và câu hỏi thường gặp dành cho người dùng Gia đình.",
+    "post_job": "Đăng công việc",
+    "post_job_desc": "Bạn có thể tạo và đăng công việc dễ dàng bằng cách điền thông tin chi tiết và chọn người giúp việc phù hợp.",
+    "payment": "Thanh toán",
+    "payment_desc": "Hệ thống sử dụng ví điện tử để nạp tiền, giữ tiền qua trung gian và thanh toán sau khi hoàn thành công việc.",
+    "contact_housekeeper": "Liên hệ với người giúp việc",
+    "contact_housekeeper_desc": "Bạn có thể nhắn tin trực tiếp với người giúp việc đã được xác nhận hoặc ứng tuyển.",
+    "rate_review": "Đánh giá và phản hồi",
+    "rate_review_desc": "Sau khi công việc kết thúc, bạn có thể để lại đánh giá và phản hồi cho người giúp việc.",
+    "job_tracking": "Theo dõi công việc",
+    "job_tracking_desc": "Bạn có thể xem trạng thái công việc, thời gian bắt đầu và lịch làm việc.",
+    "contact_staff": "Liên hệ nhân viên hỗ trợ",
+    "contact_staff_desc": "Nếu có bất kỳ sự cố nào, bạn có thể liên hệ với nhân viên để được hỗ trợ.",
+    "send_request": "Gửi yêu cầu hỗ trợ",
+    "subject_placeholder": "Nhập tiêu đề vấn đề cần hỗ trợ...",
+    "content_placeholder": "Mô tả chi tiết vấn đề bạn đang gặp phải...",
+    "submit": "Gửi yêu cầu",
+    "sent_requests": "Yêu cầu đã gửi",
+    "no_subject": "Không có tiêu đề"
+  },
   "misc": {
     "welcome": "Chào mừng bạn đến với HouseKeeperConnect!",
     "actions": "Hành động",
@@ -301,9 +322,11 @@
     "bank_account_number": "Số tài khoản ngân hàng",
     "bank_account_name": "Tên ngân hàng",
     "profile_picture": "Ảnh đại diện",
+    "contact_support": "Liên hệ hỗ trợ",
     "cancel": "Hủy",
     "confirm": "Xác nhận",
     "created_date": "Ngày tạo",
+    "request_created_date": "Thời gian gửi yêu cầu",
     "demo": "Dữ liệu mẫu",
     "description": "Mô tả",
     "enter_reject_reason": "Nhập lý do từ chối",
@@ -617,6 +640,16 @@
       "RubberTreatmentSkill": "Chăm sóc cao su xe",
       "DetailFinishSkill": "Làm sạch các chi tiết nhỏ"
     }
+  },
+  "faq": {
+    "title": "Câu hỏi thường gặp",
+    "how_to_post_job": "Làm sao để đăng công việc?",
+    "how_to_post_job_answer": "Vào trang Đăng công việc, điền đầy đủ thông tin, chọn dịch vụ và khung giờ, sau đó nhấn Đăng ngay.",
+    "how_to_top_up": "Làm sao để nạp tiền?",
+    "how_to_top_up_answer": "Vào trang Ví, chọn Nạp tiền, nhập số tiền và làm theo hướng dẫn thanh toán.",
+    "how_to_find_housekeeper": "Tôi có thể tìm giúp việc bằng cách nào?",
+    "how_to_find_housekeeper_answer": "Vào trang Tìm giúp việc, chọn bộ lọc và duyệt qua danh sách người giúp việc.",
+    "support_contact_info": "Gửi email đến support@pchwf.vn hoặc liên hệ qua số điện thoại 1900 1234."
   },
   "popup": {
     "popup": {
