@@ -22,7 +22,7 @@ export function useMenuItems() {
       { label: t("navigation.my_posts"), link: "/family/my-posts" },
       { label: t("navigation.find_housekeepers"), link: "/family/find-housekeepers" },
       { label: t("navigation.messages"), link: "/messages" },
-      { label: t("navigation.support"), link: "/family/support-requests", dropdown: true },
+      { label: t("navigation.support"), link: "/family/support", dropdown: true },
     ],
     Staff: [
       { label: t("navigation.dashboard"), link: "/staff-dashboard" },

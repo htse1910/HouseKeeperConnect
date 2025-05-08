@@ -37,6 +37,7 @@ import FamilyJobDetailsPage from './pages/FamilyJobDetailsPage';
 import FamilyDepositPage from "./pages/FamilyDepositPage";
 import FamilyDepositReturnPage from "./pages/FamilyDepositReturnPage";
 import FamilyMessagesPage from "./pages/FamilyMessagesPage";
+import FamilySupportPage from './pages/FamilySupportPage';
 import IDVerificationCreatePage from './pages/IDVerificationCreatePage';
 import FamilyJobManagementPage from './pages/FamilyJobManagementPage';
 import FamilyJobDetailUpdatePage from './pages/FamilyJobDetailUpdatePage';
@@ -129,6 +130,7 @@ function AppRoutes() {
         <Route path="/family/support-requests" element={<FamilySupportRequestPage />} />
         <Route path="/family/withdraw-details" element={<WithdrawRequestPage />} />
         <Route path="/family/abandoned-jobs" element={<FamilyAbandonedJobsPage />} />
+        <Route path="/family/support" element={<FamilySupportPage />} />
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUserListPage />} />

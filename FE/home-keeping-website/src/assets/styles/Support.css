@@ -1,0 +1,181 @@
+.support-container {
+    padding: 2rem;
+    max-width: 960px;
+    margin: auto;
+    font-family: Inter, sans-serif;
+}
+
+.support-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.support-section {
+    margin-bottom: 2rem;
+}
+
+.support-list li {
+    margin-bottom: 1.25rem;
+}
+
+.support-list strong {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.support-page {
+    padding: var(--padding-container);
+    max-width: var(--max-width-container);
+    margin: auto;
+    background-color: var(--bg-color);
+    font-family: var(--font-main);
+}
+
+.support-hero {
+    background-color: var(--accent-light);
+    padding: var(--padding-section);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    box-shadow: var(--shadow-light);
+}
+
+.support-hero h1 {
+    font-size: var(--font-size-title);
+    color: var(--main-dark);
+    margin-bottom: var(--spacing-sm);
+}
+
+.support-hero p {
+    color: var(--text-muted);
+    font-size: var(--font-size-label);
+}
+
+.support-section-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-xl);
+    margin-bottom: var(--spacing-3xl);
+}
+
+.support-section {
+    background-color: var(--box-background-color);
+    padding: var(--padding-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--box-shadow);
+    transition: box-shadow 0.3s ease;
+}
+
+.support-section:hover {
+    box-shadow: var(--shadow-medium);
+}
+
+.support-section-title {
+    color: var(--main-dark);
+    font-size: var(--font-size-heading);
+    margin-bottom: var(--spacing-sm);
+}
+
+.support-section-content {
+    font-size: var(--font-size-small);
+    color: var(--text-body);
+}
+
+.support-form-and-history {
+    display: flex;
+    gap: var(--gap-xl);
+    flex-wrap: wrap;
+}
+
+.support-form-section,
+.support-history-section {
+    flex: 1 1 400px;
+    background-color: var(--light-gray);
+    padding: var(--padding-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--box-shadow);
+}
+
+.support-form-section h2,
+.support-history-section h2 {
+    color: var(--main-color);
+    margin-bottom: var(--spacing-md);
+}
+
+.support-form input,
+.support-form textarea {
+    width: 100%;
+    padding: var(--padding-input);
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-small);
+    font-family: var(--font-main);
+    color: var(--text-body);
+    background-color: var(--bg-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.support-form textarea {
+    resize: vertical;
+}
+
+.support-form input:focus,
+.support-form textarea:focus {
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.2);
+}
+
+.support-form button {
+    width: 100%;
+    background-color: var(--main-color);
+    color: var(--text-inverse);
+    border: none;
+    padding: var(--padding-button);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-label);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.support-form button:hover {
+    background-color: var(--secondary-color);
+}
+
+.support-history-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: var(--spacing-md);
+}
+
+.support-history-item {
+    padding: var(--spacing-md);
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-light);
+}
+
+.support-history-item strong {
+    font-size: var(--font-size-label);
+    color: var(--text-heading);
+}
+
+.support-history-item p {
+    font-size: var(--font-size-small);
+    color: var(--text-body);
+    margin-top: var(--spacing-xs);
+}
+
+@media (max-width: 768px) {
+    .support-section-container {
+        grid-template-columns: 1fr;
+    }
+
+    .support-form-and-history {
+        flex-direction: column;
+    }
+}

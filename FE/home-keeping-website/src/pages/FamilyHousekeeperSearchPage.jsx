@@ -21,7 +21,7 @@ const FamilyHousekeeperSearchPage = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [location, setLocation] = useState("");
-  const [selectedSkill, setSelectedSkill] = useState("");
+  //const [selectedSkill, setSelectedSkill] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
   const [selectedSalaryOrder, setSelectedSalaryOrder] = useState("");
   const [selectedWorkType, setSelectedWorkType] = useState("");
@@ -98,20 +98,38 @@ const FamilyHousekeeperSearchPage = () => {
   const feedback = shouldShowLoadingOrError(loading, error, t);
   if (feedback) return feedback;
 
+  const normalize = (str) => (str ?? "").toLowerCase().trim();
+
   const filtered = housekeepers
-    .filter(
-      (h) =>
-        h.name?.toLowerCase().includes(searchTerm.trim().toLowerCase()) &&
-        (h.address ?? "").toLowerCase().includes(location.trim().toLowerCase()) &&
-        (selectedSkill === "" || h.skills?.includes(selectedSkill)) &&
-        (selectedGender === "" || String(h.gender) === selectedGender) &&
-        (selectedWorkType === "" || String(h.workType) === selectedWorkType)
-    )
+    .filter((h) => {
+      const normalize = (str) => (str ?? "").toLowerCase().trim();
+
+      const matchesName = normalize(h.name).includes(normalize(searchTerm));
+      const locationKeywords = {
+        "Hà Nội": ["hà nội"],
+        "TP.HCM": ["hồ chí minh", "tp.hcm", "tp. hồ chí minh"],
+        "Đà Nẵng": ["đà nẵng"]
+      };
+
+      const matchesLocation =
+        location === "" ||
+        (Array.isArray(locationKeywords[location]) &&
+          locationKeywords[location].some((keyword) =>
+            normalize(h.address).includes(keyword)
+          ));
+
+      //const matchesSkill =
+      //selectedSkill === "" || (Array.isArray(h.skills) && h.skills.includes(selectedSkill));
+      const matchesGender = selectedGender === "" || String(h.gender) === selectedGender;
+      const matchesWorkType = selectedWorkType === "" || String(h.workType) === selectedWorkType;
+
+      //return matchesName && matchesLocation && matchesSkill && matchesGender && matchesWorkType;
+      return matchesName && matchesLocation && matchesGender && matchesWorkType;
+    })
     .sort((a, b) => {
-      if (!selectedSalaryOrder) return 0;
-      return selectedSalaryOrder === "asc"
-        ? a.salary - b.salary
-        : b.salary - a.salary;
+      if (selectedSalaryOrder === "asc") return a.salary - b.salary;
+      if (selectedSalaryOrder === "desc") return b.salary - a.salary;
+      return 0;
     });
 
   return (
@@ -141,17 +159,6 @@ const FamilyHousekeeperSearchPage = () => {
               <option value="Hà Nội">Hà Nội</option>
               <option value="TP.HCM">TP.HCM</option>
               <option value="Đà Nẵng">Đà Nẵng</option>
-            </select>
-
-            <select
-              className="search-page-select"
-              value={selectedSkill}
-              onChange={(e) => setSelectedSkill(e.target.value)}
-            >
-              <option value="">{t("misc.skills")}</option>
-              <option value="Cleaning">{t("service.serviceTypeName.Cleaning")}</option>
-              <option value="Laundry">{t("service.serviceTypeName.Laundry")}</option>
-              <option value="Cooking">{t("service.serviceTypeName.Cooking")}</option>
             </select>
 
             <select
