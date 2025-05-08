@@ -20,6 +20,9 @@ namespace BusinessObject.DTO
         [Required]
         [StringLength(255, ErrorMessage = "Location cannot exceed 255 characters.")]
         public string Location { get; set; }
+        [Required]
+        [StringLength(255, ErrorMessage = "DetailLocation cannot exceed 255 characters.")]
+        public string DetailLocation { get; set; }
 
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Price must be at least 0.")]
