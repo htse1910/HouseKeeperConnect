@@ -37,14 +37,30 @@ function FindJobsPage() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/Job/JobList?pageNumber=${page}&pageSize=${jobsPerPage}`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-      const data = await res.json();
-      const verifiedJobs = data.filter((job) => job.status === 2);
+      const verifiedJobs = [];
+      let currentPage = 1;
+      let fetchMore = true;
+
+      while (verifiedJobs.length < jobsPerPage && fetchMore) {
+        const res = await fetch(`${API_BASE_URL}/Job/JobList?pageNumber=${(page - 1) * 3 + currentPage}&pageSize=${jobsPerPage}`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+
+        const data = await res.json();
+        if (data.length === 0) break;
+
+        const pageVerified = data.filter((job) => job.status === 2);
+        verifiedJobs.push(...pageVerified);
+        currentPage++;
+
+        // stop if not enough results to keep going
+        if (data.length < jobsPerPage) fetchMore = false;
+      }
+
+      const slicedJobs = verifiedJobs.slice(0, jobsPerPage); // only take up to 9
 
       const detailedJobs = await Promise.all(
-        verifiedJobs.map(async (job) => {
+        slicedJobs.map(async (job) => {
           const detailRes = await fetch(`${API_BASE_URL}/Job/GetJobDetailByID?id=${job.jobID}`, {
             headers: { Authorization: `Bearer ${authToken}` },
           });
@@ -64,14 +80,14 @@ function FindJobsPage() {
               const account = await accRes.json();
               familyName = account?.name ?? "Không rõ";
             }
-          } catch {}
+          } catch { }
 
           return { ...jobDetail, familyName };
         })
       );
 
       setJobs(detailedJobs);
-      setHasNextPage(data.length === jobsPerPage);
+      setHasNextPage(verifiedJobs.length >= jobsPerPage); // only true if next page might exist
     } catch (error) {
       console.error("Failed to fetch jobs:", error);
       setJobs([]);

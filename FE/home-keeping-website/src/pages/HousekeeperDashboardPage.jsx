@@ -19,12 +19,16 @@ const HousekeeperDashboard = () => {
         <HouseKeeperPayoutCard />
       </div>
 
-      <div className="row mt-4">
-        <div className="col-md-6">
-          <NotificationsCard />
+      <div className="row mt-4 d-flex">
+        <div className="col-md-6 d-flex flex-column">
+          <div className="flex-grow-1">
+            <NotificationsCard />
+          </div>
         </div>
-        <div className="col-md-6">
-          <RecentTransactionsCard />
+        <div className="col-md-6 d-flex flex-column">
+          <div className="flex-grow-1">
+            <RecentTransactionsCard />
+          </div>
         </div>
       </div>
     </div>

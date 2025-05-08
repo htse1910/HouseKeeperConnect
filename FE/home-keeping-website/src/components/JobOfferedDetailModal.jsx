@@ -136,7 +136,7 @@ export default function JobOfferedDetailModal({
         )}
       </Modal.Body>
 
-      {job?.status === 2 && (
+      {(job?.status === 2 || job?.status === 9) && (
         <Modal.Footer className="py-2 d-flex justify-content-between align-items-center">
           <div className="text-muted small">Bạn muốn nhận công việc này?</div>
           <div className="d-flex gap-2">
