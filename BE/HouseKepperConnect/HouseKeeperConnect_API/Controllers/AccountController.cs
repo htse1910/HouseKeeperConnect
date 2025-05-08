@@ -71,7 +71,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var accountList = await _accountService.GetAllAccountsAsync(pageNumber, pageSize);
                 if (accountList.Count == 0)
                 {
-                    return NotFound("Account list is empty!");
+                    return NotFound("Danh sách tài khoản trống!");
                 }
 
                 var list = _mapper.Map<List<AccountDisplayDTO>>(accountList);
@@ -92,7 +92,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (nList.Count == 0)
             {
-                Message = "No accounts found!";
+                Message = "Danh sách tài khoản trống!";
                 return NotFound(Message);
             }
             return Ok(nList);
@@ -106,7 +106,7 @@ namespace HouseKeeperConnect_API.Controllers
             var account = await _accountService.GetAccountByIDAsync(id);
             if (account == null)
             {
-                return NotFound("account not found");
+                return NotFound("Không tìm thấy tài khoản");
             }
             var accountDTO = _mapper.Map<AccountDisplayDTO>(account);
             return Ok(accountDTO);
@@ -145,12 +145,12 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (accountRegisterDTO.RoleID != 1 && accountRegisterDTO.RoleID != 2)
             {
-                return BadRequest("Invalid role selection!");
+                return BadRequest("Vai trò không phù hợp!");
             }
 
             if (accountRegisterDTO.LocalProfilePicture == null)
             {
-                Message = "No picture found!";
+                Message = "Không tìm thấy ảnh!";
                 return NotFound(Message);
             }
             else
@@ -212,7 +212,7 @@ namespace HouseKeeperConnect_API.Controllers
             };
             await _walletService.AddWalletAsync(wallet);
 
-            Message = "New Account Added!";
+            Message = "Tạo tài khoản mới thành công!";
             return Ok(Message);
         }
 
@@ -255,7 +255,7 @@ namespace HouseKeeperConnect_API.Controllers
             var u = await _accountService.GetAccountByIDAsync(account.AccountID);
             if (u == null)
             {
-                return NotFound("No Account Found!");
+                return NotFound("Không tìm thấy tài khoản!");
             }
 
             if (!string.IsNullOrEmpty(adminUpdateDTO.Password))
@@ -268,7 +268,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             await _accountService.UpdateAccountAsync(account);
-            return Ok("Account Updated!");
+            return Ok("Cập nhật tài khoản thành công!");
         }
 
         [HttpPut("ChangeStatus")]
@@ -280,10 +280,10 @@ namespace HouseKeeperConnect_API.Controllers
                 var account = await _accountService.GetAccountByIDAsync(id);
                 if (account == null)
                 {
-                    return NotFound("Account not found!");
+                    return NotFound("Không tìm thấy tài khoản!");
                 }
                 await _accountService.ChangeAccountStatusAsync(id);
-                return Ok($"Account {account.Name.Trim()} status has been updated!");
+                return Ok($"Trạng thái của tài khoản {account.Name.Trim()} đã được cập nhật!");
             }
             catch (Exception ex)
             {
@@ -295,14 +295,14 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<IActionResult> LoginWithGoogle([FromQuery] GoogleLoginDTO googleLoginDTO)
         {
             if (string.IsNullOrEmpty(googleLoginDTO.GoogleToken))
-                return BadRequest("Google Token is required.");
+                return BadRequest("Cần token của google!");
 
             try
             {
                 var loginInfo = await _accountService.LoginWithGoogleAsync(googleLoginDTO.GoogleToken, googleLoginDTO.RoleID);
 
                 if (loginInfo == null)
-                    return Unauthorized("Invalid Google Token or authentication failed.");
+                    return Unauthorized("Token không đúng hoặc không được phép!");
 
                 return Ok(loginInfo);
             }
@@ -342,9 +342,9 @@ namespace HouseKeeperConnect_API.Controllers
             string token = Guid.NewGuid().ToString();
             DateTime expiry = DateTime.Now.AddHours(1);
             await _accountService.SavePasswordResetTokenAsync(account.AccountID, token, expiry);
-            string resetLink = $"http://localhost:5173/reset-password?token={token}";
+            string resetLink = $"https://house-keeper-connect-mo9s.vercel.app/reset-password?token={token}";
             string subject = "Password Reset Request";
-            string body = $"Click <a href='{resetLink}'>here</a> to reset your password.";
+            string body = $"Bấm <a href='{resetLink}'>vào đây</a> để đặt lại mật khẩu!.";
             await _emailHelper.SendEmailAsync(email, subject, body);
             return Ok("Email đặt lại mật khẩu đã được gửi.");
         }

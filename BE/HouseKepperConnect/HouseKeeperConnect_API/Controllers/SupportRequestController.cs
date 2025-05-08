@@ -70,7 +70,7 @@ namespace HouseKeeperConnect_API.Controllers
             var reqL = await _supportRequestService.GetSupportRequestByUserAsync(id, pageNumber, pageSize);
             if (reqL == null)
             {
-                Message = "No requests found for this account!";
+                Message = "Không tìm thấy đơn hỗ trợ nào!";
                 return NotFound(Message);
             }
             var display = new List<SupportRequestDisplayDTO>();
@@ -91,7 +91,7 @@ namespace HouseKeeperConnect_API.Controllers
             var acc = await _accountService.GetAccountByIDAsync(requestCreateDTO.RequestedBy);
             if (acc == null)
             {
-                Message = "Account not found!";
+                Message = "không tìm thấy tài khoản!";
                 return NotFound(Message);
             }
 
@@ -125,7 +125,7 @@ namespace HouseKeeperConnect_API.Controllers
             req.Status = (int)SupportRequestStatus.Processing;
 
             await _supportRequestService.AddSupportRequestAsync(req);
-            Message = "Support request created!";
+            Message = "Tạo đơn yêu cầu hỗ trợ thành công!";
             return Ok(Message);
         }
 
@@ -176,7 +176,7 @@ namespace HouseKeeperConnect_API.Controllers
             var reqL = await _supportRequestService.GetAllPendingSupportRequestsAsync(pageNumber, pageSize);
             if (reqL == null)
             {
-                Message = "No requests found for this account!";
+                Message = "Danh sách đơn yêu cầu hỗ trợ trống!";
                 return NotFound(Message);
             }
             var display = new List<SupportRequestDisplayDTO>();

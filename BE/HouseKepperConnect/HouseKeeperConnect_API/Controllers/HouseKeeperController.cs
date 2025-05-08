@@ -50,7 +50,7 @@ namespace HouseKeeperConnect_API.Controllers
             var trans = await _housekeeperService.GetAllHousekeepersAsync(pageNumber, pageSize);
             if (trans == null)
             {
-                Message = "No records!";
+                Message = "Danh sách người giúp việc trống!";
                 return NotFound(Message);
             }
 
@@ -112,7 +112,7 @@ namespace HouseKeeperConnect_API.Controllers
             var trans = await _housekeeperService.GetAllHousekeepersAsync(pageNumber, pageSize);
             if (trans == null)
             {
-                Message = "No records!";
+                Message = "Danh sách người giúp việc trống!";
                 return NotFound(Message);
             }
 
@@ -144,13 +144,13 @@ namespace HouseKeeperConnect_API.Controllers
             var hk = await _housekeeperService.GetHousekeeperByIDAsync(id);
             if (hk == null)
             {
-                Message = "No housekeeper found!";
+                Message = "Không tìm thấy người giúp việc!";
                 return NotFound(Message);
             }
             var acc = await _accountService.GetAccountByIDAsync(hk.AccountID);
             if (acc == null)
             {
-                Message = "No account found!";
+                Message = "Không tìm thấy tài khoản!";
                 return NotFound(Message);
             }
             var veri = new IDVerification();
@@ -174,13 +174,13 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (acc == null)
             {
-                Message = "No account found!";
+                Message = "Không tìm thấy tài khoản!";
                 return NotFound(Message);
             }
             var hk = await _housekeeperService.GetHousekeeperByUserAsync(acc.AccountID);
             if (hk == null)
             {
-                Message = "No housekeeper found!";
+                Message = "Không tìm thấy người giúp việc!";
                 return NotFound(Message);
             }
             var veri = new IDVerification();
@@ -265,7 +265,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var Acc = await _accountService.GetAccountByIDAsync(hk.AccountID);
                 if (Acc == null)
                 {
-                    Message = "No account found!";
+                    Message = "Không tìm thấy tài khoản!";
                     return NotFound(Message);
                 }
                 if (hk.LocalProfilePicture == null)
@@ -317,7 +317,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 if (oHk == null)
                 {
-                    Message = "No housekeeper found!";
+                    Message = "Không tìm thấy người giúp việc!";
                     return NotFound(Message);
                 }
 
@@ -347,7 +347,7 @@ namespace HouseKeeperConnect_API.Controllers
                 oHk.WorkType = newHK.WorkType;
 
                 await _housekeeperService.UpdateHousekeeperAsync(oHk);
-                Message = "Housekeeper Updated!";
+                Message = "Cập nhật người giúp việc thành công!";
                 return Ok(Message);
             }
             catch (Exception ex)
@@ -363,7 +363,7 @@ namespace HouseKeeperConnect_API.Controllers
             var pendingHousekeepers = await _housekeeperService.GetPendingHousekeepersAsync(pageNumber, pageSize);
             if (pendingHousekeepers.Count == 0)
             {
-                return NotFound("Housekeeper Pending list is empty!");
+                return NotFound("Danh sách người giúp việc chờ duyệt trống!");
             }
 
             var pendingList = new List<HousekeeperPendingDTO>();
@@ -399,7 +399,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var acc = await _housekeeperService.GetHousekeeperByIDAsync(housekeeperId);
                 if (acc == null)
                 {
-                    Message = "Account not found!";
+                    Message = "Không tìm thấy người giúp việc!";
                     return NotFound(Message);
                 }
                 await _housekeeperService.UpdateIsVerifiedAsync(housekeeperId, isVerified);
@@ -407,15 +407,15 @@ namespace HouseKeeperConnect_API.Controllers
                 noti.AccountID = acc.AccountID;
                 if (isVerified == true)
                 {
-                    noti.Message = "Invalid information, please check again";
+                    noti.Message = "Thông tin không hợp lệ, hãy kiểm tra lại!";
                 }
                 else
                 {
-                    noti.Message = "Confirmation information successful!";
+                    noti.Message = "Phê duyệt thành công!";
                 }
 
                 await _notificationService.AddNotificationAsync(noti);
-                Message = "Your account has been verified!";
+                Message = "Tài khoản của bạn đã được phê duyệt!";
                 return Ok(Message);
             }
             catch (Exception ex)
