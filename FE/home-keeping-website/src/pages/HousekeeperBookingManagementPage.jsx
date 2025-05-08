@@ -238,7 +238,7 @@ const HousekeeperBookingManagementPage = () => {
       toast.error("Vui lòng đăng nhập lại.");
       return;
     }
-  
+
     try {
       const res = await fetch(
         `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${jobID}&accountID=${accountID}`,
@@ -250,9 +250,9 @@ const HousekeeperBookingManagementPage = () => {
           }
         }
       );
-  
+
       const result = await res.json();
-  
+
       if (res.ok) {
         toast.success(
           `✅ ${result.message}\n💰 Thanh toán cho người giúp việc: ${result.payoutToHK.toLocaleString()} VND\n🔁 Hoàn lại cho gia đình: ${result.refundToFamily.toLocaleString()} VND`
@@ -265,7 +265,7 @@ const HousekeeperBookingManagementPage = () => {
       toast.error("Lỗi khi gọi API.");
       console.error(err);
     }
-  };  
+  };
 
   return (
     <div className="container py-4">
@@ -369,6 +369,7 @@ const HousekeeperBookingManagementPage = () => {
                   <div className="d-flex justify-content-between align-items-center mt-2">
                     <div>
                       {row.jobStatus === 3 &&
+                        row.status !== 6 &&
                         getVNDate() >= new Date(row.endDate.split("/").reverse().join("-")) ? (
                         <button
                           className="btn btn-sm btn-success rounded-pill fw-bold me-2"

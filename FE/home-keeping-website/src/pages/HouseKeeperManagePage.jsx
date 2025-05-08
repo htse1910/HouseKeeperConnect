@@ -94,7 +94,14 @@ function HouseKeeperManagePage() {
   };
 
   const visibleApplications = applications.filter(app => {
-    if (activeTab === "completedJobs") return app.status === 2 && app.isJobCompleted;
+    if (activeTab === "completedJobs") {
+      return app.status === 2 && app.isJobCompleted;
+    }
+
+    if (activeTab === "accepted") {
+      return app.status === 2 && !app.isJobCompleted;
+    }
+
     return tabStatusMap[activeTab] === null || app.status === tabStatusMap[activeTab];
   });
 
