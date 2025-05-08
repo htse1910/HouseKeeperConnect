@@ -343,7 +343,7 @@ namespace HouseKeeperConnect_API.Controllers
             var noti = new Notification();
             noti.AccountID = app.HouseKepper.AccountID;
 
-            if (jobDetail.HousekeeperID != null && status!=(int)ApplicationStatus.Accepted)
+            if (jobDetail.HousekeeperID != null && status==(int)ApplicationStatus.Accepted)
             {
                 Message = "Đã có người được tuyển cho công việc này!";
                 return Conflict(Message);
