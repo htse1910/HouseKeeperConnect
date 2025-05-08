@@ -7,7 +7,7 @@ export const shouldShowLoadingOrError = (loading, error, t, extraAction = null) 
         {loading && (
           <>
             <span className="icon-loading"></span>
-            <p className="ui-loading-text">{t("loading_data")}</p>
+            <p className="ui-loading-text">{t("error.loading_data")}</p>
           </>
         )}
         {error && (

@@ -136,7 +136,7 @@ export const renderWorkingTime = (workingDays, slotIDs, t) => {
     timeStr = t("job.jobDetail.fullTime", { start: "8:00", end: "20:00" });
   }
 
-  return `${dayStr}\n${timeStr}`;
+  return `${dayStr}.\n${timeStr}.`;
 };
 
 const arraysEqual = (a = [], b = []) => {
