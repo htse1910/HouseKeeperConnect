@@ -8,8 +8,6 @@ import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const FamilyProfilePage = () => {
     const { t } = useTranslation();
-    const [searchParams] = useSearchParams();
-    const isDemo = searchParams.get("demo") === "true";
 
     const authToken = localStorage.getItem("authToken");
     const accountID = localStorage.getItem("accountID");
@@ -29,62 +27,34 @@ const FamilyProfilePage = () => {
     const shouldShowLoadingOrError = loading || error;
 
     const mapJobStatus = (status) => {
-        switch (status) {
-            case 1: return "Chờ duyệt";
-            case 2: return "Đã duyệt";
-            case 3: return "Đã nhận";
-            case 4: return "Hoàn thành";
-            case 5: return "Hết hạn";
-            case 6: return "Đã hủy";
-            default: return "Không xác định";
-        }
-    };
+        const statusMap = {
+            1: "pending",
+            2: "verified",
+            3: "accepted",
+            4: "completed",
+            5: "expired",
+            6: "canceled",
+            7: "not_permitted",
+            8: "pending_family_confirmation",
+            9: "housekeeper_quit"
+        };
+    
+        const key = statusMap[status];
+        return key ? t(`job.jobStatus.${key}`) : t("job.job.not_sure");
+    };    
 
     useEffect(() => {
-        if (isDemo) {
-            setAccountInfo({
-                accountID: 1,
-                name: "Trần Tường Vi",
-                email: "tranvi@example.com",
-                phone: "0909 123 456",
-                profilePicture: defaultAvatar
-            });
-
-            setFamily({
-                nickname: "Tường Vi",
-                gender: 2,
-                address: "Quận 1, TP.HCM",
-                rating: 4.5,
-                introduction: "Chúng tôi là một gia đình nhỏ ở TP.HCM, cần tìm người giúp việc hỗ trợ dọn dẹp và chăm sóc trẻ nhỏ.",
-                skills: ["Dọn dẹp nhà cửa", "Giặt ủi", "Nấu ăn", "Chăm sóc trẻ em"]
-            });
-
-            setJobs([
-                { title: "Dọn dẹp nhà cửa", date: "Tháng 1, 2025", status: "Hoàn thành" },
-                { title: "Nấu ăn hàng ngày", date: "Tháng 12, 2024", status: "Đang chờ" }
-            ]);
-
-            setReviews([
-                { worker: "Nguyễn Văn A", date: "05/03/2025", rating: 5, comment: "Gia đình rất tốt, trả lương đúng hạn!" },
-                { worker: "Trần Thị B", date: "15/02/2025", rating: 4, comment: "Công việc rõ ràng, nhưng đôi khi khá bận." }
-            ]);
-
-            setLoading(false);
-            setError(null);
-            return;
-        }
-
         setLoading(true);
         setError(null);
 
         if (!authToken) {
-            setError(t("error_auth"));
+            setError(t("error.error_auth"));
             setLoading(false);
             return;
         }
 
         if (!accountID) {
-            setError(t("error_account"));
+            setError(t("error.error_account"));
             setLoading(false);
             return;
         }
@@ -93,14 +63,14 @@ const FamilyProfilePage = () => {
         axios.get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers })
             .then((accountResponse) => {
                 const account = accountResponse.data;
-                if (!account || !account.accountID) throw new Error(t("error_auth"));
+                if (!account || !account.accountID) throw new Error(t("error.error_auth"));
                 setAccountInfo(account);
 
                 return axios.get(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${accountID}`, { headers });
             })
             .then((familyResponse) => {
                 const familyData = familyResponse.data;
-                if (!familyData) throw new Error(t("error_loading"));
+                if (!familyData) throw new Error(t("error.error_loading"));
                 setFamily(familyData);
 
                 return axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
@@ -145,7 +115,7 @@ const FamilyProfilePage = () => {
                     setJobs([]);
                 } else {
                     console.error("API Error:", err);
-                    setError(t("error_loading"));
+                    setError(t("error.error_loading"));
                     setLoading(false);
                 }
             })
@@ -153,38 +123,19 @@ const FamilyProfilePage = () => {
                 setLoading(false);
             });
 
-    }, [isDemo]);
+    }, []);
 
     const mapGender = (genderID) => {
         switch (genderID) {
-            case 1: return t("male");
-            case 2: return t("female");
-            default: return "Không rõ";
+            case 1: return t("user.male");
+            case 2: return t("user.female");
+            case 3: return t("user.other");
+            default: return t("misc.no_description");
         }
     };
 
-    if (shouldShowLoadingOrError) {
-        return (
-            <div className="profile-container">
-                {loading && (
-                    <>
-                        <span className="icon-loading"></span>
-                        <p>{t("loading_data")}</p>
-                    </>
-                )}
-                {error && (
-                    <>
-                        <p className="error">❌ {error}</p>
-                        {!isDemo && (
-                            <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                                {t("view_demo")}
-                            </button>
-                        )}
-                    </>
-                )}
-            </div>
-        );
-    }
+    if (loading) return <div className="profile-container"><p>{t("error.loading_data")}</p></div>;
+    if (error) return <div className="profile-container error">❌ {error}</div>;
 
     return (
         <div className="profile-container">
@@ -198,34 +149,38 @@ const FamilyProfilePage = () => {
                             alt="Avatar"
                         />
                     </div>
-                    <h2 className="profile-name">{family?.name || "Chưa có thông tin"}</h2>
+                    <h2 className="profile-name">
+                        {family?.name || t("misc.no_description")}
+                    </h2>
                 </div>
 
                 {/* Thông tin cá nhân */}
                 <div className="profile-details">
                     <h1 className="profile-title">
-                        Thông tin cá nhân
+                        {t("misc.personal_info")}
                         <button
-                            className="edit-button"
+                            className="profile-edit-button"
                             onClick={() => (window.location.href = "/family/profile/update")}
-                            title="Chỉnh sửa hồ sơ"
+                            title={t("user.profile_update")}
                         >
                             ✏️
                         </button>
                     </h1>
-                    <p className="profile-label"><strong>Tên thường gọi:</strong> {family?.nickname || "Không xác định"}</p>
-                    <p className="profile-label"><strong>Giới tính:</strong> {mapGender(family?.gender)}</p>
-                    <p className="profile-label"><strong>Địa chỉ thường trú:</strong> {family?.address || "Chưa có địa chỉ"}</p>
-                    <p className="profile-label"><strong>Email:</strong> {family?.email || "Không có email"}</p>
-                    <p className="profile-label"><strong>Số điện thoại:</strong> {family?.phone || "Không có số điện thoại"}</p>
+                    <p className="profile-label"><strong>{t("user.nickname")}:</strong> {family?.nickname || t("misc.no_description")}</p>
+                    <p className="profile-label"><strong>{t("user.gender")}:</strong> {mapGender(family?.gender)}</p>
+                    <p className="profile-label"><strong>{t("user.address")}:</strong> {family?.address || t("misc.no_description")}</p>
+                    <p className="profile-label"><strong>Email:</strong> {family?.email || t("misc.no_description")}</p>
+                    <p className="profile-label"><strong>{t("user.phone")}:</strong> {family?.phone || t("misc.no_description")}</p>
                 </div>
             </div>
 
             {/* Giới thiệu */}
             <div className="profile-left">
                 <div className="profile-section">
-                    <h2 className="section-title">Giới thiệu về gia đình</h2>
-                    <p className="profile-introduction">{family?.introduction || "Không có thông tin giới thiệu."}</p>
+                    <h2 className="section-title">{t("misc.introduction")}</h2>
+                    <p className="profile-introduction">
+                        {family?.introduction || t("misc.no_intro")}
+                    </p>
                 </div>
             </div>
         </div>

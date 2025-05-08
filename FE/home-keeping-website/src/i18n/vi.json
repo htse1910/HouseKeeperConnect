@@ -90,7 +90,7 @@
   "error": {
     "error_loading": "Không thể tải dữ liệu.",
     "loading_data": "Đang tải dữ liệu...",
-    "error_auth": "Không tìm thấy thông tin đăng nhập.",
+    "error_auth": "Không tìm thấy thông tin đăng nhập. Vui lòng đăng nhập lại.",
     "error_account": "Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại.",
     "error_skill": "Kỹ năng chưa có thông tin để hiển thị.",
     "error_review": "Đánh giá chưa có thông tin để hiển thị.",
