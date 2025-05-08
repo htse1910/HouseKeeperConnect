@@ -810,6 +810,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Location = oldJobDetail.Location,
                 Price = refundAmount,
                 FeeID = oldJobDetail.FeeID,
+                DetailLocation = oldJobDetail.DetailLocation,
                 PricePerHour = oldJobDetail.PricePerHour,
                 StartDate = abandonDate,
                 EndDate = oldJobDetail.EndDate,
