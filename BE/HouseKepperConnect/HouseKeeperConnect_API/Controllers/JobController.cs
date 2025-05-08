@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.DTO;
+using BusinessObject.Migrations;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
@@ -524,7 +525,7 @@ namespace HouseKeeperConnect_API.Controllers
                 await _jobService.UpdateJobAsync(job);
 
                 // 📅 Create Booking
-                var newBooking = new Booking
+                var newBooking = new BusinessObject.Models.Booking
                 {
                     JobID = jobId,
                     HousekeeperID = jobDetail.HousekeeperID.Value,
@@ -672,41 +673,31 @@ namespace HouseKeeperConnect_API.Controllers
         {
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
             if (jobDetail == null)
-                return NotFound("Không tìm thấy thong tin chi tiết công việc!");
+                return NotFound("Không tìm thấy thông tin chi tiết công việc!");
+
             var abandonDate = DateTime.Now;
             var acc = await _accountService.GetAccountByIDAsync(accountID);
             var hk = new Housekeeper();
+
             if (acc.RoleID == 1)
             {
                 hk = await _houseKeeperService.GetHousekeeperByUserAsync(acc.AccountID);
                 if (hk == null)
-                {
-                    Message = "Không tim thấy thông tin người giúp việc!";
-                    return NotFound(Message);
-                }
+                    return NotFound("Không tìm thấy thông tin người giúp việc!");
+
                 if (jobDetail.HousekeeperID != hk.HousekeeperID)
-                {
-                    Message = "Bạn không phải người giúp việc được chỉ định cho công việc!";
-                    return Forbid(Message);
-                }
+                    return Forbid("Bạn không phải người giúp việc được chỉ định cho công việc!");
             }
-            else if (acc.RoleID == 3)
+            else if (acc.RoleID != 3)
             {
-                // Allow it
+                return Forbid("Bạn không có quyền truy cập!");
             }
-            else
-            {
-                return Forbid("Bạn có không quyền truy cập!");
-            }
+
             var oldJob = await _jobService.GetJobByIDAsync(jobId);
             if (oldJob == null)
                 return NotFound("Không tìm thấy thông tin công việc!");
 
-            var oldJobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
-            if (oldJobDetail == null)
-                return NotFound("Không tìm thấy thông tin chi tiết công việc!");
-
-            if (oldJobDetail.HousekeeperID == null)
+            if (jobDetail.HousekeeperID == null)
                 return BadRequest("Công việc chưa có người giúp việc nào được ứng tuyển!");
 
             var bookings = await _bookingService.GetBookingsByJobIDAsync(oldJob.JobID);
@@ -718,36 +709,43 @@ namespace HouseKeeperConnect_API.Controllers
                 allSlots.AddRange(slots);
             }
 
-            var workedSlots = allSlots
-                .Where(s => s.Date <= abandonDate && s.IsConfirmedByFamily == true && s.Status == BookingSlotStatus.Active)
-                .ToList();
-
             var unworkedSlots = allSlots
                 .Where(s => (s.Date > abandonDate || s.IsConfirmedByFamily == false) && s.Status == BookingSlotStatus.Active)
-                .ToList();
+                .Select(s => new Booking_Slots
+                {
+                    SlotID = s.SlotID,
+                    DayOfWeek = s.DayOfWeek,
+                    Date = s.Date
+                })
+                .ToList(); // Save to reassign
 
-            // ✅ Mark unworked booking slots as Canceled
-            foreach (var slot in unworkedSlots)
+            // Cancel all booking slots
+            foreach (var slot in allSlots)
             {
                 slot.Status = BookingSlotStatus.Canceled;
                 await _bookingSlotsService.UpdateBooking_SlotAsync(slot);
             }
 
-            int totalUnworkedSlots = unworkedSlots.Count;
+            // Cancel old bookings
+            foreach (var booking in bookings)
+            {
+                booking.Status = (int)BookingStatus.Canceled;
+                await _bookingService.UpdateBookingAsync(booking);
+            }
 
-            decimal refundAmount = totalUnworkedSlots * oldJobDetail.PricePerHour;
-            decimal payoutAmount = oldJobDetail.Price - refundAmount;
+            // Refund and payout calculation
+            int totalUnworkedSlots = unworkedSlots.Count;
+            decimal refundAmount = totalUnworkedSlots * jobDetail.PricePerHour;
+            decimal payoutAmount = jobDetail.Price - refundAmount;
 
             var family = await _familyProfileService.GetFamilyByIDAsync(oldJob.FamilyID);
-            var hkAccountId = oldJobDetail.HousekeeperID;
-
+            var hkAccountId = jobDetail.HousekeeperID;
             var familyWallet = await _walletService.GetWalletByUserAsync(family.AccountID);
             var hkWallet = await _walletService.GetWalletByUserAsync(hkAccountId.Value);
 
             if (familyWallet == null || hkWallet == null)
                 return NotFound("Không tìm thấy thông tin ví người dùng!");
 
-            // Refund to family
             familyWallet.Balance += refundAmount;
             familyWallet.UpdatedAt = DateTime.Now;
             await _walletService.UpdateWalletAsync(familyWallet);
@@ -766,7 +764,6 @@ namespace HouseKeeperConnect_API.Controllers
                 Status = (int)TransactionStatus.Completed
             });
 
-            // Payout to housekeeper
             hkWallet.Balance += payoutAmount;
             hkWallet.UpdatedAt = DateTime.Now;
             await _walletService.UpdateWalletAsync(hkWallet);
@@ -785,12 +782,10 @@ namespace HouseKeeperConnect_API.Controllers
                 Status = (int)TransactionStatus.Completed
             });
 
-            // Mark old job as canceled
-            oldJobDetail.EndDate = abandonDate;
-            oldJob.Status = hk.HousekeeperID == oldJobDetail.HousekeeperID
-            ? (int)JobStatus.HousekeeperQuitJob
-            : (int)JobStatus.Canceled;
+            var oldJobDetail = await _jobService.GetJobDetailByJobIDAsync(oldJob.JobID);
 
+            oldJobDetail.EndDate = abandonDate;
+            oldJob.Status = (int)(hk.HousekeeperID == jobDetail.HousekeeperID ? JobStatus.HousekeeperQuitJob : JobStatus.Canceled);
             await _jobService.UpdateJobAsync(oldJob);
             await _jobService.UpdateJobDetailAsync(oldJobDetail);
 
@@ -807,14 +802,14 @@ namespace HouseKeeperConnect_API.Controllers
             var newJobDetail = new JobDetail
             {
                 JobID = newJob.JobID,
-                Location = oldJobDetail.Location,
+                Location = jobDetail.Location,
                 Price = refundAmount,
-                FeeID = oldJobDetail.FeeID,
-                DetailLocation = oldJobDetail.DetailLocation,
-                PricePerHour = oldJobDetail.PricePerHour,
-                StartDate = abandonDate,
-                EndDate = oldJobDetail.EndDate,
-                Description = oldJobDetail.Description,
+                FeeID = jobDetail.FeeID,
+                DetailLocation = jobDetail.DetailLocation,
+                PricePerHour = jobDetail.PricePerHour,
+                StartDate = unworkedSlots.Min(s => s.Date.Value),
+                EndDate = jobDetail.EndDate,
+                Description = jobDetail.Description,
                 IsOffered = false,
                 HousekeeperID = null
             };
@@ -830,29 +825,30 @@ namespace HouseKeeperConnect_API.Controllers
                 });
             }
 
-            // Recreate job slots for new job from canceled booking slots
-            var cloneSlots = unworkedSlots
-                .Where(bs => bs.Date.HasValue)
-                .Select(bs => new
-                {
-                    bs.SlotID,
-                    DayOfWeek = (int)bs.Date.Value.DayOfWeek
-                })
-                .Distinct();
-
-            foreach (var item in cloneSlots)
+            var newBooking = new BusinessObject.Models.Booking
             {
-                await _jobSlotsService.AddJob_SlotsAsync(new Job_Slots
+                JobID = newJob.JobID,
+                Status = (int)BookingStatus.Pending
+            };
+            await _bookingService.AddBookingAsync(newBooking);
+
+            foreach (var slot in unworkedSlots)
+            {
+                var newSlot = new Booking_Slots
                 {
-                    JobID = newJob.JobID,
-                    SlotID = item.SlotID,
-                    DayOfWeek = item.DayOfWeek
-                });
+                    BookingID = newBooking.BookingID,
+                    SlotID = slot.SlotID,
+                    DayOfWeek = slot.DayOfWeek,
+                    Date = slot.Date,
+                    Status = BookingSlotStatus.Active,
+                    IsConfirmedByFamily = false
+                };
+                await _bookingSlotsService.AddBooking_SlotsAsync(newSlot);
             }
 
             return Ok(new
             {
-                message = "Đã hủy bỏ công việc!",
+                message = "Đã hủy bỏ công việc và tạo lại công việc mới!",
                 oldJobId = oldJob.JobID,
                 newJobId = newJob.JobID,
                 payoutToHK = payoutAmount,
