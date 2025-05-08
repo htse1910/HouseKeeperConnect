@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { FaLock, FaEnvelope } from 'react-icons/fa';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import { UserRoleContext } from "../components/UserRoleProvider";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
-
+import { useLocation } from 'react-router-dom';
 const GOOGLE_CLIENT_ID = "681033702940-2pmjs4mfjeqjdd2k16qlo9fdl76ul3mg.apps.googleusercontent.com";
 
 function LoginPage() {
@@ -16,7 +16,14 @@ function LoginPage() {
   const [googleCredential, setGoogleCredential] = useState(null);
   const navigate = useNavigate();
   const { setUserRole } = useContext(UserRoleContext);
-
+  const location = useLocation();
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const role = parseInt(queryParams.get('role'));
+    if (role === 1 || role === 2) {
+      setSelectedRoleID(role);
+    }
+  }, [location.search]);
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
