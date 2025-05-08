@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import AdminSidebar from "../components/AdminSidebar";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const AdminServiceListPage = () => {
   const [services, setServices] = useState([]);
@@ -10,7 +11,7 @@ const AdminServiceListPage = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("authToken");
-      const res = await fetch("http://localhost:5280/api/Service/ServiceList", {
+      const res = await fetch(`${API_BASE_URL}/Service/ServiceList`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
