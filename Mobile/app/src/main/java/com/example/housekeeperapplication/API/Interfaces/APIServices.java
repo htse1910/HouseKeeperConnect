@@ -8,6 +8,7 @@ import com.example.housekeeperapplication.Model.DTOs.ChatReturnDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyJobSummaryDTO;
+import com.example.housekeeperapplication.Model.DTOs.FeeDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.HouseKeeperSkillDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.Housekeeper;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDetailDTO;
@@ -256,6 +257,7 @@ public interface APIServices {
             @Query("JobName") String jobName,
             @Query("JobType") int jobType,
             @Query("Location") String location,
+            @Query("DetailLocation") String detailLocation,
             @Query("Price") double price,
             @Query("StartDate") String startDate,
             @Query("EndDate") String endDate,
@@ -301,4 +303,6 @@ public interface APIServices {
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
     );
+    @GET("api/PlatformFee/GetPlatformFeeByID")
+    Call<FeeDisplayDTO> getPlatformFeeByID(@Query("fID") int feeID);
 }

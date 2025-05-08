@@ -15,8 +15,8 @@ public class BookingHousekeeperDTO {
         public int jobDetailID;
         public int jobID;
         public String location;
-        public int price;
-        public int pricePerHour;
+        public double price;
+        public double pricePerHour;
         public int feeID;
         public String startDate;
         public String endDate;
