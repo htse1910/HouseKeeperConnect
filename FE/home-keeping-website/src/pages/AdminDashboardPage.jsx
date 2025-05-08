@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import CountUp from "react-countup";
 import AdminSidebar from "../components/AdminSidebar";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const AdminDashboardPage = () => {
   const [userCount, setUserCount] = useState(0);
@@ -24,19 +25,19 @@ const AdminDashboardPage = () => {
         const token = localStorage.getItem("authToken");
 
         const [usersRes, familiesRes, housekeepersRes, serviceRes, transactionRes] = await Promise.all([
-          fetch("http://localhost:5280/api/Account/AccountList?pageNumber=1&pageSize=9999999", {
+          fetch(`${API_BASE_URL}/Account/AccountList?pageNumber=1&pageSize=9999999`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5280/api/Families/FamilyList?pageNumber=1&pageSize=100", {
+          fetch(`${API_BASE_URL}/Families/FamilyList?pageNumber=1&pageSize=100`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5280/api/HouseKeeper/HousekeeperDisplay?pageNumber=1&pageSize=100", {
+          fetch(`${API_BASE_URL}/HouseKeeper/HousekeeperDisplay?pageNumber=1&pageSize=100`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5280/api/Service/ServiceList", {
+          fetch(`${API_BASE_URL}/Service/ServiceList`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:5280/api/Transaction/TransactionList?pageNumber=1&pageSize=9999999", {
+          fetch(`${API_BASE_URL}/Transaction/TransactionList?pageNumber=1&pageSize=9999999`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);

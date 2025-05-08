@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import UserTableRow from "../components/UserTableRow";
 import UserDetailsModal from "../components/UserDetailsModal";
 import AdminSidebar from "../components/AdminSidebar";
+import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 
 const AdminUserListPage = () => {
   const [users, setUsers] = useState([]);
@@ -13,7 +14,7 @@ const AdminUserListPage = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("authToken");
-      const res = await fetch("http://localhost:5280/api/Account/AccountList?pageNumber=1&pageSize=9999999", {
+      const res = await fetch(`${API_BASE_URL}/Account/AccountList?pageNumber=1&pageSize=9999999`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -28,7 +29,7 @@ const AdminUserListPage = () => {
   const handleChangeStatus = async (id) => {
     try {
       const token = localStorage.getItem("authToken");
-      const res = await fetch(`http://localhost:5280/api/Account/ChangeStatus?id=${id}`, {
+      const res = await fetch(`${API_BASE_URL}/Account/ChangeStatus?id=${id}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       });
