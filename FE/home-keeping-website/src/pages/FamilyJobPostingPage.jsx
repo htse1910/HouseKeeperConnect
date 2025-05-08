@@ -5,7 +5,7 @@ import axios from "axios";
 import "../assets/styles/Job.css";
 import "../assets/styles/Payment.css";
 import { formatDateTime, formatTotalCurrency } from "../utils/formatData";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
 
 const FamilyJobPostingPage = () => {
     const { t } = useTranslation();
@@ -39,7 +39,8 @@ const FamilyJobPostingPage = () => {
         DayofWeek: [],
         ServiceIDs: [],
         SlotIDs: [],
-        IsOffered: false
+        IsOffered: false,
+        DetailLocation: "",
     });
 
     const [services, setServices] = useState([]);
@@ -47,6 +48,7 @@ const FamilyJobPostingPage = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
+    const [fieldErrors, setFieldErrors] = useState({});
 
     const authToken = localStorage.getItem("authToken");
     const accountID = localStorage.getItem("accountID");
@@ -191,28 +193,97 @@ const FamilyJobPostingPage = () => {
                     : [slotID], // fallback nếu SlotIDs bị undefined
             }));
         } else if (name === "JobType") {
-            setFormData((prev) => ({
-                ...prev,
-                JobType: value,
-                EndDate: getDefaultEndDate(prev.StartDate, value) // cập nhật EndDate
-            }));
+            setFormData((prev) => {
+                const newJobType = parseInt(value);
+                const offset = newJobType === 2 ? 30 : 7;
+
+                const start = new Date(prev.StartDate);
+                const currentEnd = new Date(prev.EndDate);
+                const defaultEnd = new Date(start);
+                defaultEnd.setDate(start.getDate() + offset);
+
+                // Nếu endDate hiện tại < defaultEnd → cập nhật lại, ngược lại giữ nguyên
+                const shouldUpdateEndDate = currentEnd < defaultEnd;
+                return {
+                    ...prev,
+                    JobType: value,
+                    EndDate: shouldUpdateEndDate ? defaultEnd.toISOString().split("T")[0] : prev.EndDate
+                };
+            });
         } else if (name === "StartDate") {
             const newStart = value;
-            const newEnd = getDefaultEndDate(newStart, formData.JobType || 1);
 
-            setFormData((prev) => ({
-                ...prev,
-                StartDate: newStart,
-                EndDate: newEnd
-            }));
+            setFormData((prev) => {
+                const jobType = parseInt(prev.JobType) || 1;
+
+                const previousDefaultEnd = getDefaultEndDate(prev.StartDate, jobType);
+                const nextDefaultEnd = getDefaultEndDate(newStart, jobType);
+
+                const userHasChangedEndDate = prev.EndDate !== previousDefaultEnd;
+                const startDateObj = new Date(newStart);
+                const endDateObj = new Date(prev.EndDate);
+
+                const shouldForceUpdate = startDateObj > endDateObj;
+                const shouldAutoUpdate = !userHasChangedEndDate || shouldForceUpdate;
+
+                const finalEndDate = shouldAutoUpdate ? nextDefaultEnd : prev.EndDate;
+
+                // ✅ Tự động chọn thứ nếu StartDate === EndDate
+                const autoDayofWeek =
+                    newStart === finalEndDate ? [new Date(newStart).getDay()] : prev.DayofWeek;
+
+                return {
+                    ...prev,
+                    StartDate: newStart,
+                    EndDate: finalEndDate,
+                    DayofWeek: autoDayofWeek
+                };
+            });
         } else {
             setFormData((prev) => ({ ...prev, [name]: value }));
         }
     };
 
+    const validSlotList = useValidSlotList(formData, setFormData, setFieldErrors, slotList);
+
+    function useValidSlotList(formData, setFormData, setFieldErrors, slotList) {
+        const today = new Date().toISOString().split("T")[0];
+        const isToday = formData.StartDate === today;
+        const isSameDay = formData.StartDate === formData.EndDate;
+
+        if (isToday && isSameDay) {
+            const now = new Date();
+            now.setMinutes(0, 0, 0);
+            const cutoffHour = now.getHours() + 2;
+
+            const available = slotList.filter((slot) => {
+                const [startHour] = slot.time.split(" - ")[0].split(":").map(Number);
+                return startHour >= cutoffHour;
+            });
+
+            if (available.length === 0) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                setFormData((prev) => ({
+                    ...prev,
+                    EndDate: tomorrow.toISOString().split("T")[0],
+                }));
+                setFieldErrors(prev => ({
+                    ...prev,
+                    SlotIDs: "❌ Không còn khung giờ hợp lệ trong hôm nay. Hệ thống đã tự cập nhật ngày kết thúc."
+                }));
+            }
+
+            return available;
+        }
+
+        return slotList;
+    }
+
     const jobNameRef = useRef(null);
     const jobTypeRef = useRef(null);
     const locationRef = useRef(null);
+    const detailLocationRef = useRef(null);
     const priceRef = useRef(null);
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
@@ -222,34 +293,37 @@ const FamilyJobPostingPage = () => {
 
     const validateForm = (data) => {
         if (!family?.familyID) {
-            return { msg: t("job.jobPost.familyRequired"), ref: null };
+            return { field: "Family", msg: t("job.jobPost.familyRequired"), ref: null };
         }
         if (!data.JobName.trim()) {
-            return { msg: t("job.jobPost.jobTitleRequired"), ref: jobNameRef };
+            return { field: "JobName", msg: t("job.jobPost.jobTitleRequired"), ref: jobNameRef };
         }
         if (!data.JobType || isNaN(data.JobType)) {
-            return { msg: t("job.jobPost.jobTypeRequired"), ref: jobTypeRef };
+            return { field: "JobType", msg: t("job.jobPost.jobTypeRequired"), ref: jobTypeRef };
         }
         if (!data.Location.trim()) {
-            return { msg: t("job.jobPost.locationRequired"), ref: locationRef };
+            return { field: "Location", msg: t("job.jobPost.locationRequired"), ref: locationRef };
+        }
+        if (!data.Location.trim()) {
+            return { field: "DetailLocation", msg: t("job.jobPost.detailLocationRequired"), ref: detailLocationRef };
         }
         if (!data.StartDate) {
-            return { msg: t("job.jobPost.startDateRequired"), ref: startDateRef };
+            return { field: "StartDate", msg: t("job.jobPost.startDateRequired"), ref: startDateRef };
         }
         if (!data.EndDate) {
-            return { msg: t("job.jobPost.endDateRequired"), ref: endDateRef };
+            return { field: "EndDate", msg: t("job.jobPost.endDateRequired"), ref: endDateRef };
         }
         if (new Date(data.StartDate) > new Date(data.EndDate)) {
-            return { msg: t("job.jobPost.dateInvalid"), ref: startDateRef };
+            return { field: "StartDate", msg: t("job.jobPost.dateInvalid"), ref: startDateRef };
         }
         if (!Array.isArray(data.ServiceIDs) || data.ServiceIDs.length === 0) {
-            return { msg: t("job.jobPost.serviceRequired"), ref: serviceRef };
+            return { field: "ServiceIDs", msg: t("job.jobPost.serviceRequired"), ref: serviceRef };
         }
         if (!Array.isArray(data.DayofWeek) || data.DayofWeek.length === 0) {
-            return { msg: t("job.jobPost.workingDaysRequired"), ref: dayRef };
+            return { field: "DayofWeek", msg: t("job.jobPost.workingDaysRequired"), ref: dayRef };
         }
         if (!Array.isArray(data.SlotIDs) || data.SlotIDs.length === 0) {
-            return { msg: t("job.jobPost.slotRequired"), ref: slotRef };
+            return { field: "SlotIDs", msg: t("job.jobPost.slotRequired"), ref: slotRef };
         }
 
         return null;
@@ -260,6 +334,7 @@ const FamilyJobPostingPage = () => {
         setLoading(true);
         setMessage(null);
         setError(null);
+        setFieldErrors({}); // reset lỗi từng trường
 
         const dataToSubmit = {
             JobName: formData.JobName,
@@ -273,13 +348,14 @@ const FamilyJobPostingPage = () => {
             ServiceIDs: formData.ServiceIDs.map((id) => parseInt(id)),
             SlotIDs: formData.SlotIDs.map((id) => parseInt(id)),
             DayofWeek: formData.DayofWeek.map((d) => parseInt(d)),
+            DetailLocation: formData.DetailLocation,
         };
 
         const validationError = validateForm(dataToSubmit);
         if (validationError) {
-            setError(validationError.msg);
+            setFieldErrors({ [validationError.field]: validationError.msg });
             if (validationError.ref?.current) {
-                validationError.ref.current.focus();
+                validationError.ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
             }
             setLoading(false);
             window.scrollTo({ top: 0, behavior: "smooth" });
@@ -293,14 +369,10 @@ const FamilyJobPostingPage = () => {
                 {
                     headers,
                     params: dataToSubmit,
-                    paramsSerializer: {
-                        indexes: null
-                    }
+                    paramsSerializer: { indexes: null }
                 }
             );
 
-            console.log("Data Submited", dataToSubmit);
-            console.log("Job created:", response.data);
             setMessage(t("job.jobPost.postingSuccess"));
             window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -315,9 +387,9 @@ const FamilyJobPostingPage = () => {
                 DayofWeek: [],
                 ServiceIDs: [],
                 IsOffered: false,
+                DetailLocation: "",
             });
 
-            // Đóng tất cả <details>
             document.querySelectorAll("details").forEach((d) => {
                 d.open = false;
             });
@@ -326,27 +398,54 @@ const FamilyJobPostingPage = () => {
                 jobID: response?.data?.jobID || null,
                 jobName: formData.JobName,
                 amount: calculatedPrice,
-                fee: calculatedPrice * 0.1,
-                housekeeperEarnings: calculatedPrice * 0.9,
+                fee: calculatedPrice - baseSalary,
+                housekeeperEarnings: baseSalary,
                 createdAt: new Date().toISOString(),
                 currentBalance: wallet?.balance - calculatedPrice,
                 topUpNeeded: 0,
             });
             setShowPaymentModal(true);
 
+            console.log(dataToSubmit);
         } catch (err) {
             console.error("❌ Lỗi khi gọi AddJob:", err);
-            const serverMsg =
-                err?.response?.data?.message || "Đã xảy ra lỗi khi đăng công việc.";
-            setError(`❌ ${serverMsg}`);
+
+            const data = err?.response?.data;
+            const status = err?.response?.status;
+
+            if (typeof data === "string") {
+                setFieldErrors({ server: `❌ ${data}` });
+            } else if (typeof data === "object" && data?.message) {
+                if (
+                    data.requiredAmount !== undefined &&
+                    data.currentBalance !== undefined &&
+                    data.topUpNeeded !== undefined
+                ) {
+                    const topUp = data.topUpNeeded.toLocaleString("vi-VN");
+                    const current = data.currentBalance.toLocaleString("vi-VN");
+                    const required = data.requiredAmount.toLocaleString("vi-VN");
+
+                    setFieldErrors({
+                        wallet: `❌ ${t("job.notEnoughBalance", { required, current, topUp })}`
+                    });
+                } else {
+                    setFieldErrors({ server: `❌ ${data.message}` });
+                }
+            } else if (status === 409 && typeof data === "string") {
+                setFieldErrors({ SlotIDs: `❌ ${data}` }); // Trường hợp trùng slot
+            } else {
+                setFieldErrors({ server: "❌ Đã xảy ra lỗi khi đăng công việc." });
+            }
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
         } finally {
             setLoading(false);
         }
     };
 
+    const [baseSalary, setBaseSalary] = useState(0);
+    const [platformFee, setPlatformFee] = useState(0);
     const [calculatedPrice, setCalculatedPrice] = useState(0);
-    const platformFee = Math.round(calculatedPrice * 0.1);
-    const baseAmount = calculatedPrice - platformFee;
 
     const calculatePrice = () => {
         if (
@@ -360,27 +459,43 @@ const FamilyJobPostingPage = () => {
             return;
         }
 
+        // Lấy giá dịch vụ đã chọn
         const selectedPrices = services
             .filter(s => formData.ServiceIDs.includes(s.serviceID))
             .map(s => s.price || 0);
 
-        const pricePerHour = selectedPrices.reduce((a, b) => a + b, 0);
-        const slotCount = formData.SlotIDs.length;
-        const dayCount = formData.DayofWeek.length;
+        if (selectedPrices.length === 0) {
+            setCalculatedPrice(0);
+            return;
+        }
 
+        // Giá trung bình mỗi giờ
+        const averagePricePerHour = selectedPrices.reduce((a, b) => a + b, 0) / selectedPrices.length;
+
+        // Tính tổng số slot thực tế
+        let totalSlots = 0;
         const start = new Date(formData.StartDate);
         const end = new Date(formData.EndDate);
-        const totalDays = (end - start) / (1000 * 60 * 60 * 24);
-        const weeks = Math.ceil(totalDays / 7);
 
-        const totalSlots = slotCount * dayCount * weeks;
-        const totalJobPrice = pricePerHour * totalSlots;
+        for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+            const day = date.getDay(); // 0 = Sunday
+            if (formData.DayofWeek.includes(day)) {
+                totalSlots += formData.SlotIDs.length;
+            }
+        }
 
-        const chargeAmount = parseInt(formData.JobType) === 1
-            ? pricePerHour * slotCount * dayCount
-            : totalJobPrice;
+        // Tổng lương
+        const baseSalary = averagePricePerHour * totalSlots;
+        setBaseSalary(baseSalary);
 
-        setCalculatedPrice(chargeAmount);
+        // Phí nền tảng
+        const feePercent = parseInt(formData.JobType) === 1 ? 0.10 : 0.10;
+        const platformFee = baseSalary * feePercent;
+        setPlatformFee(platformFee);
+
+        // Tổng tiền phải trả
+        const totalCharge = baseSalary + platformFee;
+        setCalculatedPrice(totalCharge);
     };
 
     useEffect(() => {
@@ -403,12 +518,9 @@ const FamilyJobPostingPage = () => {
                     </>
                 )}
                 {error && (
-                    <>
-                        <p className="error">❌ {error}</p>
-                        <button className="btn-secondary" onClick={() => window.location.search = "?demo=true"}>
-                            {t("view_demo")}
-                        </button>
-                    </>
+                    <div className="job-posting-alert job-posting-error">
+                        ❌ {error}
+                    </div>
                 )}
             </div>
         );
@@ -429,9 +541,18 @@ const FamilyJobPostingPage = () => {
 
             {message && <p className="job-posting-alert job-posting-success">{t("job.jobPost.postingSuccess")}</p>}
             {error && <p className="job-posting-alert job-posting-error">{error}</p>}
+            {fieldErrors.server && (
+                <p className="job-posting-alert job-posting-error">
+                    {fieldErrors.server}
+                </p>
+            )}
+            {fieldErrors.wallet && (
+                <p className="job-posting-alert job-posting-error">
+                    {fieldErrors.wallet}
+                </p>
+            )}
 
             <form onSubmit={handleSubmit} className="job-posting-form-grid">
-
                 {/* Tiêu đề & Địa điểm */}
                 <div className="job-posting-group">
                     <div className="job-posting-row">
@@ -446,7 +567,11 @@ const FamilyJobPostingPage = () => {
                             placeholder={t("job.jobPost.jobTitlePlaceholder")}
                             required
                         />
+                        {fieldErrors.JobName && (
+                            <span className="field-error">{fieldErrors.JobName}</span>
+                        )}
                     </div>
+
                     <div className="job-posting-row">
                         <label>{t("job.job_type")}</label>
                         <select
@@ -462,6 +587,9 @@ const FamilyJobPostingPage = () => {
                             <option value="2">{t("job.jobPost.period")}</option>
                         </select>
                     </div>
+                    {fieldErrors.JobType && (
+                        <div className="field-error">{fieldErrors.JobType}</div>
+                    )}
                     <div className="job-posting-row">
                         <label>{t("misc.location")}</label>
                         <select
@@ -480,6 +608,24 @@ const FamilyJobPostingPage = () => {
                             ))}
                         </select>
                     </div>
+                    {fieldErrors.Location && (
+                        <div className="field-error">{fieldErrors.Location}</div>
+                    )}
+                    <div className="job-posting-row">
+                        <label>{t("misc.location_detail")}</label>
+                        <input
+                            type="text"
+                            name="DetailLocation"
+                            className="job-posting-input"
+                            value={formData.DetailLocation}
+                            onChange={handleChange}
+                            placeholder={t("misc.location_detail_placeholder")}
+                            required
+                        />
+                    </div>
+                    {fieldErrors.DetailLocation && (
+                        <div className="field-error">{fieldErrors.Location}</div>
+                    )}
                 </div>
 
                 {/* Dịch vụ phân loại theo serviceTypeName */}
@@ -519,6 +665,9 @@ const FamilyJobPostingPage = () => {
                                 </details>
                             </div>
                         ))}
+                        {fieldErrors.ServiceIDs && (
+                            <div className="field-error">{fieldErrors.ServiceIDs}</div>
+                        )}
                     </div>
                 </div>
 
@@ -537,6 +686,9 @@ const FamilyJobPostingPage = () => {
                             placeholder={t("job.jobPost.startDatePlaceholder")}
                             required
                         />
+                        {fieldErrors.StartDate && (
+                            <div className="field-error">{fieldErrors.StartDate}</div>
+                        )}
                     </div>
                     <div className="job-posting-pair">
                         <label>{t("job.jobPost.endDate")}</label>
@@ -555,6 +707,9 @@ const FamilyJobPostingPage = () => {
                             placeholder={t("job.jobPost.endDatePlaceholder")}
                             required
                         />
+                        {fieldErrors.EndDate && (
+                            <div className="field-error">{fieldErrors.EndDate}</div>
+                        )}
                     </div>
                 </div>
 
@@ -593,39 +748,49 @@ const FamilyJobPostingPage = () => {
                             </label>
                         ))}
                     </div>
+                    {fieldErrors.DayofWeek && (
+                        <div className="field-error">{fieldErrors.DayofWeek}</div>
+                    )}
                 </div>
 
                 {/* Mức lương & thời gian */}
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                        <label>{t("misc.salary")}</label>
+                        <label>{t("job.jobPost.totalCharge")}</label>
                         <div className="job-posting-auto-price">
                             <span>{formatTotalCurrency(calculatedPrice, t)}</span>
                             <p className="job-posting-note">{t("job.jobPost.priceAutoCalculationNote")}</p>
 
                             <ul className="job-posting-service-detail-list">
-                                {/* Dịch vụ */}
-                                {services
-                                    .filter(s => formData.ServiceIDs.includes(s.serviceID))
-                                    .map(s => (
-                                        <li key={s.serviceID} className="job-posting-service-detail-item">
-                                            <span>{s.serviceName}</span>
-                                            <span style={{ float: "right" }}>
-                                                {formatTotalCurrency(s.price, t)} / {t("job.jobPost.salaryUnitPerHour")}
-                                            </span>
-                                        </li>
-                                    ))}
 
-                                {/* Tổng lương trước phí */}
+                                {/* Tổng lương */}
                                 <li className="job-posting-service-detail-item">
                                     <span>{t("job.jobPost.baseSalary")}</span>
-                                    <span style={{ float: "right" }}>{formatTotalCurrency(baseAmount, t)}</span>
+                                    <span style={{ float: "right" }}>{formatTotalCurrency(baseSalary, t)}</span>
+                                    {/* Dịch vụ */}
+                                    {services
+                                        .filter(s => formData.ServiceIDs.includes(s.serviceID))
+                                        .map(s => (
+                                            <ol key={s.serviceID}>
+                                                <span>{s.serviceName}</span>
+                                                <span style={{ float: "right" }}>
+                                                    {formatTotalCurrency(s.price, t)} / {t("job.jobPost.salaryUnitPerHour")}
+                                                </span>
+                                            </ol>
+                                        ))}
+
                                 </li>
 
                                 {/* Phí nền tảng */}
                                 <li className="job-posting-service-detail-item">
-                                    <span>{t("job.jobPost.platformFee")}</span>
-                                    <span style={{ float: "right" }}>{formatTotalCurrency(platformFee, t)}</span>
+                                    <span>
+                                        {t("job.jobPost.platformFee", {
+                                            percent: parseInt(formData.JobType) === 2 ? "10%" : "10%"
+                                        })}
+                                    </span>
+                                    <span style={{ float: "right" }}>
+                                        {formatTotalCurrency(platformFee, t)}
+                                    </span>
                                 </li>
                             </ul>
                         </div>
@@ -633,19 +798,28 @@ const FamilyJobPostingPage = () => {
                     <div className="job-posting-section job-posting-section-full">
                         <label>{t("job.jobPost.workingTimeLabel")}</label>
                         <div ref={slotRef} className="job-posting-slot-checkboxes">
-                            {slotList.map((slot) => (
-                                <label key={slot.slotID} className="job-posting-checkbox-slot">
-                                    <input
-                                        type="checkbox"
-                                        name="SlotIDs"
-                                        value={slot.slotID}
-                                        checked={formData.SlotIDs.includes(slot.slotID)}
-                                        onChange={handleChange}
-                                    />
-                                    <span>{slot.time}</span>
-                                </label>
-                            ))}
+                            {slotList.map((slot) => {
+                                const isDisabled = !validSlotList.find(s => s.slotID === slot.slotID);
+                                return (
+                                    <label key={slot.slotID} className="job-posting-checkbox-slot">
+                                        <input
+                                            type="checkbox"
+                                            name="SlotIDs"
+                                            value={slot.slotID}
+                                            checked={formData.SlotIDs.includes(slot.slotID)}
+                                            onChange={handleChange}
+                                            disabled={isDisabled}
+                                        />
+                                        <span style={isDisabled ? { opacity: 0.5, cursor: "not-allowed" } : {}}>
+                                            {slot.time}
+                                        </span>
+                                    </label>
+                                );
+                            })}
                         </div>
+                        {fieldErrors.SlotIDs && (
+                            <div className="field-error">{fieldErrors.SlotIDs}</div>
+                        )}
                     </div>
                 </div>
 
@@ -659,6 +833,7 @@ const FamilyJobPostingPage = () => {
                         value={formData.Description}
                         onChange={handleChange}
                         placeholder={t("job.jobPost.descriptionPlaceholder")}
+                        required
                     ></textarea>
                 </div>
 
@@ -669,7 +844,7 @@ const FamilyJobPostingPage = () => {
                         className="job-posting-submit-btn btn-primary"
                         disabled={loading}
                     >
-                        {loading ? t("job.jobPost.posting") : t("misc.post_now")}
+                        {loading ? t("job.jobPost.posting") : t("job.jobPost.post_now")}
                     </button>
                 </div>
             </form>
@@ -682,12 +857,13 @@ const FamilyJobPostingPage = () => {
 
                         <div className="payment-modal-info">
                             <p><strong>{t("job.job_title")}:</strong> {paymentInfo.jobName || `#${paymentInfo.jobID}`}</p>
-                            <p><strong>{t("misc.date")}:</strong> {formatDateTime(paymentInfo.createdAt)}</p>
-                            <p><strong>{t("misc.amount")}:</strong> {formatTotalCurrency(paymentInfo.amount, t)}</p>
-                            <p><strong>{t("job.jobPost.platformFee")}:</strong> {formatTotalCurrency(paymentInfo.fee, t)}</p>
-                            <p><strong>{t("transaction.transactionStatus.payout")}:</strong> {formatTotalCurrency(paymentInfo.housekeeperEarnings, t)}</p>
+                            <p><strong>{t("job.jobInfo.date")}:</strong> {formatDateTime(paymentInfo.createdAt)}</p>
+                            <p><strong>{t("job.jobInfo.amount")}:</strong> {formatTotalCurrency(paymentInfo.amount, t)}</p>
+                            <p><strong>{t("job.jobPost.platformFee", { percent: `${paymentInfo.platformFeePercent || 10}%` })}:
+                            </strong> {formatTotalCurrency(paymentInfo.fee, t)}</p>
+                            <p><strong>{t("job.jobInfo.payout")}:</strong> {formatTotalCurrency(paymentInfo.housekeeperEarnings, t)}</p>
                             <p className="payment-balance">
-                                {t("misc.current_balance")}: {formatTotalCurrency(paymentInfo.currentBalance, t)}
+                                {t("misc.current_balance")}: {formatTotalCurrency(wallet.balance, t)}
                             </p>
                         </div>
 

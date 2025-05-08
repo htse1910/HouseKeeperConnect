@@ -88,6 +88,7 @@
   },
   "error": {
     "error_loading": "Không thể tải dữ liệu.",
+    "loading_data": "Đang tải dữ liệu...",
     "error_auth": "Không tìm thấy thông tin đăng nhập.",
     "error_account": "Không tìm thấy thông tin tài khoản. Vui lòng đăng nhập lại.",
     "error_skill": "Kỹ năng chưa có thông tin để hiển thị.",
@@ -118,6 +119,7 @@
       "no_notifications": "Không có thông báo nào"
     }
   },
+  "payment": {},
   "deposit": {
     "deposit_title": "Nạp tiền vào ví",
     "deposit_description": "Nhập số tiền bạn muốn nạp vào tài khoản để đăng công việc.",
@@ -137,6 +139,7 @@
     "deposit_minimum": "Bạn phải nạp ít nhất 10.000 VNĐ"
   },
   "job": {
+    "notEnoughBalance": "Không đủ tiền để tạo công việc. (Cần: {{required}} VNĐ, hiện có: {{current}} VNĐ, thiếu: {{topUp}} VNĐ)",
     "job": {
       "posted": "Công việc đã đăng",
       "completed": "Công việc đã hoàn thành",
@@ -165,17 +168,19 @@
     "jobPost": {
       "once": "Một lần duy nhất",
       "period": "Định kỳ",
+      "post_now": "Đăng ngay",
       "cancelBillModel": "Tạo công việc mới",
       "backToManagementPage": "Đến Quản lý công việc",
       "success": "🎉 Công việc đã được đăng thành công!",
       "offer_success": "🎉 Bạn đã mời người giúp việc thành công!",
       "jobTitlePlaceholder": "Nhập tiêu đề công việc, ví dụ: Giúp việc buổi sáng",
-      "locationPlaceholder": "Nhập địa điểm làm việc, ví dụ: Quận 1, TP.HCM",
+      "locationPlaceholder": "Chọn vị trí của bạn, ví dụ: Quận 1, TP.HCM",
       "salaryPlaceholder": "Nhập lương mỗi giờ",
       "salaryUnit": "VNĐ / giờ",
-      "platformFee": "Phí nền tảng (10%)",
-    "baseSalary": "Lương trước phí",
-    "salaryUnitPerHour": "giờ",
+      "platformFee": "Phí nền tảng {{percent}}",
+      "totalCharge": "Tổng tiền phải trả",
+      "baseSalary": "Lương người giúp việc",
+      "salaryUnitPerHour": "giờ",
       "workingTimeLabel": "Thời gian làm việc",
       "startLabel": "Bắt đầu",
       "endLabel": "Kết thúc",
@@ -195,6 +200,7 @@
       "jobTitleRequired": "Vui lòng nhập tiêu đề công việc.",
       "jobTypeRequired": "Vui lòng chọn loại công việc.",
       "locationRequired": "Vui lòng nhập địa điểm làm việc.",
+      "detailLocationRequired": "Vui lòng ghi rõ địa điểm làm việc.",
       "salaryInvalid": "Vui lòng nhập mức lương hợp lệ (lớn hơn 0).",
       "dateRequired": "Vui lòng chọn ngày bắt đầu và kết thúc.",
       "dateInvalid": "Ngày bắt đầu không thể lớn hơn ngày kết thúc.",
@@ -205,6 +211,12 @@
       "priceAutoCalculationNote": "💡 Hệ thống tự động tính lương dựa trên dịch vụ, thời gian và loại công việc.",
       "noDaySelected": "Chưa chọn ngày",
       "selectedServiceBreakdown": "Chi tiết dịch vụ đã chọn"
+    },
+    "jobInfo": {
+      "date": "Ngày thanh toán",
+      "amount": "Tổng thanh toán",
+      "current_balance": "Số dư hiện tại",
+      "payout": "Tiền trả cho người giúp việc"
     },
     "job_accepted": "Công việc đã chấp nhận",
     "job_canceled": "Công việc đã hủy",
@@ -281,6 +293,8 @@
     "refresh": "Tải lại trang",
     "housekeepers_waiting": "Người giúp việc đang chờ",
     "location": "Địa điểm",
+    "location_detail": "Địa điểm chi tiết",
+    "location_detail_placeholder": "Ghi rõ chi tiết địa chỉ, bao gồm số nhà, tên đường,...",
     "no_description": "Không có mô tả",
     "no_jobs_found": "Không tìm thấy công việc nào",
     "no_transactions": "Không có giao dịch nào",

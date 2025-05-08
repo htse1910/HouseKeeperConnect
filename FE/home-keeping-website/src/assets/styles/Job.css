@@ -129,6 +129,12 @@
     gap: 32px;
 }
 
+.field-error {
+    color: #ff4d4f;
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
+
 /* Section chia nhóm logic (căn hàng 2 cột) */
 .job-posting-section {
     display: grid;
@@ -148,6 +154,21 @@
     min-width: 240px;
 }
 
+.job-posting-service-detail-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .job-posting-service-detail-item {
+    position: relative;
+    padding-left: 1.5em;
+    margin-bottom: 0.5em;
+  }
+  .job-posting-service-detail-item ol {
+    font-size: var(--font-size-small);
+}
+  
+
 /* Checkbox dịch vụ dạng thẻ */
 .job-posting-service-checkboxes {
     display: grid;
@@ -155,6 +176,12 @@
     gap: 10px;
 }
 
+.job-posting-service-checkboxes:has(+ .field-error) {
+    border: 1px solid #ff4d4f;
+    padding: 8px;
+    border-radius: 6px;
+  }
+  
 .job-posting-checkbox-card {
     display: flex;
     align-items: center;
