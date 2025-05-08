@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import API_BASE_URL from "../config/apiConfig";
 import { useNavigate } from "react-router-dom";
-import { Badge, Spinner } from "react-bootstrap";
+import { Badge, Spinner, Button, Modal, Form } from "react-bootstrap";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SUPPORT_TYPES = {
   1: "Tài khoản",
@@ -22,6 +24,12 @@ const HousekeeperSupportRequestPage = () => {
   const authToken = localStorage.getItem("authToken");
   const navigate = useNavigate();
   const [staffMap, setStaffMap] = useState({});
+
+  const [showModal, setShowModal] = useState(false);
+  const [supportContent, setSupportContent] = useState("");
+  const [supportImage, setSupportImage] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [supportType, setSupportType] = useState(1);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -66,9 +74,55 @@ const HousekeeperSupportRequestPage = () => {
     fetchRequests();
   }, [accountID, authToken]);
 
+  const submitSupportRequest = async () => {
+    setSending(true);
+    const formData = new FormData();
+    if (supportImage) {
+      formData.append("Picture", supportImage);
+    }
+
+    const query = new URLSearchParams({
+      RequestedBy: accountID,
+      Type: supportType,
+      Content: supportContent,
+    });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/SupportRequest/AddSupportRequest?${query}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        toast.success("Gửi yêu cầu hỗ trợ thành công!");
+        setShowModal(false);
+        setSupportContent("");
+        setSupportImage(null);
+        setSupportType(1);
+      } else {
+        toast.error("Gửi thất bại. Vui lòng thử lại.");
+      }
+    } catch (err) {
+      console.error("Support request failed", err);
+      toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <div className="container py-4">
-      <h3 className="mb-4">Yêu cầu hỗ trợ kỹ thuật của bạn</h3>
+      <ToastContainer position="bottom-right" autoClose={3000} />
+
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h3>Yêu cầu hỗ trợ kỹ thuật của bạn</h3>
+        <Button variant="outline-primary" onClick={() => setShowModal(true)}>
+          Gửi yêu cầu hỗ trợ mới
+        </Button>
+      </div>
 
       {loading ? (
         <Spinner animation="border" />
@@ -119,9 +173,59 @@ const HousekeeperSupportRequestPage = () => {
         </div>
       )}
 
-      <button className="btn btn-secondary mt-3" onClick={() => navigate("/housekeeper/dashboard")}>
-        ← Quay lại bảng điều khiển
-      </button>
+      <Button className="mt-3" variant="secondary" onClick={() => navigate("/housekeeper/dashboard")}>← Quay lại bảng điều khiển</Button>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Yêu cầu hỗ trợ kỹ thuật</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group className="mb-3">
+            <Form.Label>Loại hỗ trợ</Form.Label>
+            <Form.Select
+              value={supportType}
+              onChange={(e) => setSupportType(Number(e.target.value))}
+            >
+              <option value={1}>Tài khoản</option>
+              <option value={2}>Công việc</option>
+              <option value={3}>Xác minh CMND</option>
+              <option value={4}>Giao dịch</option>
+            </Form.Select>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Nội dung</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={4}
+              value={supportContent}
+              onChange={(e) => setSupportContent(e.target.value)}
+              placeholder="Mô tả vấn đề bạn đang gặp phải..."
+            />
+          </Form.Group>
+
+          <Form.Group>
+            <Form.Label>Hình ảnh (nếu có)</Form.Label>
+            <Form.Control
+              type="file"
+              accept="image/*"
+              onChange={(e) => setSupportImage(e.target.files[0])}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Đóng
+          </Button>
+          <Button
+            variant="primary"
+            onClick={submitSupportRequest}
+            disabled={sending || !supportContent}
+          >
+            {sending ? "Đang gửi..." : "Gửi yêu cầu"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
