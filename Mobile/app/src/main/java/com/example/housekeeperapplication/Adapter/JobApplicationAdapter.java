@@ -1,6 +1,7 @@
 package com.example.housekeeperapplication.Adapter;
 
-
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,26 +11,37 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.housekeeperapplication.API.APIClient;
+import com.example.housekeeperapplication.API.Interfaces.APIServices;
+import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
+import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobItem;
 import com.example.housekeeperapplication.R;
 
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class JobApplicationAdapter extends RecyclerView.Adapter<JobApplicationAdapter.JobViewHolder> {
-        private List<JobItem> jobItems;
+
+    private List<JobItem> jobItems;
     private OnItemClickListener listener;
+    private APIServices apiService;
+    private Context context;
 
     public interface OnItemClickListener {
         void onItemClick(JobItem jobItem);
     }
 
-    public JobApplicationAdapter(List<JobItem> jobItems, OnItemClickListener listener) {
+    public JobApplicationAdapter(List<JobItem> jobItems, OnItemClickListener listener, Context context) {
         this.jobItems = jobItems;
         this.listener = listener;
+        this.context = context;
+        this.apiService = APIClient.getClient(context).create(APIServices.class);
     }
 
     @NonNull
@@ -42,41 +54,127 @@ public class JobApplicationAdapter extends RecyclerView.Adapter<JobApplicationAd
 
     @Override
     public void onBindViewHolder(@NonNull JobViewHolder holder, int position) {
-        JobItem item = jobItems.get(position);
+        if (position < 0 || position >= jobItems.size()) {
+            return;
+        }
 
+        JobItem item = jobItems.get(position);
+        Log.d("ADAPTER_DEBUG", "Binding item at position " + position + ": " + item.getJobName());
+
+        // Set basic job info
         holder.tvJobTitle.setText(item.getJobName());
-        holder.tvFamily.setText(item.getFamilyName());
         holder.tvSalary.setText(formatCurrency(item.getSalary()));
         holder.tvTimeRange.setText(item.getStartDate() + " → " + item.getEndDate());
 
-        // Set trạng thái
-        String statusText = "";
-        int bgColor = R.color.gray;
-        switch (item.getStatus()) {
-            case 1: // Đã xác nhận
-                statusText = "Đã xác nhận";
-                bgColor = R.color.successGreen;
-                break;
-            case 2: // Đã từ chối
-                statusText = "Đã từ chối";
-                bgColor = R.color.errorRed;
-                break;
-            default: // Đang chờ
-                statusText = "Đang chờ";
-                bgColor = R.color.warningYellow;
-        }
-        holder.tvJobStatus.setText(statusText);
-        holder.tvJobStatus.setBackgroundResource(bgColor);
+        // Set status
+        setStatusView(holder.tvJobStatus, item.getStatus());
 
-        holder.btnViewDetail.setOnClickListener(v -> listener.onItemClick(item));
+        // Load family name
+        loadFamilyName(item.getFamilyId(), holder.tvFamily);
+
+        // Set click listener
+        holder.btnViewDetail.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(item);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return jobItems.size();
+        return jobItems != null ? jobItems.size() : 0;
     }
 
-    static class JobViewHolder extends RecyclerView.ViewHolder {
+    public void updateData(List<JobItem> newItems) {
+        jobItems.clear();
+        jobItems.addAll(newItems);
+        notifyDataSetChanged();
+    }
+
+    private void setStatusView(TextView statusView, int status) {
+        String statusText;
+        int bgColor;
+
+        switch (status) {
+            case 1: // Approved
+                statusText = "Đã xác nhận";
+                bgColor = R.color.successGreen;
+                break;
+            case 2: // Rejected
+                statusText = "Đã từ chối";
+                bgColor = R.color.errorRed;
+                break;
+            case 3: // Completed
+                statusText = "Hoàn thành";
+                bgColor = R.color.colorPrimary;
+                break;
+            default: // Pending
+                statusText = "Đang chờ";
+                bgColor = R.color.warningYellow;
+        }
+
+        statusView.setText(statusText);
+        statusView.setBackgroundResource(bgColor);
+    }
+
+    private void loadFamilyName(int familyId, TextView familyNameView) {
+        // Set loading text first
+        familyNameView.setText("Đang tải...");
+        familyNameView.setTag(familyId); // Use tag to prevent wrong data when recycling
+
+        apiService.getFamilyByID(familyId).enqueue(new Callback<FamilyAccountMappingDTO>() {
+            @Override
+            public void onResponse(Call<FamilyAccountMappingDTO> call, Response<FamilyAccountMappingDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    int accountId = response.body().getAccountID();
+                    fetchFamilyDetails(accountId, familyNameView, familyId);
+                } else {
+                    updateFamilyNameView(familyNameView, familyId, "Không xác định");
+                    Log.e("API_ERROR", "Failed to get family mapping: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FamilyAccountMappingDTO> call, Throwable t) {
+                updateFamilyNameView(familyNameView, familyId, "Không xác định");
+                Log.e("NETWORK_ERROR", "Failed to get family mapping", t);
+            }
+        });
+    }
+
+    private void fetchFamilyDetails(int accountId, TextView familyNameView, int familyId) {
+        apiService.getFamilyByAccountID(accountId).enqueue(new Callback<FamilyAccountDetailDTO>() {
+            @Override
+            public void onResponse(Call<FamilyAccountDetailDTO> call, Response<FamilyAccountDetailDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String familyName = response.body().getName();
+                    updateFamilyNameView(familyNameView, familyId, familyName != null ? familyName : "Không xác định");
+                } else {
+                    updateFamilyNameView(familyNameView, familyId, "Không xác định");
+                    Log.e("API_ERROR", "Failed to get family details: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FamilyAccountDetailDTO> call, Throwable t) {
+                updateFamilyNameView(familyNameView, familyId, "Không xác định");
+                Log.e("NETWORK_ERROR", "Failed to get family details", t);
+            }
+        });
+    }
+
+    private void updateFamilyNameView(TextView view, int expectedFamilyId, String name) {
+        if (view.getTag() != null && view.getTag().equals(expectedFamilyId)) {
+            view.setText(name);
+        }
+    }
+
+    private String formatCurrency(double amount) {
+        NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        return format.format(amount);
+    }
+
+    public static class JobViewHolder extends RecyclerView.ViewHolder {
         TextView tvJobTitle, tvFamily, tvSalary, tvTimeRange, tvJobStatus;
         Button btnViewDetail;
 
@@ -89,15 +187,5 @@ public class JobApplicationAdapter extends RecyclerView.Adapter<JobApplicationAd
             tvJobStatus = itemView.findViewById(R.id.tvJobStatus);
             btnViewDetail = itemView.findViewById(R.id.btnViewDetail);
         }
-    }
-
-    private String formatDateRange(Date start, Date end) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        return sdf.format(start) + " → " + sdf.format(end);
-    }
-
-    private String formatCurrency(double amount) {
-        NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        return format.format(amount);
     }
 }

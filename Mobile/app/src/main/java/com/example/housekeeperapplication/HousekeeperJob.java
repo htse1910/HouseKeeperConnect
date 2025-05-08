@@ -34,6 +34,7 @@ import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobItem;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -68,7 +69,7 @@ public class HousekeeperJob extends AppCompatActivity {
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new JobApplicationAdapter(jobItems, this::showJobDetailDialog);
+        adapter = new JobApplicationAdapter(jobItems, this::showJobDetailDialog, this);
         recyclerView.setAdapter(adapter);
 
         // Initialize API service and shared preferences
@@ -114,11 +115,16 @@ public class HousekeeperJob extends AppCompatActivity {
             return;
         }
 
+        Log.d("API_DEBUG", "Total applications: " + applications.size());
+
         AtomicInteger counter = new AtomicInteger(0);
         int totalApplications = applications.size();
 
         for (ApplicationDisplayDTO app : applications) {
+            Log.d("API_DEBUG", "Processing application - JobID: " + app.getJobID() + ", Status: " + app.getStatus());
+
             if (app.getJobID() <= 0) {
+                Log.d("API_DEBUG", "Skipping invalid JobID: " + app.getJobID());
                 if (counter.incrementAndGet() == totalApplications) {
                     checkComplete(counter.get(), totalApplications);
                 }
@@ -130,12 +136,14 @@ public class HousekeeperJob extends AppCompatActivity {
                 public void onResponse(Call<JobDetailForBookingDTO> call, Response<JobDetailForBookingDTO> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         JobDetailForBookingDTO jobDetail = response.body();
+                        Log.d("API_DEBUG", "Got job detail for JobID: " + jobDetail.getJobID());
 
                         apiServices.getFamilyByID(jobDetail.getFamilyID()).enqueue(new Callback<FamilyAccountMappingDTO>() {
                             @Override
                             public void onResponse(Call<FamilyAccountMappingDTO> call, Response<FamilyAccountMappingDTO> response) {
                                 if (response.isSuccessful() && response.body() != null) {
                                     FamilyAccountMappingDTO family = response.body();
+                                    Log.d("API_DEBUG", "Got family info for FamilyID: " + family.getFamilyID());
 
                                     JobItem item = new JobItem(
                                             jobDetail.getJobID(),
@@ -144,30 +152,36 @@ public class HousekeeperJob extends AppCompatActivity {
                                             jobDetail.getPrice(),
                                             formatDate(jobDetail.getStartDate()),
                                             formatDate(jobDetail.getEndDate()),
-                                            app.getStatus()
+                                            app.getStatus(),
+                                            jobDetail.getFamilyID()
                                     );
 
                                     runOnUiThread(() -> {
                                         jobItems.add(item);
+                                        Log.d("API_DEBUG", "Added job item: " + item.getJobName());
                                         checkComplete(counter.incrementAndGet(), totalApplications);
                                     });
                                 } else {
+                                    Log.e("API_ERROR", "Failed to get family info: " + response.code());
                                     checkComplete(counter.incrementAndGet(), totalApplications);
                                 }
                             }
 
                             @Override
                             public void onFailure(Call<FamilyAccountMappingDTO> call, Throwable t) {
+                                Log.e("API_ERROR", "Family API call failed", t);
                                 checkComplete(counter.incrementAndGet(), totalApplications);
                             }
                         });
                     } else {
+                        Log.e("API_ERROR", "Failed to get job detail: " + response.code());
                         checkComplete(counter.incrementAndGet(), totalApplications);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<JobDetailForBookingDTO> call, Throwable t) {
+                    Log.e("API_ERROR", "JobDetail API call failed", t);
                     checkComplete(counter.incrementAndGet(), totalApplications);
                 }
             });
@@ -175,21 +189,23 @@ public class HousekeeperJob extends AppCompatActivity {
     }
 
     private void checkComplete(int currentCount, int total) {
+        Log.d("API_DEBUG", "Progress: " + currentCount + "/" + total);
+
         runOnUiThread(() -> {
             if (currentCount == total) {
                 showLoading(false);
                 adapter.notifyDataSetChanged();
 
                 if (jobItems.isEmpty()) {
+                    Log.d("API_DEBUG", "No items to display");
                     showEmptyView("Không có công việc nào để hiển thị");
                 } else {
-                    Toast.makeText(HousekeeperJob.this,
-                            "Đã tải " + jobItems.size() + "/" + total + " công việc",
-                            Toast.LENGTH_SHORT).show();
+                    Log.d("API_DEBUG", "Displaying " + jobItems.size() + " items");
                 }
             }
         });
     }
+
 
 
     private void handlePartialError(AtomicInteger counter, int total) {
@@ -221,6 +237,35 @@ public class HousekeeperJob extends AppCompatActivity {
         Button btnReject = dialog.findViewById(R.id.btnReject);
         Button btnAccept = dialog.findViewById(R.id.btnAccept);
         Button btnCloseDialog = dialog.findViewById(R.id.btnCloseDialog);
+        // Setup buttons
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        btnCloseDialog.setOnClickListener(v -> dialog.dismiss());
+
+        btnAccept.setOnClickListener(v -> {
+            // Hiển thị dialog xác nhận
+            new AlertDialog.Builder(this)
+                    .setTitle("Xác nhận")
+                    .setMessage("Bạn có chắc chắn muốn chấp nhận công việc này?")
+                    .setPositiveButton("Đồng ý", (dialogInterface, which) -> {
+                        handleJobAction(jobItem.getJobId(), "accept");
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
+        });
+
+        btnReject.setOnClickListener(v -> {
+            // Hiển thị dialog xác nhận
+            new AlertDialog.Builder(this)
+                    .setTitle("Xác nhận")
+                    .setMessage("Bạn có chắc chắn muốn từ chối công việc này?")
+                    .setPositiveButton("Đồng ý", (dialogInterface, which) -> {
+                        handleJobAction(jobItem.getJobId(), "reject");
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
+        });
 
         // Set data
         tvJobName.setText(jobItem.getJobName());
@@ -259,12 +304,81 @@ public class HousekeeperJob extends AppCompatActivity {
     }
 
     private void handleJobAction(int jobId, String action) {
-        // Implement your job accept/reject logic here
-        Toast.makeText(this, "Đã " + (action.equals("accept") ? "chấp nhận" : "từ chối") + " công việc",
-                Toast.LENGTH_SHORT).show();
+        int accountId = sharedPreferences.getInt("accountID", 0);
+        if (accountId == 0) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Refresh the list after action
-        loadJobApplications();
+        showLoading(true);
+
+        if (action.equals("accept")) {
+            // Gọi API AcceptJob
+            apiServices.acceptJob(jobId, accountId).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    showLoading(false);
+                    if (response.isSuccessful()) {
+                        Toast.makeText(HousekeeperJob.this,
+                                "Đã chấp nhận công việc thành công",
+                                Toast.LENGTH_SHORT).show();
+                        loadJobApplications(); // Refresh danh sách
+                    } else {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            Toast.makeText(HousekeeperJob.this,
+                                    "Lỗi khi chấp nhận: " + errorBody,
+                                    Toast.LENGTH_SHORT).show();
+                        } catch (IOException e) {
+                            Toast.makeText(HousekeeperJob.this,
+                                    "Lỗi khi chấp nhận công việc",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    showLoading(false);
+                    Toast.makeText(HousekeeperJob.this,
+                            "Lỗi kết nối: " + t.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // Gọi API DenyJob
+            apiServices.denyJob(jobId, accountId).enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    showLoading(false);
+                    if (response.isSuccessful()) {
+                        Toast.makeText(HousekeeperJob.this,
+                                "Đã từ chối công việc thành công",
+                                Toast.LENGTH_SHORT).show();
+                        loadJobApplications(); // Refresh danh sách
+                    } else {
+                        try {
+                            String errorBody = response.errorBody().string();
+                            Toast.makeText(HousekeeperJob.this,
+                                    "Lỗi khi từ chối: " + errorBody,
+                                    Toast.LENGTH_SHORT).show();
+                        } catch (IOException e) {
+                            Toast.makeText(HousekeeperJob.this,
+                                    "Lỗi khi từ chối công việc",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    showLoading(false);
+                    Toast.makeText(HousekeeperJob.this,
+                            "Lỗi kết nối: " + t.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private String formatDate(String dateString) {

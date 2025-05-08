@@ -5,67 +5,67 @@ import java.util.List;
 
 public class ApplicationDisplayDTO {
 
-    private int ApplicationID;
-    private int JobID;
-    private int HousekeeperID;
-    private String StartDate;
-    private String EndDate;
-    private String Nickname;
-    private int Status;
+    private int applicationID;
+    private int jobID;
+    private int housekeeperID;
+    private String startDate;
+    private String endDate;
+    private String nickname;
+    private int status;
 
     public int getApplicationID() {
-        return ApplicationID;
+        return applicationID;
     }
 
     public void setApplicationID(int applicationID) {
-        ApplicationID = applicationID;
+        this.applicationID = applicationID;
     }
 
     public int getJobID() {
-        return JobID;
+        return jobID;
     }
 
     public void setJobID(int jobID) {
-        JobID = jobID;
+        this.jobID = jobID;
     }
 
     public int getHousekeeperID() {
-        return HousekeeperID;
+        return housekeeperID;
     }
 
     public void setHousekeeperID(int housekeeperID) {
-        HousekeeperID = housekeeperID;
+        this.housekeeperID = housekeeperID;
     }
 
     public String getStartDate() {
-        return StartDate;
+        return startDate;
     }
 
     public void setStartDate(String startDate) {
-        StartDate = startDate;
+        this.startDate = startDate;
     }
 
     public String getEndDate() {
-        return EndDate;
+        return endDate;
     }
 
     public void setEndDate(String endDate) {
-        EndDate = endDate;
+        this.endDate = endDate;
     }
 
     public String getNickname() {
-        return Nickname;
+        return nickname;
     }
 
     public void setNickname(String nickname) {
-        Nickname = nickname;
+        this.nickname = nickname;
     }
 
     public int getStatus() {
-        return Status;
+        return status;
     }
 
     public void setStatus(int status) {
-        Status = status;
+        this.status = status;
     }
 }

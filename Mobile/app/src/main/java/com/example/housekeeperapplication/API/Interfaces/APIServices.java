@@ -268,5 +268,10 @@ public interface APIServices {
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
     );
+    @PUT("api/Job/DenyJob")
+    Call<Void> denyJob(@Query("jobId") int jobId, @Query("accountID") int accountID);
+
+    @POST("api/Job/AcceptJob")
+    Call<Void> acceptJob(@Query("jobId") int jobId, @Query("accountID") int accountID);
 
 }
