@@ -58,7 +58,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("GetRatingListByHK")]
-        [Authorize(Policy = "Housekeeper")]
+        [Authorize]
         public async Task<ActionResult<List<RatingDisplayDTO>>> getRatingsByHK(int id, int pageNumber, int pageSize)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(id);
