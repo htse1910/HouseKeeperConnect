@@ -226,7 +226,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
                   </>
                 )}
 
-                {applicationStatus === 2 && job?.status !== 3 && (
+                {applicationStatus === 2 && job?.status !== 3 && job?.status !== 4 && job?.status !== 6 && (
                   <div className="d-flex justify-content-end gap-2 mt-4">
                     <button className="btn btn-outline-danger fw-semibold rounded-2" onClick={handleRejectJob}>
                       Từ chối

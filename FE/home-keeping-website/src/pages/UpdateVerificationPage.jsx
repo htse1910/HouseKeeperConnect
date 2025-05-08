@@ -49,9 +49,7 @@ const UpdateVerificationPage = () => {
 
     const formData = new FormData();
     formData.append("VerifyID", verifyID);
-    formData.append("RealName", realName);
-    formData.append("IDNumber", idNumber);
-    formData.append("DateOfBirth", new Date(dateOfBirth).toISOString());
+
     if (frontPhoto) formData.append("FrontPhoto", frontPhoto);
     if (backPhoto) formData.append("BackPhoto", backPhoto);
     if (facePhoto) formData.append("FacePhoto", facePhoto);
@@ -89,47 +87,6 @@ const UpdateVerificationPage = () => {
         </h4>
 
         <form onSubmit={handleSubmit} className="row g-4">
-          <div className="col-md-6">
-            <label className="form-label text-muted small">
-              <FaUser className="me-2 text-danger" />
-              Họ tên
-            </label>
-            <input
-              type="text"
-              className="form-control fw-semibold"
-              value={realName}
-              onChange={(e) => setRealName(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="col-md-6">
-            <label className="form-label text-muted small">
-              <FaIdBadge className="me-2 text-danger" />
-              Số CMND/CCCD
-            </label>
-            <input
-              type="text"
-              className="form-control fw-semibold"
-              value={idNumber}
-              onChange={(e) => setIdNumber(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="col-md-6">
-            <label className="form-label text-muted small">
-              <FaCalendarAlt className="me-2 text-danger" />
-              Ngày sinh
-            </label>
-            <input
-              type="date"
-              className="form-control fw-semibold"
-              value={dateOfBirth}
-              onChange={(e) => setDateOfBirth(e.target.value)}
-              required
-            />
-          </div>
 
           <div className="col-md-6">
             <label className="form-label fw-semibold">Ảnh mặt trước CMND</label>

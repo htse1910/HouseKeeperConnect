@@ -192,33 +192,27 @@ const FamilyProfilePage = () => {
             <div className="profile-header">
                 <div className="profile-avatar-section">
                     <div className="profile-avatar">
-                        <img src={family?.localProfilePicture || family?.googleProfilePicture || defaultAvatar}
+                        <img
+                            src={family?.localProfilePicture || family?.googleProfilePicture || defaultAvatar}
                             crossOrigin="anonymous"
-                            alt="Avatar" />
+                            alt="Avatar"
+                        />
                     </div>
                     <h2 className="profile-name">{family?.name || "Chưa có thông tin"}</h2>
                 </div>
+
                 {/* Thông tin cá nhân */}
                 <div className="profile-details">
-                    <h1 className="profile-title">Thông tin cá nhân
+                    <h1 className="profile-title">
+                        Thông tin cá nhân
                         <button
                             className="edit-button"
-                            onClick={() => window.location.href = "/family/profile/update"}
+                            onClick={() => (window.location.href = "/family/profile/update")}
                             title="Chỉnh sửa hồ sơ"
                         >
                             ✏️
                         </button>
                     </h1>
-                    {family?.rating ? (
-                        <div className="profile-rating">
-                            {Array.from({ length: 5 }, (_, index) => (
-                                <span key={index} className={`star-icon ${index < Math.round(family.rating) ? "filled" : ""}`}>
-                                    ★
-                                </span>
-                            ))}
-                            <span className="rating-score">({family.rating.toFixed(1)})</span>
-                        </div>
-                    ) : null}
                     <p className="profile-label"><strong>Tên thường gọi:</strong> {family?.nickname || "Không xác định"}</p>
                     <p className="profile-label"><strong>Giới tính:</strong> {mapGender(family?.gender)}</p>
                     <p className="profile-label"><strong>Địa chỉ thường trú:</strong> {family?.address || "Chưa có địa chỉ"}</p>
@@ -227,75 +221,16 @@ const FamilyProfilePage = () => {
                 </div>
             </div>
 
-            <div className="profile-content-family">
-                {/* Cột trái - Thông tin cá nhân, Giới thiệu */}
-                <div className="profile-left">
-                    {/* Giới thiệu về gia đình */}
-                    <div className="profile-section">
-                        <h2 className="section-title">Giới thiệu về gia đình</h2>
-                        <p className="profile-introduction">{family?.introduction || "Không có thông tin giới thiệu."}</p>
-                    </div>
-
-                    {/* Các kỹ năng gia đình tìm kiếm */}
-                    <div className="profile-section">
-                        <h2 className="section-title">Các kỹ năng gia đình đang tìm kiếm</h2>
-                        {family.skills && family.skills.length > 0 ? (
-                            <div className="skills-list">
-                                {family.skills.map((skill, index) => (
-                                    <span key={index} className="skill-item">{skill}</span>
-                                ))}
-                            </div>
-                        ) : (
-                            <p>Không có kỹ năng nào được yêu cầu.</p>
-                        )}
-                    </div>
-                </div>
-
-                {/* Cột phải - Kỹ năng, Lịch sử làm việc, Đánh giá, Liên hệ */}
-                <div className="profile-right">
-                    {/* Lịch sử làm việc của gia đình */}
-                    <div className="profile-section">
-                        <h2 className="section-title">Lịch sử làm việc của gia đình</h2>
-                        {jobs.length === 0 ? <p>Chưa có công việc nào được đăng.</p> : jobs.map((job, index) => (
-                            <div key={index} className="schedule-item">
-                                <div className="schedule-info">
-                                    <span className="schedule-title">{job.title}</span>
-                                    <span className="schedule-date">{job.startDate} - {job.endDate}</span>
-                                    {job.salary && <span className="schedule-date">Lương: {job.salary.toLocaleString()} VNĐ</span>}
-                                    {/* {job.location && <span className="schedule-date">Địa điểm: {job.location}</span>} */}
-                                    {job.description && <p className="schedule-date">{job.description}</p>}
-                                </div>
-                                <span className="schedule-status">{job.status}</span>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Đánh giá từ người giúp việc */}
-                    <div className="profile-section">
-                        <h2 className="section-title">Đánh giá từ người giúp việc</h2>
-                        <div className="reviews-list">
-                            {reviews.length > 0 ? (
-                                reviews.map((review, index) => (
-                                    <div key={index} className="review-item">
-                                        <div className="review-header">
-                                            <span className="review-name">{review.reviewer}</span>
-                                            <span className="review-date">{review.date}</span>
-                                        </div>
-                                        <div className="review-rating">
-                                            {Array.from({ length: 5 }).map((_, i) => (
-                                                <span key={i} className={i < review.rating ? "star filled" : "star"}>★</span>
-                                            ))}
-                                        </div>
-                                        <p className="review-text">{review.comment}</p>
-                                    </div>
-                                ))
-                            ) : (<p>Chưa có đánh giá nào.</p>)}
-                        </div>
-                    </div>
+            {/* Giới thiệu */}
+            <div className="profile-left">
+                <div className="profile-section">
+                    <h2 className="section-title">Giới thiệu về gia đình</h2>
+                    <p className="profile-introduction">{family?.introduction || "Không có thông tin giới thiệu."}</p>
                 </div>
             </div>
-        </div >
+        </div>
     );
+
 };
 
 export default FamilyProfilePage;
