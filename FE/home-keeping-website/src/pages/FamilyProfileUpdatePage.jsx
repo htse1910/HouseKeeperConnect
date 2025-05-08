@@ -60,7 +60,7 @@ const FamilyProfileUpdatePage = () => {
         setLoading(false);
       })
       .catch(() => {
-        setError(t("error_loading"));
+        setError(t("error.error_loading"));
         setLoading(false);
       });
   }, []);
@@ -104,52 +104,52 @@ const FamilyProfileUpdatePage = () => {
     axios
       .put(`${API_BASE_URL}/Families/UpdateFamily`, payload, { headers })
       .then(() => {
-        alert(t("update_success"));
+        alert(t("misc.update_success"));
         navigate("/family/profile");
       })
       .catch(() => {
-        alert(t("update_failed"));
+        alert(t("misc.update_failed"));
         setLoading(false);
       });
   };
 
-  if (loading) return <div className="profile-container"><p>{t("loading_data")}</p></div>;
+  if (loading) return <div className="profile-container"><p>{t("error.loading_data")}</p></div>;
   if (error) return <div className="profile-container error">❌ {error}</div>;
 
   return (
     <div className="profile-container">
-      <h1 className="profile-title">{t("profile")}</h1>
+      <h1 className="profile-title">{t("user.profile_update")}</h1>
       <form className="family-profile-update-form" onSubmit={handleSubmit}>
-        <label>{t("family_name")}</label>
+        <label>{t("misc.family_name")}</label>
         <input name="name" value={formData.name} onChange={handleChange} required />
 
-        <label>{t("nickname")}</label>
+        <label>{t("user.nickname")}</label>
         <input name="nickname" value={formData.nickname} onChange={handleChange} />
 
-        <label>{t("gender")}</label>
+        <label>{t("user.gender")}</label>
         <select name="gender" value={formData.gender} onChange={handleChange}>
-          <option value={1}>{t("male")}</option>
-          <option value={2}>{t("female")}</option>
-          <option value={0}>Khác</option>
+          <option value={1}>{t("user.male")}</option>
+          <option value={2}>{t("user.female")}</option>
+          <option value={0}>{t("user.other")}</option>
         </select>
 
-        <label>{t("address")}</label>
+        <label>{t("user.address")}</label>
         <input name="address" value={formData.address} onChange={handleChange} />
 
         <label>Email</label>
         <input name="email" value={formData.email} disabled />
 
-        <label>{t("phone")}</label>
+        <label>{t("user.phone")}</label>
         <input name="phone" value={formData.phone} onChange={handleChange} />
 
-        <label>{t("introduction")}</label>
+        <label>{t("misc.introduction")}</label>
         <textarea name="introduction" rows={5} value={formData.introduction} onChange={handleChange}></textarea>
 
-        <label>{t("bank_account_number")}</label>
+        <label>{t("misc.bank_account_number")}</label>
         <input name="bankAccountNumber" value={formData.bankAccountNumber} onChange={handleChange} />
         <small className="text-danger">Bạn phải nhập đúng số tài khoản của bạn để tránh chuyển sai tài khoản</small>
         
-        <label>{t("bank_account_name")}</label>
+        <label>{t("misc.bank_account_name")}</label>
         <select name="bankAccountName" value={formData.bankAccountName} onChange={handleChange}>
           <option value="">Chọn ngân hàng</option>
           <option value="Vietcombank">Vietcombank</option>
@@ -165,10 +165,10 @@ const FamilyProfileUpdatePage = () => {
         </select>
         <small className="text-danger">Bạn phải chọn đúng tên ngân hàng để giao dịch thành công</small>
 
-        <label>{t("profile_picture")}</label>
+        <label>{t("misc.profile_picture")}</label>
         <input type="file" className="form-control mb-3" onChange={(e) => setProfilePicture(e.target.files[0])} />
 
-        <button className="btn-primary" type="submit">{t("save_changes")}</button>
+        <button className="btn-primary" type="submit">{t("misc.save_changes")}</button>
       </form>
     </div>
   );

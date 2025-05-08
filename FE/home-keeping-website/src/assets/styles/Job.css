@@ -157,17 +157,18 @@
 .job-posting-service-detail-list {
     list-style: none;
     padding-left: 0;
-  }
-  
-  .job-posting-service-detail-item {
+}
+
+.job-posting-service-detail-item {
     position: relative;
     padding-left: 1.5em;
     margin-bottom: 0.5em;
-  }
-  .job-posting-service-detail-item ol {
+}
+
+.job-posting-service-detail-item ol {
     font-size: var(--font-size-small);
 }
-  
+
 
 /* Checkbox dịch vụ dạng thẻ */
 .job-posting-service-checkboxes {
@@ -180,8 +181,8 @@
     border: 1px solid #ff4d4f;
     padding: 8px;
     border-radius: 6px;
-  }
-  
+}
+
 .job-posting-checkbox-card {
     display: flex;
     align-items: center;
@@ -731,6 +732,7 @@
     padding: 20px 24px;
     border-radius: 12px;
     box-shadow: var(--box-shadow);
+    margin-top: 20px;
 }
 
 .job-detail-title {
@@ -750,8 +752,7 @@
 }
 
 .job-detail-section-title {
-    font-size: 18px;
-    font-weight: 600;
+    font-weight: bold;
     margin-bottom: 12px;
 }
 
@@ -785,6 +786,15 @@
 
 .job-detail-candidate div {
     margin-left: 20px;
+}
+
+.job-detail-candidate h2{
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.job-detail-candidate p{
+    margin-bottom: 10px;
 }
 
 .job-detail-rating {
@@ -866,6 +876,7 @@
     padding-left: 1.2rem;
     margin: 0.5rem 0;
     list-style: none;
+    font-size: var(--font-size-small);
 }
 
 .job-detail-service-list li {
@@ -877,6 +888,7 @@
     position: relative;
     padding-left: 1.5rem;
     margin-bottom: 0.4rem;
+    font-size: var(--font-size-small);
 }
 
 .job-detail-checked-service-item::before {
@@ -1129,6 +1141,40 @@
 
 .job-detail-btn-cancel:hover {
     opacity: 0.9;
+}
+
+.btn-primary,
+.btn-secondary {
+    font-size: var(--font-size-small);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-box {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
 }
 
 .popup-overlay {
