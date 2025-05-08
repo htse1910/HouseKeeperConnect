@@ -8,9 +8,11 @@ import com.example.housekeeperapplication.Model.DTOs.ChatReturnDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyJobSummaryDTO;
+import com.example.housekeeperapplication.Model.DTOs.HouseKeeperSkillDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.Housekeeper;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDetailDTO;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayForFamilyDTO;
+import com.example.housekeeperapplication.Model.DTOs.HousekeeperSkillMappingDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobCreateDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
@@ -31,6 +33,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -276,4 +279,26 @@ public interface APIServices {
     @POST("api/Application/AddApplication")
     Call<ResponseBody> addApplication(@Query("accountID") int accountID, @Query("jobID") int jobID);
 
+    @GET("api/HousekeeperSkillMapping/GetSkillsByAccountID")
+    Call<List<HousekeeperSkillMappingDisplayDTO>> getSkillsByAccountId(
+            @Query("accountId") int accountId
+    );
+
+    @POST("api/HousekeeperSkillMapping/AddSkill")
+    Call<ResponseBody> addSkillToHousekeeper(
+            @Query("accountId") int accountId,
+            @Query("skillId") int skillId
+    );
+
+    @DELETE("api/HousekeeperSkillMapping/RemoveSkill")
+    Call<ResponseBody> removeSkillFromHousekeeper(
+            @Query("accountId") int accountId,
+            @Query("skillId") int skillId
+    );
+
+    @GET("api/HouseKeeperSkills/HousekeeperSkillList")
+    Call<List<HouseKeeperSkillDisplayDTO>> getAllHousekeeperSkills(
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize
+    );
 }
