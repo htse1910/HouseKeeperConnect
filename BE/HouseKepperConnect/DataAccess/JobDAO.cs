@@ -29,14 +29,14 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Job>> GetAllJobsAsync(int pageNumber, int pageSize)
+        public async Task<List<Job>> GetAllJobsAsync()
         {
             var list = new List<Job>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).AsNoTracking().Where(j => j.Status==(int)JobStatus.Verified).ToListAsync();
                 }
             }
             catch (Exception ex)

@@ -19,7 +19,7 @@ namespace Repositories
 
         public Task DeleteJobAsync(int id) => _jobDAO.DeleteJobAsync(id);
 
-        public Task<List<Job>> GetAllJobsAsync(int pageNumber, int pageSize) => _jobDAO.GetAllJobsAsync(pageNumber, pageSize);
+        public Task<List<Job>> GetAllJobsAsync() => _jobDAO.GetAllJobsAsync();
 
         public Task<Job> GetJobByIDAsync(int id) => _jobDAO.GetJobByIDAsync(id);
 

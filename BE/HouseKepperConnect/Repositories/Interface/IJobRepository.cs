@@ -4,7 +4,7 @@ namespace Repositories.Interface
 {
     public interface IJobRepository
     {
-        Task<List<Job>> GetAllJobsAsync(int pageNumber, int pageSize);
+        Task<List<Job>> GetAllJobsAsync();
         Task<List<Job>> GetAllPendingJobsAsync();
 
         Task<List<JobDetail>> GetAllDetailJobsAsync(int pageNumber, int pageSize);
