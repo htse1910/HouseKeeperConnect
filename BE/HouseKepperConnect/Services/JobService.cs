@@ -19,7 +19,7 @@ namespace Services
 
         public async Task DeleteJobAsync(int id) => await _jobRepository.DeleteJobAsync(id);
 
-        public async Task<List<Job>> GetAllJobsAsync(int pageNumber, int pageSize) => await _jobRepository.GetAllJobsAsync(pageNumber, pageSize);
+        public async Task<List<Job>> GetAllJobsAsync() => await _jobRepository.GetAllJobsAsync();
 
         public async Task<Job> GetJobByIDAsync(int id) => await _jobRepository.GetJobByIDAsync(id);
 

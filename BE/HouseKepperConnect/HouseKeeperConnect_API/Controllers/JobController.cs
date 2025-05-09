@@ -60,7 +60,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("JobList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync([FromQuery] int pageNumber, [FromQuery] int pageSize)
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync()
         {
             var jobs = await _jobService.GetAllJobsAsync(pageNumber, pageSize);
 
