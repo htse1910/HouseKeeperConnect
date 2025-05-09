@@ -39,5 +39,7 @@ namespace Services
         public async Task<List<JobDetail>> SearchJobsAsync(string name, int pageNumber, int pageSize) => await _jobRepository.SearchJobsAsync(name, pageNumber, pageSize);
 
         public async Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize) => await _jobRepository.GetJobsOfferedByHKAsync(hktId, pageNumber, pageSize);
+
+        public async Task<List<Job>> GetAllPendingJobsAsync() => await _jobRepository.GetAllPendingJobsAsync();
     }
 }

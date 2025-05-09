@@ -87,6 +87,36 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(display);
         }
+        
+        [HttpGet("PendingJobsList")]
+        [Authorize(Policy ="Staff")]
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> PendingJobsAsync()
+        {
+            var jobs = await _jobService.GetAllPendingJobsAsync();
+
+            if (jobs == null || !jobs.Any())
+            {
+                return NotFound("No records!");
+            }
+            var display = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                var d = new JobDisplayDTO();
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(j.JobID);
+                d.JobName = j.JobName;
+                d.FamilyID = j.FamilyID;
+                d.Location = jobDetail.Location;
+                d.DetailLocation = jobDetail.DetailLocation;
+                d.Price = jobDetail.Price;
+                d.CreatedAt = j.CreatedDate;
+                d.Status = j.Status;
+                d.JobType = j.JobType;
+                d.JobID = j.JobID;
+                display.Add(d);
+            }
+
+            return Ok(display);
+        }
 
         [HttpGet("GetJobByID")]
         [Authorize]
@@ -95,14 +125,14 @@ namespace HouseKeeperConnect_API.Controllers
             var job = await _jobService.GetJobByIDAsync(id);
             if (job == null)
             {
-                Message = "No records!";
+                Message = "Không tìm thấy thông tin công việc!";
                 return NotFound(Message);
             }
 
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
             if (jobDetail == null)
             {
-                Message = "No records!";
+                Message = "Không tìm thấy thông tin chi tiết công việc!";
                 return NotFound(Message);
             }
 
@@ -119,14 +149,14 @@ namespace HouseKeeperConnect_API.Controllers
             var job = await _jobService.GetJobByIDAsync(id);
             if (job == null)
             {
-                Message = "No records!";
+                Message = "Không tìm thấy thông tin công việc!";
                 return NotFound(Message);
             }
 
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
             if (jobDetail == null)
             {
-                Message = "No records!";
+                Message = "Không tìm thấy thông tin chi tiết công việc!";
                 return NotFound(Message);
             }
 
