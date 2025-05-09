@@ -4,19 +4,18 @@ import {
   FaMapMarkerAlt,
   FaMoneyBillWave,
   FaClock,
-  FaUser,
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "../assets/styles/FindJobsPage.css";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
 
 function FindJobsPage() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [hasNextPage, setHasNextPage] = useState(false);
+  const [totalJobs, setTotalJobs] = useState(0);
 
   const [filters, setFilters] = useState({ location: "", jobType: "", salary: "" });
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,57 +36,17 @@ function FindJobsPage() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const verifiedJobs = [];
-      let currentPage = 1;
-      let fetchMore = true;
+      const res = await fetch(`${API_BASE_URL}/Job/JobList`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
 
-      while (verifiedJobs.length < jobsPerPage && fetchMore) {
-        const res = await fetch(`${API_BASE_URL}/Job/JobList?pageNumber=${(page - 1) * 3 + currentPage}&pageSize=${jobsPerPage}`, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
+      const data = await res.json();
+      const verifiedJobs = data.filter((job) => job.status === 2);
+      setTotalJobs(verifiedJobs.length);
 
-        const data = await res.json();
-        if (data.length === 0) break;
-
-        const pageVerified = data.filter((job) => job.status === 2);
-        verifiedJobs.push(...pageVerified);
-        currentPage++;
-
-        // stop if not enough results to keep going
-        if (data.length < jobsPerPage) fetchMore = false;
-      }
-
-      const slicedJobs = verifiedJobs.slice(0, jobsPerPage); // only take up to 9
-
-      const detailedJobs = await Promise.all(
-        slicedJobs.map(async (job) => {
-          const detailRes = await fetch(`${API_BASE_URL}/Job/GetJobDetailByID?id=${job.jobID}`, {
-            headers: { Authorization: `Bearer ${authToken}` },
-          });
-          const jobDetail = await detailRes.json();
-
-          let familyName = "Không rõ";
-          try {
-            const familyRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
-              headers: { Authorization: `Bearer ${authToken}` },
-            });
-            const family = await familyRes.json();
-
-            if (family?.accountID) {
-              const accRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${family.accountID}`, {
-                headers: { Authorization: `Bearer ${authToken}` },
-              });
-              const account = await accRes.json();
-              familyName = account?.name ?? "Không rõ";
-            }
-          } catch { }
-
-          return { ...jobDetail, familyName };
-        })
-      );
-
-      setJobs(detailedJobs);
-      setHasNextPage(verifiedJobs.length >= jobsPerPage); // only true if next page might exist
+      const start = (page - 1) * jobsPerPage;
+      const paginated = verifiedJobs.slice(start, start + jobsPerPage);
+      setJobs(paginated);
     } catch (error) {
       console.error("Failed to fetch jobs:", error);
       setJobs([]);
@@ -118,6 +77,8 @@ function FindJobsPage() {
     })();
     return matchesSearch && matchesLocation && matchesJobType && matchesSalary;
   });
+
+  const maxPage = Math.ceil(totalJobs / jobsPerPage);
 
   const handleSearchTermChange = (e) => {
     const term = e.target.value;
@@ -190,20 +151,20 @@ function FindJobsPage() {
         <div className="w-75 mt-3">
           <div className="row g-2">
             <div className="col-md-4 col-lg-3">
-              <select className="form-select" name="location" value={filters.location} onChange={(e) => setFilters({ ...filters, location: e.target.value })}>
+              <select className="form-select" value={filters.location} onChange={(e) => setFilters({ ...filters, location: e.target.value })}>
                 <option value="">Tất cả địa điểm</option>
                 {hcmDistricts.map((d, i) => <option key={i} value={d}>{d}</option>)}
               </select>
             </div>
             <div className="col-md-4 col-lg-3">
-              <select className="form-select" name="jobType" value={filters.jobType} onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}>
+              <select className="form-select" value={filters.jobType} onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}>
                 <option value="">Tất cả loại</option>
                 <option value="fulltime">Một lần duy nhất</option>
                 <option value="parttime">Định kỳ</option>
               </select>
             </div>
             <div className="col-md-4 col-lg-3">
-              <select className="form-select" name="salary" value={filters.salary} onChange={(e) => setFilters({ ...filters, salary: e.target.value })}>
+              <select className="form-select" value={filters.salary} onChange={(e) => setFilters({ ...filters, salary: e.target.value })}>
                 <option value="">Tất cả mức lương</option>
                 <option value="500-1000">500k - 1M</option>
                 <option value="1000-1500">1M - 1.5M</option>
@@ -228,14 +189,22 @@ function FindJobsPage() {
           <div className="text-center text-muted py-5">Không tìm thấy công việc phù hợp.</div>
         ) : (
           <>
+            <p className="text-muted text-center mb-4">
+              Tổng số công việc hiện giờ: <strong>{totalJobs}</strong>
+            </p>
             <div className="row justify-content-center g-4">
               {filteredJobs.map((job) => (
                 <div key={job.jobID} className="col-md-6 col-lg-4 d-flex">
-                  <div className="card job-card shadow-sm p-3 border-0 flex-fill rounded-4">
+                  <div className="card job-card shadow-sm p-3 border-0 flex-fill rounded-4 position-relative">
+                    <span className="position-absolute top-0 end-0 bg-warning text-dark fw-bold px-3 py-1 rounded-bottom-start">
+                      #{job.jobID}
+                    </span>
                     <div className="card-body d-flex flex-column">
                       <h5 className="fw-bold text-primary mb-2">{job.jobName}</h5>
-                      <p className="mb-1"><FaUser className="me-1 text-muted" /> <strong>Gia đình:</strong> {job.familyName}</p>
                       <p className="mb-1"><FaMapMarkerAlt className="me-1 text-muted" /> <strong>Địa điểm:</strong> {job.location ?? "Chưa cập nhật"}</p>
+                      {job.detailLocation && (
+                        <p className="mb-1 text-muted ms-4"><em>{job.detailLocation}</em></p>
+                      )}
                       <p className="mb-1"><FaMoneyBillWave className="me-1 text-muted" /> <strong>Lương:</strong> {job.price?.toLocaleString()} VND</p>
                       <p className="mb-1"><FaClock className="me-1 text-muted" /> <strong>Trạng thái:</strong> {getJobStatusLabel(job.status)}</p>
                       <p className="mb-3"><strong>Loại:</strong> {getJobTypeLabel(job.jobType)}</p>
@@ -257,10 +226,10 @@ function FindJobsPage() {
                 <FaChevronLeft className="me-2" />
                 Trang trước
               </button>
-              <span className="text-muted">Trang {page}</span>
+              <span className="text-muted">Trang {page} / {maxPage}</span>
               <button
                 className="btn btn-outline-primary rounded-pill px-4"
-                disabled={!hasNextPage}
+                disabled={page >= maxPage}
                 onClick={() => setPage((prev) => prev + 1)}
               >
                 Trang sau
