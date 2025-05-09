@@ -36,7 +36,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).AsNoTracking().Where(j => j.Status==(int)JobStatus.Verified).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).Include(j => j.JobDetail).AsNoTracking().Where(j => j.Status==(int)JobStatus.Verified && !j.JobDetail.IsOffered).ToListAsync();
                 }
             }
             catch (Exception ex)
