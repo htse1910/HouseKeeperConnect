@@ -45,6 +45,22 @@ namespace DataAccess
             }
             return list;
         }
+        public async Task<List<Job>> GetAllPendingJobsAsync()
+        {
+            var list = new List<Job>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Job.Include(j => j.Family).Where(j => j.Status==(int)JobStatus.Pending).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
 
         public async Task<List<JobDetail>> SearchJobsAsync(string name, int pageNumber, int pageSize)
         {
