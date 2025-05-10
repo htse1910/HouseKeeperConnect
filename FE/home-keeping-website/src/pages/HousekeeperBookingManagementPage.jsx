@@ -378,25 +378,26 @@ const HousekeeperBookingManagementPage = () => {
                           <FaCheckCircle className="me-1" />
                           Báo hoàn thành
                         </button>
-                      ) : row.status === 4 ? (
+                      ) : row.status === 4 && row.jobStatus !== 6 ? (
                         <span className="badge bg-success px-3 py-2 rounded-pill">
                           Đã hoàn thành ✅
                         </span>
-                      ) : row.status === 2 ? (
-                        <span className="badge bg-secondary px-3 py-2 rounded-pill">
-                          Đang thực hiện
-                        </span>
-                      ) : row.jobStatus === 3 &&
-                        (() => {
-                          const todayVN = new Date().toLocaleDateString("vi-VN");
-                          const start = row.startDate;
-                          const end = row.endDate;
-                          return todayVN >= start && todayVN <= end;
-                        })() ? (
-                        <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
-                          Chưa tới ngày xác nhận
-                        </span>
-                      ) : null
+                      )
+                        : row.status === 2 ? (
+                          <span className="badge bg-secondary px-3 py-2 rounded-pill">
+                            Đang thực hiện
+                          </span>
+                        ) : row.jobStatus === 3 &&
+                          (() => {
+                            const todayVN = new Date().toLocaleDateString("vi-VN");
+                            const start = row.startDate;
+                            const end = row.endDate;
+                            return todayVN >= start && todayVN <= end;
+                          })() ? (
+                          <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
+                            Chưa tới ngày xác nhận
+                          </span>
+                        ) : null
                       }
                     </div>
                     <div>
