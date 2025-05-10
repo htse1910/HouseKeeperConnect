@@ -52,10 +52,16 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult<List<Payout>>> GetPayoutsByHK([FromQuery] int accountID, int pageNumber, int pageSize)
         {
-            var list = await _payoutService.GetPayoutsByHKAsync(accountID, pageNumber, pageSize);
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if(hk == null)
+            {
+                Message = "Không tìm thấy người giúp việc!";
+                return NotFound(Message);
+            }
+            var list = await _payoutService.GetPayoutsByHKAsync(hk.HousekeeperID, pageNumber, pageSize);
             if (list == null)
             {
-                Message = "No records!";
+                Message = "Dach sách tiền lương trống!";
                 return NotFound(Message);
             }
 
@@ -66,28 +72,28 @@ namespace HouseKeeperConnect_API.Controllers
                 var booking = await _bookingService.GetBookingByIDAsync(item.BookingID);
                 if (booking == null)
                 {
-                    Message = "No records!";
+                    Message = "Không tìm thấy công việc đã nhận!";
                     return NotFound(Message);
                 }
 
                 var job = await _jobService.GetJobByIDAsync(booking.JobID);
                 if (job == null)
                 {
-                    Message = "No records!";
+                    Message = "Không tìm thấy thông tin công việc!";
                     return NotFound(Message);
                 }
 
                 var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
                 if (jobDetail == null)
                 {
-                    Message = "No records!";
+                    Message = "Không tìm thấy thông tin chi tiết công việc!";
                     return NotFound(Message);
                 }
 
                 var services = await _job_service.GetJob_ServicesByJobIDAsync(job.JobID);
                 if (services == null)
                 {
-                    Message = "No records!";
+                    Message = "Danh sách dịch vụ của công việc trống!";
                     return NotFound(Message);
                 }
 
