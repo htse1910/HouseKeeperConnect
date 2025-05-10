@@ -325,6 +325,7 @@ const HousekeeperBookingManagementPage = () => {
                   <FaCheckCircle className="me-1 text-success" />
                   <strong>Trạng thái công việc:</strong> {getJobStatusText(row.jobStatus)}
                 </div>
+                {/* <pre>Booking Status: {row.status}, Job Status: {row.jobStatus}</pre> */}
 
                 <div className="d-flex flex-wrap">
                   <div className="col-12 col-md-4 small">
