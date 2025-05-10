@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
 using BusinessObject.DTO;
-using BusinessObject.Migrations;
 using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -87,9 +85,9 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(display);
         }
-        
+
         [HttpGet("PendingJobsList")]
-        [Authorize(Policy ="Staff")]
+        [Authorize(Policy = "Staff")]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> PendingJobsAsync()
         {
             var jobs = await _jobService.GetAllPendingJobsAsync();
@@ -280,6 +278,12 @@ namespace HouseKeeperConnect_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("Dữ liệu công việc không phù hợp!");
 
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             if (jobCreateDTO.IsOffered)
             {
                 if (!jobCreateDTO.HousekeeperID.HasValue)
@@ -346,7 +350,7 @@ namespace HouseKeeperConnect_API.Controllers
             if (jobCreateDTO.JobType == 1)
                 platformFeeID = 1;
             else if (jobCreateDTO.JobType == 2)
-                platformFeeID = 2; 
+                platformFeeID = 2;
             else
                 return BadRequest("Loại công việc không phù hợp");
 
@@ -382,7 +386,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             // Deduct wallet
             wallet.Balance -= chargeAmount;
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = vietnamTime;
             await _walletService.UpdateWalletAsync(wallet);
 
             // Add transaction: payment from family
@@ -394,9 +398,9 @@ namespace HouseKeeperConnect_API.Controllers
                 AccountID = acc.AccountID,
                 Amount = chargeAmount,
                 Fee = platformFee,
-                CreatedDate = DateTime.Now,
+                CreatedDate = vietnamTime,
                 Description = "Thanh toán cho tạo công việc",
-                UpdatedDate = DateTime.Now,
+                UpdatedDate = vietnamTime,
                 TransactionType = (int)TransactionType.Payment,
                 Status = (int)TransactionStatus.Completed,
             });
@@ -418,7 +422,7 @@ namespace HouseKeeperConnect_API.Controllers
             var payment = new Payment
             {
                 FamilyID = acc.FamilyID,
-                PaymentDate = DateTime.Now,
+                PaymentDate = vietnamTime,
                 Amount = chargeAmount,
                 Commission = platformFee,
                 JobID = job.JobID,
@@ -472,6 +476,12 @@ namespace HouseKeeperConnect_API.Controllers
 
             try
             {
+                DateTime utcNow = DateTime.UtcNow;
+
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
                 var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
                 if (hk == null)
                 {
@@ -559,7 +569,7 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     JobID = jobId,
                     HousekeeperID = jobDetail.HousekeeperID.Value,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = vietnamTime,
                     Status = (int)BookingStatus.Pending
                 };
 
@@ -593,7 +603,7 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     AccountID = job.Family.AccountID,
                     Message = $"Công việc của bạn '{job.JobName}' đã được chấp nhận bởi người giúp việc.",
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = vietnamTime,
                     IsRead = false
                 };
 
@@ -619,6 +629,12 @@ namespace HouseKeeperConnect_API.Controllers
 
             try
             {
+                DateTime utcNow = DateTime.UtcNow;
+
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
                 var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
                 if (hk == null)
                 {
@@ -654,7 +670,7 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     AccountID = job.Family.AccountID, // Or use job.AccountID depending on your model
                     Message = $"Công việc của bạn '{job.JobName}' đã bị từ chối bởi người giúp việc.",
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = vietnamTime,
                     IsRead = false
                 };
 
@@ -705,7 +721,13 @@ namespace HouseKeeperConnect_API.Controllers
             if (jobDetail == null)
                 return NotFound("Không tìm thấy thông tin chi tiết công việc!");
 
-            var abandonDate = DateTime.Now;
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+            var abandonDate = vietnamTime;
             var acc = await _accountService.GetAccountByIDAsync(accountID);
             var hk = new Housekeeper();
 
@@ -777,7 +799,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("Không tìm thấy thông tin ví người dùng!");
 
             familyWallet.Balance += refundAmount;
-            familyWallet.UpdatedAt = DateTime.Now;
+            familyWallet.UpdatedAt = vietnamTime;
             await _walletService.UpdateWalletAsync(familyWallet);
 
             await _transactionService.AddTransactionAsync(new Transaction
@@ -787,15 +809,15 @@ namespace HouseKeeperConnect_API.Controllers
                 AccountID = family.AccountID,
                 Amount = refundAmount,
                 Fee = 0,
-                CreatedDate = DateTime.Now,
+                CreatedDate = vietnamTime,
                 Description = $"Hoàn tiền cho những ngày chưa làm của công việc #{jobId}",
-                UpdatedDate = DateTime.Now,
+                UpdatedDate = vietnamTime,
                 TransactionType = (int)TransactionType.Refund,
                 Status = (int)TransactionStatus.Completed
             });
 
             hkWallet.Balance += payoutAmount;
-            hkWallet.UpdatedAt = DateTime.Now;
+            hkWallet.UpdatedAt = vietnamTime;
             await _walletService.UpdateWalletAsync(hkWallet);
 
             await _transactionService.AddTransactionAsync(new Transaction
@@ -805,9 +827,9 @@ namespace HouseKeeperConnect_API.Controllers
                 AccountID = hkAccountId.Value,
                 Amount = payoutAmount,
                 Fee = 0,
-                CreatedDate = DateTime.Now,
+                CreatedDate = vietnamTime,
                 Description = $"Lương cho những ngày đã làm của công việc #{jobId}",
-                UpdatedDate = DateTime.Now,
+                UpdatedDate = vietnamTime,
                 TransactionType = (int)TransactionType.Payout,
                 Status = (int)TransactionStatus.Completed
             });
@@ -855,7 +877,6 @@ namespace HouseKeeperConnect_API.Controllers
                 });
             }
 
-
             return Ok(new
             {
                 message = "Đã hủy bỏ công việc và tạo lại công việc mới!",
@@ -887,23 +908,28 @@ namespace HouseKeeperConnect_API.Controllers
             job.Status = (int)JobStatus.Canceled;
             await _jobService.UpdateJobAsync(job);
 
-           
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
-            if(jobDetail == null)
+            if (jobDetail == null)
             {
                 Message = "Không tìm thấy chi tiết công việc!";
                 return NotFound(Message);
             }
 
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var wallet = await _walletService.GetWalletByUserAsync(job.Family.AccountID);
-            if(wallet == null)
+            if (wallet == null)
             {
                 Message = "Không tìm thấy thông tin ví của người dùng!";
                 return NotFound(Message);
             }
 
             wallet.Balance += jobDetail.Price;
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = vietnamTime;
 
             await _walletService.UpdateWalletAsync(wallet);
 
@@ -915,15 +941,14 @@ namespace HouseKeeperConnect_API.Controllers
             trans.TransactionType = (int)TransactionType.Refund;
             trans.AccountID = job.Family.AccountID;
             trans.Status = (int)TransactionStatus.Completed;
-            trans.CreatedDate = DateTime.Now;
-            trans.UpdatedDate = DateTime.Now;
+            trans.CreatedDate = vietnamTime;
+            trans.UpdatedDate = vietnamTime;
             trans.Fee = 0;
             trans.Amount = jobDetail.Price;
             trans.Description = "Hủy công việc!";
             trans.WalletID = wallet.WalletID;
 
             await _transactionService.AddTransactionAsync(trans);
-
 
             var noti = new Notification();
             noti.Message = "Công việc #" + job.JobID + " - " + job.JobName + " đã được hủy, tiền đã được hoàn về ví của bạn!";
@@ -1067,6 +1092,11 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(Message);
             }
 
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
             // Fetch job
             var job = await _jobService.GetJobByIDAsync(jobId);
             if (job == null)
@@ -1101,7 +1131,7 @@ namespace HouseKeeperConnect_API.Controllers
             : "Một công việc bạn được đề xuất đã bị từ chối.",
                     RedirectUrl = null,
                     IsRead = false,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = vietnamTime
                 });
             }
 
@@ -1139,6 +1169,12 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
+                DateTime utcNow = DateTime.UtcNow;
+
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
                 var job = await _jobService.GetJobByIDAsync(jobId);
                 if (job == null)
                     return NotFound("Thông tìm thấy thông tin công việc!");
@@ -1165,7 +1201,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 // Cancel job
                 job.Status = (int)JobStatus.Canceled;
-                job.UpdatedDate = DateTime.Now;
+                job.UpdatedDate = vietnamTime;
                 await _jobService.UpdateJobAsync(job);
 
                 // Cancel related bookings if job was accepted
@@ -1196,7 +1232,7 @@ namespace HouseKeeperConnect_API.Controllers
                             Message = "Cộng việc bạn được offer đã bị hủy!",
                             RedirectUrl = null,
                             IsRead = false,
-                            CreatedDate = DateTime.Now
+                            CreatedDate = vietnamTime
                         });
                     }
                     else if (isHousekeeper)
@@ -1207,7 +1243,7 @@ namespace HouseKeeperConnect_API.Controllers
                             Message = "Người giúp việc đã hủy việc!",
                             RedirectUrl = null,
                             IsRead = false,
-                            CreatedDate = DateTime.Now
+                            CreatedDate = vietnamTime
                         });
                     }
                 }
@@ -1225,13 +1261,10 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> CheckIn([FromQuery] int bookingId)
         {
-            // 🔍 Get today's date
             DateTime utcNow = DateTime.UtcNow;
 
-            // Define the Vietnam time zone (UTC+7)
             TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
-            // Convert UTC time to Vietnam time
             DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
 
             var today = vietnamTime.Date;
@@ -1263,7 +1296,16 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Family")]
         public async Task<IActionResult> ConfirmSlotWorked([FromQuery] int bookingId)
         {
-            var today = DateTime.Today;
+            // 🔍 Get today's date
+            DateTime utcNow = DateTime.UtcNow;
+
+            // Define the Vietnam time zone (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Convert UTC time to Vietnam time
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+            var today = vietnamTime.Date;
 
             // 🔍 Get today's booking slots for this booking
             var todaySlots = await _bookingSlotsService.GetBookingSlotsByDateAndBookingIDAsync(bookingId, today);
@@ -1283,7 +1325,7 @@ namespace HouseKeeperConnect_API.Controllers
                         return BadRequest($"Người giúp việc chưa check-in cho Slot {slot.SlotID}.");
 
                     slot.IsConfirmedByFamily = true;
-                    slot.ConfirmedAt = DateTime.Now;
+                    slot.ConfirmedAt = vietnamTime;
 
                     await _bookingSlotsService.UpdateBooking_SlotAsync(slot);
                 }
@@ -1296,6 +1338,12 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Housekeeper")]
         public async Task<IActionResult> HousekeeperCompleteJob([FromQuery] int jobId, int accountID)
         {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
             if (hk == null)
             {
@@ -1336,15 +1384,15 @@ namespace HouseKeeperConnect_API.Controllers
                 return Unauthorized("Bạn không phải người giúp việc của công việc này!");
 
             var booking_Slots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(booking.BookingID);
-            if (booking_Slots.Count==0)
+            if (booking_Slots.Count == 0)
             {
                 Message = "Danh sách slot công việc đã nhận trống!";
                 return NotFound(Message);
             }
 
-            foreach(var slot in booking_Slots)
+            foreach (var slot in booking_Slots)
             {
-                slot.Status= BookingSlotStatus.Canceled;
+                slot.Status = BookingSlotStatus.Canceled;
                 await _bookingSlotsService.UpdateBooking_SlotAsync(slot);
             }
             //Tạo đơn payout cho HK
@@ -1361,7 +1409,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             var wallet = await _walletService.GetWalletByIDAsync(hk.AccountID);
             wallet.OnHold += jobDetail.Price;
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = vietnamTime;
 
             await _walletService.UpdateWalletAsync(wallet);
 
@@ -1378,7 +1426,7 @@ namespace HouseKeeperConnect_API.Controllers
                 AccountID = fa.AccountID,
                 Message = $"Người giúp việc đã báo công việc #{job.JobID} đã hoàn thành. Hãy xác nhận.",
                 RedirectUrl = $"/jobs/{job.JobID}",
-                CreatedDate = DateTime.Now
+                CreatedDate = vietnamTime
             });
 
             return Ok("Đã báo hoàn thành công việc, hãy chờ gia đình xác nhận!");
@@ -1431,6 +1479,12 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             //Cập nhật tiền vào balance ví HK
 
             var wallet = await _walletService.GetWalletByUserAsync(hk.AccountID);
@@ -1440,12 +1494,12 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            if (wallet.OnHold == jobDetail.Price)
+            if (wallet.OnHold - jobDetail.Price !<0)
             {
-                wallet.Balance += wallet.OnHold;
+                wallet.Balance += jobDetail.Price;
                 wallet.OnHold -= jobDetail.Price;
             }
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = vietnamTime;
             await _walletService.UpdateWalletAsync(wallet);
 
             //Update payout
@@ -1453,11 +1507,11 @@ namespace HouseKeeperConnect_API.Controllers
             var payout = await _payoutService.GetPayoutByJobIDAsync(job.JobID);
             if (payout == null)
             {
-                Message = "Không tìm thời hóa đơn tiền lương!";
+                Message = "Không tìm thấy hóa đơn tiền lương!";
                 return NotFound(Message);
             }
             payout.Status = (int)PayoutStatus.Completed;
-            payout.PayoutDate = DateTime.Now;
+            payout.PayoutDate = vietnamTime;
 
             await _payoutService.UpdatePayoutAsync(payout);
 
@@ -1470,8 +1524,8 @@ namespace HouseKeeperConnect_API.Controllers
             trans.TransactionType = (int)TransactionType.Payout;
             trans.AccountID = hk.AccountID;
             trans.Status = (int)TransactionStatus.Completed;
-            trans.CreatedDate = DateTime.Now;
-            trans.UpdatedDate = DateTime.Now;
+            trans.CreatedDate = vietnamTime;
+            trans.UpdatedDate = vietnamTime;
             trans.Fee = 0;
             trans.Amount = jobDetail.Price;
             trans.Description = "Tiền lương công việc.";
@@ -1496,9 +1550,9 @@ namespace HouseKeeperConnect_API.Controllers
             await _notificationService.AddNotificationAsync(new Notification
             {
                 AccountID = hk.AccountID,
-                Message = $"Gia định đã xác nhận hoàn thành công việc #{job.JobID}. Chúc mừng",
+                Message = $"Gia định đã xác nhận hoàn thành công việc #{job.JobID}. Chúc mừng!",
                 RedirectUrl = $"/jobs/{job.JobID}",
-                CreatedDate = DateTime.Now
+                CreatedDate = vietnamTime
             });
 
             return Ok("Công việc đã được xác nhận hoàn thành!");
