@@ -66,7 +66,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (jobs == null || !jobs.Any())
             {
-                return NotFound("No records!");
+                return NotFound("Không tìm thấy thông tin công việc!");
             }
             var display = new List<JobDisplayDTO>();
             foreach (var j in jobs)
@@ -855,26 +855,6 @@ namespace HouseKeeperConnect_API.Controllers
                 });
             }
 
-            var newBooking = new BusinessObject.Models.Booking
-            {
-                JobID = newJob.JobID,
-                Status = (int)BookingStatus.Pending
-            };
-            await _bookingService.AddBookingAsync(newBooking);
-
-            foreach (var slot in unworkedSlots)
-            {
-                var newSlot = new Booking_Slots
-                {
-                    BookingID = newBooking.BookingID,
-                    SlotID = slot.SlotID,
-                    DayOfWeek = slot.DayOfWeek,
-                    Date = slot.Date,
-                    Status = BookingSlotStatus.Active,
-                    IsConfirmedByFamily = false
-                };
-                await _bookingSlotsService.AddBooking_SlotsAsync(newSlot);
-            }
 
             return Ok(new
             {
@@ -1246,7 +1226,15 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult> CheckIn([FromQuery] int bookingId)
         {
             // 🔍 Get today's date
-            var today = DateTime.Today.AddDays(1);
+            DateTime utcNow = DateTime.UtcNow;
+
+            // Define the Vietnam time zone (UTC+7)
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            // Convert UTC time to Vietnam time
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+            var today = vietnamTime.Date;
 
             // ✅ Retrieve all booking slots for this booking and today's date
             var todaySlots = await _bookingSlotsService.GetBookingSlotsByDateAndBookingIDAsync(bookingId, today);
@@ -1263,7 +1251,7 @@ namespace HouseKeeperConnect_API.Controllers
                 if (!slot.IsCheckedIn)
                 {
                     slot.IsCheckedIn = true;
-                    slot.CheckInTime = DateTime.Now;
+                    slot.CheckInTime = vietnamTime;
                     await _bookingSlotsService.UpdateBooking_SlotAsync(slot);
                 }
             }
