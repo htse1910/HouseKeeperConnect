@@ -510,6 +510,12 @@ namespace HouseKeeperConnect_API.Controllers
                     jobDetail.HousekeeperID = hk.HousekeeperID;
                 }
 
+                if (jobDetail.EndDate < vietnamTime)
+                {
+                    Message = "Cộng việc đã quá hạn, không thể nhận công việc!";
+                    return Conflict(Message);
+                }
+
                 var applications = await _applicationService.GetAllApplicationsByJobIDAsync(job.JobID);
                 if (applications.Count == 0 && !jobDetail.IsOffered)
                 {
@@ -528,7 +534,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                         var noti = new Notification();
                         noti.Message = "Đơn ứng tuyển của bạn cho công việc #" + job.JobID + " - " + job.JobName + " đã bị từ chối!";
-                        noti.AccountID = app.HouseKepper.AccountID;
+                        noti.AccountID = item.HouseKepper.AccountID;
 
                         await _notificationService.AddNotificationAsync(noti);
                         await _applicationService.UpdateApplicationAsync(app);
@@ -717,6 +723,9 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult> ForceAbandonJobAndReassign([FromQuery] int jobId, [FromQuery] int accountID)
         {
+            var oldJob = await _jobService.GetJobByIDAsync(jobId);
+            if (oldJob == null)
+                return NotFound("Không tìm thấy thông tin công việc!");
             var jobDetail = await _jobService.GetJobDetailByJobIDAsync(jobId);
             if (jobDetail == null)
                 return NotFound("Không tìm thấy thông tin chi tiết công việc!");
@@ -727,7 +736,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
 
-            var abandonDate = vietnamTime;
+            var abandonDate = vietnamTime.Date;
             var acc = await _accountService.GetAccountByIDAsync(accountID);
             var hk = new Housekeeper();
 
@@ -745,21 +754,14 @@ namespace HouseKeeperConnect_API.Controllers
                 return Forbid("Bạn không có quyền truy cập!");
             }
 
-            var oldJob = await _jobService.GetJobByIDAsync(jobId);
-            if (oldJob == null)
-                return NotFound("Không tìm thấy thông tin công việc!");
-
             if (jobDetail.HousekeeperID == null)
                 return BadRequest("Công việc chưa có người giúp việc nào được ứng tuyển!");
 
-            var bookings = await _bookingService.GetBookingsByJobIDAsync(oldJob.JobID);
+            var booking = await _bookingService.GetBookingByJobIDAsync(oldJob.JobID);
             var allSlots = new List<Booking_Slots>();
 
-            foreach (var booking in bookings)
-            {
-                var slots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(booking.BookingID);
-                allSlots.AddRange(slots);
-            }
+            var slots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(booking.BookingID);
+            allSlots.AddRange(slots);
 
             var unworkedSlots = allSlots
                 .Where(s => (s.Date > abandonDate || s.IsConfirmedByFamily == false) && s.Status == BookingSlotStatus.Active)
@@ -779,11 +781,8 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             // Cancel old bookings
-            foreach (var booking in bookings)
-            {
-                booking.Status = (int)BookingStatus.Canceled;
-                await _bookingService.UpdateBookingAsync(booking);
-            }
+            booking.Status = (int)BookingStatus.Canceled;
+            await _bookingService.UpdateBookingAsync(booking);
 
             // Refund and payout calculation
             int totalUnworkedSlots = unworkedSlots.Count;
@@ -791,18 +790,16 @@ namespace HouseKeeperConnect_API.Controllers
             decimal payoutAmount = jobDetail.Price - refundAmount;
 
             var family = await _familyProfileService.GetFamilyByIDAsync(oldJob.FamilyID);
-            var hkAccountId = jobDetail.HousekeeperID;
-            var familyWallet = await _walletService.GetWalletByUserAsync(family.AccountID);
-            var hkWallet = await _walletService.GetWalletByUserAsync(hkAccountId.Value);
+            /*var familyWallet = await _walletService.GetWalletByUserAsync(family.AccountID);*/
 
-            if (familyWallet == null || hkWallet == null)
+            /*if (familyWallet == null || hkWallet == null)
                 return NotFound("Không tìm thấy thông tin ví người dùng!");
 
             familyWallet.Balance += refundAmount;
             familyWallet.UpdatedAt = vietnamTime;
-            await _walletService.UpdateWalletAsync(familyWallet);
+            await _walletService.UpdateWalletAsync(familyWallet);*/
 
-            await _transactionService.AddTransactionAsync(new Transaction
+            /*await _transactionService.AddTransactionAsync(new Transaction
             {
                 TransactionID = int.Parse(DateTimeOffset.Now.ToString("ffffff")),
                 WalletID = familyWallet.WalletID,
@@ -814,7 +811,10 @@ namespace HouseKeeperConnect_API.Controllers
                 UpdatedDate = vietnamTime,
                 TransactionType = (int)TransactionType.Refund,
                 Status = (int)TransactionStatus.Completed
-            });
+            });*/
+
+            var hkAccountId = jobDetail.HousekeeperID;
+            var hkWallet = await _walletService.GetWalletByUserAsync(hkAccountId.Value);
 
             hkWallet.Balance += payoutAmount;
             hkWallet.UpdatedAt = vietnamTime;
@@ -841,13 +841,15 @@ namespace HouseKeeperConnect_API.Controllers
             await _jobService.UpdateJobAsync(oldJob);
             await _jobService.UpdateJobDetailAsync(oldJobDetail);
 
-            // Create new job
+            // Tạo lại job mới dựa vào thông tin job cũ với thời hạn còn lại
             var newJob = new Job
             {
                 FamilyID = oldJob.FamilyID,
                 JobName = oldJob.JobName,
                 JobType = oldJob.JobType,
-                Status = (int)JobStatus.Verified,
+                Status = (int)JobStatus.ReAssignedJob,
+                CreatedDate = vietnamTime,
+                UpdatedDate = vietnamTime
             };
             await _jobService.AddJobAsync(newJob);
 
@@ -876,14 +878,38 @@ namespace HouseKeeperConnect_API.Controllers
                     ServiceID = service.ServiceID
                 });
             }
+            var newJobSlots = new List<Job_Slots>();
+            var oldJobSLots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(oldJob.JobID);
+            if (oldJobSLots.Count == 0)
+            {
+                Message = "Không tìm thấy danh sách slot làm việc của công việc!";
+                return NotFound(Message);
+            }
+
+            foreach (var oldSlots in oldJobSLots)
+            {
+                await _jobSlotsService.AddJob_SlotsAsync(new Job_Slots
+                {
+                    JobID = newJob.JobID,
+                    DayOfWeek = oldSlots.DayOfWeek,
+                    SlotID = oldSlots.SlotID,
+                });
+            }
+
+            var noti = new Notification();
+            noti.AccountID = family.AccountID;
+            noti.Message = "Công việc #" + oldJob.JobID + " - " + oldJob.JobName + " đã bị người giúp việc bỏ!\n " +
+                "Công việc tương ứng với thời gian còn lại đã được tạo!";
+
+            await _notificationService.AddNotificationAsync(noti);
 
             return Ok(new
             {
-                message = "Đã hủy bỏ công việc và tạo lại công việc mới!",
+                message = "Đã hủy bỏ công việc thành công! Công việc mới tương tự với thời hạn còn lại đã được tạo!",
                 oldJobId = oldJob.JobID,
                 newJobId = newJob.JobID,
                 payoutToHK = payoutAmount,
-                refundToFamily = refundAmount
+                newJobPrice = refundAmount
             });
         }
 
@@ -898,7 +924,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            if (job.Status != (int)JobStatus.Verified)
+            if (job.Status != (int)JobStatus.Verified && job.Status != (int)JobStatus.ReAssignedJob)
             {
                 Message = "Công việc đang trong trạng thái không thể xóa!";
                 return Conflict(Message);
@@ -1494,7 +1520,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            if (wallet.OnHold - jobDetail.Price !<0)
+            if (wallet.OnHold - jobDetail.Price! < 0)
             {
                 wallet.Balance += jobDetail.Price;
                 wallet.OnHold -= jobDetail.Price;
