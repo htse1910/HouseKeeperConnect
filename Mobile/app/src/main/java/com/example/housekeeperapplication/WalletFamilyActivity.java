@@ -21,6 +21,7 @@ import com.example.housekeeperapplication.Model.Transaction;
 import com.example.housekeeperapplication.Model.Wallet;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import retrofit2.Call;
@@ -62,8 +63,14 @@ public class WalletFamilyActivity extends AppCompatActivity {
                     TextView tvOnHold = findViewById(R.id.tvOnHold);
                     TextView tvLastUpdate = findViewById(R.id.tvLastUpdate);
 
-                    tvBalance.setText(wallet.getBalance() + "₫");
-                    tvOnHold.setText("Giữ: " + wallet.getOnHold() + "₫");
+                    DecimalFormat formatter = new DecimalFormat("#,###.##");
+                    double balance = wallet.getBalance();
+                    double onHold = wallet.getOnHold();
+
+
+                    tvBalance.setText(formatter.format(balance) + "₫");
+                    tvOnHold.setText("Giữ: " + formatter.format(onHold) + "₫");
+
 
                     String updatedDate = wallet.getUpdatedAt().substring(0, 10);
                     tvLastUpdate.setText("Cập nhật: " + updatedDate);

@@ -6,12 +6,17 @@ import java.util.List;
 public class ApplicationDisplayDTO {
 
     private int applicationID;
+    private String localProfilePicture;
+    private String googleProfilePicture;
+    private int accountID;
     private int jobID;
     private int housekeeperID;
     private String startDate;
     private String endDate;
     private String nickname;
     private int status;
+    private double rating;
+
 
     public int getApplicationID() {
         return applicationID;
@@ -67,5 +72,37 @@ public class ApplicationDisplayDTO {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getLocalProfilePicture() {
+        return localProfilePicture;
+    }
+
+    public void setLocalProfilePicture(String localProfilePicture) {
+        this.localProfilePicture = localProfilePicture;
+    }
+
+    public int getAccountID() {
+        return accountID;
+    }
+
+    public void setAccountID(int accountID) {
+        this.accountID = accountID;
+    }
+
+    public String getGoogleProfilePicture() {
+        return googleProfilePicture;
+    }
+
+    public void setGoogleProfilePicture(String googleProfilePicture) {
+        this.googleProfilePicture = googleProfilePicture;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 }

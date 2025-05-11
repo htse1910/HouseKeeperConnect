@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,7 +43,9 @@ public class FamilyJobAdapter extends RecyclerView.Adapter<FamilyJobAdapter.JobV
         holder.tvJobSalary.setText("💵 Lương: " + job.getPrice() + " VND");
         holder.tvJobType.setText("⚙️ Loại: " + (job.getJobType() == 1 ? "Full-time" : "Part-time"));
         holder.tvJobStatus.setText("📌 Trạng thái: " + getJobStatusString(job.getStatus()));
-
+        /*holder.btnDelete.setOnClickListener(v -> {
+            Toast.makeText(context, "Đã xóa công việc", Toast.LENGTH_SHORT).show();
+        });*/
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, JobDetailActivity.class);
             intent.putExtra("jobID", job.getJobID());
@@ -56,6 +60,7 @@ public class FamilyJobAdapter extends RecyclerView.Adapter<FamilyJobAdapter.JobV
 
     static class JobViewHolder extends RecyclerView.ViewHolder {
         TextView tvJobName, tvJobLocation, tvJobSalary, tvJobType, tvJobStatus;
+        Button btnDelete;
 
         public JobViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -64,6 +69,7 @@ public class FamilyJobAdapter extends RecyclerView.Adapter<FamilyJobAdapter.JobV
             tvJobSalary = itemView.findViewById(R.id.tvJobSalary);
             tvJobType = itemView.findViewById(R.id.tvJobType);
             tvJobStatus = itemView.findViewById(R.id.tvJobStatus);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
         }
     }
 

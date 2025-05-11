@@ -1,24 +1,27 @@
 package com.example.housekeeperapplication;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
-import com.example.housekeeperapplication.Model.DTOs.HousekeeperDetailDTO;
+import com.example.housekeeperapplication.Adapter.ApplicantAdapter;
+import com.example.housekeeperapplication.Model.DTOs.ApplicationDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
+import com.example.housekeeperapplication.Model.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,13 +29,13 @@ import retrofit2.Response;
 
 public class JobDetailActivity extends AppCompatActivity {
 
-    TextView tvJobName, tvLocation, tvSalary, tvStartDate, tvEndDate,
-            tvDescription, tvDayOfWeek, tvSlot, tvServices, tvHousekeeperName;
-    ImageView imgHousekeeper;
-    Button btnConfirmSlotWorked, btnConfirmJobCompletion;
-    private JobDetailPageDTO jobDetail;
-
-    APIServices api;
+    private TextView tvJobName, tvVerified, tvPostedDate, tvLocation, tvSalary,
+            tvDayOfWeek, tvService, tvDescription;
+    private Button btnConfirmSlotWorked, btnConfirmJobCompletion;
+    private RecyclerView rvApplicants;
+    private ApplicantAdapter applicantAdapter;
+    private APIServices api;
+    private int jobID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,61 +43,63 @@ public class JobDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_family_job_detail);
 
         api = APIClient.getClient(this).create(APIServices.class);
-        int jobID = getIntent().getIntExtra("jobID", -1);
+        jobID = getIntent().getIntExtra("jobID", -1);
 
-        tvJobName = findViewById(R.id.tvJobName);
-        tvLocation = findViewById(R.id.tvLocation);
-        tvSalary = findViewById(R.id.tvSalary);
-        tvStartDate = findViewById(R.id.tvStartDate);
-        tvEndDate = findViewById(R.id.tvEndDate);
-        tvDescription = findViewById(R.id.tvDescription);
-        tvDayOfWeek = findViewById(R.id.tvDayOfWeek);
-        tvSlot = findViewById(R.id.tvSlot);
-        tvServices = findViewById(R.id.tvServices);
-        tvHousekeeperName = findViewById(R.id.tvHousekeeperName);
-        imgHousekeeper = findViewById(R.id.imgHousekeeper);
-        btnConfirmSlotWorked = findViewById(R.id.btnConfirmSlotWorked);
-        btnConfirmJobCompletion = findViewById(R.id.btnConfirmJobCompletion);
-
-        btnConfirmSlotWorked.setOnClickListener(v -> {
-            if (jobDetail != null && jobDetail.bookingID > 0) {
-                confirmSlotWorked(jobDetail.bookingID);
-            } else {
-                Toast.makeText(this, "Không có thông tin bookingID", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnConfirmJobCompletion.setOnClickListener(v -> {
-            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-            int accountId = prefs.getInt("accountID", -1);
-            if (jobDetail != null && jobDetail.jobID > 0 && accountId > 0) {
-                confirmJobCompletion(jobDetail.jobID, accountId);
-            } else {
-                Toast.makeText(this, "Thiếu thông tin để xác nhận hoàn thành", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        initViews();
+        setupApplicantsRecyclerView();
 
         if (jobID != -1) {
             loadJobDetail(jobID);
+            loadApplicants(jobID, 1, 10); // Page 1, 10 items per page
         } else {
             Toast.makeText(this, "Job ID không hợp lệ", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
-    private void confirmJobCompletion(int jobID, int accountID) {
-        api.confirmJobCompletion(jobID, accountID).enqueue(new Callback<Void>() {
+
+    private void initViews() {
+        tvJobName = findViewById(R.id.tvJobName);
+        tvVerified = findViewById(R.id.tvVerified);
+        tvPostedDate = findViewById(R.id.tvPostedDate);
+        tvLocation = findViewById(R.id.tvLocation);
+        tvSalary = findViewById(R.id.tvSalary);
+        tvDayOfWeek = findViewById(R.id.tvDayOfWeek);
+        tvService = findViewById(R.id.tvService);
+        tvDescription = findViewById(R.id.tvDescription);
+        btnConfirmSlotWorked = findViewById(R.id.btnConfirmSlotWorked);
+        btnConfirmJobCompletion = findViewById(R.id.btnConfirmJobCompletion);
+        rvApplicants = findViewById(R.id.rvApplicants);
+    }
+
+    private void setupApplicantsRecyclerView() {
+        boolean showActionButtons = false;
+
+        applicantAdapter = new ApplicantAdapter(new ArrayList<>(), new ApplicantAdapter.ApplicantClickListener() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                Toast.makeText(JobDetailActivity.this,
-                        response.isSuccessful() ? "🎉 Công việc đã hoàn thành!" : "❌ Xác nhận thất bại",
-                        Toast.LENGTH_SHORT).show();
+            public void onViewProfileClick(ApplicationDisplayDTO applicant) {
+                Intent intent = new Intent(JobDetailActivity.this, ReviewProflieHousekeeperActivity.class);
+                intent.putExtra("accountId", applicant.getAccountID());
+                startActivity(intent);
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(JobDetailActivity.this, "⚠️ Lỗi kết nối", Toast.LENGTH_SHORT).show();
+            public void onMessageClick(ApplicationDisplayDTO applicant) {
+                Intent intent = new Intent(JobDetailActivity.this, ChatListMockActivity.class);
+                intent.putExtra("recipientId", applicant.getAccountID());
+                intent.putExtra("recipientName", applicant.getNickname());
+                startActivity(intent);
             }
-        });
+
+            @Override
+            public void onAcceptClick(ApplicationDisplayDTO applicant) {}
+
+            @Override
+            public void onRejectClick(ApplicationDisplayDTO applicant) {}
+
+        }, showActionButtons);
+
+        rvApplicants.setLayoutManager(new LinearLayoutManager(this));
+        rvApplicants.setAdapter(applicantAdapter);
     }
 
     private void loadJobDetail(int jobID) {
@@ -102,21 +107,10 @@ public class JobDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JobDetailPageDTO> call, Response<JobDetailPageDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    JobDetailPageDTO job = response.body();
-
-                    tvJobName.setText("🧽 " + job.jobName);
-                    tvLocation.setText("📍 Địa điểm: " + job.location);
-                    tvSalary.setText("💵 Lương: " + job.price + " VND");
-                    tvStartDate.setText("📅 Bắt đầu: " + formatDate(job.startDate));
-                    tvEndDate.setText("📅 Kết thúc: " + formatDate(job.endDate));
-                    tvDescription.setText("📝 Mô tả: " + job.description);
-                    tvDayOfWeek.setText("📆 Thứ: " + getWeekday(job.dayofWeek));
-                    tvSlot.setText("🕐 Ca: " + getSlot(job.slotIDs));
-                    tvServices.setText("🛎️ Dịch vụ: " + getService(job.serviceIDs));
-
-                    jobDetail = job;
-
-                    loadHousekeeper(job.housekeeperID);
+                    updateJobDetailUI(response.body());
+                    if (response.body().serviceIDs != null && !response.body().serviceIDs.isEmpty()) {
+                        loadService(response.body().serviceIDs.get(0)); // Load service name
+                    }
                 } else {
                     Toast.makeText(JobDetailActivity.this, "Không tải được chi tiết công việc", Toast.LENGTH_SHORT).show();
                 }
@@ -130,57 +124,39 @@ public class JobDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void loadHousekeeper(int housekeeperID) {
-        api.getHousekeeperByID(housekeeperID).enqueue(new Callback<HousekeeperDetailDTO>() {
-            @Override
-            public void onResponse(Call<HousekeeperDetailDTO> call, Response<HousekeeperDetailDTO> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    HousekeeperDetailDTO hk = response.body();
-                    tvHousekeeperName.setText("👤 " + hk.name);
+    private void updateJobDetailUI(JobDetailPageDTO job) {
+        tvJobName.setText(job.jobName != null ? job.jobName : "");
+        tvVerified.setText(getJobStatusString(job.status));
+        tvPostedDate.setText("📅 Đăng vào: " + formatDate(job.startDate));
+        tvLocation.setText("📍 " + (job.location != null ? job.location : ""));
+        tvSalary.setText("Mức lương: " + String.format("%,d", job.price) + " VNĐ");
 
-                    Glide.with(JobDetailActivity.this)
-                            .load(hk.googleProfilePicture)
-                            .placeholder(R.drawable.ic_launcher_background)
-                            .into(imgHousekeeper);
-                } else {
-                    tvHousekeeperName.setText("👤 [Không rõ]");
-                }
+        // Format ngày làm việc
+        StringBuilder daysText = new StringBuilder();
+        if (job.dayofWeek != null) {
+            for (Integer day : job.dayofWeek) {
+                daysText.append("• ").append(getWeekday(day)).append("\n");
             }
+        }
+        tvDayOfWeek.setText(daysText.toString().trim());
 
-            @Override
-            public void onFailure(Call<HousekeeperDetailDTO> call, Throwable t) {
-                tvHousekeeperName.setText("👤 [Không rõ]");
-            }
-        });
-    }
-    private void confirmSlotWorked(int bookingID) {
-        api.confirmSlotWorked(bookingID).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(JobDetailActivity.this, "✅ Xác nhận thành công!", Toast.LENGTH_SHORT).show();
-                    btnConfirmSlotWorked.setEnabled(false);
-                    btnConfirmSlotWorked.setText("Đã xác nhận");
-                } else {
-                    Toast.makeText(JobDetailActivity.this, "❌ Xác nhận thất bại", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(JobDetailActivity.this, "⚠️ Lỗi kết nối", Toast.LENGTH_SHORT).show();
-            }
-        });
+        tvDescription.setText(job.description != null ? job.description : "");
     }
 
-    private String formatDate(String rawDate) {
-        if (rawDate == null || !rawDate.contains("T")) return rawDate;
-        return rawDate.split("T")[0];
+    private String getJobStatusString(int status) {
+        switch (status) {
+            case 1: return "🕒 Đang chờ";
+            case 2: return "✔️ Đã xác minh";
+            case 3: return "📌 Đã chấp nhận";
+            case 4: return "✅ Hoàn thành";
+            case 5: return "⏰ Hết hạn";
+            case 6: return "❌ Đã hủy";
+            default: return "❓ Trạng thái không xác định";
+        }
     }
 
-    private String getWeekday(java.util.List<Integer> list) {
-        if (list == null || list.isEmpty()) return "[Không rõ]";
-        switch (list.get(0)) {
+    private String getWeekday(int day) {
+        switch (day) {
             case 0: return "Chủ Nhật";
             case 1: return "Thứ Hai";
             case 2: return "Thứ Ba";
@@ -192,47 +168,43 @@ public class JobDetailActivity extends AppCompatActivity {
         }
     }
 
-    private String getSlot(java.util.List<Integer> list) {
-        if (list == null || list.isEmpty()) return "[Không rõ]";
-        switch (list.get(0)) {
-            case 1: return "8H - 9H";
-            case 2: return "9H - 10H";
-            case 3: return "10H - 11H";
-            case 4: return "11H - 12H";
-            case 5: return "12H - 13H";
-            case 6: return "13H - 14H";
-            case 7: return "14H - 15H";
-            case 8: return "15H - 16H";
-            case 9: return "16H - 17H";
-            case 10: return "17H - 18H";
-            case 11: return "18H - 19H";
-            case 12: return "19H - 20H";
-            default: return "Ca #" + list.get(0);
-        }
+    private void loadService(int serviceID) {
+        api.getServiceByID(serviceID).enqueue(new Callback<Service>() {
+            @Override
+            public void onResponse(Call<Service> call, Response<Service> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    tvService.setText(response.body().getServiceName());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Service> call, Throwable t) {
+                Log.e("Service", "Failed to load service name", t);
+            }
+        });
     }
 
-    private String getService(java.util.List<Integer> list) {
-        if (list == null || list.isEmpty()) return "[Không rõ]";
-        switch (list.get(0)) {
-            case 1: return "Dọn dẹp";
-            case 2: return "Tổng vệ sinh";
-            case 3: return "Dọn dẹp theo giờ";
-            case 4: return "Giữ trẻ tại nhà";
-            case 5: return "Chăm sóc người già";
-            case 6: return "Nấu ăn theo yêu cầu";
-            case 7: return "Nấu ăn theo giờ";
-            case 8: return "Giặt ủi";
-            case 9: return "Ủi quần áo";
-            case 10: return "Giặt hấp";
-            case 11: return "Chăm sóc thú cưng";
-            case 12: return "Tưới cây, chăm cây";
-            case 13: return "Tắm & cắt lông thú";
-            case 14: return "Sửa chữa điện nước";
-            case 15: return "Sơn sửa đồ đạc";
-            case 16: return "Thợ sửa chuyên nghiệp";
-            case 17: return "Giúp việc theo tháng";
-            case 18: return "Hỗ trợ vận chuyển";
-            default: return "Dịch vụ #" + list.get(0);
-        }
+    private void loadApplicants(int jobID, int pageNumber, int pageSize) {
+        api.ApplicationListByJob(jobID, pageNumber, pageSize).enqueue(new Callback<List<ApplicationDisplayDTO>>() {
+            @Override
+            public void onResponse(Call<List<ApplicationDisplayDTO>> call, Response<List<ApplicationDisplayDTO>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    applicantAdapter.updateData(response.body());
+                } else {
+                    Toast.makeText(JobDetailActivity.this, "Không có ứng viên nào", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ApplicationDisplayDTO>> call, Throwable t) {
+                Toast.makeText(JobDetailActivity.this, "Lỗi tải danh sách ứng viên", Toast.LENGTH_SHORT).show();
+                Log.e("Applicants", t.getMessage());
+            }
+        });
+    }
+
+    private String formatDate(String rawDate) {
+        if (rawDate == null || !rawDate.contains("T")) return rawDate;
+        return rawDate.split("T")[0];
     }
 }
