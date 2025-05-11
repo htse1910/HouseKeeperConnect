@@ -29,6 +29,7 @@ const FamilyHousekeeperViewPage = () => {
   const [reviewError, setReviewError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const reviewsPerPage = 3;
+  const [averageScore, setAverageScore] = useState(null);
 
   useEffect(() => {
     const verifyAndLoad = async () => {
@@ -83,6 +84,11 @@ const FamilyHousekeeperViewPage = () => {
           }
         }));
         setReviews(enriched);
+        if (enriched.length > 0) {
+          const total = enriched.reduce((sum, r) => sum + r.score, 0);
+          const avg = total / enriched.length;
+          setAverageScore(avg);
+        }
       } catch {
         setReviewError(t("error.error_review"));
       }
@@ -135,14 +141,31 @@ const FamilyHousekeeperViewPage = () => {
 
           <div className="col-md-9">
             <h5 className="fw-bold mb-3 text-primary">{t("misc.personal_info")}</h5>
-            {housekeeper.rating && (
-              <div className="mb-3">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <span key={index} className={`text-warning ${index < Math.round(housekeeper.rating) ? "" : "text-muted"}`}>★</span>
-                ))}
-                <span className="ms-2 text-muted">({housekeeper.rating.toFixed(1)})</span>
-              </div>
-            )}
+
+            {/* Ratings */}
+            <div className="mb-3">
+              {housekeeper.rating !== undefined && (
+                <div className="mb-1">
+                  <strong className="text-success">{t("misc.profile_rating")}:</strong>{" "}
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <span key={index} className={`text-warning ${index < Math.round(housekeeper.rating) ? "" : "text-muted"}`}>★</span>
+                  ))}
+                  <span className="ms-2 text-muted">({housekeeper.rating.toFixed(1)})</span>
+                </div>
+              )}
+
+              {averageScore !== null && (
+                <div>
+                  <strong className="text-info">{t("Đánh giá")}:</strong>{" "}
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <span key={index} className={`text-warning ${index < Math.round(averageScore) ? "" : "text-muted"}`}>★</span>
+                  ))}
+                  <span className="ms-2 text-muted">({averageScore.toFixed(1)})</span>
+                </div>
+              )}
+            </div>
+
+            {/* Info */}
             <p className="mb-1"><strong className="text-success">{t("user.gender")}:</strong> {formatGender(housekeeper.gender, t)}</p>
             <p className="mb-1"><strong className="text-success">{t("user.address")}:</strong> {housekeeper.address}</p>
             <p className="mb-1"><strong className="text-success">Email:</strong> {housekeeper.email}</p>

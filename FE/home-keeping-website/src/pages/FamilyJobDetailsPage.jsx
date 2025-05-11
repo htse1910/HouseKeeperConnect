@@ -71,6 +71,10 @@ const FamilyJobDetailsPage = () => {
     const [ratingScore, setRatingScore] = useState(5);
     const [ratingComment, setRatingComment] = useState("");
 
+    const [currentPage, setCurrentPage] = useState(0);
+    const applicantsPerPage = 5;
+    const totalPages = Math.ceil(applicants.length / applicantsPerPage);
+    const paginatedApplicants = applicants.slice(currentPage * applicantsPerPage, (currentPage + 1) * applicantsPerPage);
 
     useEffect(() => {
         if (!authToken || !accountID || !jobID) return;
@@ -288,155 +292,134 @@ const FamilyJobDetailsPage = () => {
     };
 
     return (
-        <div className="container my-4">
-            <div className="row">
-                <div className="col-lg-8">
-                    {/* Main job info */}
-                    <div className="card mb-4">
-                        <div className="card-body">
-                            <h2 className="card-title">{job.jobName}</h2>
-                            {renderJobStatus(job.status)}
-                            <p><FaClock /> {t("misc.created_at")}: {new Date(createdDate).toLocaleDateString("vi-VN")}</p>
-                            <p><FaMapMarkerAlt /> {job.location}</p>
-                            <p>{t("misc.salary")}: {job.price?.toLocaleString("vi-VN")} VNĐ</p>
-                            {Array.isArray(job.dayofWeek) && job.dayofWeek.length > 0 && (
-                                <div className="mb-2">
-                                    <strong>📅 Ngày làm việc:</strong>
-                                    <ul className="ps-3 mb-0">
-                                        {job.dayofWeek.map((dayIdx, i) => (
-                                            <li
-                                                key={i}
-                                                className="text-primary"
-                                                style={{ cursor: "pointer", textDecoration: "underline" }}
-                                                onClick={() => handleDayClick(dayIdx)}
-                                            >
-                                                {dayNames[dayIdx] || `Thứ ${dayIdx}`}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                            {job.status === 8 && (
-                                <button className="btn btn-success mt-3" onClick={handleConfirmJobCompletion}>
-                                    Xác nhận đã hoàn thành công việc
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Job detail card */}
-                    <div className="card mb-4">
-                        <div className="card-body">
-                            <h4>Thông tin công việc</h4>
-                            <p><strong>Yêu cầu đặc biệt:</strong> {job.specialRequirement}</p>
-                            {services.map(service => (
-                                <span key={service.serviceID} className="badge bg-info text-dark me-2 mb-2">{service.serviceName}</span>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Applicant list */}
-                    <div className="card">
-                        <div className="card-body">
-                            <h4>Danh sách người ứng tuyển</h4>
-                            {applicants.length === 0 ? <p>Chưa có người ứng tuyển.</p> : applicants.map(applicant => (
-                                <div key={applicant.applicationID} className="card mb-3">
-                                    <div className="card-body d-flex">
-                                        <img
-                                            src={applicant.googleProfilePicture || applicant.localProfilePicture || "/avatar0.png"}
-                                            className="rounded img-thumbnail me-3"
-                                            style={{ width: "60px", height: "60px", objectFit: "cover" }}
-                                            alt="avatar"
-                                        />
-                                        <div className="flex-grow-1">
-                                            <h5>{applicant.nickname}</h5>
-                                            <p>Đánh giá: {applicant.rating || "5.0"} <FaStar className="text-warning" /></p>
-                                            <div className="mb-2">
-                                                {applicant.services?.map((s, i) => <span key={i} className="badge bg-secondary me-1">{s}</span>)}
-                                            </div>
-                                            <div className="d-flex gap-2">
-                                                <button
-                                                    className="btn btn-outline-primary btn-sm"
-                                                    onClick={() =>
-                                                        navigate(`/family/housekeeper/profile/${applicant.accountID}`, {
-                                                            state: {
-                                                                applicantIDs: applicants.map(a => a.accountID),
-                                                            },
-                                                        })
-                                                    }
-                                                >
-                                                    Xem hồ sơ
-                                                </button>
-                                                <button
-                                                    className="btn btn-outline-secondary btn-sm"
-                                                    onClick={() => {
-                                                        if (applicant.name) {
-                                                            window.location.href = `/messages?search=${encodeURIComponent(applicant.name)}`;
-                                                        }
-                                                    }}
-                                                    disabled={!applicant.name}
-                                                >
-                                                    Nhắn tin
-                                                </button>
-                                            </div>
-                                            {applicant.status === 1 && (
-                                                <div className="mt-2 d-flex gap-2">
-                                                    <button className="btn btn-success btn-sm" onClick={() => handleAccept(applicant.applicationID)}>Chấp nhận</button>
-                                                    <button className="btn btn-danger btn-sm" onClick={() => handleReject(applicant.applicationID)}>Từ chối</button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Sidebar */}
-                {/* <div className="col-lg-4">
-                    <div className="card mb-4 text-center">
-                        <div className="card-body">
-                            <img
-                                src="/avatar0.png"
-                                className="rounded-circle img-thumbnail mb-2"
-                                style={{ width: "80px", height: "80px", objectFit: "cover" }}
-                                alt="avatar"
-                            />
-                            <h5>Trần Văn B</h5>
-                            <p><FaStar className="text-warning" /> 4.0</p>
-                            <div className="mb-2">
-                                <span className="badge bg-secondary me-1">Dọn dẹp</span>
-                                <span className="badge bg-secondary">Giặt ủi</span>
-                            </div>
-                            <button className="btn btn-primary btn-sm me-2">Thuê ngay</button>
-                            <button className="btn btn-outline-secondary btn-sm">Nhắn tin</button>
-                        </div>
-                    </div>
-
-                    <div className="card">
-                        <div className="card-body">
-                            <h5>Công việc tương tự</h5>
-                            <p><strong>Dọn dẹp và nấu ăn</strong></p>
-                            <p>140,000 VND/giờ</p>
-                            <a href="#" className="btn btn-link">{t("job.view_detail")}</a>
-                        </div>
-                    </div>
-                </div> */}
+        <div className="container py-5" style={{ fontSize: "1.15rem" }}>
+            {/* Job Header */}
+            <div className="card mb-4 shadow rounded-4 border-primary-subtle" style={{ padding: "2rem", backgroundColor: "#fff9e6" }}>
+                <h2 className="fw-bold" style={{ color: "#0d6efd", fontSize: "1.75rem" }}>{job.jobName}</h2>
+                <div className="mt-3 mb-3">{renderJobStatus(job.status)}</div>
+                <p><FaClock className="me-2" /> <strong style={{ color: "#333" }}>Ngày tạo:</strong> <span style={{ color: "#000" }}>{new Date(createdDate).toLocaleDateString("vi-VN")}</span></p>
+                <p><FaMapMarkerAlt className="me-2" /> <strong style={{ color: "#333" }}>Địa điểm:</strong> <span style={{ color: "#000" }}>{job.location}{job.detailLocation && ` - ${job.detailLocation}`}</span></p>
+                <p><strong style={{ color: "#333" }}>Mức lương:</strong> <span style={{ color: "#000" }}>{job.price > 0 ? `${job.price.toLocaleString("vi-VN")} VNĐ` : "Thỏa thuận"}</span></p>
+                {job.status === 8 && (
+                    <button className="btn btn-success mt-3">✅ Xác nhận đã hoàn thành công việc</button>
+                )}
             </div>
 
-            {/* Modal */}
+            {/* Job Details */}
+            <div className="card mb-4 shadow rounded-4 border-secondary-subtle" style={{ padding: "2rem", backgroundColor: "#fff9e6" }}>
+                <h5 className="fw-bold mb-4" style={{ color: "#0a58ca" }}>📝 Chi tiết công việc</h5>
+                <p><strong style={{ color: "#333" }}>📍 Địa điểm:</strong> <span style={{ color: "#000" }}>{job.location}{job.detailLocation && ` - ${job.detailLocation}`}</span></p>
+                <p><strong style={{ color: "#333" }}>📅 Ngày làm:</strong> <span style={{ color: "#000" }}>{new Date(job.startDate).toLocaleDateString("vi-VN")} → {new Date(job.endDate).toLocaleDateString("vi-VN")}</span></p>
+                <p><strong style={{ color: "#333" }}>📄 Mô tả:</strong> <span style={{ color: "#000" }}>{job.description || "Không có mô tả."}</span></p>
+                <p><strong style={{ color: "#333" }}>📆 Ngày trong tuần:</strong> <span style={{ color: "#000" }}>{job.dayofWeek?.map(d => dayNames[d]).join(", ") || "Không rõ"}</span></p>
+                <p><strong style={{ color: "#333" }}>⏰ Ca làm:</strong> <span style={{ color: "#000" }}>{(job.slotIDs || []).map(id => slotMap[id] || `Slot ${id}`).join(", ") || "Không có"}</span></p>
+            </div>
+
+            {/* Services */}
+            <div className="card mb-4 shadow rounded-4 border-info-subtle" style={{ padding: "2rem", backgroundColor: "#fff9e6" }}>
+                <h5 className="fw-bold mb-4" style={{ color: "#0c5460" }}>📌 Các dịch vụ bao gồm</h5>
+                <div className="d-flex flex-wrap gap-2">
+                    {services.length > 0 ? (
+                        services.map(service => (
+                            <span key={service.serviceID} className="badge bg-info text-dark me-2 mb-2">{service.serviceName}</span>
+                        ))
+                    ) : (
+                        <span className="text-muted">Không có dịch vụ cụ thể</span>
+                    )}
+                </div>
+            </div>
+
+            {/* Applicants */}
+            <div className="card mb-5 shadow rounded-4 border-warning-subtle" style={{ padding: "2rem", backgroundColor: "#fff9e6" }}>
+                <h5 className="fw-bold mb-4" style={{ color: "#b8860b", fontSize: "1.5rem" }}>👤 Ứng viên</h5>
+                {applicants.length === 0 ? (
+                    <p className="text-muted fs-5">Chưa có người ứng tuyển.</p>
+                ) : (
+                    <>
+                        {paginatedApplicants.map((applicant) => (
+                            <div key={applicant.applicationID} className="card mb-3 shadow-sm">
+                                <div className="card-body d-flex" style={{ fontSize: "1.1rem" }}>
+                                    <img
+                                        src={applicant.googleProfilePicture || applicant.localProfilePicture || "/avatar0.png"}
+                                        alt="avatar"
+                                        className="rounded-circle border border-2 border-primary me-3"
+                                        style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                                    />
+                                    <div className="flex-grow-1">
+                                        <h5 className="fw-bold text-primary" style={{ fontSize: "1.25rem" }}>{applicant.nickname}</h5>
+                                        <p className="text-muted mb-1">
+                                            Đánh giá: {applicant.rating || "5.0"} <FaStar className="text-warning" />
+                                        </p>
+                                        <div className="mb-2">
+                                            {applicant.services?.map((s, i) => (
+                                                <span key={i} className="badge bg-secondary me-1">{s}</span>
+                                            ))}
+                                        </div>
+                                        <div className="d-flex gap-2 mb-2">
+                                            <button
+                                                className="btn btn-outline-primary btn-sm"
+                                                onClick={() =>
+                                                    navigate(`/family/housekeeper/profile/${applicant.accountID}`, {
+                                                        state: { applicantIDs: applicants.map(a => a.accountID) },
+                                                    })
+                                                }
+                                            >
+                                                Xem hồ sơ
+                                            </button>
+                                            <button
+                                                className="btn btn-outline-secondary btn-sm"
+                                                onClick={() => {
+                                                    if (applicant.name) {
+                                                        window.location.href = `/messages?search=${encodeURIComponent(applicant.name)}`;
+                                                    }
+                                                }}
+                                                disabled={!applicant.name}
+                                            >
+                                                Nhắn tin
+                                            </button>
+                                        </div>
+                                        {applicant.status === 1 && (
+                                            <div className="d-flex gap-2">
+                                                <button className="btn btn-success btn-sm" onClick={() => handleAccept(applicant.applicationID)}>Chấp nhận</button>
+                                                <button className="btn btn-danger btn-sm" onClick={() => handleReject(applicant.applicationID)}>Từ chối</button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Pagination Controls */}
+                        <div className="d-flex justify-content-between align-items-center mt-4">
+                            <button
+                                className="btn btn-outline-secondary"
+                                disabled={currentPage === 0}
+                                onClick={() => setCurrentPage((p) => p - 1)}
+                            >
+                                ⬅ Trang trước
+                            </button>
+                            <span className="text-muted">Trang {currentPage + 1} / {totalPages}</span>
+                            <button
+                                className="btn btn-outline-primary"
+                                disabled={currentPage >= totalPages - 1}
+                                onClick={() => setCurrentPage((p) => p + 1)}
+                            >
+                                Trang tiếp ➡
+                            </button>
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* Slot Check-in Modal */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Chi tiết ca làm</Modal.Title>
                 </Modal.Header>
-
                 <Modal.Body>
                     <p><strong>Ngày làm:</strong> {dayNames[selectedDayIndex]}</p>
-                    <p><strong>Ngày thực tế trong tuần này:</strong> {matchedDate?.toLocaleDateString("vi-VN")}</p>
+                    <p><strong>Ngày thực tế:</strong> {matchedDate?.toLocaleDateString("vi-VN")}</p>
                     <hr />
-                    <p><strong>Ca làm:</strong></p>
-
                     {daySlots.length > 0 ? (
                         <>
                             <ul className="list-unstyled">
@@ -446,16 +429,13 @@ const FamilyJobDetailsPage = () => {
                                     </li>
                                 ))}
                             </ul>
-
-                            {isToday && (
+                            {isToday ? (
                                 <div className="text-center mt-4">
-                                    <button className="btn btn-success" onClick={() => handleConfirmSlot()}>
+                                    <button className="btn btn-success" onClick={handleConfirmSlot}>
                                         ✅ Check-in
                                     </button>
                                 </div>
-                            )}
-
-                            {!isToday && (
+                            ) : (
                                 <div className="text-center mt-4">
                                     <span className="badge bg-light text-muted">Chỉ xác nhận trong ngày</span>
                                 </div>
@@ -465,11 +445,12 @@ const FamilyJobDetailsPage = () => {
                         <p>Không có ca làm nào cho ngày này.</p>
                     )}
                 </Modal.Body>
-
                 <Modal.Footer>
                     <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
                 </Modal.Footer>
             </Modal>
+
+            {/* Rating Modal */}
             <Modal show={showRatingModal} onHide={() => setShowRatingModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Đánh giá người giúp việc</Modal.Title>
@@ -502,6 +483,7 @@ const FamilyJobDetailsPage = () => {
                     <button className="btn btn-primary" onClick={submitRating}>Gửi đánh giá</button>
                 </Modal.Footer>
             </Modal>
+
             <ToastContainer position="bottom-right" />
         </div>
     );
