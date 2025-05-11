@@ -176,6 +176,13 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> AddApplication([FromQuery] int accountID, int jobID)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
             if (hk == null)
             {
@@ -207,6 +214,12 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 Message = "Không tìm thấy thông tin chi tiết công việc!";
                 return NotFound(Message);
+            }
+
+            if(jobDetail.EndDate < vietnamTime)
+            {
+                Message = "Cộng việc đã quá hạn, không thể ứng tuyển!";
+                return Conflict(Message);
             }
 
             var jobApps = await _applicationService.GetAllApplicationsByJobIDAsync(job.JobID);

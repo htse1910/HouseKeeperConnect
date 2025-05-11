@@ -100,7 +100,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Application.Include(a => a.HouseKepper.Account).Where(a => a.JobID == jobID && a.Status!=(int)ApplicationStatus.Denied).AsNoTracking().ToListAsync();
+                    list = await context.Application.Include(a => a.HouseKepper).Include(a => a.HouseKepper.Account).Where(a => a.JobID == jobID && a.Status!=(int)ApplicationStatus.Denied).AsNoTracking().ToListAsync();
                 }
             }
             catch (Exception ex)

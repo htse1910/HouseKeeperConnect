@@ -47,7 +47,8 @@
         Canceled = 6,
         NotPermitted = 7,
         PendingFamilyConfirmation = 8,
-        HousekeeperQuitJob = 9
+        HousekeeperQuitJob = 9,
+        ReAssignedJob = 10
     }
 
     public enum ReportStatus
