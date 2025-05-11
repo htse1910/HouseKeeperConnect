@@ -851,7 +851,7 @@ namespace HouseKeeperConnect_API.Controllers
                 CreatedDate = vietnamTime,
                 UpdatedDate = vietnamTime
             };
-
+            await _jobService.AddJobAsync(newJob);
             var newJobDetail = new JobDetail();
 
             newJobDetail.JobID = newJob.JobID;
@@ -866,7 +866,6 @@ namespace HouseKeeperConnect_API.Controllers
             newJobDetail.IsOffered = false;
             newJobDetail.HousekeeperID = null;
 
-            await _jobService.AddJobAsync(newJob);
             await _jobService.AddJobDetailAsync(newJobDetail);
 
             var oldServices = await _jobServiceService.GetJob_ServicesByJobIDAsync(oldJob.JobID);
