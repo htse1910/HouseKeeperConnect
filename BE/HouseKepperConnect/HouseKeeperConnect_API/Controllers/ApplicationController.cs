@@ -72,9 +72,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("ApplicationListByJob")]
         [Authorize(Policy = "Family")]
-        public async Task<ActionResult<List<Application>>> ApplicationListByJob(int jobID, int pageNumber, int pageSize)
+        public async Task<ActionResult<List<Application>>> ApplicationListByJob(int jobID)
         {
-            var list = await _applicationService.GetAllApplicationsByJobIDAsync(jobID, pageNumber, pageSize);
+            var list = await _applicationService.GetAllApplicationsByJobIDAsync(jobID);
             if (list == null)
             {
                 Message = "No Records!";
