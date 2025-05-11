@@ -166,27 +166,40 @@ const FamilyJobDetailsPage = () => {
         fetchServiceDetails();
     }, [job]);
 
+    const getVNDate = (date = new Date()) => {
+        const parts = new Intl.DateTimeFormat("en-US", {
+            timeZone: "Asia/Ho_Chi_Minh",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        })
+            .formatToParts(date)
+            .reduce((acc, part) => {
+                if (part.type === "year") acc.year = part.value;
+                if (part.type === "month") acc.month = part.value;
+                if (part.type === "day") acc.day = part.value;
+                return acc;
+            }, {});
+        return new Date(`${parts.year}-${parts.month}-${parts.day}`);
+    };
+
     const handleDayClick = (dayIndex) => {
         const start = new Date(job.startDate?.split("/").reverse().join("-"));
         const end = new Date(job.endDate?.split("/").reverse().join("-"));
-        const today = new Date();
-        const currentWeekDay = today.getDay();
+        const todayVN = getVNDate();
+        const currentVNDay = todayVN.getDay();
 
-        let matched;
-        if (currentWeekDay === dayIndex) {
-            matched = new Date(today);
-        } else {
-            matched = new Date(today);
-            matched.setDate(today.getDate() + ((dayIndex + 7 - currentWeekDay) % 7));
-        }
+        const diff = dayIndex - currentVNDay;
+        const matched = new Date(todayVN);
+        matched.setDate(todayVN.getDate() + diff);
 
-        const normalize = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-        const matchedNorm = normalize(matched);
-        const startNorm = normalize(start);
-        const endNorm = normalize(end);
+        const normalizeDate = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const startNorm = normalizeDate(start);
+        const endNorm = normalizeDate(end);
+        const matchedNorm = normalizeDate(matched);
 
         if (matchedNorm >= startNorm && matchedNorm <= endNorm) {
-            const isSameDate = matched.toDateString() === today.toDateString();
+            const isSameDate = todayVN.toDateString() === matched.toDateString();
 
             setSelectedDayIndex(dayIndex);
             setMatchedDate(matched);
@@ -194,7 +207,7 @@ const FamilyJobDetailsPage = () => {
             setDaySlots(job.slotPerDay?.[dayIndex] || []);
             setShowModal(true);
         } else {
-            alert("Ngày này không nằm trong phạm vi công việc.");
+            toast.warn("❌ Ngày này không nằm trong phạm vi công việc.");
         }
     };
 
@@ -311,7 +324,22 @@ const FamilyJobDetailsPage = () => {
                 <p><strong style={{ color: "#333" }}>📍 Địa điểm:</strong> <span style={{ color: "#000" }}>{job.location}{job.detailLocation && ` - ${job.detailLocation}`}</span></p>
                 <p><strong style={{ color: "#333" }}>📅 Ngày làm:</strong> <span style={{ color: "#000" }}>{new Date(job.startDate).toLocaleDateString("vi-VN")} → {new Date(job.endDate).toLocaleDateString("vi-VN")}</span></p>
                 <p><strong style={{ color: "#333" }}>📄 Mô tả:</strong> <span style={{ color: "#000" }}>{job.description || "Không có mô tả."}</span></p>
-                <p><strong style={{ color: "#333" }}>📆 Ngày trong tuần:</strong> <span style={{ color: "#000" }}>{job.dayofWeek?.map(d => dayNames[d]).join(", ") || "Không rõ"}</span></p>
+                <div className="mb-3">
+                    <strong style={{ color: "#333" }}>📆 Ngày trong tuần:</strong>
+                    <div className="mt-2 d-flex flex-wrap gap-2">
+                        {job.dayofWeek?.map((dayIndex) => (
+                            <button
+                                key={dayIndex}
+                                className={`btn ${confirmedSlots[dayIndex] ? "btn-success" : "btn-outline-primary"} btn-sm`}
+                                onClick={() => handleDayClick(dayIndex)}
+                                disabled={confirmedSlots[dayIndex]}
+                            >
+                                {dayNames[dayIndex]} {confirmedSlots[dayIndex] && "✔"}
+                            </button>
+                        )) || <span style={{ color: "#000" }}>Không rõ</span>}
+                    </div>
+                </div>
+
                 <p><strong style={{ color: "#333" }}>⏰ Ca làm:</strong> <span style={{ color: "#000" }}>{(job.slotIDs || []).map(id => slotMap[id] || `Slot ${id}`).join(", ") || "Không có"}</span></p>
             </div>
 
