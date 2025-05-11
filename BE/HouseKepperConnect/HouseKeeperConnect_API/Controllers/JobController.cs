@@ -764,7 +764,7 @@ namespace HouseKeeperConnect_API.Controllers
             allSlots.AddRange(slots);
 
             var unworkedSlots = allSlots
-                .Where(s => (s.Date > abandonDate || s.IsConfirmedByFamily == false) && s.Status == BookingSlotStatus.Active)
+                .Where(s => (s.Date >= abandonDate || s.IsConfirmedByFamily == false) && s.Status == BookingSlotStatus.Active)
                 .Select(s => new Booking_Slots
                 {
                     SlotID = s.SlotID,
@@ -851,22 +851,22 @@ namespace HouseKeeperConnect_API.Controllers
                 CreatedDate = vietnamTime,
                 UpdatedDate = vietnamTime
             };
-            await _jobService.AddJobAsync(newJob);
 
-            var newJobDetail = new JobDetail
-            {
-                JobID = newJob.JobID,
-                Location = jobDetail.Location,
-                Price = refundAmount,
-                FeeID = jobDetail.FeeID,
-                DetailLocation = jobDetail.DetailLocation,
-                PricePerHour = jobDetail.PricePerHour,
-                StartDate = unworkedSlots.Min(s => s.Date.Value),
-                EndDate = jobDetail.EndDate,
-                Description = jobDetail.Description,
-                IsOffered = false,
-                HousekeeperID = null
-            };
+            var newJobDetail = new JobDetail();
+
+            newJobDetail.JobID = newJob.JobID;
+            newJobDetail.Location = jobDetail.Location;
+            newJobDetail.Price = refundAmount;
+            newJobDetail.FeeID = jobDetail.FeeID;
+            newJobDetail.DetailLocation = jobDetail.DetailLocation;
+            newJobDetail.PricePerHour = jobDetail.PricePerHour;
+            newJobDetail.StartDate = unworkedSlots.Min(s => s.Date.Value);
+            newJobDetail.EndDate = jobDetail.EndDate;
+            newJobDetail.Description = jobDetail.Description;
+            newJobDetail.IsOffered = false;
+            newJobDetail.HousekeeperID = null;
+
+            await _jobService.AddJobAsync(newJob);
             await _jobService.AddJobDetailAsync(newJobDetail);
 
             var oldServices = await _jobServiceService.GetJob_ServicesByJobIDAsync(oldJob.JobID);

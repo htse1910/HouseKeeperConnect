@@ -91,7 +91,7 @@ namespace Services
             CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
             if (createPayment == null || string.IsNullOrEmpty(createPayment.checkoutUrl))
             {
-                throw new Exception("Failed to create payment link");
+                throw new Exception("Tạo link thnah toán thất bại!");
             }
 
             return createPayment.checkoutUrl;
