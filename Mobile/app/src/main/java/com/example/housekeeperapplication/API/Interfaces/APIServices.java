@@ -305,4 +305,11 @@ public interface APIServices {
     );
     @GET("api/PlatformFee/GetPlatformFeeByID")
     Call<FeeDisplayDTO> getPlatformFeeByID(@Query("fID") int feeID);
+
+    @GET("api/Application/ApplicationListByJob")
+    Call<List<ApplicationDisplayDTO>> ApplicationListByJob(
+            @Query("jobID") int jobID,
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize
+    );
 }
