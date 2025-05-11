@@ -89,6 +89,7 @@ function JobsOfferedToMePage() {
       case 7: return "Không được phép";                 // NotPermitted
       case 8: return "Chờ gia đình xác nhận";           // PendingFamilyConfirmation
       case 9: return "Người giúp việc đã bỏ việc";      // HousekeeperQuitJob
+      case 10: return "Công việc được tạo lại"
       default: return "Không xác định";
     }
   };  

@@ -43,6 +43,16 @@ const HousekeeperBookingManagementPage = () => {
   const [selectedDay, setSelectedDay] = useState("");
   const [matchedDate, setMatchedDate] = useState(null);
   const [isToday, setIsToday] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage] = useState(5);
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const filteredRows = statusFilter === "all"
+    ? rows
+    : rows.filter(row => row.jobStatus === Number(statusFilter));
+
+  const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+  const paginatedRows = filteredRows.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   const handleMarkComplete = async (jobID) => {
     if (!authToken || !accountID) {
@@ -278,7 +288,31 @@ const HousekeeperBookingManagementPage = () => {
         <p className="text-muted">Không có công việc nào được đặt.</p>
       ) : (
         <div className="row g-3">
-          {rows.map((row, idx) => (
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <label className="me-2 fw-bold">Lọc theo trạng thái:</label>
+              <select
+                className="form-select d-inline-block w-auto"
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="all">Tất cả</option>
+                <option value="1">🕐 Đang chờ duyệt</option>
+                <option value="2">📋 Đã duyệt</option>
+                <option value="3">✔️ Đã nhận</option>
+                <option value="4">✅ Hoàn thành</option>
+                <option value="5">⌛ Đã hết hạn</option>
+                <option value="6">❌ Đã hủy</option>
+              </select>
+            </div>
+            <div className="text-muted small">
+              Trang {currentPage} / {totalPages}
+            </div>
+          </div>
+          {paginatedRows.map((row, idx) => (
             <div className="col-12" key={idx}>
               <div className="card shadow-sm border-0 rounded-3 p-2 mb-4">
                 <div className="d-flex justify-content-between align-items-center mb-1">
@@ -325,7 +359,7 @@ const HousekeeperBookingManagementPage = () => {
                   <FaCheckCircle className="me-1 text-success" />
                   <strong>Trạng thái công việc:</strong> {getJobStatusText(row.jobStatus)}
                 </div>
-                {/* <pre>Booking Status: {row.status}, Job Status: {row.jobStatus}</pre> */}
+                <pre>Booking Status: {row.status}, Job Status: {row.jobStatus}</pre>
 
                 <div className="d-flex flex-wrap">
                   <div className="col-12 col-md-4 small">
@@ -416,6 +450,35 @@ const HousekeeperBookingManagementPage = () => {
               </div>
             </div>
           ))}
+          {totalPages > 1 && (
+            <div className="d-flex justify-content-center align-items-center gap-2 mt-3">
+              <button
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                ⬅️ Trước
+              </button>
+
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  className={`btn btn-sm ${currentPage === i + 1 ? "btn-primary" : "btn-outline-primary"}`}
+                  onClick={() => setCurrentPage(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Sau ➡️
+              </button>
+            </div>
+          )}
         </div>
       )}
 

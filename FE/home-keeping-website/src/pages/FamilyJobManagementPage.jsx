@@ -7,10 +7,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useBackToTop, renderBackToTopButton } from "../utils/uiHelpers";
 import API_BASE_URL from "../config/apiConfig";
 import { toast } from "react-toastify";
-import JobStatistics from "../components/JobStatistics";
-import JobFilters from "../components/JobFilters";
-import JobList from "../components/JobList";
-import DeleteJobModal from "../components/DeleteJobModal";
+import { FaMapMarkerAlt, FaMoneyBillWave, FaCalendarCheck } from "react-icons/fa";
 
 const FamilyJobManagementPage = () => {
   const { t } = useTranslation();
@@ -18,6 +15,7 @@ const FamilyJobManagementPage = () => {
 
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
+  const [jobToReassign, setJobToReassign] = useState(null);
 
   const {
     jobs,
@@ -37,17 +35,21 @@ const FamilyJobManagementPage = () => {
   const [jobToDelete, setJobToDelete] = useState(null);
   const showBackToTop = useBackToTop();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 5;
+  const [gotoPage, setGotoPage] = useState("");
+
   const jobStatusMap = useMemo(() => ({
-    1: t("job.job_pending"),               // Pending
-    2: t("job.job_verified"),              // Verified
-    3: t("job.job_accepted"),              // Accepted
-    4: t("job.job_completed"),             // Completed
-    5: t("job.job_expired"),               // Expired
-    6: t("job.job_canceled"),              // Canceled
-    7: "Không được phép",                  // NotPermitted
-    8: "Chờ gia đình xác nhận",            // PendingFamilyConfirmation
-    9: "Người giúp việc bỏ",               // HousekeeperQuitJob
-    10: "Đã được giao lại công việc"        // ReAssignedJob
+    1: t("job.job_pending"),
+    2: t("job.job_verified"),
+    3: t("job.job_accepted"),
+    4: t("job.job_completed"),
+    5: t("job.job_expired"),
+    6: t("job.job_canceled"),
+    7: "Không được phép",
+    8: "Chờ gia đình xác nhận",
+    9: "Người giúp việc bỏ",
+    10: "Công việc được tạo lại"
   }), [t]);
 
   const serviceTypes = useMemo(
@@ -61,6 +63,9 @@ const FamilyJobManagementPage = () => {
     const matchStartDate = !filter.start_date || new Date(job.startDate).toISOString().split("T")[0] === filter.start_date;
     return matchStatus && matchJobType && matchStartDate;
   });
+
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+  const paginatedJobs = filteredJobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
 
   const confirmDelete = async () => {
     if (!jobToDelete) return;
@@ -83,7 +88,7 @@ const FamilyJobManagementPage = () => {
       });
       toast.success("✅ Đã gửi yêu cầu xoá công việc.");
       setJobToDelete(null);
-      navigate("/family/support-requests"); // <-- add this
+      navigate("/family/support-requests");
     } catch (err) {
       console.error("Lỗi gửi yêu cầu xoá:", err);
       toast.error("❌ Không thể gửi yêu cầu xoá.");
@@ -104,22 +109,179 @@ const FamilyJobManagementPage = () => {
     }
   };
 
+  const renderDeleteModal = () => {
+    if (!jobToDelete) return null;
+    return (
+      <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Gửi yêu cầu xoá công việc</h5>
+              <button type="button" className="btn-close" onClick={() => setJobToDelete(null)}></button>
+            </div>
+            <div className="modal-body">
+              <p>Bạn có chắc muốn gửi yêu cầu <strong>xóa công việc</strong> này không?</p>
+              <p><strong>Loại yêu cầu:</strong> Job (2)</p>
+              <p><strong>Nội dung:</strong><br />
+                Please delete the job <strong>{jobToDelete.jobName}</strong>, ID: <strong>{jobToDelete.jobID}</strong>
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={confirmDelete}>Gửi yêu cầu</button>
+              <button className="btn btn-secondary" onClick={() => setJobToDelete(null)}>Huỷ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderReassignModal = () => {
+    if (!jobToReassign) return null;
+
+    return (
+      <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Người giúp việc mới</h5>
+              <button type="button" className="btn-close" onClick={() => setJobToReassign(null)}></button>
+            </div>
+            <div className="modal-body">
+              <p>Bạn muốn tìm người giúp việc mới theo cách nào?</p>
+            </div>
+            <div className="modal-footer d-flex flex-column align-items-stretch gap-2">
+              <button
+                className="btn btn-outline-primary w-100"
+                onClick={() => navigate("/family/find-housekeepers")}
+              >
+                🔍 Tự tìm người giúp việc
+              </button>
+              <button
+                className="btn btn-warning w-100 text-white"
+                onClick={() => {
+                  navigate(`/family/abandoned-jobs?jobID=${jobToReassign.jobID}`);
+                  setJobToReassign(null);
+                }}
+              >
+                ⚙️ Để hệ thống tìm giúp
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderJobCard = (job) => {
+    const daysAgo = Math.floor((Date.now() - new Date(job.createdDate)) / 86400000);
+
+    const jobTypeMap = { 1: "Một lần duy nhất", 2: "Định kỳ" };
+    const statusClassMap = {
+      1: "bg-warning text-dark", 2: "bg-info text-dark", 3: "bg-primary",
+      4: "bg-success", 5: "bg-secondary", 6: "bg-danger", 7: "bg-dark",
+      8: "bg-warning text-dark", 9: "bg-danger", 10: "bg-info"
+    };
+
+    return (
+      <div key={job.jobID} className="border rounded shadow-sm p-3 mb-3 position-relative">
+        <div className="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 className="fw-bold mb-2">{job.jobName}</h5>
+            <div className="text-muted small d-flex flex-wrap gap-3">
+              <span><FaCalendarCheck className="me-1" />{t("job.job.posted_days_ago", { days: daysAgo })}</span>
+              <span><FaMapMarkerAlt className="me-1" />{job.location}</span>
+              <span><FaMoneyBillWave className="me-1" />{job.salary?.toLocaleString("vi-VN") || t("job.job.not_sure")} VNĐ</span>
+              <span>🧾 {jobTypeMap[job.jobType]}</span>
+            </div>
+          </div>
+          {jobStatusMap[job.status] && (
+            <span className={`badge ${statusClassMap[job.status] || "bg-secondary"}`}>
+              {jobStatusMap[job.status]}
+            </span>
+          )}
+        </div>
+        <div className="mt-3 d-flex gap-2">
+          {!([4, 6, 8, 9].includes(job.status)) && (
+            <button className="btn btn-outline-danger btn-sm" onClick={() => setJobToDelete(job)}>
+              {t("Hủy")}
+            </button>
+          )}
+
+          <button className="btn btn-warning btn-sm text-white" onClick={() =>
+            navigate(`/family/job/detail/${job.jobID}`, { state: { createdDate: job.createdDate } })
+          }>
+            {job.status === 2 ? t("job.job.view_applicants") : t("job.job.view_detail")}
+          </button>
+        </div>
+
+        {job.status === 10 && (
+          <button
+            className="btn btn-outline-warning btn-sm ms-auto mt-2"
+            onClick={() => setJobToReassign(job)}
+          >
+            🧹 Người giúp việc mới
+          </button>
+        )}
+        <div className="position-absolute bottom-0 end-0 text-muted small p-2">#{job.jobID}</div>
+      </div>
+    );
+  };
+
   return (
     <div className="container my-4">
-      <JobStatistics
-        jobsCount={jobs.length}
-        completedCount={jobs.filter(j => j.status === 4).length}
-        housekeepers={housekeepers}
-      />
+      <div className="row g-4 mb-5">
+        {[{
+          label: t("job.job.posted"),
+          value: jobs.length
+        }, {
+          label: t("job.job.completed"),
+          value: jobs.filter(j => j.status === 4).length
+        }, {
+          label: t("misc.housekeepers_waiting"),
+          value: housekeepers,
+          button: (
+            <button className="btn btn-warning mt-3 px-4 fw-semibold" onClick={() => navigate("/family/post-job")}>
+              {t("misc.post_now")}
+            </button>
+          )
+        }].map((stat, idx) => (
+          <div key={idx} className="col-md-4">
+            <div className="bg-white rounded-4 shadow-sm px-4 py-5 text-center h-100 d-flex flex-column justify-content-center align-items-center">
+              <div className="text-muted fs-6 mb-2">{stat.label}</div>
+              <div className="display-6 fw-bold text-dark">{stat.value}</div>
+              {stat.button}
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div className="row">
         <div className="col-md-4 mb-4">
-          <JobFilters
-            filter={filter}
-            onFilterChange={setFilter}
-            jobStatusMap={jobStatusMap}
-            serviceTypes={serviceTypes}
-          />
+          <div className="bg-white rounded-4 shadow-sm p-4">
+            <h6 className="fw-semibold mb-4">Bộ Lọc</h6>
+            <div className="mb-3">
+              <label htmlFor="statusFilter" className="form-label">{t("status.status")}</label>
+              <select id="statusFilter" className="form-select" value={filter.status} onChange={e => setFilter({ ...filter, status: e.target.value })}>
+                <option value="all">{t("filter.filter.all")}</option>
+                {Object.entries(jobStatusMap).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label htmlFor="jobTypeFilter" className="form-label">Loại công việc</label>
+              <select id="jobTypeFilter" className="form-select" value={filter.jobType} onChange={e => setFilter({ ...filter, jobType: e.target.value })}>
+                <option value="all">{t("filter.filter.all_job_types")}</option>
+                <option value="1">Một lần duy nhất</option>
+                <option value="2">Định kỳ</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="startDateFilter" className="form-label">{t("filter.filter.start_date")}</label>
+              <input id="startDateFilter" type="date" className="form-control" value={filter.start_date} onChange={e => setFilter({ ...filter, start_date: e.target.value })} />
+            </div>
+          </div>
         </div>
 
         <div className="col-md-8">
@@ -130,26 +292,32 @@ const FamilyJobManagementPage = () => {
               {isNoProfile ? t("job.no_family_profile") : isNoJob ? t("job.no_jobs_yet") : t("misc.no_jobs_found")}
             </div>
           ) : (
-            <div style={{ maxHeight: "700px", overflowY: "auto" }}>
-              <JobList
-                jobs={filteredJobs}
-                jobStatusMap={jobStatusMap}
-                onEdit={(id) => navigate(`/family/job/update/${id}`)}
-                onDelete={setJobToDelete}
-                onView={(job) => navigate(`/family/job/detail/${job.jobID}`, { state: { createdDate: job.createdDate } })}
-                onCancel={handleCancelJob}
-              />
+            <div>
+              {paginatedJobs.map(renderJobCard)}
+
+              <div className="mt-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div className="d-flex align-items-center gap-2">
+                  <button className="btn btn-outline-secondary btn-sm" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>&laquo; Prev</button>
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button key={i} className={`btn btn-sm ${currentPage === i + 1 ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
+                  ))}
+                  <button className="btn btn-outline-secondary btn-sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next &raquo;</button>
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                  <input type="number" min="1" max={totalPages} value={gotoPage} onChange={(e) => setGotoPage(e.target.value)} className="form-control form-control-sm" style={{ width: "80px" }} placeholder="Trang..." />
+                  <button className="btn btn-sm btn-success" onClick={() => {
+                    const pageNum = parseInt(gotoPage);
+                    if (pageNum >= 1 && pageNum <= totalPages) setCurrentPage(pageNum);
+                  }}>Tới trang</button>
+                </div>
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      <DeleteJobModal
-        job={jobToDelete}
-        onConfirm={confirmDelete}
-        onCancel={() => setJobToDelete(null)}
-      />
-
+      {renderDeleteModal()}
+      {renderReassignModal()}
       {showBackToTop && renderBackToTopButton(t)}
     </div>
   );
