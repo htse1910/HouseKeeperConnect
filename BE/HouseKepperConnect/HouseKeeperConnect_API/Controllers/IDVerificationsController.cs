@@ -78,6 +78,12 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult> CreateIDVerification([FromForm] IDVerificationCreateDTO idVerificationDTO, [FromQuery] int housekeeperId)
         {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             if (idVerificationDTO == null)
             {
                 return BadRequest("Dữ liệu không hợp lệ!");
@@ -163,8 +169,8 @@ namespace HouseKeeperConnect_API.Controllers
                 FrontPhoto = frontUrl,
                 BackPhoto = backUrl,
                 FacePhoto = faceUrl,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
+                CreatedAt = currentVietnamTime,
+                UpdatedAt = currentVietnamTime,
                 Status = 1 // Pending
             };
 
@@ -278,12 +284,16 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _idVerificationService.UpdateIDVerifyAsync(id);
 
+                DateTime utcNow = DateTime.UtcNow;
 
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
 
                 var verificationTask = new VerificationTask
                 {
                     VerifyID = id.VerifyID,
-                    AssignedDate = DateTime.Now,
+                    AssignedDate = currentVietnamTime,
                     Status = 1 // Pending
                 };
 
@@ -302,6 +312,13 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
+
+                DateTime utcNow = DateTime.UtcNow;
+
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
                 var id = await _idVerificationService.GetIDVerifyByIDAsync(idVerificationDTO.VerifyID);
                 if (id == null)
                 {
@@ -312,7 +329,7 @@ namespace HouseKeeperConnect_API.Controllers
                 id.RealName = idVerificationDTO.RealName;
                 id.DateOfBirth = idVerificationDTO.DateOfBirth;
                 id.Status = (int)VerificationStatus.Verified;
-                id.UpdatedAt = DateTime.Now;
+                id.UpdatedAt = currentVietnamTime;
 
                 await _idVerificationService.UpdateIDVerifyAsync(id);
 

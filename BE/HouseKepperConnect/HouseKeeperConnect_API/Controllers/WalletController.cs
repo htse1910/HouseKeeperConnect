@@ -79,6 +79,12 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Admin")]//For admin only
         public async Task<IActionResult> AddWalletAsync(int id)
         {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             Wallet nWallet = new Wallet();
             var acc = await _accountService.GetAccountByIDAsync(id);
             /*if (acc != null)
@@ -93,8 +99,8 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
             nWallet.AccountID = id;
-            nWallet.CreatedAt = DateTime.Now;
-            nWallet.UpdatedAt = DateTime.Now;
+            nWallet.CreatedAt = currentVietnamTime;
+            nWallet.UpdatedAt = currentVietnamTime;
             nWallet.Status = (int)WalletStatus.Active;
 
             await _walletService.AddWalletAsync(nWallet);
@@ -108,11 +114,18 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Family")]
         public async Task<IActionResult> Deposit(int id, decimal balance, bool isMobile = false)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var acc = await _accountService.GetAccountByIDAsync(id);
 
             if (acc == null)
             {
-                Message = "Account not found!";
+                Message = "Không tìm thấy tài khoản!";
                 return NotFound(Message);
             }
 
@@ -120,22 +133,24 @@ namespace HouseKeeperConnect_API.Controllers
 
             if (wallet == null)
             {
-                Message = "Wallet not found!";
+                Message = "Không tìm thấy ví!";
                 return BadRequest(Message);
             }
             if (wallet.Status == (int)WalletStatus.Inactive)
             {
-                Message = "Wallet is disabled!";
+                Message = "Ví tiền đang bị vô hiệu hóa!";
                 return BadRequest(Message);
             }
 
-            if (balance < 0 || balance == 0 || balance < 1000)
+            if (balance < 0 || balance == 0 || balance < 10000)
             {
-                Message = "Deposit atleast 1000 VND!";
+                Message = "Nạp ít nhất 10,000VNĐ!";
                 return BadRequest(Message);
             }
+            DateTimeOffset vietnamTime = TimeZoneInfo.ConvertTime(DateTimeOffset.Now, vietnamTimeZone);
+
             int orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
-            int expiredAt = (int)(DateTimeOffset.Now.ToUnixTimeSeconds() + (60 * 5));
+            int expiredAt = (int)(vietnamTime.ToUnixTimeSeconds() + (60 * 5));
 
             /*var nFee = balance * (10m / 100m);*/
 
@@ -146,9 +161,9 @@ namespace HouseKeeperConnect_API.Controllers
                 AccountID = acc.AccountID,
                 Amount = balance,
                 Fee = 0,
-                CreatedDate = DateTime.Now,
+                CreatedDate = currentVietnamTime,
                 Description = "Nạp tiền vào ví",
-                UpdatedDate = DateTime.Now,
+                UpdatedDate = currentVietnamTime,
                 TransactionType = (int)TransactionType.Deposit,
                 Status = (int)TransactionStatus.Pending,
             };
@@ -171,8 +186,8 @@ namespace HouseKeeperConnect_API.Controllers
             returnUrl.PaymentUrl = paymentUrl;
             wallet.OnHold += balance;
             /*wallet.Balance += balance;*/
-            wallet.UpdatedAt = DateTime.Now;
-            Message = "Deposited " + balance + " VND" + " to onHold!";
+            wallet.UpdatedAt = currentVietnamTime;
+            Message = "Đã nạp " + balance + " VNĐ" + " vào ví tạm giữ!";
 
             await _walletService.UpdateWalletAsync(wallet);
 
@@ -220,14 +235,14 @@ namespace HouseKeeperConnect_API.Controllers
                 AccountID = acc.AccountID,
                 Amount = balance,
                 Fee = 0,
-                CreatedDate = DateTime.Now,
+                CreatedDate = currentVietnamTime,
                 Description = "Rút tiền từ ví",
-                UpdatedDate = DateTime.Now,
+                UpdatedDate = currentVietnamTime,
                 TransactionType = (int)TransactionType.Withdrawal,
                 Status = (int)TransactionStatus.Pending,
             };
 
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = currentVietnamTime;
             Message = "Withdrawed " + balance + " VND" + " from wallet.";
 
             await _transactionService.AddTransactionAsync(trans);
@@ -241,6 +256,12 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Admin")]//Admin only
         public async Task<IActionResult> WalletDisable(int id)
         {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var wallet = await _walletService.GetWalletByIDAsync(id);
             if (wallet == null)
             {
@@ -253,7 +274,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(Message);
             }
             wallet.Status = (int)WalletStatus.Inactive;
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = currentVietnamTime;
 
             await _walletService.UpdateWalletAsync(wallet);
             Message = "Wallet disabled!";
@@ -264,6 +285,12 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Admin")]//Admin only
         public async Task<IActionResult> WalletEnable(int id)
         {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var wallet = await _walletService.GetWalletByIDAsync(id);
             if (wallet == null)
             {
@@ -276,7 +303,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(Message);
             }
             wallet.Status = (int)WalletStatus.Active;
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = currentVietnamTime;
 
             await _walletService.UpdateWalletAsync(wallet);
             Message = "Wallet enabled!";

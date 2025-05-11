@@ -63,12 +63,18 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("One or both accounts do not exist.");
             }
 
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var chat = new Chat
             {
                 FromAccountID = chatDto.FromAccountId,
                 ToAccountID = chatDto.ToAccountId,
                 Content = chatDto.Message,
-                SendAt = DateTime.Now
+                SendAt = currentVietnamTime,
             };
 
                 await _chatService.ChatAsync(chat);
