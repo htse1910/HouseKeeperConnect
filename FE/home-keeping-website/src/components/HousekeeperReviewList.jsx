@@ -3,14 +3,14 @@ import "../assets/styles/HousekeeperReviewList.css";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 const HousekeeperReviewList = () => {
   const [reviews, setReviews] = useState([]);
-  const housekeeperID = localStorage.getItem("housekeeperID");
+  const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const res = await fetch(
-          `${API_BASE_URL}/Rating/GetRatingListByHK?id=${housekeeperID}&pageNumber=1&pageSize=100`,
+          `${API_BASE_URL}/Rating/GetRatingListByHK?id=${accountID}&pageNumber=1&pageSize=100`,
           {
             headers: { Authorization: `Bearer ${authToken}` },
           }
@@ -54,8 +54,8 @@ const HousekeeperReviewList = () => {
       }
     };
 
-    if (housekeeperID && authToken) fetchReviews();
-  }, [housekeeperID, authToken]);
+    if (accountID && authToken) fetchReviews();
+  }, [accountID, authToken]);
 
   const formatDate = (isoDate) => {
     const date = new Date(isoDate);

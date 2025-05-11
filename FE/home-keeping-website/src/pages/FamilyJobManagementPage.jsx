@@ -33,19 +33,21 @@ const FamilyJobManagementPage = () => {
     status: "all",
     jobType: "all",
     start_date: ""
-  });  
+  });
   const [jobToDelete, setJobToDelete] = useState(null);
   const showBackToTop = useBackToTop();
 
   const jobStatusMap = useMemo(() => ({
-    1: t("job.job_pending"),
-    2: t("job.job_verified"),
-    3: t("job.job_accepted"),
-    4: t("job.job_completed"),
-    5: t("job.job_expired"),
-    6: t("job.job_canceled"),
-    8: "Chờ gia đình xác nhận",
-    9: "Người giúp việc bỏ"
+    1: t("job.job_pending"),               // Pending
+    2: t("job.job_verified"),              // Verified
+    3: t("job.job_accepted"),              // Accepted
+    4: t("job.job_completed"),             // Completed
+    5: t("job.job_expired"),               // Expired
+    6: t("job.job_canceled"),              // Canceled
+    7: "Không được phép",                  // NotPermitted
+    8: "Chờ gia đình xác nhận",            // PendingFamilyConfirmation
+    9: "Người giúp việc bỏ",               // HousekeeperQuitJob
+    10: "Đã được giao lại công việc"        // ReAssignedJob
   }), [t]);
 
   const serviceTypes = useMemo(
