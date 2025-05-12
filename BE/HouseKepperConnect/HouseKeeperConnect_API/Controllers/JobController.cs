@@ -814,17 +814,27 @@ namespace HouseKeeperConnect_API.Controllers
             });*/
 
             var hkAccountId = jobDetail.HousekeeperID;
-            var hkWallet = await _walletService.GetWalletByUserAsync(hkAccountId.Value);
+            var hkWallet = await _walletService.GetWalletByUserAsync(hk.AccountID);
 
             hkWallet.Balance += payoutAmount;
             hkWallet.UpdatedAt = vietnamTime;
             await _walletService.UpdateWalletAsync(hkWallet);
 
+            var payout = new Payout();
+            payout.PayoutDate = null;
+            payout.Status = (int)PayoutStatus.Completed;
+            payout.BookingID = booking.BookingID;
+            payout.Amount = payoutAmount;
+            payout.HousekeeperID = hk.HousekeeperID;
+
+            await _payoutService.AddPayoutAsync(payout);
+
+
             await _transactionService.AddTransactionAsync(new Transaction
             {
                 TransactionID = int.Parse(DateTimeOffset.Now.ToString("ffffff")) + 1,
                 WalletID = hkWallet.WalletID,
-                AccountID = hkAccountId.Value,
+                AccountID = hk.AccountID,
                 Amount = payoutAmount,
                 Fee = 0,
                 CreatedDate = vietnamTime,
