@@ -21,6 +21,11 @@ function HouseKeeperManagePage() {
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, applications]);
 
   const fetchApplications = async () => {
     const authToken = localStorage.getItem("authToken");
@@ -105,13 +110,20 @@ function HouseKeeperManagePage() {
     return tabStatusMap[activeTab] === null || app.status === tabStatusMap[activeTab];
   });
 
+  const totalPages = Math.ceil(visibleApplications.length / pageSize);
+
+  const paginatedApplications = visibleApplications.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
     <div className="container my-4">
       <ToastContainer />
       <style>{`
-        .scroll-shadow {
-          overflow-y: auto;
-          max-height: 500px;
+        .scroll - shadow {
+          overflow - y: auto;
+        max-height: 500px;
         }
 
         .scroll-shadow::-webkit-scrollbar {
@@ -119,22 +131,22 @@ function HouseKeeperManagePage() {
         }
 
         .scroll-shadow::-webkit-scrollbar-thumb {
-          background-color: rgba(0,0,0,0.1);
-          border-radius: 3px;
+          background - color: rgba(0,0,0,0.1);
+        border-radius: 3px;
         }
 
         .app-card {
           transition: background-color 0.3s ease;
-          border-radius: 1rem;
+        border-radius: 1rem;
         }
 
         .app-card:hover {
-          background-color: #fffbea;
+          background - color: #fffbea;
         }
 
         .tab-link {
           cursor: pointer;
-          transition: all 0.2s ease-in-out;
+        transition: all 0.2s ease-in-out;
         }
 
         .tab-link:hover {
@@ -142,9 +154,14 @@ function HouseKeeperManagePage() {
         }
 
         .giant-card {
-          max-width: 900px;
-          margin: auto;
+          max - width: 900px;
+        margin: auto;
         }
+
+        input[type="number"]::-webkit-inner-spin-button {
+          opacity: 1;
+        }
+
       `}</style>
 
       <div className="card giant-card shadow-sm rounded-4 p-4 border-0">
@@ -227,7 +244,7 @@ function HouseKeeperManagePage() {
           ) : visibleApplications.length === 0 ? (
             <div className="alert alert-info small">Không có công việc phù hợp.</div>
           ) : (
-            visibleApplications.map(app => (
+            paginatedApplications.map(app => (
               <div key={app.applicationID} className="card app-card mb-3 p-3 shadow-sm border-0">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <h6 className="fw-bold mb-0"><JobName jobID={app.jobID} /></h6>
@@ -258,6 +275,42 @@ function HouseKeeperManagePage() {
             ))
           )}
         </div>
+        {totalPages > 1 && (
+          <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mt-4">
+            <button
+              className="btn btn-outline-secondary btn-sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              ← Trước
+            </button>
+
+            <input
+              type="number"
+              min="1"
+              max={totalPages}
+              value={currentPage}
+              onChange={(e) => {
+                const page = parseInt(e.target.value, 10);
+                if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                  setCurrentPage(page);
+                }
+              }}
+              className="form-control form-control-sm text-center"
+              style={{ width: "60px" }}
+            />
+            <span className="small">/ {totalPages}</span>
+
+            <button
+              className="btn btn-outline-secondary btn-sm"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Tiếp →
+            </button>
+          </div>
+        )}
+
       </div>
 
       {selectedApplication && (
