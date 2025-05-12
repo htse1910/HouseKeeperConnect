@@ -300,12 +300,16 @@ const HousekeeperBookingManagementPage = () => {
                 }}
               >
                 <option value="all">Tất cả</option>
-                <option value="1">🕐 Đang chờ duyệt</option>
-                <option value="2">📋 Đã duyệt</option>
-                <option value="3">✔️ Đã nhận</option>
-                <option value="4">✅ Hoàn thành</option>
-                <option value="5">⌛ Đã hết hạn</option>
-                <option value="6">❌ Đã hủy</option>
+                <option value="1">🕐 Chờ xác nhận</option> {/* Pending */}
+                <option value="2">📋 Đã duyệt</option>     {/* Verified */}
+                <option value="3">✔️ Đã nhận</option>      {/* Accepted */}
+                <option value="4">✅ Hoàn thành</option>   {/* Completed */}
+                <option value="5">⌛ Hết hạn</option>      {/* Expired */}
+                <option value="6">❌ Đã hủy</option>       {/* Canceled */}
+                <option value="7">🚫 Không cho phép</option> {/* NotPermitted */}
+                <option value="8">🕓 Chờ xác nhận gia đình</option> {/* PendingFamilyConfirmation */}
+                <option value="9">🚪 Bạn đã bỏ việc</option>     {/* HousekeeperQuitJob */}
+                <option value="10">🔁 Đã phân công lại</option> {/* ReAssignedJob */}
               </select>
             </div>
             <div className="text-muted small">
@@ -359,7 +363,7 @@ const HousekeeperBookingManagementPage = () => {
                   <FaCheckCircle className="me-1 text-success" />
                   <strong>Trạng thái công việc:</strong> {getJobStatusText(row.jobStatus)}
                 </div>
-                <pre>Booking Status: {row.status}, Job Status: {row.jobStatus}</pre>
+                {/* <pre>Booking Status: {row.status}, Job Status: {row.jobStatus}</pre> */}
 
                 <div className="d-flex flex-wrap">
                   <div className="col-12 col-md-4 small">
@@ -451,7 +455,7 @@ const HousekeeperBookingManagementPage = () => {
             </div>
           ))}
           {totalPages > 1 && (
-            <div className="d-flex justify-content-center align-items-center gap-2 mt-3">
+            <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
               <button
                 className="btn btn-sm btn-outline-secondary"
                 onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
@@ -460,15 +464,21 @@ const HousekeeperBookingManagementPage = () => {
                 ⬅️ Trước
               </button>
 
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i}
-                  className={`btn btn-sm ${currentPage === i + 1 ? "btn-primary" : "btn-outline-primary"}`}
-                  onClick={() => setCurrentPage(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              ))}
+              <input
+                type="number"
+                min="1"
+                max={totalPages}
+                value={currentPage}
+                onChange={(e) => {
+                  const page = parseInt(e.target.value, 10);
+                  if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                    setCurrentPage(page);
+                  }
+                }}
+                className="form-control form-control-sm text-center"
+                style={{ width: "60px" }}
+              />
+              <span className="small">/ {totalPages}</span>
 
               <button
                 className="btn btn-sm btn-outline-secondary"

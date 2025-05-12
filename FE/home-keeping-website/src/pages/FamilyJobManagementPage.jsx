@@ -17,6 +17,7 @@ const FamilyJobManagementPage = () => {
   const authToken = localStorage.getItem("authToken");
   const [jobToReassign, setJobToReassign] = useState(null);
 
+
   const {
     jobs,
     housekeepers,
@@ -32,6 +33,11 @@ const FamilyJobManagementPage = () => {
     jobType: "all",
     start_date: ""
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
+
   const [jobToDelete, setJobToDelete] = useState(null);
   const showBackToTop = useBackToTop();
 
@@ -193,6 +199,7 @@ const FamilyJobManagementPage = () => {
               <span><FaMapMarkerAlt className="me-1" />{job.location}</span>
               <span><FaMoneyBillWave className="me-1" />{job.salary?.toLocaleString("vi-VN") || t("job.job.not_sure")} VNĐ</span>
               <span>🧾 {jobTypeMap[job.jobType]}</span>
+              <span>📅 {new Date(job.startDate).toLocaleDateString("vi-VN")} - {new Date(job.endDate).toLocaleDateString("vi-VN")}</span>
             </div>
           </div>
           {jobStatusMap[job.status] && (
@@ -295,21 +302,39 @@ const FamilyJobManagementPage = () => {
             <div>
               {paginatedJobs.map(renderJobCard)}
 
-              <div className="mt-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <div className="d-flex align-items-center gap-2">
-                  <button className="btn btn-outline-secondary btn-sm" disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>&laquo; Prev</button>
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <button key={i} className={`btn btn-sm ${currentPage === i + 1 ? 'btn-primary' : 'btn-outline-primary'}`} onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>
-                  ))}
-                  <button className="btn btn-outline-secondary btn-sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next &raquo;</button>
-                </div>
-                <div className="d-flex align-items-center gap-2">
-                  <input type="number" min="1" max={totalPages} value={gotoPage} onChange={(e) => setGotoPage(e.target.value)} className="form-control form-control-sm" style={{ width: "80px" }} placeholder="Trang..." />
-                  <button className="btn btn-sm btn-success" onClick={() => {
-                    const pageNum = parseInt(gotoPage);
-                    if (pageNum >= 1 && pageNum <= totalPages) setCurrentPage(pageNum);
-                  }}>Tới trang</button>
-                </div>
+              <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
+                <button
+                  className="btn btn-sm btn-outline-secondary d-flex align-items-center"
+                  onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  <span className="me-1">⬅️</span> Trước
+                </button>
+
+                <input
+                  type="number"
+                  min="1"
+                  max={totalPages}
+                  value={currentPage}
+                  onChange={(e) => {
+                    const pageNum = parseInt(e.target.value);
+                    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+                      setCurrentPage(pageNum);
+                    }
+                  }}
+                  className="form-control form-control-sm text-center"
+                  style={{ width: "60px" }}
+                />
+
+                <span className="small">/ {totalPages}</span>
+
+                <button
+                  className="btn btn-sm btn-outline-secondary d-flex align-items-center"
+                  onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Sau <span className="ms-1">➡️</span>
+                </button>
               </div>
             </div>
           )}
