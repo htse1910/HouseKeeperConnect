@@ -265,7 +265,7 @@ const HousekeeperBookingManagementPage = () => {
 
       if (res.ok) {
         toast.success(
-          `✅ ${result.message}\n💰 Thanh toán cho người giúp việc: ${result.payoutToHK.toLocaleString()} VND\n🔁 Hoàn lại cho gia đình: ${result.refundToFamily.toLocaleString()} VND`
+          `✅ ${result.message}\n💰 Thanh toán cho người giúp việc: ${result.payoutToHK.toLocaleString()} VND\n🔁 Hoàn lại cho gia đình: ${result.newJobPrice.toLocaleString()} VND`
         );
         setRows(prev => prev.filter(row => row.jobID !== jobID));
       } else {
