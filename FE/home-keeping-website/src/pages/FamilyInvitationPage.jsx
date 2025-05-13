@@ -137,7 +137,10 @@ const FamilyInvitationPage = () => {
       <h2 className="text-center mb-4">{t("misc.invite_to_work")}</h2>
 
       {housekeeper && (
-        <div className="card shadow-sm border-0 p-4 mb-4">
+        <div className="card shadow-sm border-0 p-4 mb-4 position-relative">
+          <span className="position-absolute top-0 end-0 bg-warning text-dark fw-bold px-3 py-1 rounded-bottom-start">
+            #{housekeeper.housekeeperID}
+          </span>
           <div className="row align-items-center">
             <div className="col-md-3 text-center mb-3 mb-md-0">
               <div className="position-relative d-inline-block">
@@ -191,7 +194,14 @@ const FamilyInvitationPage = () => {
       )}
 
       <div className="mb-4">
-        <button className="btn btn-warning" onClick={() => navigate("/family/post-job")}>
+        <button className="btn btn-warning" onClick={() => navigate("/family/create-direct-job", {
+          state: {
+            housekeeper: {
+              housekeeperID: housekeeper.housekeeperID,
+              name: housekeeper.name,
+            }
+          }
+        })}>
           {t("misc.create_new_job")}
         </button>
       </div>

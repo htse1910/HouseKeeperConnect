@@ -62,6 +62,7 @@ import ManageAcceptedJobsPage from './pages/ManageAcceptedJobsPage'; // ✅ New 
 import ManagePlatformFeesPage from "./pages/ManagePlatformFeesPage";
 import StaffTransactionListPage from './pages/StaffTransactionListPage.jsx';
 import FamilyAbandonedJobsPage from './pages/FamilyAbandonedJobsPage.jsx';
+import CreateDirectJobOfferPage from './pages/CreateDirectJobOfferPage.jsx';
 
 function AppRoutes() {
   return (
@@ -131,6 +132,7 @@ function AppRoutes() {
         <Route path="/family/withdraw-details" element={<WithdrawRequestPage />} />
         <Route path="/family/abandoned-jobs" element={<FamilyAbandonedJobsPage />} />
         <Route path="/family/support" element={<FamilySupportPage />} />
+        <Route path="/family/create-direct-job" element={<CreateDirectJobOfferPage />} />
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUserListPage />} />

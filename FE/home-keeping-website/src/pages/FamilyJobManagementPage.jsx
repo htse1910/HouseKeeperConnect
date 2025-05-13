@@ -142,6 +142,14 @@ const FamilyJobManagementPage = () => {
     );
   };
 
+  const parseDMY = (dmy) => {
+    if (!dmy) return null;
+    const [day, month, year] = dmy.split("/").map(Number);
+    const date = new Date(year, month - 1, day);
+    return isNaN(date) ? null : date;
+  };
+
+
   const renderReassignModal = () => {
     if (!jobToReassign) return null;
 
@@ -180,6 +188,7 @@ const FamilyJobManagementPage = () => {
   };
 
   const renderJobCard = (job) => {
+    console.log("🛠 Job data:", job);
     const daysAgo = Math.floor((Date.now() - new Date(job.createdDate)) / 86400000);
 
     const jobTypeMap = { 1: "Một lần duy nhất", 2: "Định kỳ" };
@@ -199,7 +208,12 @@ const FamilyJobManagementPage = () => {
               <span><FaMapMarkerAlt className="me-1" />{job.location}</span>
               <span><FaMoneyBillWave className="me-1" />{job.salary?.toLocaleString("vi-VN") || t("job.job.not_sure")} VNĐ</span>
               <span>🧾 {jobTypeMap[job.jobType]}</span>
-              <span>📅 {new Date(job.startDate).toLocaleDateString("vi-VN")} - {new Date(job.endDate).toLocaleDateString("vi-VN")}</span>
+              <span>
+                📅
+                {parseDMY(job.startDate)?.toLocaleDateString("vi-VN") || "?"}
+                {" - "}
+                {parseDMY(job.endDate)?.toLocaleDateString("vi-VN") || "?"}
+              </span>
             </div>
           </div>
           {jobStatusMap[job.status] && (
