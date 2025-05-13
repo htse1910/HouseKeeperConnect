@@ -207,7 +207,14 @@ function HouseKeeperManagePage() {
         </div>
 
         {/* Action Button */}
-        <div className="d-flex justify-content-end mb-3">
+        {/* Action Buttons Row */}
+        <div className="d-flex justify-content-between flex-wrap gap-2 mb-3">
+          <button
+            className="btn btn-outline-success fw-semibold"
+            onClick={() => navigate("/housekeeper/bookings")}
+          >
+            🧹 Quản lý công việc
+          </button>
           <button
             className="btn btn-outline-primary fw-semibold"
             onClick={() => navigate("/housekeeper/jobs-offered")}

@@ -72,9 +72,10 @@ const FamilyJobDetailsPage = () => {
     const [ratingComment, setRatingComment] = useState("");
 
     const [currentPage, setCurrentPage] = useState(0);
-    const applicantsPerPage = 5;
+    const applicantsPerPage = 1;
     const totalPages = Math.ceil(applicants.length / applicantsPerPage);
     const paginatedApplicants = applicants.slice(currentPage * applicantsPerPage, (currentPage + 1) * applicantsPerPage);
+    const [offeredHousekeeper, setOfferedHousekeeper] = useState(null);
 
     useEffect(() => {
         if (!authToken || !accountID || !jobID) return;
@@ -146,6 +147,11 @@ const FamilyJobDetailsPage = () => {
                 }
 
                 setJob(jobData);
+                if (jobData.isOffered && jobData.housekeeperID) {
+                    axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByID?id=${jobData.housekeeperID}`, { headers })
+                        .then(res => setOfferedHousekeeper(res.data))
+                        .catch(err => console.error("Failed to fetch offered housekeeper", err));
+                }
             })
             .catch(err => setError(t("error_loading")))
             .finally(() => setLoading(false));
@@ -326,18 +332,18 @@ const FamilyJobDetailsPage = () => {
                 <p><strong style={{ color: "#333" }}>📄 Mô tả:</strong> <span style={{ color: "#000" }}>{job.description || "Không có mô tả."}</span></p>
                 <div className="mb-3">
                     <strong style={{ color: "#333" }}>📆 Ngày trong tuần:</strong>
-                    <div className="mt-2 d-flex flex-wrap gap-2">
-                        {job.dayofWeek?.map((dayIndex) => (
-                            <button
-                                key={dayIndex}
-                                className={`btn ${confirmedSlots[dayIndex] ? "btn-success" : "btn-outline-primary"} btn-sm`}
+                    <ul className="ps-3 mb-0">
+                        {job.dayofWeek?.map((dayIndex, i) => (
+                            <li
+                                key={i}
+                                className="text-warning"
+                                style={{ cursor: "pointer", textDecoration: "underline" }}
                                 onClick={() => handleDayClick(dayIndex)}
-                                disabled={confirmedSlots[dayIndex]}
                             >
-                                {dayNames[dayIndex]} {confirmedSlots[dayIndex] && "✔"}
-                            </button>
-                        )) || <span style={{ color: "#000" }}>Không rõ</span>}
-                    </div>
+                                {dayNames[dayIndex]}
+                            </li>
+                        )) || <li className="text-muted">Không rõ</li>}
+                    </ul>
                 </div>
 
                 <p><strong style={{ color: "#333" }}>⏰ Ca làm:</strong> <span style={{ color: "#000" }}>{(job.slotIDs || []).map(id => slotMap[id] || `Slot ${id}`).join(", ") || "Không có"}</span></p>
@@ -357,6 +363,35 @@ const FamilyJobDetailsPage = () => {
                 </div>
             </div>
 
+            {job?.isOffered && offeredHousekeeper && (
+                <div className="card mb-5 shadow rounded-4 border-info border-2" style={{ padding: "2rem", backgroundColor: "#e6f7ff" }}>
+                    <h5 className="fw-bold mb-4 text-info">🎯 Người giúp việc được đề nghị</h5>
+                    <div className="d-flex">
+                        <img
+                            src={offeredHousekeeper.localProfilePicture || "/avatar0.png"}
+                            alt="avatar"
+                            className="rounded-circle border border-2 border-primary me-4"
+                            style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                        />
+                        <div>
+                            <h5 className="fw-bold text-primary">{offeredHousekeeper.name}</h5>
+                            <p className="mb-1"><strong>Email:</strong> {offeredHousekeeper.email}</p>
+                            <p className="mb-1"><strong>Số điện thoại:</strong> {offeredHousekeeper.phone}</p>
+                            <button
+                                className="btn btn-outline-primary btn-sm mt-2"
+                                onClick={() =>
+                                    navigate(`/family/housekeeper/profile/${offeredHousekeeper.accountID}`, {
+                                        state: { applicantIDs: [offeredHousekeeper.accountID] }
+                                    })
+                                }
+                            >
+                                Xem hồ sơ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Applicants */}
             <div className="card mb-5 shadow rounded-4 border-warning-subtle" style={{ padding: "2rem", backgroundColor: "#fff9e6" }}>
                 <h5 className="fw-bold mb-4" style={{ color: "#b8860b", fontSize: "1.5rem" }}>👤 Ứng viên</h5>
@@ -374,7 +409,9 @@ const FamilyJobDetailsPage = () => {
                                         style={{ width: "80px", height: "80px", objectFit: "cover" }}
                                     />
                                     <div className="flex-grow-1">
-                                        <h5 className="fw-bold text-primary" style={{ fontSize: "1.25rem" }}>{applicant.nickname}</h5>
+                                        <h5 className="fw-bold text-primary" style={{ fontSize: "1.25rem" }}>
+                                            {applicant.nickname || applicant.name}
+                                        </h5>
                                         <p className="text-muted mb-1">
                                             Đánh giá: {applicant.rating || "5.0"} <FaStar className="text-warning" />
                                         </p>

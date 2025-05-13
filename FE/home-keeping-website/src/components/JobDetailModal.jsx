@@ -177,6 +177,11 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
               <p className="text-muted">Đang tải...</p>
             ) : job ? (
               <>
+                {/* <pre className="bg-light p-2 rounded small">
+                  Application Status: {applicationStatus}{"\n"}
+                  Job Status: {job?.status}
+                </pre> */}
+
                 <div className="info-row"><div className="info-label">Tên công việc:</div><div className="info-value">{job.jobName}</div></div>
                 <div className="info-row"><div className="info-label">Địa điểm:</div><div className="info-value">{job.location}</div></div>
                 <div className="info-row"><div className="info-label">Mô tả:</div><div className="info-value">{job.description || "Không có"}</div></div>
@@ -226,7 +231,17 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
                   </>
                 )}
 
-                {applicationStatus === 2 && job?.status !== 3 && job?.status !== 4 && job?.status !== 6 && (
+                {/* {applicationStatus === 2 && job?.status !== 3 && job?.status !== 4 && job?.status !== 6 && (
+                  <div className="d-flex justify-content-end gap-2 mt-4">
+                    <button className="btn btn-outline-danger fw-semibold rounded-2" onClick={handleRejectJob}>
+                      Từ chối
+                    </button>
+                    <button className="btn btn-warning fw-semibold rounded-2" onClick={handleAcceptJob}>
+                      Chấp nhận công việc
+                    </button>
+                  </div>
+                )} */}
+                {applicationStatus === 2 && job?.status === 2 && (
                   <div className="d-flex justify-content-end gap-2 mt-4">
                     <button className="btn btn-outline-danger fw-semibold rounded-2" onClick={handleRejectJob}>
                       Từ chối
