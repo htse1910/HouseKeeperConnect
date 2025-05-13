@@ -184,9 +184,8 @@ function MessagesPage() {
 
           {matchedUser ? (
             <button
-              className={`list-group-item list-group-item-action d-flex align-items-center shadow-sm rounded mb-2 ${
-                selectedUser?.accountID === matchedUser.accountID ? "active" : ""
-              }`}
+              className={`list-group-item list-group-item-action d-flex align-items-center shadow-sm rounded mb-2 ${selectedUser?.accountID === matchedUser.accountID ? "active" : ""
+                }`}
               onClick={() => setSelectedUser(matchedUser)}
             >
               {renderAvatar(profilePicture || googlePicture)}
@@ -199,9 +198,8 @@ function MessagesPage() {
             chattedUsers.map((user) => (
               <button
                 key={user.accountID}
-                className={`list-group-item list-group-item-action d-flex align-items-center shadow-sm rounded mb-2 ${
-                  selectedUser?.accountID === user.accountID ? "active" : ""
-                }`}
+                className={`list-group-item list-group-item-action d-flex align-items-center shadow-sm rounded mb-2 ${selectedUser?.accountID === user.accountID ? "active" : ""
+                  }`}
                 onClick={() => setSelectedUser(user)}
               >
                 {renderAvatar(user.localProfilePicture || user.googleProfilePicture)}
@@ -221,7 +219,9 @@ function MessagesPage() {
               {renderAvatar(profilePicture || googlePicture)}
               <div>
                 <h6 className="mb-0 fw-bold">{selectedUser.name}</h6>
-                <small className="text-muted">Gia đình</small>
+                <small className="text-muted">
+                  {selectedUser.roleID === 1 ? "Người giúp việc" : "Gia đình"}
+                </small>
               </div>
             </div>
           )}
