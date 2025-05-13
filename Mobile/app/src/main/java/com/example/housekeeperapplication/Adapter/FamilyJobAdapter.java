@@ -75,14 +75,16 @@ public class FamilyJobAdapter extends RecyclerView.Adapter<FamilyJobAdapter.JobV
 
     private String getJobStatusString(int status) {
         switch (status) {
-            case 1: return "🕒 Pending";
-            case 2: return "✔️ Verified";
-            case 3: return "📌 Accepted";
-            case 4: return "✅ Completed";
-            case 5: return "⏰ Expired";
-            case 6: return "❌ Canceled";
-            case 7: return "🚫 Not Permitted";
-            case 8: return "👨‍👩‍👧 Đợi xác nhận";
+            case 1: return "🕒 Công việc đang chờ duyệt";
+            case 2: return "✔️ Công việc đã xác minh";
+            case 3: return "📌 Công việc đã chấp nhận";
+            case 4: return "✅ Công việc đã hoàn thành";
+            case 5: return "⏰ Công việc đã hết hạn";
+            case 6: return "❌ Công việc đã hủy";
+            case 7: return "🚫 Không được phép";
+            case 8: return "👨‍👩‍👧 Công việc đang chờ xác nhận của gia đình";
+            case 9: return "👨‍👩‍👧 Người giúp việc đã nghỉ";
+            case 10: return "👨‍👩‍👧 Công việc đã giao lại";
             default: return "❓ Unknown";
         }
     }

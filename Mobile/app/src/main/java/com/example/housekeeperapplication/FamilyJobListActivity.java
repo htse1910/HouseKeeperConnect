@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,7 +32,7 @@ public class FamilyJobListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerJobs;
     private FamilyJobAdapter adapter;
-
+    private TextView tvEmptyState;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +40,7 @@ public class FamilyJobListActivity extends AppCompatActivity {
 
         recyclerJobs = findViewById(R.id.recyclerFamilyJobs);
         recyclerJobs.setLayoutManager(new LinearLayoutManager(this));
-
+        tvEmptyState = findViewById(R.id.tvEmptyState);
         FloatingActionButton fabAddJob = findViewById(R.id.fabAddJob);
         fabAddJob.setOnClickListener(view -> {
             Intent intent = new Intent(FamilyJobListActivity.this, AddJobActivity.class);
@@ -58,20 +60,23 @@ public class FamilyJobListActivity extends AppCompatActivity {
         api.getJobsByAccountID(accountId, 1, 100).enqueue(new Callback<List<FamilyJobSummaryDTO>>() {
             @Override
             public void onResponse(Call<List<FamilyJobSummaryDTO>> call, Response<List<FamilyJobSummaryDTO>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    adapter = new FamilyJobAdapter(FamilyJobListActivity.this, response.body());
-                    recyclerJobs.setAdapter(adapter);
+                if (response.isSuccessful()) {
+                    List<FamilyJobSummaryDTO> jobs = response.body();
+                    if (jobs != null && !jobs.isEmpty()) {
+                        showJobList(jobs);
+                    }
                 } else {
-                    Toast.makeText(FamilyJobListActivity.this, "Không tải được công việc", Toast.LENGTH_SHORT).show();
+                    showEmptyState("Bạn chưa đăng công việc");
                 }
             }
 
             @Override
             public void onFailure(Call<List<FamilyJobSummaryDTO>> call, Throwable t) {
-                Toast.makeText(FamilyJobListActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                showEmptyState("Lỗi kết nối: " + t.getMessage());
                 Log.e("API_ERROR", t.getMessage());
             }
         });
+
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.nav_activity); // Đánh dấu tab đang chọn
@@ -107,5 +112,18 @@ public class FamilyJobListActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+    private void showJobList(List<FamilyJobSummaryDTO> jobs) {
+        recyclerJobs.setVisibility(View.VISIBLE);
+        tvEmptyState.setVisibility(View.GONE);
+
+        adapter = new FamilyJobAdapter(this, jobs);
+        recyclerJobs.setAdapter(adapter);
+    }
+
+    private void showEmptyState(String message) {
+        recyclerJobs.setVisibility(View.GONE);
+        tvEmptyState.setVisibility(View.VISIBLE);
+        tvEmptyState.setText(message);
     }
 }
