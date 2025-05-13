@@ -661,7 +661,8 @@ namespace HouseKeeperConnect_API.Controllers
 
                 if (jobDetail.HousekeeperID != hk.HousekeeperID)
                 {
-                    return Forbid("Bạn không có quyền để từ chối công việc này!");
+                    Message = "Bạn không có quyền để từ chối công việc này!";
+                    return Conflict(Message);
                 }
 
                 // Update status and remove HousekeeperID
@@ -747,11 +748,11 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound("Không tìm thấy thông tin người giúp việc!");
 
                 if (jobDetail.HousekeeperID != hk.HousekeeperID)
-                    return Forbid("Bạn không phải người giúp việc được chỉ định cho công việc!");
+                    return Conflict("Bạn không phải người giúp việc được chỉ định cho công việc!");
             }
             else if (acc.RoleID != 3)
             {
-                return Forbid("Bạn không có quyền truy cập!");
+                return Conflict("Bạn không có quyền truy cập!");
             }
 
             if (jobDetail.HousekeeperID == null)
@@ -1073,7 +1074,7 @@ namespace HouseKeeperConnect_API.Controllers
             var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
             if (jobSlots == null || !jobSlots.Any())
             {
-                return BadRequest("Công việc không có slot làm việc nào!");
+                return NotFound("Công việc không có slot làm việc nào!");
             }
 
             // Check if any of the slots conflict with the housekeeper's existing bookings
@@ -1102,7 +1103,7 @@ namespace HouseKeeperConnect_API.Controllers
             if (hk == null)
             {
                 Message = "Không tìm tháy thông tin người giúp việc!";
-                return NotFound();
+                return NotFound(Message);
             }
 
             var noti = new Notification();
@@ -1144,7 +1145,7 @@ namespace HouseKeeperConnect_API.Controllers
             if (job.Status != (int)JobStatus.Pending)
             {
                 Message = "Chỉ có công việc có status là Verified mới được duyệt!";
-                return StatusCode(StatusCodes.Status403Forbidden, Message);
+                return Conflict(Message);
             }
 
             // Update and save
@@ -1230,7 +1231,7 @@ namespace HouseKeeperConnect_API.Controllers
                 bool isHousekeeper = jobDetail.Housekeeper.AccountID == accountId;
 
                 if (!isFamily && !isHousekeeper)
-                    return Forbid("Bạn không có quyền để hủy công việc này!");
+                    return Conflict("Bạn không có quyền để hủy công việc này!");
 
                 bool isAccepted = job.Status == (int)JobStatus.Accepted;
 
