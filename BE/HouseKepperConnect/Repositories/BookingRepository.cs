@@ -15,6 +15,8 @@ namespace Repositories
 
         public async Task AddBookingAsync(Booking booking) => await _bookingDAO.AddBookingAsync(booking);
 
+        public async Task<int> CountBookingsByHousekeeperIDAsync(int housekeeperID) => await _bookingDAO.CountBookingsByHousekeeperIDAsync(housekeeperID);
+
         public async Task DeleteBookingAsync(int id) => await _bookingDAO.DeleteBookingAsync(id);
 
         public async Task<List<Booking>> GetAllBookingsAsync() => await _bookingDAO.GetAllBookingsAsync();

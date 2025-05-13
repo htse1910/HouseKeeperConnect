@@ -17,17 +17,21 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IJobService _jobService;
         private readonly IJob_ServiceService _jobServiceService;
         private readonly IJob_SlotsService _jobSlotsService;
+        private readonly IHouseKeeperService _houseKeeperService;
         private readonly IMapper _mapper;
         private readonly IBooking_SlotsService _bookingSlotsService;
         private string Message;
 
-        public BookingController(IBookingService bookingService, IJobService jobService, IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, IBooking_SlotsService booking_SlotsService, IMapper mapper)
+        public BookingController(IBookingService bookingService, IJobService jobService, 
+            IJob_ServiceService job_ServiceService, IJob_SlotsService job_SlotsService, 
+            IBooking_SlotsService booking_SlotsService, IMapper mapper, IHouseKeeperService houseKeeperService)
         {
             _bookingService = bookingService;
             _jobService = jobService;
             _jobServiceService = job_ServiceService;
             _jobSlotsService = job_SlotsService;
             _bookingSlotsService = booking_SlotsService;
+            _houseKeeperService = houseKeeperService;
             _mapper = mapper;
         }
 
@@ -42,6 +46,20 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
             return Ok(bookings);
+        }
+        
+        [HttpGet("CountBookingsByHousekeeperID")]
+        [Authorize]
+        public async Task<ActionResult<int>> CountBookingsByHKAsync(int accountID)
+        {
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if(hk == null)
+            {
+                Message = "Không tìm thấy người giúp việc!";
+                return NotFound(Message);
+            }
+            var count = await _bookingService.CountBookingsByHousekeeperIDAsync(hk.HousekeeperID);
+            return Ok(count);
         }
 
         [HttpGet("GetBookingByID")]

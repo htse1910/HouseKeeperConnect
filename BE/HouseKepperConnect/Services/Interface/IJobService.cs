@@ -5,7 +5,16 @@ namespace Services.Interface
     public interface IJobService
     {
         Task<List<Job>> GetAllJobsAsync();
+
         Task<List<Job>> GetAllPendingJobsAsync();
+
+        Task<int> CountVerifiedJobsAsync();
+
+        Task<int> CountPendingJobsAsync();
+
+        Task<int> CountJobsByAccountIDAsync(int familyID);
+
+        Task<int> CountJobsOfferByAccountIDAsync(int housekeeperID);
 
         Task<List<JobDetail>> GetAllDetailJobsAsync(int pageNumber, int pageSize);
 

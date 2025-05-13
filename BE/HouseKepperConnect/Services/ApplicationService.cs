@@ -15,6 +15,10 @@ namespace Services
 
         public async Task AddApplicationAsync(Application noti) => await _repository.AddApplicationAsync(noti);
 
+        public async Task<int> CountApplicationsByHKIDAsync(int housekeeperID) => await _repository.CountApplicationsByHKIDAsync(housekeeperID);
+
+        public async Task<int> CountApplicationsByJobIDAsync(int jobID) => await _repository.CountApplicationsByJobIDAsync(jobID);
+
         public async Task DeleteApplicationAsync(int id) => await _repository.DeleteApplicationAsync(id);
 
         public async Task<List<Application>> GetAllApplicationsAsync(int pageNumber, int pageSize) => await _repository.GetAllApplicationsAsync(pageNumber, pageSize);
