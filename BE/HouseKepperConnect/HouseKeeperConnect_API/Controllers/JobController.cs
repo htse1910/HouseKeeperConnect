@@ -576,7 +576,7 @@ namespace HouseKeeperConnect_API.Controllers
                     JobID = jobId,
                     HousekeeperID = jobDetail.HousekeeperID.Value,
                     CreatedAt = vietnamTime,
-                    Status = (int)BookingStatus.Pending
+                    Status = (int)BookingStatus.Accepted
                 };
 
                 await _bookingService.AddBookingAsync(newBooking);
@@ -764,8 +764,8 @@ namespace HouseKeeperConnect_API.Controllers
             var slots = await _bookingSlotsService.GetBooking_SlotsByBookingIDAsync(booking.BookingID);
             allSlots.AddRange(slots);
 
-            var unworkedSlots = allSlots
-                .Where(s => (s.Date >= abandonDate || s.IsConfirmedByFamily == false) && s.Status == BookingSlotStatus.Active)
+            var countAfterAbandonDate = allSlots
+                .Where(s => s.Date >= abandonDate && (s.IsConfirmedByFamily || s.IsCheckedIn == false) && s.Status == BookingSlotStatus.Active)
                 .Select(s => new Booking_Slots
                 {
                     SlotID = s.SlotID,
@@ -773,7 +773,19 @@ namespace HouseKeeperConnect_API.Controllers
                     Date = s.Date
                 })
                 .ToList(); // Save to reassign
+            // Count slots before abandonDate
+            var countBeforeAbandonDate = allSlots
+                .Count(s => s.Date < abandonDate &&
+                            (!s.IsConfirmedByFamily || !s.IsCheckedIn) &&
+                            s.Status == BookingSlotStatus.Active);
 
+            // Total count
+
+            if (countAfterAbandonDate.Count == 0)
+            {
+                Message = "Tất cả các slot đã hoàn thành, không thể hủy công việc!";
+                return NotFound(Message);
+            }
             // Cancel all booking slots
             foreach (var slot in allSlots)
             {
@@ -785,10 +797,11 @@ namespace HouseKeeperConnect_API.Controllers
             booking.Status = (int)BookingStatus.Canceled;
             await _bookingService.UpdateBookingAsync(booking);
 
-            // Refund and payout calculation
-            int totalUnworkedSlots = unworkedSlots.Count;
-            decimal refundAmount = totalUnworkedSlots * jobDetail.PricePerHour;
-            decimal payoutAmount = jobDetail.Price - refundAmount;
+            // payout calculation
+            var totalUnworkedSlots = countAfterAbandonDate.Count + countBeforeAbandonDate;
+            decimal unworkAmount = totalUnworkedSlots * jobDetail.PricePerHour;
+            decimal payoutAmount = jobDetail.Price - unworkAmount;
+            decimal newJobPrice = countAfterAbandonDate.Count * jobDetail.PricePerHour;
 
             var family = await _familyProfileService.GetFamilyByIDAsync(oldJob.FamilyID);
             /*var familyWallet = await _walletService.GetWalletByUserAsync(family.AccountID);*/
@@ -867,11 +880,11 @@ namespace HouseKeeperConnect_API.Controllers
 
             newJobDetail.JobID = newJob.JobID;
             newJobDetail.Location = jobDetail.Location;
-            newJobDetail.Price = refundAmount;
+            newJobDetail.Price = newJobPrice;
             newJobDetail.FeeID = jobDetail.FeeID;
             newJobDetail.DetailLocation = jobDetail.DetailLocation;
             newJobDetail.PricePerHour = jobDetail.PricePerHour;
-            newJobDetail.StartDate = unworkedSlots.Min(s => s.Date.Value);
+            newJobDetail.StartDate = countAfterAbandonDate.Min(s => s.Date.Value);
             newJobDetail.EndDate = jobDetail.EndDate;
             newJobDetail.Description = jobDetail.Description;
             newJobDetail.IsOffered = false;
@@ -919,7 +932,7 @@ namespace HouseKeeperConnect_API.Controllers
                 oldJobId = oldJob.JobID,
                 newJobId = newJob.JobID,
                 payoutToHK = payoutAmount,
-                newJobPrice = refundAmount
+                newPrice = newJobPrice
             });
         }
 

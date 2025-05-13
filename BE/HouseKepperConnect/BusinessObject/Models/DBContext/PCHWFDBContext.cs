@@ -15,7 +15,7 @@ namespace BusinessObject.Models
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
             IConfigurationRoot configuration = builder.Build();
             optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), options => options.EnableRetryOnFailure(
-                maxRetryCount: 5,
+                maxRetryCount: 1,
                 maxRetryDelay: TimeSpan.FromSeconds(30),
                 errorNumbersToAdd: null)
                 );
