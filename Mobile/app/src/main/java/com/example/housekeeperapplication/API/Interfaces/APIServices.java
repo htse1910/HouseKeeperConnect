@@ -312,4 +312,6 @@ public interface APIServices {
             @Query("pageNumber") int pageNumber,
             @Query("pageSize") int pageSize
     );
+    @PUT("api/Application/UpdateApplication")
+    Call<Void> UpdateApplication(@Query("AppID") int applicationID, @Query("status") int status);
 }

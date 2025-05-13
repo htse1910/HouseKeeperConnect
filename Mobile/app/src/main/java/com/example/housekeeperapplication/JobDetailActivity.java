@@ -1,5 +1,6 @@
 package com.example.housekeeperapplication;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -72,34 +74,101 @@ public class JobDetailActivity extends AppCompatActivity {
     }
 
     private void setupApplicantsRecyclerView() {
-        boolean showActionButtons = false;
-
         applicantAdapter = new ApplicantAdapter(new ArrayList<>(), new ApplicantAdapter.ApplicantClickListener() {
             @Override
-            public void onViewProfileClick(ApplicationDisplayDTO applicant) {
+            public void onItemClick(ApplicationDisplayDTO applicant) {
                 Intent intent = new Intent(JobDetailActivity.this, ReviewProflieHousekeeperActivity.class);
-                intent.putExtra("accountId", applicant.getAccountID());
+                intent.putExtra("applicantID", applicant.getHousekeeperID());
                 startActivity(intent);
+            }
+            @Override
+            public void onAcceptClick(ApplicationDisplayDTO applicant, int position) {
             }
 
             @Override
-            public void onMessageClick(ApplicationDisplayDTO applicant) {
-                Intent intent = new Intent(JobDetailActivity.this, ChatListMockActivity.class);
-                intent.putExtra("recipientId", applicant.getAccountID());
-                intent.putExtra("recipientName", applicant.getNickname());
-                startActivity(intent);
+            public void onRejectClick(ApplicationDisplayDTO applicant, int position) {
             }
-
-            @Override
-            public void onAcceptClick(ApplicationDisplayDTO applicant) {}
-
-            @Override
-            public void onRejectClick(ApplicationDisplayDTO applicant) {}
-
-        }, showActionButtons);
+        }, this);
 
         rvApplicants.setLayoutManager(new LinearLayoutManager(this));
         rvApplicants.setAdapter(applicantAdapter);
+
+        // Thêm divider giữa các item (tuỳ chọn)
+        rvApplicants.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+    }
+
+    /*private void showConfirmationDialog(ApplicationDisplayDTO applicant, int position, boolean isAccept) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        String message = isAccept
+                ? "Bạn có chắc chắn muốn chấp nhận ứng viên " + applicant.getNickname() + "?"
+                : "Bạn có chắc chắn muốn từ chối ứng viên " + applicant.getNickname() + "?";
+
+        builder.setTitle("Xác nhận")
+                .setMessage(message)
+                .setCancelable(false) // Ngăn người dùng chạm ra ngoài để tắt dialog
+                .setPositiveButton("Xác nhận", (dialog, which) -> {
+                    if (isAccept) {
+                        acceptApplicant(applicant, position);
+                    } else {
+                        rejectApplicant(applicant, position);
+                    }
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Hủy", (dialog, which) -> {
+                    // Không làm gì cả, chỉ đóng dialog
+                    dialog.dismiss();
+                })
+                .show();
+    }*/
+
+
+    private void acceptApplicant(ApplicationDisplayDTO applicant, int position) {
+        // Gọi API chấp nhận ứng viên
+        api.UpdateApplication(applicant.getApplicationID(), 2).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(JobDetailActivity.this, "Đã chấp nhận ứng viên thành công", Toast.LENGTH_SHORT).show();
+
+                    // Cập nhật giao diện
+                    applicant.setStatus(2); // 2 = Accepted
+                    applicantAdapter.notifyItemChanged(position);
+
+                    // Tải lại danh sách ứng viên
+                    loadApplicants(jobID, 1, 10);
+                } else {
+                    Toast.makeText(JobDetailActivity.this, "Lỗi khi chấp nhận ứng viên", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(JobDetailActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void rejectApplicant(ApplicationDisplayDTO applicant, int position) {
+        // Gọi API từ chối ứng viên
+        api.UpdateApplication(applicant.getApplicationID(), 3).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(JobDetailActivity.this, "Đã từ chối ứng viên thành công", Toast.LENGTH_SHORT).show();
+
+                    // Xóa ứng viên khỏi danh sách
+                    applicantAdapter.removeApplicant(position);
+                } else {
+                    Toast.makeText(JobDetailActivity.this, "Lỗi khi từ chối ứng viên", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(JobDetailActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadJobDetail(int jobID) {
@@ -139,8 +208,7 @@ public class JobDetailActivity extends AppCompatActivity {
             }
         }
         tvDayOfWeek.setText(daysText.toString().trim());
-
-        tvDescription.setText(job.description != null ? job.description : "");
+        tvDescription.setText("Mô tả công việc: " + (job.description != null ? job.description : ""));
     }
 
     private String getJobStatusString(int status) {

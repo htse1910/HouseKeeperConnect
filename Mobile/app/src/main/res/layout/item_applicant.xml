@@ -55,27 +55,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="12dp"
+            android:id="@+id/layoutActionButtons">
 
             <Button
-                android:id="@+id/btnViewProfile"
+                android:id="@+id/btnAccept"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Xem hồ sơ"
+                android:text="Chấp thuận"
                 android:textAllCaps="false"
                 android:backgroundTint="@color/colorPrimary"
                 android:textColor="@android:color/white"/>
 
             <Button
-                android:id="@+id/btnMessage"
+                android:id="@+id/btnReject"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Nhắn tin"
+                android:text="Từ chối"
                 android:textAllCaps="false"
                 android:layout_marginStart="8dp"
-                android:backgroundTint="@color/successGreen"
+                android:backgroundTint="@color/errorRed"
                 android:textColor="@android:color/white"/>
         </LinearLayout>
     </LinearLayout>

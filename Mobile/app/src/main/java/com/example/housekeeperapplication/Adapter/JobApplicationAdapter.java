@@ -67,7 +67,7 @@ public class JobApplicationAdapter extends RecyclerView.Adapter<JobApplicationAd
         holder.tvTimeRange.setText(item.getStartDate() + " → " + item.getEndDate());
 
         // Set status
-        setStatusView(holder.tvJobStatus, item.getStatus());
+        holder.tvJobStatus.setText("Trạng thái: " + getStatusString(item.getStatus()));
 
         // Load family name
         loadFamilyName(item.getFamilyId(), holder.tvFamily);
@@ -91,30 +91,13 @@ public class JobApplicationAdapter extends RecyclerView.Adapter<JobApplicationAd
         notifyDataSetChanged();
     }
 
-    private void setStatusView(TextView statusView, int status) {
-        String statusText;
-        int bgColor;
-
+    private String getStatusString(int status) {
         switch (status) {
-            case 1: // Approved
-                statusText = "Đã xác nhận";
-                bgColor = R.color.successGreen;
-                break;
-            case 2: // Rejected
-                statusText = "Đã từ chối";
-                bgColor = R.color.errorRed;
-                break;
-            case 3: // Completed
-                statusText = "Hoàn thành";
-                bgColor = R.color.colorPrimary;
-                break;
-            default: // Pending
-                statusText = "Đang chờ";
-                bgColor = R.color.warningYellow;
+            case 1: return "🕒 Đang chờ";
+            case 2: return "✔️ Đã chấp nhận";
+            case 3: return "📌 Đã từ chối";
+            default: return "❓ Không xác định";
         }
-
-        statusView.setText(statusText);
-        statusView.setBackgroundResource(bgColor);
     }
 
     private void loadFamilyName(int familyId, TextView familyNameView) {

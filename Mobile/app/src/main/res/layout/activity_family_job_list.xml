@@ -2,13 +2,12 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:background="@color/white">
 
-
+    <!-- Tiêu đề -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="match_parent"
@@ -23,7 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-
+    <!-- RecyclerView hiển thị danh sách công việc -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerFamilyJobs"
         android:layout_width="0dp"
@@ -35,7 +34,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- TextView hiển thị khi không có công việc hoặc lỗi -->
+    <TextView
+        android:id="@+id/tvEmptyState"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="Bạn chưa đăng công việc"
+        android:textSize="18sp"
+        android:textColor="@color/gray"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="0dp"
@@ -58,6 +72,5 @@
         app:backgroundTint="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/white"
-        tools:ignore="SpeakableTextPresentCheck" />
+        app:tint="@color/white"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
