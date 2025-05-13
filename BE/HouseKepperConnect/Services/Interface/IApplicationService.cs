@@ -6,6 +6,10 @@ namespace Services.Interface
     {
         Task<List<Application>> GetAllApplicationsAsync(int pageNumber, int pageSize);
 
+        Task<int> CountApplicationsByJobIDAsync(int jobID);
+
+        Task<int> CountApplicationsByHKIDAsync(int housekeeperID);
+
         Task<List<Application>> GetAllApplicationsByUserAsync(int uid, int pageNumber, int pageSize);
 
         Task<List<Application>> GetAllApplicationsByJobIDAsync(int jobID, int pageNumber, int pageSize);

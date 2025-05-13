@@ -98,6 +98,24 @@ namespace DataAccess
                         .ToListAsync();
                 }*/
 
+        public async Task<int> CountBookingsByHousekeeperIDAsync(int housekeeperID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Booking
+                        .AsNoTracking()
+                        .CountAsync(j => j.HousekeeperID == housekeeperID)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId)
         {
             using var context = new PCHWFDBContext();

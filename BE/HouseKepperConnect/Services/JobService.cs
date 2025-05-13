@@ -41,5 +41,13 @@ namespace Services
         public async Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize) => await _jobRepository.GetJobsOfferedByHKAsync(hktId, pageNumber, pageSize);
 
         public async Task<List<Job>> GetAllPendingJobsAsync() => await _jobRepository.GetAllPendingJobsAsync();
+
+        public async Task<int> CountVerifiedJobsAsync() => await _jobRepository.CountVerifiedJobsAsync();
+
+        public async Task<int> CountPendingJobsAsync() => await _jobRepository.CountPendingJobsAsync();
+
+        public async Task<int> CountJobsByAccountIDAsync(int familyID) => await _jobRepository.CountJobsByAccountIDAsync(familyID);
+
+        public async Task<int> CountJobsOfferByAccountIDAsync(int housekeeperID) => await _jobRepository.CountJobsOfferByAccountIDAsync(housekeeperID);
     }
 }

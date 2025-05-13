@@ -7,6 +7,7 @@ namespace Services.Interface
         Task AddBookingAsync(Booking booking);
 
         Task DeleteBookingAsync(int id);
+        Task<int> CountBookingsByHousekeeperIDAsync(int housekeeperID);
 
         Task<List<Booking>> GetAllBookingsAsync();
 

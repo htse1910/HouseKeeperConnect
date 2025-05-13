@@ -15,6 +15,8 @@ namespace Services
 
         public async Task AddBookingAsync(Booking booking) => await _bookingRepository.AddBookingAsync(booking);
 
+        public async Task<int> CountBookingsByHousekeeperIDAsync(int housekeeperID) => await _bookingRepository.CountBookingsByHousekeeperIDAsync(housekeeperID);
+
         public async Task DeleteBookingAsync(int id) => await _bookingRepository.DeleteBookingAsync(id);
 
         public async Task<List<Booking>> GetAllBookingsAsync() => await _bookingRepository.GetAllBookingsAsync();

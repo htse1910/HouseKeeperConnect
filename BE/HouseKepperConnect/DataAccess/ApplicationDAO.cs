@@ -44,6 +44,42 @@ namespace DataAccess
             return list;
         }
 
+        public async Task<int> CountApplicationsByHKIDAsync(int housekeeperID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Application
+                        .AsNoTracking()
+                        .CountAsync(j => j.HouseKeeperID == housekeeperID)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<int> CountApplicationsByJobIDAsync(int jobID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Application
+                        .AsNoTracking()
+                        .CountAsync(j => j.JobID == jobID && j.Status != (int)ApplicationStatus.Denied)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<Application>> GetAllApplicationsByUserAsync(int uid, int pageNumber, int pageSize)
         {
             var list = new List<Application>();
@@ -60,6 +96,7 @@ namespace DataAccess
             }
             return list;
         }
+
         public async Task<List<Application>> GetAllApplicationsByUserAsync(int uid)
         {
             var list = new List<Application>();
@@ -93,6 +130,7 @@ namespace DataAccess
             }
             return list;
         }
+
         public async Task<List<Application>> GetAllApplicationsByJobIDAsync(int jobID)
         {
             var list = new List<Application>();
@@ -100,7 +138,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Application.Include(a => a.HouseKepper).Include(a => a.HouseKepper.Account).Where(a => a.JobID == jobID && a.Status!=(int)ApplicationStatus.Denied).AsNoTracking().ToListAsync();
+                    list = await context.Application.Include(a => a.HouseKepper).Include(a => a.HouseKepper.Account).Where(a => a.JobID == jobID && a.Status != (int)ApplicationStatus.Denied).AsNoTracking().ToListAsync();
                 }
             }
             catch (Exception ex)

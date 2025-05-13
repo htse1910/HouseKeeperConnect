@@ -41,5 +41,13 @@ namespace Repositories
         public async Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize) => await _jobDAO.GetJobsOfferedByHKAsync(hktId, pageNumber, pageSize);
 
         public async Task<List<Job>> GetAllPendingJobsAsync() => await _jobDAO.GetAllPendingJobsAsync();
+
+        public async Task<int> CountVerifiedJobsAsync() => await _jobDAO.CountVerifiedJobsAsync();
+
+        public async Task<int> CountPendingJobsAsync() => await _jobDAO.CountPendingJobsAsync();
+
+        public async Task<int> CountJobsByAccountIDAsync(int familyID) => await _jobDAO.CountJobsByAccountIDAsync(familyID);
+
+        public async Task<int> CountJobsOfferByAccountIDAsync(int housekeeperID) => await _jobDAO.CountJobsOfferByAccountIDAsync(housekeeperID);
     }
 }

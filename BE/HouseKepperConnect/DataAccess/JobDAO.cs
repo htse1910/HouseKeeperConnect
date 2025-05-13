@@ -45,6 +45,80 @@ namespace DataAccess
             }
             return list;
         }
+
+        public async Task<int> CountVerifiedJobsAsync()
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Job
+                        .AsNoTracking()
+                        .Include(j => j.JobDetail)
+                        .CountAsync(j => j.Status == (int)JobStatus.Verified && !j.JobDetail.IsOffered)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<int> CountPendingJobsAsync()
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Job
+                        .AsNoTracking()
+                        .CountAsync(j => j.Status == (int)JobStatus.Pending)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<int> CountJobsByAccountIDAsync(int familyID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Job
+                        .AsNoTracking()
+                        .CountAsync(j => j.FamilyID==familyID)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<int> CountJobsOfferByAccountIDAsync(int housekeeperID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Job
+                        .AsNoTracking()
+                        .Include(j => j.JobDetail)
+                        .CountAsync(j => j.JobDetail.HousekeeperID== housekeeperID && j.JobDetail.IsOffered == true && j.Status != (int)JobStatus.Pending)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         public async Task<List<Job>> GetAllPendingJobsAsync()
         {
             var list = new List<Job>();
@@ -182,7 +256,7 @@ namespace DataAccess
         public async Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize)
         {
             using var context = new PCHWFDBContext();
-            return await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.HousekeeperID == hktId && j.JobDetail.IsOffered == true).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.HousekeeperID == hktId && j.JobDetail.IsOffered == true && j.Status != (int)JobStatus.Pending).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public async Task<List<Job>> GetJobsPastWeekAsync(int pageNumber, int pageSize)

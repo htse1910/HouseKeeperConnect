@@ -115,6 +115,53 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(display);
         }
+        
+        [HttpGet("CountPendingJobs")]
+        [Authorize(Policy = "Staff")]
+        public async Task<ActionResult<int>> CountPendingJobsAsync()
+        {
+            var count = await _jobService.CountPendingJobsAsync();
+
+            return Ok(count);
+        }
+        [HttpGet("CountVerifiedJobs")]
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<int>> CountVerifiedJobsAsync()
+        {
+            var count = await _jobService.CountVerifiedJobsAsync();
+
+            return Ok(count);
+        }
+        
+        [HttpGet("CountJobsByAccountID")]
+        [Authorize(Policy = "Family")]
+        public async Task<ActionResult<int>> CountJobsByAccountIDAsync(int accountID)
+        {
+            var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountID);
+            if (fa == null)
+            {
+                Message = "Không tìm thấy gia đình!";
+                return NotFound(Message);
+            }
+            var count = await _jobService.CountJobsByAccountIDAsync(fa.FamilyID);
+
+            return Ok(count);
+        }
+        
+        [HttpGet("CountJobsOfferedByAccountID")]
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<int>> CountJobsOfferedByAccountIDAsync(int accountID)
+        {
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if (hk == null)
+            {
+                Message = "Không tìm thấy người giúp việc!";
+                return NotFound(Message);
+            }
+            var count = await _jobService.CountJobsByAccountIDAsync(hk.HousekeeperID);
+
+            return Ok(count);
+        }
 
         [HttpGet("GetJobByID")]
         [Authorize]

@@ -7,6 +7,7 @@ namespace Repositories.Interface
         Task<List<Booking>> GetAllBookingsAsync();
 
         Task<Booking> GetBookingByIDAsync(int id);
+        Task<int> CountBookingsByHousekeeperIDAsync(int housekeeperID);
 
         Task<Booking> GetBookingByJobIDAsync(int jobID);
 
