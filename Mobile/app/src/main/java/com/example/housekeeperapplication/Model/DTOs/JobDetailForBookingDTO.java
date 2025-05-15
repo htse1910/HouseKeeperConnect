@@ -5,21 +5,21 @@ import java.util.List;
 public class JobDetailForBookingDTO {
     public int jobID;
     public int familyID;
-    public int status; // <-- add this field if not present!
-    private String familyName;
-    private String jobName;
-    private int jobType;
-    private String location;
-    private double price;
-    private String startDate;
-    private String endDate;
-    private String description;
-    private boolean isOffered;
-    private Integer housekeeperID;
-    private Integer bookingID;
-    private List<Integer> serviceIDs;
-    private List<Integer> slotIDs;
-    private List<Integer> dayofWeek;
+    public int status;
+    public String familyName;
+    public String jobName;
+    public int jobType;
+    public String location;
+    public double price;
+    public String startDate;
+    public String endDate;
+    public String description;
+    public boolean isOffered;
+    public Integer housekeeperID;
+    public Integer bookingID;
+    public List<Integer> serviceIDs;
+    public List<Integer> slotIDs;
+    public List<Integer> dayofWeek;
 
     public JobDetailForBookingDTO(int jobID, int familyID, int status, String jobName, int jobType, String location, double price, String startDate, String endDate, String description, boolean isOffered, Integer housekeeperID, Integer bookingID, List<Integer> serviceIDs, List<Integer> slotIDs, List<Integer> dayofWeek) {
         this.jobID = jobID;
@@ -147,6 +147,7 @@ public class JobDetailForBookingDTO {
     public String getFamilyName() {
         return familyName;
     }
+
 
     public void setFamilyName(String familyName) {
         this.familyName = familyName;
