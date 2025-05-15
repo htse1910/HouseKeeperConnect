@@ -143,7 +143,7 @@ public interface APIServices {
     @GET("api/Account/GetAccount")
     Call<Account> getAccountById(@Query("id") int accountId);
     @GET("api/Booking/GetBookingByHousekeeperID")
-    Call<List<BookingHousekeeperDTO>> getBookingsByHousekeeperID(@Query("housekeeperId") int housekeeperId);
+    Call<List<JobDetailForBookingDTO>> getBookingsByHousekeeperID(@Query("housekeeperId") int housekeeperId);
     @GET("api/Job/GetJobByID")
     Call<Job> getJobById(@Query("id") int jobId);
 

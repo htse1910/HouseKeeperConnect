@@ -2,8 +2,8 @@ package com.example.housekeeperapplication.Model.DTOs;
 
 public class FamilyAccountMappingDTO {
     public int accountID;
-    private int familyID;
-    private String name;
+    public int familyID;
+    public String name;
 
     public FamilyAccountMappingDTO(int accountID, int familyID, String name) {
         this.accountID = accountID;
