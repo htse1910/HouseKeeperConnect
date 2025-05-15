@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -70,11 +71,51 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(lA);
         }
 
+        [HttpGet("CountApplicationsByAccountID")]
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<int>> CountApplicationsByAccountIDAsync(int accountID)
+        {
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if (hk == null)
+            {
+                Message = "Không tìm thấy người giúp việc!";
+                return NotFound(Message);
+            }
+            var count = await _applicationService.CountApplicationsByHKIDAsync(hk.HousekeeperID);
+            if (count == 0)
+            {
+                Message = "Danh sách đơn ứng tuyển của người giúp việc trống!";
+                return NotFound(Message);
+            }
+
+            return Ok(count);
+        }
+        
+        [HttpGet("CountApplicationsByJobID")]
+        [Authorize(Policy = "Family")]
+        public async Task<ActionResult<int>> CountApplicationsByJobIDAsync(int jobID)
+        {
+            var job = await _jobService.GetJobByIDAsync(jobID);
+            if (job == null)
+            {
+                Message = "Không tìm thấy công việc!";
+                return NotFound(Message);
+            }
+            var count = await _applicationService.CountApplicationsByJobIDAsync(job.JobID);
+            if(count == 0)
+            {
+                Message = "Danh sách đơn ứng tuyển của công việc trống!";
+                return NotFound(Message);
+            }
+
+            return Ok(count);
+        }
+
         [HttpGet("ApplicationListByJob")]
         [Authorize(Policy = "Family")]
-        public async Task<ActionResult<List<Application>>> ApplicationListByJob(int jobID)
+        public async Task<ActionResult<List<Application>>> ApplicationListByJob(int jobID, int pageNumber, int pageSize)
         {
-            var list = await _applicationService.GetAllApplicationsByJobIDAsync(jobID);
+            var list = await _applicationService.GetAllApplicationsByJobIDAsync(jobID, pageNumber, pageSize);
             if (list == null)
             {
                 Message = "No Records!";

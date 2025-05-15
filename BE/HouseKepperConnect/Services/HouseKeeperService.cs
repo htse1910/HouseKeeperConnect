@@ -30,5 +30,9 @@ namespace Services
         public async Task UpdateIsVerifiedAsync(int verifyId, bool isVerified) => await _houseKeeperRepository.UpdateIsVerifiedAsync(verifyId, isVerified);
 
         public async Task<Housekeeper> GetHousekeepersByIDVerifyAsync(int ID) => await _houseKeeperRepository.GetHousekeepersByIDVerifyAsync(ID);
+
+        public async Task<int> CountVerifiedHousekeepersAsync() => await _houseKeeperRepository.CountVerifiedHousekeepersAsync();
+
+        public async Task<int> CountPendingHousekeepersAsync() => await _houseKeeperRepository.CountPendingHousekeepersAsync();
     }
 }
