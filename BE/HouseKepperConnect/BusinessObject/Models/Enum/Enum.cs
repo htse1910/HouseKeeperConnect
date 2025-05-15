@@ -161,4 +161,42 @@
         Family = 2,
         Staff = 3,
     }
+    public enum GenderPreference
+    {
+        Any = 0,
+        Male = 1,
+        Female = 2
+    }
+
+    public enum LanguagePreference
+    {
+        Any = 0,
+        Vietnamese = 1,
+        English = 2,
+    }
+    public enum LocationPreference
+    {
+        None = 0,
+        District1 = 1,
+        District3 = 2,
+        District4 = 3,
+        District5 = 4,
+        District6 = 5,
+        District7 = 6,
+        District8 = 7,
+        District10 = 8,
+        District11 = 9,
+        District12 = 10,
+        GoVap = 11,
+        BinhThanh = 12,
+        TanBinh = 13,
+        TanPhu = 14,
+        PhuNhuan = 15,
+        ThuDucCity = 16,
+        BinhChanh = 17,
+        NhaBe = 18,
+        HocMon = 19,
+        CuChi = 20,
+        CanGio = 21
+    }
 }
