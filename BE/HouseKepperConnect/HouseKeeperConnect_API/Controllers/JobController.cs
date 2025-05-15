@@ -158,7 +158,7 @@ namespace HouseKeeperConnect_API.Controllers
                 Message = "Không tìm thấy người giúp việc!";
                 return NotFound(Message);
             }
-            var count = await _jobService.CountJobsByAccountIDAsync(hk.HousekeeperID);
+            var count = await _jobService.CountJobsOfferByAccountIDAsync(hk.HousekeeperID);
 
             return Ok(count);
         }
