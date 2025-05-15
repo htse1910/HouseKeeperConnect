@@ -25,7 +25,7 @@ namespace Repositories
 
         public async Task<Booking> GetBookingByJobIDAsync(int jobID) => await _bookingDAO.GetBookingByJobIDAsync(jobID);
 
-        public async Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId) => await _bookingDAO.GetBookingsByHousekeeperIDAsync(housekeeperId);
+        public async Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId, int pageNumber, int pageSize) => await _bookingDAO.GetBookingsByHousekeeperIDAsync(housekeeperId, pageNumber, pageSize);
 
         public async Task<List<Booking>> GetBookingsByJobIDAsync(int jobId) => await _bookingDAO.GetBookingsByJobIDAsync(jobId);
 

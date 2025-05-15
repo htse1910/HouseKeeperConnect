@@ -77,9 +77,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetBookingByHousekeeperID")]
         [Authorize(Policy = "Housekeeper")]
-        public async Task<ActionResult<IEnumerable<object>>> GetBookingByHousekeeperID([FromQuery] int housekeeperId)
+        public async Task<ActionResult<IEnumerable<object>>> GetBookingByHousekeeperID([FromQuery] int housekeeperId, int pageNumber, int pageSize)
         {
-            var bookings = await _bookingService.GetBookingsByHousekeeperIDAsync(housekeeperId);
+            var bookings = await _bookingService.GetBookingsByHousekeeperIDAsync(housekeeperId, pageNumber, pageSize);
             if (bookings == null || !bookings.Any())
             {
                 return NotFound("No records!");
