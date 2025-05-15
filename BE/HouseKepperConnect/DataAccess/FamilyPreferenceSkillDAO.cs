@@ -31,7 +31,7 @@ namespace DataAccess
                 {
                     return await context.FamilyPreferenceSkill
                         .Where(s => s.FamilyPreferenceID == familypreferenceId)
-                        .Include(s => s.HousekeeperSkillID)
+                        .Include(s => s.HouseKeeperSkillID)
                         .AsNoTracking()
                         .ToListAsync();
                 }
@@ -69,7 +69,7 @@ namespace DataAccess
                     if (existingSkill != null)
                     {
                         existingSkill.FamilyPreferenceID = skill.FamilyPreferenceID;
-                        existingSkill.HousekeeperSkillID = skill.HousekeeperSkillID;
+                        existingSkill.HouseKeeperSkillID = skill.HouseKeeperSkillID;
 
                         context.FamilyPreferenceSkill.Update(existingSkill);
                         await context.SaveChangesAsync();

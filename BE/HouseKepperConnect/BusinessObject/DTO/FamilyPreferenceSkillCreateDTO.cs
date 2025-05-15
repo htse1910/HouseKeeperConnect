@@ -8,6 +8,6 @@ namespace BusinessObject.DTO
         public int FamilyPreferenceID { get; set; }
 
         [Required]
-        public int HousekeeperSkillID { get; set; }
+        public int HouseKeeperSkillID { get; set; }
     }
 }
