@@ -72,7 +72,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpGet("CountApplicationsByAccountID")]
-        [Authorize(Policy = "Family")]
+        [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult<int>> CountApplicationsByAccountIDAsync(int accountID)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
