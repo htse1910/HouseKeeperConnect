@@ -1556,14 +1556,11 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest("Công việc đang đợi gia đình xác nhận hoàn thành!");
 
             // Get the booking for the job
-            var bookings = await _bookingService.GetBookingsByJobIDAsync(jobId);
+            var booking = await _bookingService.GetBookingByJobIDAsync(jobId);
 
-            if (bookings == null || !bookings.Any())
+            if (booking == null)
                 return NotFound("Không tìm thấy danh sách công việc đã nhận!");
 
-            var booking = bookings.FirstOrDefault(b => b.Status != (int)BookingStatus.Canceled);
-            if (booking == null)
-                return NotFound("No valid (non-canceled) booking found.");
 
             if (booking.Status != (int)BookingStatus.PendingFamilyConfirmation)
                 return BadRequest("Trạng thái công việc đã nhận chưa chờ gia đình xác nhận!");
@@ -1590,7 +1587,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            if (wallet.OnHold - jobDetail.Price! < 0)
+            if ((wallet.OnHold - jobDetail.Price) >= 0)
             {
                 wallet.Balance += jobDetail.Price;
                 wallet.OnHold -= jobDetail.Price;
