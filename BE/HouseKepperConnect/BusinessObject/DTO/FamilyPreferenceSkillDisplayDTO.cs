@@ -4,6 +4,6 @@
     {
         public int FamilyPreferenceSkillID { get; set; }
         public int FamilyPreferenceID { get; set; }
-        public int HousekeeperSkillID { get; set; }
+        public int HouseKeeperSkillID { get; set; }
     }
 }
