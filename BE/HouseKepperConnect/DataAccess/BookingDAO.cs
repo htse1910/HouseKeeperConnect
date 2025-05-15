@@ -116,11 +116,12 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId)
+        public async Task<List<Booking>> GetBookingsByHousekeeperIDAsync(int housekeeperId, int pageNumber, int pageSize)
         {
             using var context = new PCHWFDBContext();
             return await context.Booking
                 .Where(b => b.HousekeeperID == housekeeperId)
+                .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
                 .ToListAsync();
         }
 
