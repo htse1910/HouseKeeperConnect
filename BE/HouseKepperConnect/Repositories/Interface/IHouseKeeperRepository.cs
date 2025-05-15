@@ -6,6 +6,10 @@ namespace Repositories.Interface
     {
         Task<List<Housekeeper>> GetAllHousekeepersAsync(int pageNumber, int pageSize);
 
+        Task<int> CountVerifiedHousekeepersAsync();
+
+        Task<int> CountPendingHousekeepersAsync();
+
         Task<Housekeeper> GetHousekeeperByIDAsync(int id);
 
         Task<Housekeeper> GetHousekeepersByUserAsync(int uId);

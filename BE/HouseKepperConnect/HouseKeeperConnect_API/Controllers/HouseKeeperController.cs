@@ -7,6 +7,7 @@ using BusinessObject.Models;
 using BusinessObject.Models.AppWrite;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using Services.Interface;
 
 namespace HouseKeeperConnect_API.Controllers
@@ -103,6 +104,34 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             return Ok(nTr);
+        }
+
+        [HttpGet("CountVerifiedHouskeeper")]
+        [Authorize]
+        public async Task<ActionResult<int>> CountVerifiedHKAsync()
+        {
+            var count = await _housekeeperService.CountVerifiedHousekeepersAsync();
+            if (count == 0)
+            {
+                Message = "Danh sách người giúp việc đã duyệt trống!";
+                return NotFound(Message);
+            }
+
+            return Ok(count);
+        }
+        
+        [HttpGet("CountPendingHouskeeper")]
+        [Authorize]
+        public async Task<ActionResult<int>> CountPendingHKAsync()
+        {
+            var count = await _housekeeperService.CountPendingHousekeepersAsync();
+            if (count == 0)
+            {
+                Message = "Danh sách người giúp việc đang chờ duyệt trống!";
+                return NotFound(Message);
+            }
+
+            return Ok(count);
         }
 
         [HttpGet("HousekeeperList")] //Admin
