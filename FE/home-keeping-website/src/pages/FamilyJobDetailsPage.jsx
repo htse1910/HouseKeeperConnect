@@ -36,6 +36,8 @@ const renderJobStatus = (status) => {
         6: { text: "Đã hủy", className: "bg-danger" },
         7: { text: "Không được phép", className: "bg-dark" },
         8: { text: "Chờ gia đình xác nhận", className: "bg-warning text-dark" },
+        9: { text: "Người giúp việc đã bỏ việc", className: "bg-danger" },
+        10: { text: "Đã giao lại công việc", className: "bg-info" },
     };
     const statusInfo = statusMap[status] || { text: "Không rõ", className: "bg-secondary" };
     return <span className={`badge ${statusInfo.className}`}>{statusInfo.text}</span>;
@@ -320,7 +322,9 @@ const FamilyJobDetailsPage = () => {
                 <p><FaMapMarkerAlt className="me-2" /> <strong style={{ color: "#333" }}>Địa điểm:</strong> <span style={{ color: "#000" }}>{job.location}{job.detailLocation && ` - ${job.detailLocation}`}</span></p>
                 <p><strong style={{ color: "#333" }}>Mức lương:</strong> <span style={{ color: "#000" }}>{job.price > 0 ? `${job.price.toLocaleString("vi-VN")} VNĐ` : "Thỏa thuận"}</span></p>
                 {job.status === 8 && (
-                    <button className="btn btn-success mt-3">✅ Xác nhận đã hoàn thành công việc</button>
+                    <button className="btn btn-success mt-3" onClick={handleConfirmJobCompletion}>
+                        ✅ Xác nhận đã hoàn thành công việc
+                    </button>
                 )}
             </div>
 

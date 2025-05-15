@@ -12,11 +12,16 @@ import { FaMapMarkerAlt, FaMoneyBillWave, FaCalendarCheck } from "react-icons/fa
 const FamilyJobManagementPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [jobDates, setJobDates] = useState({});
 
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
   const [jobToReassign, setJobToReassign] = useState(null);
-
+  const [totalPostedJobs, setTotalPostedJobs] = useState(null);
+  const [paginatedJobs, setPaginatedJobs] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 6;
+  const [currentPage, setCurrentPage] = useState(1);
 
   const {
     jobs,
@@ -38,10 +43,87 @@ const FamilyJobManagementPage = () => {
     setCurrentPage(1);
   }, [filter]);
 
+  useEffect(() => {
+    if (!authToken || !accountID) return;
+
+    const headers = {
+      Authorization: `Bearer ${authToken}`
+    };
+
+    axios.get(`${API_BASE_URL}/Job/CountJobsByAccountID?accountID=${accountID}`, { headers })
+      .then(res => {
+        setTotalPostedJobs(res.data || 0);
+      })
+      .catch(err => {
+        console.error("Failed to fetch job count:", err);
+        setTotalPostedJobs(0);
+      });
+  }, [accountID, authToken]);
+
+  useEffect(() => {
+    if (!authToken || !accountID) return;
+
+    const headers = { Authorization: `Bearer ${authToken}` };
+
+    const fetchJobs = async () => {
+      try {
+        const [countRes, jobRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/Job/CountJobsByAccountID?accountID=${accountID}`, { headers }),
+          axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=${currentPage}&pageSize=${pageSize}`, { headers })
+        ]);
+
+        const totalJobs = countRes.data;
+        setTotalPages(Math.ceil(totalJobs / pageSize));
+        setPaginatedJobs(jobRes.data || []);
+      } catch (err) {
+        console.error("Lỗi khi fetch jobs:", err);
+        setPaginatedJobs([]);
+      }
+    };
+
+    fetchJobs();
+  }, [accountID, authToken, currentPage]);
+
+  useEffect(() => {
+    const headers = { Authorization: `Bearer ${authToken}` };
+
+    const missingJobs = paginatedJobs.filter(job => !jobDates[job.jobID]);
+
+    if (missingJobs.length === 0) return;
+
+    const fetchMissingDates = async () => {
+      try {
+        const results = await Promise.all(
+          missingJobs.map(job =>
+            axios.get(`${API_BASE_URL}/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
+              .then(res => ({ jobID: job.jobID, startDate: res.data.startDate, endDate: res.data.endDate }))
+              .catch(() => null)
+          )
+        );
+
+        const updated = {};
+        results.forEach(item => {
+          if (item) {
+            updated[item.jobID] = {
+              startDate: item.startDate,
+              endDate: item.endDate
+            };
+          }
+        });
+
+        setJobDates(prev => ({ ...prev, ...updated }));
+      } catch (err) {
+        console.error("Failed to fetch job dates:", err);
+      }
+    };
+
+    fetchMissingDates();
+  }, [paginatedJobs, authToken]);
+
   const [jobToDelete, setJobToDelete] = useState(null);
   const showBackToTop = useBackToTop();
 
-  const [currentPage, setCurrentPage] = useState(1);
+
   const jobsPerPage = 5;
   const [gotoPage, setGotoPage] = useState("");
 
@@ -63,15 +145,13 @@ const FamilyJobManagementPage = () => {
     [jobs]
   );
 
-  const filteredJobs = jobs.filter((job) => {
-    const matchStatus = filter.status === "all" || job.status?.toString() === filter.status;
-    const matchJobType = filter.jobType === "all" || job.jobType?.toString() === filter.jobType;
-    const matchStartDate = !filter.start_date || new Date(job.startDate).toISOString().split("T")[0] === filter.start_date;
-    return matchStatus && matchJobType && matchStartDate;
-  });
+  // const filteredJobs = jobs.filter((job) => {
+  //   const matchStatus = filter.status === "all" || job.status?.toString() === filter.status;
+  //   const matchJobType = filter.jobType === "all" || job.jobType?.toString() === filter.jobType;
+  //   const matchStartDate = !filter.start_date || new Date(job.startDate).toISOString().split("T")[0] === filter.start_date;
+  //   return matchStatus && matchJobType && matchStartDate;
+  // });
 
-  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
-  const paginatedJobs = filteredJobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
 
   const confirmDelete = async () => {
     if (!jobToDelete) return;
@@ -101,19 +181,19 @@ const FamilyJobManagementPage = () => {
     }
   };
 
-  const handleCancelJob = async (jobID) => {
-    try {
-      await axios.post(`${API_BASE_URL}/Job/CancelJob`, null, {
-        headers: { Authorization: `Bearer ${authToken}` },
-        params: { jobId: jobID, accountId: accountID },
-      });
-      toast.success("✅ Đã huỷ công việc.");
-      setJobs(prev => prev.map(j => j.jobID === jobID ? { ...j, status: 6 } : j));
-    } catch (err) {
-      console.error("Lỗi khi huỷ công việc:", err);
-      toast.error("❌ Không thể huỷ công việc.");
-    }
-  };
+  // const handleCancelJob = async (jobID) => {
+  //   try {
+  //     await axios.post(`${API_BASE_URL}/Job/CancelJob`, null, {
+  //       headers: { Authorization: `Bearer ${authToken}` },
+  //       params: { jobId: jobID, accountId: accountID },
+  //     });
+  //     toast.success("✅ Đã huỷ công việc.");
+  //     setJobs(prev => prev.map(j => j.jobID === jobID ? { ...j, status: 6 } : j));
+  //   } catch (err) {
+  //     console.error("Lỗi khi huỷ công việc:", err);
+  //     toast.error("❌ Không thể huỷ công việc.");
+  //   }
+  // };
 
   const renderDeleteModal = () => {
     if (!jobToDelete) return null;
@@ -127,9 +207,9 @@ const FamilyJobManagementPage = () => {
             </div>
             <div className="modal-body">
               <p>Bạn có chắc muốn gửi yêu cầu <strong>xóa công việc</strong> này không?</p>
-              <p><strong>Loại yêu cầu:</strong> Job (2)</p>
+              <p><strong>Loại yêu cầu:</strong> Công việc (2)</p>
               <p><strong>Nội dung:</strong><br />
-                Please delete the job <strong>{jobToDelete.jobName}</strong>, ID: <strong>{jobToDelete.jobID}</strong>
+                Hãy xóa công việc <strong>{jobToDelete.jobName}</strong>, ID: <strong>{jobToDelete.jobID}</strong>
               </p>
             </div>
             <div className="modal-footer">
@@ -189,7 +269,14 @@ const FamilyJobManagementPage = () => {
 
   const renderJobCard = (job) => {
     console.log("🛠 Job data:", job);
-    const daysAgo = Math.floor((Date.now() - new Date(job.createdDate)) / 86400000);
+    const rawDate = job.createdDate || job.createdAt;
+    const created = rawDate ? new Date(rawDate) : null;
+    const daysAgo = created instanceof Date && !isNaN(created)
+      ? Math.floor((Date.now() - created) / 86400000)
+      : null;
+    console.log("🔍 job.createdDate:", job.createdDate);
+    console.log("🕓 daysAgo:", daysAgo);
+
 
     const jobTypeMap = { 1: "Một lần duy nhất", 2: "Định kỳ" };
     const statusClassMap = {
@@ -204,15 +291,24 @@ const FamilyJobManagementPage = () => {
           <div>
             <h5 className="fw-bold mb-2">{job.jobName}</h5>
             <div className="text-muted small d-flex flex-wrap gap-3">
-              <span><FaCalendarCheck className="me-1" />{t("job.job.posted_days_ago", { days: daysAgo })}</span>
+              <span>
+                <FaCalendarCheck className="me-1" />
+                {daysAgo !== null
+                  ? t("job.job.posted_days_ago", { days: daysAgo })
+                  : "Không rõ"}
+              </span>
               <span><FaMapMarkerAlt className="me-1" />{job.location}</span>
-              <span><FaMoneyBillWave className="me-1" />{job.salary?.toLocaleString("vi-VN") || t("job.job.not_sure")} VNĐ</span>
+              <span><FaMoneyBillWave className="me-1" />{job.price?.toLocaleString("vi-VN") || t("job.job.not_sure")} VNĐ</span>
               <span>🧾 {jobTypeMap[job.jobType]}</span>
               <span>
-                📅
-                {parseDMY(job.startDate)?.toLocaleDateString("vi-VN") || "?"}
+                📅{" "}
+                {jobDates[job.jobID]?.startDate
+                  ? new Date(jobDates[job.jobID].startDate).toLocaleDateString("vi-VN")
+                  : "?"}
                 {" - "}
-                {parseDMY(job.endDate)?.toLocaleDateString("vi-VN") || "?"}
+                {jobDates[job.jobID]?.endDate
+                  ? new Date(jobDates[job.jobID].endDate).toLocaleDateString("vi-VN")
+                  : "?"}
               </span>
             </div>
           </div>
@@ -254,7 +350,7 @@ const FamilyJobManagementPage = () => {
       <div className="row g-4 mb-5">
         {[{
           label: t("job.job.posted"),
-          value: jobs.length
+          value: totalPostedJobs ?? "-"
         }, {
           label: t("job.job.completed"),
           value: jobs.filter(j => j.status === 4).length
@@ -308,7 +404,7 @@ const FamilyJobManagementPage = () => {
         <div className="col-md-8">
           {loading || error ? (
             <div className="alert alert-info">{t("misc.loading_data")}</div>
-          ) : filteredJobs.length === 0 ? (
+          ) : paginatedJobs.length === 0 ? (
             <div className="alert alert-warning">
               {isNoProfile ? t("job.no_family_profile") : isNoJob ? t("job.no_jobs_yet") : t("misc.no_jobs_found")}
             </div>

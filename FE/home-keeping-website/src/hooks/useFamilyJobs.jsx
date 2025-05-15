@@ -56,57 +56,57 @@ const useFamilyJobs = ({ accountID, authToken, t }) => {
           console.warn("Không thể lấy service/housekeeper:", fetchErr);
         }
 
-        try {
-          const jobRes = await axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=1&pageSize=1000000`, { headers });
-          const jobList = jobRes.data;
+        // try {
+        //   const jobRes = await axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=1&pageSize=1000000`, { headers });
+        //   const jobList = jobRes.data;
 
-          if (!Array.isArray(jobList)) {
-            setJobs([]);
-            return;
-          }
+        //   if (!Array.isArray(jobList)) {
+        //     setJobs([]);
+        //     return;
+        //   }
 
-          const detailPromises = jobList.map((job) =>
-            axios.get(`${API_BASE_URL}/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
-              .then((res) => res.data)
-              .catch(() => null)
-          );
+        //   const detailPromises = jobList.map((job) =>
+        //     axios.get(`${API_BASE_URL}/Job/GetJobDetailByID?id=${job.jobID}`, { headers })
+        //       .then((res) => res.data)
+        //       .catch(() => null)
+        //   );
 
-          const detailedJobs = await Promise.all(detailPromises);
-          const validJobs = detailedJobs.filter((j) => j !== null);
+        //   const detailedJobs = await Promise.all(detailPromises);
+        //   const validJobs = detailedJobs.filter((j) => j !== null);
 
-          const formattedJobs = validJobs.map((jobDetail) => {
-            const originalJob = jobList.find((j) => j.jobID === jobDetail.jobID);
-            const createDate = originalJob?.createdAt || jobDetail.createdAt;
-            const serviceIDs = jobDetail.serviceIDs || [];
+        //   const formattedJobs = validJobs.map((jobDetail) => {
+        //     const originalJob = jobList.find((j) => j.jobID === jobDetail.jobID);
+        //     const createDate = originalJob?.createdAt || jobDetail.createdAt;
+        //     const serviceIDs = jobDetail.serviceIDs || [];
 
-            const serviceTypes = Array.from(
-              new Set(serviceIDs.map((id) => {
-                const s = tempServices.find((s) => s.serviceID === id);
-                return s?.serviceType;
-              }))
-            ).filter(Boolean);
+        //     const serviceTypes = Array.from(
+        //       new Set(serviceIDs.map((id) => {
+        //         const s = tempServices.find((s) => s.serviceID === id);
+        //         return s?.serviceType;
+        //       }))
+        //     ).filter(Boolean);
 
-            return {
-              jobID: jobDetail.jobID,
-              jobName: jobDetail.jobName,
-              createdDate: createDate,
-              startDate: new Date(jobDetail.startDate).toLocaleDateString("vi-VN"),
-              endDate: new Date(jobDetail.endDate).toLocaleDateString("vi-VN"),
-              status: jobDetail.status,
-              salary: jobDetail.price,
-              location: jobDetail.location,
-              description: jobDetail.description,
-              serviceIDs: serviceIDs,
-              serviceTypes: serviceTypes,
-              jobType: jobDetail.jobType, // <-- Add this line
-            };
-          });
+        //     return {
+        //       jobID: jobDetail.jobID,
+        //       jobName: jobDetail.jobName,
+        //       createdDate: createDate,
+        //       startDate: new Date(jobDetail.startDate).toLocaleDateString("vi-VN"),
+        //       endDate: new Date(jobDetail.endDate).toLocaleDateString("vi-VN"),
+        //       status: jobDetail.status,
+        //       salary: jobDetail.price,
+        //       location: jobDetail.location,
+        //       description: jobDetail.description,
+        //       serviceIDs: serviceIDs,
+        //       serviceTypes: serviceTypes,
+        //       jobType: jobDetail.jobType, // <-- Add this line
+        //     };
+        //   });
 
-          setJobs(formattedJobs);
-          if (formattedJobs.length === 0) setIsNoJob(true);
-        } catch (jobErr) {
-          setJobs([]);
-        }
+        //   setJobs(formattedJobs);
+        //   if (formattedJobs.length === 0) setIsNoJob(true);
+        // } catch (jobErr) {
+        //   setJobs([]);
+        // }
 
       } catch (err) {
         if (err.message !== "NO_PROFILE") {
