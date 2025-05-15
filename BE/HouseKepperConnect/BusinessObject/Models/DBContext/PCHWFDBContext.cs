@@ -54,6 +54,8 @@ namespace BusinessObject.Models
         public virtual DbSet<Job_Slots> Job_Slots { get; set; }
         public virtual DbSet<SupportRequest> SupportRequests { get; set; }
         public virtual DbSet<PlatformFee> PlatformFee { get; set; }
+        public virtual DbSet<FamilyPreference> FamilyPreference { get; set; }
+        public virtual DbSet<FamilyPreferenceSkill> FamilyPreferenceSkill { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

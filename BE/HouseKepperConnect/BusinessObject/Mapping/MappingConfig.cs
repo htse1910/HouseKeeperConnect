@@ -61,6 +61,12 @@ namespace BusinessObject.Mapping
             Map_Display_SupportRequest();
             Map_Create_SupportRequest();
             Map_Display_Fee();
+            Map_Create_FamilyPreference();
+            Map_Update_FamilyPreference();
+            Map_Display_FamilyPreference();
+            Map_Create_FamilyPreferenceSkill();
+            Map_Update_FamilyPreferenceSkill();
+            Map_Display_FamilyPreferenceSkill();
         }
 
         private void Map_List_Register()
@@ -339,6 +345,30 @@ namespace BusinessObject.Mapping
         private void Map_Display_Fee()
         {
             CreateMap<FeeDisplayDTO, PlatformFee>().ReverseMap();
+        }
+        private void Map_Create_FamilyPreference()
+        {
+            CreateMap<FamilyPreferenceCreateDTO, FamilyPreference>();
+        }
+        private void Map_Update_FamilyPreference()
+        {
+            CreateMap<FamilyPreferenceUpdateDTO, FamilyPreference>();
+        }
+        private void Map_Display_FamilyPreference()
+        {
+            CreateMap<FamilyPreferenceDisplayDTO, FamilyPreference>();
+        }
+        private void Map_Create_FamilyPreferenceSkill()
+        {
+            CreateMap<FamilyPreferenceSkillCreateDTO, FamilyPreferenceSkill>();
+        }
+        private void Map_Update_FamilyPreferenceSkill()
+        {
+            CreateMap<FamilyPreferenceUpdateDTO, FamilyPreferenceSkill>();
+        }
+        private void Map_Display_FamilyPreferenceSkill()
+        {
+            CreateMap<FamilyPreferenceSkillDisplayDTO, FamilyPreferenceSkill>();
         }
     }
 }
