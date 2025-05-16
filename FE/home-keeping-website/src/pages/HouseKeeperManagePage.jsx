@@ -14,7 +14,6 @@ import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../config/apiConfig";
 
 function HouseKeeperManagePage() {
-  const [activeTab, setActiveTab] = useState("all");
   const [accountID] = useState(localStorage.getItem("accountID"));
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,21 +22,39 @@ function HouseKeeperManagePage() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
+  const [applicationCount, setApplicationCount] = useState(0);
+  const [filterStatus, setFilterStatus] = useState("all");
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, applications]);
+  }, []); // no more dependency on activeTab
 
-  const fetchApplications = async () => {
+
+  const fetchAllApplications = async () => {
     const authToken = localStorage.getItem("authToken");
+    setLoading(true);
     try {
-      const resApp = await fetch(
-        `${API_BASE_URL}/Application/GetApplicationsByAccountID?uid=${accountID}&pageNumber=1&pageSize=50`,
+      const countRes = await fetch(
+        `${API_BASE_URL}/Application/CountApplicationsByAccountID?accountID=${accountID}`,
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
-      const appData = await resApp.json();
+      const total = await countRes.json();
+      setApplicationCount(total);
 
-      const appsWithExtras = await Promise.all(
-        appData.map(async (app) => {
+      const totalPages = Math.ceil(total / pageSize);
+      const allApps = [];
+
+      for (let page = 1; page <= totalPages; page++) {
+        const res = await fetch(
+          `${API_BASE_URL}/Application/GetApplicationsByAccountID?uid=${accountID}&pageNumber=${page}&pageSize=${pageSize}`,
+          { headers: { Authorization: `Bearer ${authToken}` } }
+        );
+        const pageApps = await res.json();
+        allApps.push(...pageApps);
+      }
+
+      const enrichedApps = await Promise.all(
+        allApps.map(async (app) => {
           try {
             const [familyRes, jobRes] = await Promise.all([
               fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${app.familyID}`, {
@@ -47,14 +64,12 @@ function HouseKeeperManagePage() {
                 headers: { Authorization: `Bearer ${authToken}` },
               }),
             ]);
-
             const familyData = await familyRes.json();
             const jobData = await jobRes.json();
 
             const accRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByAccountID?id=${familyData.accountID}`, {
               headers: { Authorization: `Bearer ${authToken}` },
             });
-
             const accData = await accRes.json();
 
             const isJobCompleted = jobData.status === 4;
@@ -65,7 +80,7 @@ function HouseKeeperManagePage() {
               price: jobData.price,
               startDate: jobData.startDate,
               endDate: jobData.endDate,
-              isJobCompleted
+              isJobCompleted,
             };
           } catch {
             return {
@@ -78,7 +93,7 @@ function HouseKeeperManagePage() {
         })
       );
 
-      setApplications(appsWithExtras);
+      setApplications(enrichedApps);
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu:", err);
       setError("Không thể tải công việc.");
@@ -88,31 +103,21 @@ function HouseKeeperManagePage() {
   };
 
   useEffect(() => {
-    if (accountID) fetchApplications();
+    if (accountID) fetchAllApplications();
   }, [accountID]);
 
-  const tabStatusMap = {
-    all: null,
-    pending: 1,
-    accepted: 2,
-    denied: 3
-  };
-
-  const visibleApplications = applications.filter(app => {
-    if (activeTab === "completedJobs") {
-      return app.status === 2 && app.isJobCompleted;
-    }
-
-    if (activeTab === "accepted") {
-      return app.status === 2 && !app.isJobCompleted;
-    }
-
-    return tabStatusMap[activeTab] === null || app.status === tabStatusMap[activeTab];
+  const filteredApplications = applications.filter(app => {
+    if (filterStatus === "all") return true;
+    if (filterStatus === "completedJobs") return app.status === 2 && app.isJobCompleted;
+    if (filterStatus === "accepted") return app.status === 2 && !app.isJobCompleted;
+    if (filterStatus === "pending") return app.status === 1;
+    if (filterStatus === "denied") return app.status === 3;
+    return true;
   });
 
-  const totalPages = Math.ceil(visibleApplications.length / pageSize);
+  const totalPages = Math.ceil(filteredApplications.length / pageSize);
 
-  const paginatedApplications = visibleApplications.slice(
+  const paginatedApplications = filteredApplications.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
@@ -121,48 +126,69 @@ function HouseKeeperManagePage() {
     <div className="container my-4">
       <ToastContainer />
       <style>{`
-        .scroll - shadow {
-          overflow - y: auto;
-        max-height: 500px;
-        }
+    .scroll-shadow {
+      overflow-y: auto;
+      max-height: 500px;
+    }
 
-        .scroll-shadow::-webkit-scrollbar {
-          width: 6px;
-        }
+    .scroll-shadow::-webkit-scrollbar {
+      width: 6px;
+    }
 
-        .scroll-shadow::-webkit-scrollbar-thumb {
-          background - color: rgba(0,0,0,0.1);
-        border-radius: 3px;
-        }
+    .scroll-shadow::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 3px;
+    }
 
-        .app-card {
-          transition: background-color 0.3s ease;
-        border-radius: 1rem;
-        }
+    .app-card {
+      transition: background-color 0.3s ease;
+      border-radius: 1rem;
+    }
 
-        .app-card:hover {
-          background - color: #fffbea;
-        }
+    .app-card:hover {
+      background-color: #fffbea;
+    }
 
-        .tab-link {
-          cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        }
+    .tab-link {
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
 
-        .tab-link:hover {
-          color: #d39e00;
-        }
+    .tab-link:hover {
+      color: #d39e00;
+    }
 
-        .giant-card {
-          max - width: 900px;
-        margin: auto;
-        }
+    .giant-card {
+      max-width: 900px;
+      margin: auto;
+    }
 
-        input[type="number"]::-webkit-inner-spin-button {
-          opacity: 1;
-        }
+    input[type="number"]::-webkit-inner-spin-button {
+      opacity: 1;
+    }
 
-      `}</style>
+    .spinner-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #ffc107;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    `}</style>
+
 
       <div className="card giant-card shadow-sm rounded-4 p-4 border-0">
         <h4 className="fw-bold mb-4 text-warning text-center">Quản lý đơn ứng tuyển của tôi</h4>
@@ -172,7 +198,7 @@ function HouseKeeperManagePage() {
           {[
             {
               label: "Tổng đơn",
-              count: applications.length,
+              count: applicationCount,
               icon: <FaBriefcase size={18} className="text-warning" />
             },
             {
@@ -223,23 +249,30 @@ function HouseKeeperManagePage() {
           </button>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="d-flex justify-content-between flex-wrap gap-3 small border-bottom pb-2 mb-3">
-          {[
-            { key: "all", label: "Tất cả" },
-            { key: "pending", label: "Đang chờ" },
-            { key: "accepted", label: "Đã chấp nhận" },
-            { key: "denied", label: "Đã từ chối" },
-            { key: "completedJobs", label: "Công việc đã hoàn thành" }
-          ].map(tab => (
-            <div
-              key={tab.key}
-              className={`tab-link ${activeTab === tab.key ? "fw-bold text-warning border-bottom border-2 border-warning" : "text-secondary"}`}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.label}
+        {/* Filter Box */}
+        <div className="bg-light rounded-3 p-3 mb-3 shadow-sm">
+          <div className="row align-items-center">
+            <div className="col-sm-4 mb-2 mb-sm-0">
+              <label htmlFor="filterStatus" className="form-label fw-semibold mb-1">
+                Lọc theo trạng thái:
+              </label>
+              <select
+                id="filterStatus"
+                className="form-select"
+                value={filterStatus}
+                onChange={(e) => {
+                  setFilterStatus(e.target.value);
+                  setCurrentPage(1); // reset page on filter change
+                }}
+              >
+                <option value="all">Tất cả</option>
+                <option value="pending">Đang chờ</option>
+                <option value="accepted">Đã chấp nhận</option>
+                <option value="denied">Đã từ chối</option>
+                <option value="completedJobs">Công việc đã hoàn thành</option>
+              </select>
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Application List */}
@@ -247,8 +280,10 @@ function HouseKeeperManagePage() {
           {error && <div className="alert alert-danger">{error}</div>}
 
           {loading ? (
-            <div className="text-center text-muted py-4">Đang tải công việc...</div>
-          ) : visibleApplications.length === 0 ? (
+            <div className="spinner-container">
+              <div className="loader"></div>
+            </div>
+          ) : applications.length === 0 ? (
             <div className="alert alert-info small">Không có công việc phù hợp.</div>
           ) : (
             paginatedApplications.map(app => (
@@ -283,13 +318,13 @@ function HouseKeeperManagePage() {
           )}
         </div>
         {totalPages > 1 && (
-          <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mt-4">
+          <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
             <button
-              className="btn btn-outline-secondary btn-sm"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              className="btn btn-sm btn-outline-secondary d-flex align-items-center"
+              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
             >
-              ← Trước
+              <span className="me-1">⬅️</span> Trước
             </button>
 
             <input
@@ -298,22 +333,23 @@ function HouseKeeperManagePage() {
               max={totalPages}
               value={currentPage}
               onChange={(e) => {
-                const page = parseInt(e.target.value, 10);
-                if (!isNaN(page) && page >= 1 && page <= totalPages) {
-                  setCurrentPage(page);
+                const pageNum = parseInt(e.target.value);
+                if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+                  setCurrentPage(pageNum);
                 }
               }}
               className="form-control form-control-sm text-center"
               style={{ width: "60px" }}
             />
+
             <span className="small">/ {totalPages}</span>
 
             <button
-              className="btn btn-outline-secondary btn-sm"
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              className="btn btn-sm btn-outline-secondary d-flex align-items-center"
+              onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
-              Tiếp →
+              Sau <span className="ms-1">➡️</span>
             </button>
           </div>
         )}

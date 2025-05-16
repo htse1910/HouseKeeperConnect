@@ -756,11 +756,9 @@ const FamilyJobPostingPage = () => {
                 {/* Mức lương & thời gian */}
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                        <label>{t("job.jobPost.totalCharge")}</label>
+                       
+                        <p className="job-posting-note">{t("job.jobPost.priceAutoCalculationNote")}</p>
                         <div className="job-posting-auto-price">
-                            <span>{formatTotalCurrency(calculatedPrice, t)}</span>
-                            <p className="job-posting-note">{t("job.jobPost.priceAutoCalculationNote")}</p>
-
                             <ul className="job-posting-service-detail-list">
 
                                 {/* Tổng lương */}
@@ -793,6 +791,8 @@ const FamilyJobPostingPage = () => {
                                     </span>
                                 </li>
                             </ul>
+                             <label>{t("job.jobPost.totalCharge")}</label><br/>
+                            <span>{formatTotalCurrency(calculatedPrice, t)}</span>
                         </div>
                     </div>
                     <div className="job-posting-section job-posting-section-full">

@@ -539,7 +539,7 @@ const CreateDirectJobOfferPage = () => {
             : [0, 1, 2, 3, 4, 5, 6];
     return (
         <div className="job-posting-container">
-            <h1 className="job-posting-title">{t("Tạo công việc OFFER cho Người giúp việc")}</h1>
+            <h1 className="job-posting-title">{t("Tạo công việc đề cử cho người giúp việc")}</h1>
             {family?.name && (
                 <p className="text-muted small">
                     Được tạo bởi: <strong>{family.name}</strong>
@@ -768,42 +768,45 @@ const CreateDirectJobOfferPage = () => {
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
                         <label>{t("job.jobPost.totalCharge")}</label>
-                        <div className="job-posting-auto-price">
-                            <span>{formatTotalCurrency(calculatedPrice, t)}</span>
+                        <div className="job-posting-pair">
+
                             <p className="job-posting-note">{t("job.jobPost.priceAutoCalculationNote")}</p>
+                            <div className="job-posting-auto-price">
+                                <ul className="job-posting-service-detail-list">
 
-                            <ul className="job-posting-service-detail-list">
+                                    {/* Tổng lương */}
+                                    <li className="job-posting-service-detail-item">
+                                        <span>{t("job.jobPost.baseSalary")}</span>
+                                        <span style={{ float: "right" }}>{formatTotalCurrency(baseSalary, t)}</span>
+                                        {/* Dịch vụ */}
+                                        {services
+                                            .filter(s => formData.ServiceIDs.includes(s.serviceID))
+                                            .map(s => (
+                                                <ol key={s.serviceID}>
+                                                    <span>{s.serviceName}</span>
+                                                    <span style={{ float: "right" }}>
+                                                        {formatTotalCurrency(s.price, t)} / {t("job.jobPost.salaryUnitPerHour")}
+                                                    </span>
+                                                </ol>
+                                            ))}
 
-                                {/* Tổng lương */}
-                                <li className="job-posting-service-detail-item">
-                                    <span>{t("job.jobPost.baseSalary")}</span>
-                                    <span style={{ float: "right" }}>{formatTotalCurrency(baseSalary, t)}</span>
-                                    {/* Dịch vụ */}
-                                    {services
-                                        .filter(s => formData.ServiceIDs.includes(s.serviceID))
-                                        .map(s => (
-                                            <ol key={s.serviceID}>
-                                                <span>{s.serviceName}</span>
-                                                <span style={{ float: "right" }}>
-                                                    {formatTotalCurrency(s.price, t)} / {t("job.jobPost.salaryUnitPerHour")}
-                                                </span>
-                                            </ol>
-                                        ))}
+                                    </li>
 
-                                </li>
-
-                                {/* Phí nền tảng */}
-                                <li className="job-posting-service-detail-item">
-                                    <span>
-                                        {t("job.jobPost.platformFee", {
-                                            percent: parseInt(formData.JobType) === 2 ? "10%" : "10%"
-                                        })}
-                                    </span>
-                                    <span style={{ float: "right" }}>
-                                        {formatTotalCurrency(platformFee, t)}
-                                    </span>
-                                </li>
-                            </ul>
+                                    {/* Phí nền tảng */}
+                                    <li className="job-posting-service-detail-item">
+                                        <span>
+                                            {t("job.jobPost.platformFee", {
+                                                percent: parseInt(formData.JobType) === 2 ? "10%" : "10%"
+                                            })}
+                                        </span>
+                                        <span style={{ float: "right" }}>
+                                            {formatTotalCurrency(platformFee, t)}
+                                        </span>
+                                    </li>
+                                </ul>
+                                <label>{t("job.jobPost.totalCharge")}</label><br />
+                                <span>{formatTotalCurrency(calculatedPrice, t)}</span>
+                            </div>
                         </div>
                     </div>
                     <div className="job-posting-section job-posting-section-full">

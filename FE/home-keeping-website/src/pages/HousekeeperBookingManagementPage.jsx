@@ -46,12 +46,27 @@ const HousekeeperBookingManagementPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [bookingCount, setBookingCount] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const pageSize = 5;
+
+  const fetchBookingCount = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/Booking/CountBookingsByHousekeeperID?accountID=${accountID}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const count = await res.json();
+      setBookingCount(count);
+    } catch (error) {
+      console.error("Failed to fetch booking count:", error);
+    }
+  };
 
   const filteredRows = statusFilter === "all"
     ? rows
     : rows.filter(row => row.jobStatus === Number(statusFilter));
 
-  const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+  const totalPages = Math.ceil(bookingCount / pageSize);
   const paginatedRows = filteredRows.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   const handleMarkComplete = async (jobID) => {
@@ -166,7 +181,7 @@ const HousekeeperBookingManagementPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/Booking/GetBookingByHousekeeperID?housekeeperId=${housekeeperID}`, {
+        const res = await fetch(`${API_BASE_URL}/Booking/GetBookingByHousekeeperID?housekeeperId=${housekeeperID}&pageNumber=${pageNumber}&pageSize=${pageSize}`, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
         const bookingData = await res.json();
@@ -224,8 +239,11 @@ const HousekeeperBookingManagementPage = () => {
       }
     };
 
-    if (housekeeperID && authToken) fetchData();
-  }, [housekeeperID, authToken]);
+    if (housekeeperID && authToken) {
+      fetchData();           // existing function
+      fetchBookingCount();   // <-- add this
+    }
+  }, [housekeeperID, authToken, pageNumber]);
 
   const getJobStatusText = (status) => {
     switch (status) {
@@ -249,38 +267,57 @@ const HousekeeperBookingManagementPage = () => {
       return;
     }
 
+    const url = `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${jobID}&accountID=${accountID}`;
+
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/Job/ForceAbandonJobAndReassign?jobId=${jobID}&accountID=${accountID}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json"
-          }
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json"
         }
-      );
+      });
 
-      const result = await res.json();
+      // Response received, but might be 404
+      const text = await res.text();
 
-      if (res.ok) {
-        toast.success(
-          `✅ ${result.message}\n💰 Thanh toán cho người giúp việc: ${result.payoutToHK.toLocaleString()} VND\n🔁 Hoàn lại cho gia đình: ${result.newJobPrice.toLocaleString()} VND`
-        );
-        setRows(prev => prev.filter(row => row.jobID !== jobID));
-      } else {
-        toast.error(result.message || "❌ Không thể huỷ công việc.");
+      if (!res.ok) {
+        toast.error(`❌ ${text || "Không thể huỷ công việc."}`);
+        return;
       }
+
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch {
+        result = { message: text };
+      }
+
+      let toastMsg = `✅ ${result.message}`;
+      if (result.newPrice) {
+        toastMsg += `\n🔁 Hoàn lại cho gia đình: ${result.newPrice.toLocaleString()} VND`;
+      }
+
+      toast.success(toastMsg);
+      setRows(prev => prev.filter(row => row.jobID !== jobID));
     } catch (err) {
-      toast.error("Lỗi khi gọi API.");
-      console.error(err);
+      console.error("❌ Fetch failed:", err);
+      toast.error("❌ Lỗi khi gọi API.");
     }
   };
+
 
   return (
     <div className="container py-4">
       <ToastContainer />
-      <h4 className="fw-bold mb-4 text-primary">📋 Danh sách công việc đã nhận</h4>
+      <h4 className="fw-bold mb-4 text-primary">
+        📋 Danh sách công việc đã nhận
+        {bookingCount !== null && (
+          <span className="badge bg-info ms-2">
+            Tổng số: {bookingCount}
+          </span>
+        )}
+      </h4>
 
       {loading ? (
         <p className="text-muted">⏳ Đang tải dữ liệu...</p>
@@ -457,9 +494,9 @@ const HousekeeperBookingManagementPage = () => {
           {totalPages > 1 && (
             <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
               <button
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-                disabled={currentPage === 1}
+                className="btn btn-sm btn-outline-primary"
+                onClick={() => setPageNumber(p => Math.max(p - 1, 1))}
+                disabled={pageNumber === 1}
               >
                 ⬅️ Trước
               </button>
@@ -468,22 +505,23 @@ const HousekeeperBookingManagementPage = () => {
                 type="number"
                 min="1"
                 max={totalPages}
-                value={currentPage}
+                value={pageNumber}
                 onChange={(e) => {
                   const page = parseInt(e.target.value, 10);
                   if (!isNaN(page) && page >= 1 && page <= totalPages) {
-                    setCurrentPage(page);
+                    setPageNumber(page);
                   }
                 }}
                 className="form-control form-control-sm text-center"
                 style={{ width: "60px" }}
               />
+
               <span className="small">/ {totalPages}</span>
 
               <button
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-                disabled={currentPage === totalPages}
+                className="btn btn-sm btn-outline-primary"
+                onClick={() => setPageNumber(p => Math.min(p + 1, totalPages))}
+                disabled={pageNumber === totalPages}
               >
                 Sau ➡️
               </button>

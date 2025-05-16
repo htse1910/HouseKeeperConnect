@@ -127,7 +127,13 @@ const FamilyHousekeeperViewPage = () => {
         )}
       </div>
 
-      <div className="card mb-4 p-4 shadow rounded-4 border-info border-2">
+      <div className="card mb-4 p-4 shadow rounded-4 border-info border-2 position-relative">
+        <button
+          className="btn btn-outline-primary fw-bold px-3 py-2 position-absolute top-0 end-0 m-3"
+          onClick={() => navigate(`/messages?search=${housekeeper.name}`)}
+        >
+          💬 {t("misc.send_message")}
+        </button>
         <div className="row g-4 align-items-center">
           <div className="col-md-3 text-center">
             <img
