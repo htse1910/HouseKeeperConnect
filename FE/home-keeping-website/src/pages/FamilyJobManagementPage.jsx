@@ -33,16 +33,6 @@ const FamilyJobManagementPage = () => {
     setJobs,
   } = useFamilyJobs({ accountID, authToken, t });
 
-  const [filter, setFilter] = useState({
-    status: "all",
-    jobType: "all",
-    start_date: ""
-  });
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filter]);
-
   useEffect(() => {
     if (!authToken || !accountID) return;
 
@@ -374,34 +364,8 @@ const FamilyJobManagementPage = () => {
       </div>
 
       <div className="row">
-        <div className="col-md-4 mb-4">
-          <div className="bg-white rounded-4 shadow-sm p-4">
-            <h6 className="fw-semibold mb-4">Bộ Lọc</h6>
-            <div className="mb-3">
-              <label htmlFor="statusFilter" className="form-label">{t("status.status")}</label>
-              <select id="statusFilter" className="form-select" value={filter.status} onChange={e => setFilter({ ...filter, status: e.target.value })}>
-                <option value="all">{t("filter.filter.all")}</option>
-                {Object.entries(jobStatusMap).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="jobTypeFilter" className="form-label">Loại công việc</label>
-              <select id="jobTypeFilter" className="form-select" value={filter.jobType} onChange={e => setFilter({ ...filter, jobType: e.target.value })}>
-                <option value="all">{t("filter.filter.all_job_types")}</option>
-                <option value="1">Một lần duy nhất</option>
-                <option value="2">Định kỳ</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="startDateFilter" className="form-label">{t("filter.filter.start_date")}</label>
-              <input id="startDateFilter" type="date" className="form-control" value={filter.start_date} onChange={e => setFilter({ ...filter, start_date: e.target.value })} />
-            </div>
-          </div>
-        </div>
 
-        <div className="col-md-8">
+        <div className="col-12">
           {loading || error ? (
             <div className="alert alert-info">{t("misc.loading_data")}</div>
           ) : paginatedJobs.length === 0 ? (
