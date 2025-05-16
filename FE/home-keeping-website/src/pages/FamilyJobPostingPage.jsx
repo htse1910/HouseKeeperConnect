@@ -17,26 +17,27 @@ const FamilyJobPostingPage = () => {
 
     const today = new Date();
     const defaultStart = today.toISOString().split("T")[0];
+    const defaultDayofWeek = today.getDay();
 
     const nextWeek = new Date();
     nextWeek.setDate(today.getDate() + 7);
 
     function getDefaultEndDate(startDate, jobType) {
         const start = new Date(startDate);
-        const offset = parseInt(jobType) === 2 ? 30 : 7;
+        const offset = parseInt(jobType) === 2 ? 30 : 0;
         start.setDate(start.getDate() + offset);
         return start.toISOString().split("T")[0];
     }
 
     const [formData, setFormData] = useState({
         JobName: "",
-        JobType: "",
+        JobType: "1",
         Location: "",
         Price: "",
         StartDate: defaultStart,
         EndDate: getDefaultEndDate(defaultStart, 1),
         Description: "",
-        DayofWeek: [],
+        DayofWeek: [defaultDayofWeek],
         ServiceIDs: [],
         SlotIDs: [],
         IsOffered: false,
@@ -195,19 +196,28 @@ const FamilyJobPostingPage = () => {
         } else if (name === "JobType") {
             setFormData((prev) => {
                 const newJobType = parseInt(value);
-                const offset = newJobType === 2 ? 30 : 7;
-
                 const start = new Date(prev.StartDate);
-                const currentEnd = new Date(prev.EndDate);
-                const defaultEnd = new Date(start);
-                defaultEnd.setDate(start.getDate() + offset);
+                let newEndDate = prev.EndDate;
 
-                // Nếu endDate hiện tại < defaultEnd → cập nhật lại, ngược lại giữ nguyên
-                const shouldUpdateEndDate = currentEnd < defaultEnd;
+                if (newJobType === 1) {
+                    // Nếu là job 1 lần duy nhất → EndDate = StartDate luôn
+                    newEndDate = prev.StartDate;
+                } else if (newJobType === 2) {
+                    // Nếu là job định kỳ → cập nhật EndDate mặc định (30 ngày sau)
+                    const defaultEnd = new Date(start);
+                    defaultEnd.setDate(start.getDate() + 30);
+                    newEndDate = defaultEnd.toISOString().split("T")[0];
+                }
+
+                const isSameDay = prev.StartDate === newEndDate;
+                const day = new Date(prev.StartDate).getDay();
+                const autoDayofWeek = isSameDay ? [day] : prev.DayofWeek;
+
                 return {
                     ...prev,
                     JobType: value,
-                    EndDate: shouldUpdateEndDate ? defaultEnd.toISOString().split("T")[0] : prev.EndDate
+                    EndDate: newEndDate,
+                    DayofWeek: autoDayofWeek
                 };
             });
         } else if (name === "StartDate") {
@@ -228,15 +238,43 @@ const FamilyJobPostingPage = () => {
 
                 const finalEndDate = shouldAutoUpdate ? nextDefaultEnd : prev.EndDate;
 
-                // ✅ Tự động chọn thứ nếu StartDate === EndDate
-                const autoDayofWeek =
-                    newStart === finalEndDate ? [new Date(newStart).getDay()] : prev.DayofWeek;
+                // Tự động chọn thứ nếu StartDate === EndDate
+                const isSameDay = newStart === finalEndDate;
+                const day = new Date(newStart).getDay();
+                const autoDayofWeek = isSameDay ? [day] : prev.DayofWeek;
 
                 return {
                     ...prev,
                     StartDate: newStart,
                     EndDate: finalEndDate,
                     DayofWeek: autoDayofWeek
+                };
+            });
+        } else if (name === "EndDate") {
+            const newEnd = value;
+
+            setFormData((prev) => {
+                const newStartDate = prev.StartDate;
+                const startDateObj = new Date(newStartDate);
+                const endDateObj = new Date(newEnd);
+
+                let updatedJobType = prev.JobType;
+
+                // Nếu EndDate khác StartDate → cập nhật JobType thành định kỳ
+                if (newStartDate && newEnd && startDateObj.toDateString() !== endDateObj.toDateString()) {
+                    updatedJobType = 2;
+                }
+
+                // Tự động chọn thứ nếu StartDate === EndDate
+                const isSameDay = newStartDate === newEnd;
+                const day = new Date(newStartDate).getDay();
+                const autoDayofWeek = isSameDay ? [day] : prev.DayofWeek;
+
+                return {
+                    ...prev,
+                    EndDate: newEnd,
+                    JobType: updatedJobType,
+                    DayofWeek: autoDayofWeek,
                 };
             });
         } else {
@@ -378,7 +416,7 @@ const FamilyJobPostingPage = () => {
 
             setFormData({
                 JobName: "",
-                JobType: "",
+                JobType: "1",
                 Location: "",
                 StartDate: defaultStart,
                 EndDate: defaultStart,
@@ -582,7 +620,6 @@ const FamilyJobPostingPage = () => {
                             onChange={handleChange}
                             required
                         >
-                            <option value="">{t("job.jobPost.jobTypePlaceholder")}</option>
                             <option value="1">{t("job.jobPost.once")}</option>
                             <option value="2">{t("job.jobPost.period")}</option>
                         </select>
@@ -756,7 +793,7 @@ const FamilyJobPostingPage = () => {
                 {/* Mức lương & thời gian */}
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                       
+
                         <p className="job-posting-note">{t("job.jobPost.priceAutoCalculationNote")}</p>
                         <div className="job-posting-auto-price">
                             <ul className="job-posting-service-detail-list">
@@ -791,7 +828,7 @@ const FamilyJobPostingPage = () => {
                                     </span>
                                 </li>
                             </ul>
-                             <label>{t("job.jobPost.totalCharge")}</label><br/>
+                            <label>{t("job.jobPost.totalCharge")}</label><br />
                             <span>{formatTotalCurrency(calculatedPrice, t)}</span>
                         </div>
                     </div>
