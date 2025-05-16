@@ -5,6 +5,7 @@ import java.util.List;
 public class BookingHousekeeperDTO {
     public int bookingID;
     public int jobID;
+    public String jobName;
     public JobDetail jobDetail;
     public List<Integer> slotIDs;
     public List<Integer> dayofWeek;

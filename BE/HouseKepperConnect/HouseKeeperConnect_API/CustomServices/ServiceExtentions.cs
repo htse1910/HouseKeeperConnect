@@ -1,4 +1,6 @@
 ﻿using BusinessObject.Models;
+using DataAccess;
+using DataAccess.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using Repositories;
@@ -64,6 +66,10 @@ public static class ServiceExtentions
         services.AddScoped<ISupportRequestService, SupportRequestService>();
         services.AddScoped<IPlatformFeeRepository, PlatformFeeRepository>();
         services.AddScoped<IPlatformFeeService, PlatformFeeService>();
+        services.AddScoped<IFamilyPreferenceRepository, FamilyPreferenceRepository>();
+        services.AddScoped<IFamilyPreferenceService, FamilyPreferenceService>();
+        services.AddScoped<IFamilyPreferenceSkillRepository, FamilyPreferenceSkillRepository>();
+        services.AddScoped<IFamilyPreferenceSkillService, FamilyPreferenceSkillService>();
         services.AddHttpContextAccessor();
         services.AddCors(options =>
         {

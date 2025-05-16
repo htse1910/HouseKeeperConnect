@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(PCHWFDBContext))]
-    partial class PCHWFDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250515153459_Fix-AddFamilyPreference-2")]
+    partial class FixAddFamilyPreference2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -292,14 +295,14 @@ namespace BusinessObject.Migrations
                     b.Property<int>("FamilyPreferenceID")
                         .HasColumnType("int");
 
-                    b.Property<int>("HouseKeeperSkillID")
+                    b.Property<int>("HousekeeperSkillID")
                         .HasColumnType("int");
 
                     b.HasKey("FamilyPreferenceSkillID");
 
                     b.HasIndex("FamilyPreferenceID");
 
-                    b.HasIndex("HouseKeeperSkillID");
+                    b.HasIndex("HousekeeperSkillID");
 
                     b.ToTable("FamilyPreferenceSkill");
                 });
@@ -1480,7 +1483,7 @@ namespace BusinessObject.Migrations
 
                     b.HasOne("BusinessObject.Models.HouseKeeperSkill", "HouseKeeperSkill")
                         .WithMany()
-                        .HasForeignKey("HouseKeeperSkillID")
+                        .HasForeignKey("HousekeeperSkillID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
