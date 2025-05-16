@@ -253,8 +253,18 @@ function MessagesPage() {
                 return (
                   <div key={msg.chatID} className={`d-flex mb-2 ${isMine ? "justify-content-end" : "justify-content-start"}`}>
                     {!isMine && renderAvatar(profilePicture || googlePicture)}
-                    <div className={`p-2 rounded shadow-sm ${isMine ? "bg-warning text-white" : "bg-light text-dark"}`} style={{ maxWidth: "75%" }}>
-                      {msg.content}
+                    <div
+                      className={`p-2 rounded shadow-sm ${isMine ? "bg-warning text-white" : "bg-light text-dark"}`}
+                      style={{ maxWidth: "75%" }}
+                    >
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: msg.content.replace(
+                            /(https?:\/\/[^\s]+)/g,
+                            (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+                          ),
+                        }}
+                      />
                       <div className="text-end">
                         <small className="text-muted" style={{ fontSize: "0.75rem" }}>
                           {new Date(msg.sendAt).toLocaleTimeString()}
