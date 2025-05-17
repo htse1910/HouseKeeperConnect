@@ -9,6 +9,20 @@ namespace BusinessObject.DTO
 
         [Required]
         public int JobID { get; set; }
+        
+        [Required]
+        public decimal TotalPrice { get; set; }
+        
+        [Required]
+        public decimal PricePerHour { get; set; }
+        
+        [Required]
+        public string Description { get; set; }
+        
+        [Required]
+        public string Location { get; set; }
+        [Required]
+        public string DetailLocation { get; set; }
 
         [Required]
         public int HousekeeperID { get; set; }
