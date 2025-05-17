@@ -18,7 +18,9 @@ namespace BusinessObject.DTO
         [Required]
         public string Familyname { get; set; }
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime StartDate { get; set; }
+        [Required]
+        public DateTime EndDate { get; set; }
 
         [Required]
         public int Status { get; set; }

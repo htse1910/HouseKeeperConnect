@@ -52,7 +52,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).Where(j => j.Status == (int)JobStatus.Accepted).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).Where(j => j.Status == (int)JobStatus.Verified).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
