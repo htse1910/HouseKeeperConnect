@@ -19,7 +19,7 @@ namespace Repositories
 
         public Task DeleteJobAsync(int id) => _jobDAO.DeleteJobAsync(id);
 
-        public Task<List<Job>> GetAllJobsAsync() => _jobDAO.GetAllJobsAsync();
+        public Task<List<Job>> GetAllJobsAsync(int pageNumber, int pageSize) => _jobDAO.GetAllJobsAsync(pageNumber, pageSize);
 
         public Task<Job> GetJobByIDAsync(int id) => _jobDAO.GetJobByIDAsync(id);
 
@@ -40,7 +40,7 @@ namespace Repositories
 
         public async Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize) => await _jobDAO.GetJobsOfferedByHKAsync(hktId, pageNumber, pageSize);
 
-        public async Task<List<Job>> GetAllPendingJobsAsync() => await _jobDAO.GetAllPendingJobsAsync();
+        public async Task<List<Job>> GetAllPendingJobsAsync(int pageNumber, int pageSize) => await _jobDAO.GetAllPendingJobsAsync(pageNumber, pageSize);
 
         public async Task<int> CountVerifiedJobsAsync() => await _jobDAO.CountVerifiedJobsAsync();
 

@@ -58,9 +58,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("JobList")]
         [Authorize]
-        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync()
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsAsync(int pageNumber, int pageSize)
         {
-            var jobs = await _jobService.GetAllJobsAsync();
+            var jobs = await _jobService.GetAllJobsAsync(pageNumber, pageSize);
 
             if (jobs == null || !jobs.Any())
             {
@@ -88,9 +88,9 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("PendingJobsList")]
         [Authorize(Policy = "Staff")]
-        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> PendingJobsAsync()
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> PendingJobsAsync(int pageNumber, int pageSize)
         {
-            var jobs = await _jobService.GetAllPendingJobsAsync();
+            var jobs = await _jobService.GetAllPendingJobsAsync(pageNumber, pageSize);
 
             if (jobs == null || !jobs.Any())
             {
