@@ -5,6 +5,9 @@ namespace BusinessObject.DTO
     public class BookingDisplayDTO
     {
         [Required]
+        public int BookingID { get; set; }
+
+        [Required]
         public int JobID { get; set; }
 
         [Required]
@@ -12,11 +15,21 @@ namespace BusinessObject.DTO
 
         [Required]
         public int FamilyID { get; set; }
-
+        [Required]
+        public string Familyname { get; set; }
         [Required]
         public DateTime CreatedAt { get; set; }
 
         [Required]
         public int Status { get; set; }
+
+        [Required]
+        public List<int> ServiceIDs { get; set; }
+
+        [Required]
+        public List<int> SlotIDs { get; set; }
+
+        [Required]
+        public List<int> DayofWeek { get; set; }
     }
 }

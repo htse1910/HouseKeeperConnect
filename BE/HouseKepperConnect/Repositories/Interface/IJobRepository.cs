@@ -4,8 +4,8 @@ namespace Repositories.Interface
 {
     public interface IJobRepository
     {
-        Task<List<Job>> GetAllJobsAsync();
-        Task<List<Job>> GetAllPendingJobsAsync();
+        Task<List<Job>> GetAllJobsAsync(int pageNumber, int pageSize);
+        Task<List<Job>> GetAllPendingJobsAsync(int pageNumber, int pageSize);
         Task<int> CountVerifiedJobsAsync();
         Task<int> CountPendingJobsAsync();
         Task<int> CountJobsByAccountIDAsync(int familyID);

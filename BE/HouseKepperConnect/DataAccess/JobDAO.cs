@@ -29,14 +29,14 @@ namespace DataAccess
             }
         }
 
-        public async Task<List<Job>> GetAllJobsAsync()
+        public async Task<List<Job>> GetAllJobsAsync(int pageNumber, int pageSize)
         {
             var list = new List<Job>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).Include(j => j.JobDetail).AsNoTracking().Where(j => j.Status==(int)JobStatus.Verified && !j.JobDetail.IsOffered).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).Include(j => j.JobDetail).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).Where(j => j.Status==(int)JobStatus.Verified && !j.JobDetail.IsOffered).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -119,14 +119,14 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<List<Job>> GetAllPendingJobsAsync()
+        public async Task<List<Job>> GetAllPendingJobsAsync(int pageNumber, int pageSize)
         {
             var list = new List<Job>();
             try
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).Where(j => j.Status==(int)JobStatus.Pending).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).Where(j => j.Status==(int)JobStatus.Pending).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
