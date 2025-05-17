@@ -45,6 +45,22 @@ namespace DataAccess
             }
             return list;
         }
+        public async Task<List<Job>> GetAllJobsForStaffAsync(int pageNumber, int pageSize)
+        {
+            var list = new List<Job>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Job.Include(j => j.Family).Where(j => j.Status == (int)JobStatus.Accepted).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
 
         public async Task<int> CountVerifiedJobsAsync()
         {

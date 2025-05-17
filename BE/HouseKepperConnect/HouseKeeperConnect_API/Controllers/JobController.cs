@@ -90,7 +90,7 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsStaffAsync(int pageNumber, int pageSize)
         {
-            var jobs = await _jobService.GetAllJobsAsync(pageNumber, pageSize);
+            var jobs = await _jobService.GetAllJobsForStaffAsync(pageNumber, pageSize);
 
             if (jobs == null || !jobs.Any())
             {

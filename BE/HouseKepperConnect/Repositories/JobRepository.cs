@@ -49,5 +49,7 @@ namespace Repositories
         public async Task<int> CountJobsByAccountIDAsync(int familyID) => await _jobDAO.CountJobsByAccountIDAsync(familyID);
 
         public async Task<int> CountJobsOfferByAccountIDAsync(int housekeeperID) => await _jobDAO.CountJobsOfferByAccountIDAsync(housekeeperID);
+
+        public async Task<List<Job>> GetAllJobsForStaffAsync(int pageNumber, int pageSize) => await _jobDAO.GetAllJobsForStaffAsync(pageNumber, pageSize);
     }
 }
