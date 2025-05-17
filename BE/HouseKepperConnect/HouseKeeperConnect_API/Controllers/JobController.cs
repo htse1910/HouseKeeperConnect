@@ -86,11 +86,41 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(display);
         }
         
-        [HttpGet("JobListStaff")]
+        [HttpGet("JobVerifiedListStaff")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsVerifiedStaffAsync(int pageNumber, int pageSize)
+        {
+            var jobs = await _jobService.GetAllJobsForStaffAsync(pageNumber, pageSize);
+
+            if (jobs == null || !jobs.Any())
+            {
+                return NotFound("Không tìm thấy thông tin công việc!");
+            }
+            var display = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                var d = new JobDisplayDTO();
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(j.JobID);
+                d.JobName = j.JobName;
+                d.FamilyID = j.FamilyID;
+                d.Location = jobDetail.Location;
+                d.DetailLocation = jobDetail.DetailLocation;
+                d.Price = jobDetail.Price;
+                d.CreatedAt = j.CreatedDate;
+                d.Status = j.Status;
+                d.JobType = j.JobType;
+                d.JobID = j.JobID;
+                display.Add(d);
+            }
+
+            return Ok(display);
+        }
+        
+        [HttpGet("JobAcceptedListStaff")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsStaffAsync(int pageNumber, int pageSize)
         {
-            var jobs = await _jobService.GetAllJobsForStaffAsync(pageNumber, pageSize);
+            var jobs = await _jobService.GetAcceptedJobsForStaffAsync(pageNumber, pageSize);
 
             if (jobs == null || !jobs.Any())
             {
@@ -155,10 +185,28 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(count);
         }
         [HttpGet("CountVerifiedJobs")]
-        [Authorize(Policy = "Housekeeper")]
+        [Authorize]
         public async Task<ActionResult<int>> CountVerifiedJobsAsync()
         {
             var count = await _jobService.CountVerifiedJobsAsync();
+
+            return Ok(count);
+        }
+        
+        [HttpGet("CountVerifiedJobsStaff")]
+        [Authorize]
+        public async Task<ActionResult<int>> CountVerifiedJobsStaffAsync()
+        {
+            var count = await _jobService.CountVerifiedJobsStaffAsync();
+
+            return Ok(count);
+        }
+        
+        [HttpGet("CountAccepteddJobsStaff")]
+        [Authorize]
+        public async Task<ActionResult<int>> CountAcceptedJobsStaffAsync()
+        {
+            var count = await _jobService.CountAcceptedJobsStaffAsync();
 
             return Ok(count);
         }

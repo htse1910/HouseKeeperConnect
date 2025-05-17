@@ -5,11 +5,23 @@ namespace Repositories.Interface
     public interface IJobRepository
     {
         Task<List<Job>> GetAllJobsAsync(int pageNumber, int pageSize);
+
         Task<List<Job>> GetAllPendingJobsAsync(int pageNumber, int pageSize);
+
         Task<List<Job>> GetAllJobsForStaffAsync(int pageNumber, int pageSize);
+
+        Task<List<Job>> GetAcceptedJobsForStaffAsync(int pageNumber, int pageSize);
+
+        Task<int> CountVerifiedJobsStaffAsync();
+
+        Task<int> CountAcceptedJobsStaffAsync();
+
         Task<int> CountVerifiedJobsAsync();
+
         Task<int> CountPendingJobsAsync();
+
         Task<int> CountJobsByAccountIDAsync(int familyID);
+
         Task<int> CountJobsOfferByAccountIDAsync(int housekeeperID);
 
         Task<List<JobDetail>> GetAllDetailJobsAsync(int pageNumber, int pageSize);

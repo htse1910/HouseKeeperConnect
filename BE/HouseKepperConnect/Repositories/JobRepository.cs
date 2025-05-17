@@ -50,6 +50,12 @@ namespace Repositories
 
         public async Task<int> CountJobsOfferByAccountIDAsync(int housekeeperID) => await _jobDAO.CountJobsOfferByAccountIDAsync(housekeeperID);
 
-        public async Task<List<Job>> GetAllJobsForStaffAsync(int pageNumber, int pageSize) => await _jobDAO.GetAllJobsForStaffAsync(pageNumber, pageSize);
+        public async Task<List<Job>> GetAllJobsForStaffAsync(int pageNumber, int pageSize) => await _jobDAO.GetVerifiedJobsForStaffAsync(pageNumber, pageSize);
+
+        public async Task<List<Job>> GetAcceptedJobsForStaffAsync(int pageNumber, int pageSize) => await _jobDAO.GetAcceptedJobsForStaffAsync(pageNumber, pageSize);
+
+        public async Task<int> CountVerifiedJobsStaffAsync() => await _jobDAO.CountVerifiedJobsAsync();
+
+        public async Task<int> CountAcceptedJobsStaffAsync() => await _jobDAO.CountAcceptedJobsStaffAsync();
     }
 }
