@@ -85,6 +85,36 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(display);
         }
+        
+        [HttpGet("JobListStaff")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetJobsStaffAsync(int pageNumber, int pageSize)
+        {
+            var jobs = await _jobService.GetAllJobsAsync(pageNumber, pageSize);
+
+            if (jobs == null || !jobs.Any())
+            {
+                return NotFound("Không tìm thấy thông tin công việc!");
+            }
+            var display = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                {var d = new JobDisplayDTO();
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(j.JobID);
+                d.JobName = j.JobName;
+                d.FamilyID = j.FamilyID;
+                d.Location = jobDetail.Location;
+                d.DetailLocation = jobDetail.DetailLocation;
+                d.Price = jobDetail.Price;
+                d.CreatedAt = j.CreatedDate;
+                d.Status = j.Status;
+                d.JobType = j.JobType;
+                d.JobID = j.JobID;
+                display.Add(d);}
+            }
+
+            return Ok(display);
+        }
 
         [HttpGet("PendingJobsList")]
         [Authorize(Policy = "Staff")]
