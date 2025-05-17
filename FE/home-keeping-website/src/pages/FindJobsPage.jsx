@@ -36,17 +36,20 @@ function FindJobsPage() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/Job/JobList`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      const [countRes, jobsRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/Job/CountVerifiedJobs`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        }),
+        fetch(`${API_BASE_URL}/Job/JobList?pageNumber=${page}&pageSize=${jobsPerPage}`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        }),
+      ]);
 
-      const data = await res.json();
-      const verifiedJobs = data.filter((job) => job.status === 2);
-      setTotalJobs(verifiedJobs.length);
+      const totalCount = await countRes.json();
+      const jobData = await jobsRes.json();
 
-      const start = (page - 1) * jobsPerPage;
-      const paginated = verifiedJobs.slice(start, start + jobsPerPage);
-      setJobs(paginated);
+      setTotalJobs(totalCount);
+      setJobs(jobData);
     } catch (error) {
       console.error("Failed to fetch jobs:", error);
       setJobs([]);

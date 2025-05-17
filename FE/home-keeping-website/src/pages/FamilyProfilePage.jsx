@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import defaultAvatar from "../assets/images/avatar0.png";
 import axios from "axios";
-import { FaPhone, FaEnvelope, FaCreditCard } from "react-icons/fa";
 import API_BASE_URL from "../config/apiConfig";
 import AvatarCard from "../components/AvatarCard";
-import IntroductionCard from './../components/IntroductionCard';
+import IntroductionCard from "../components/IntroductionCard";
 import ContactCard from "../components/ContactCard";
-
-
+import PreferencesCard from "../components/PreferencesCard";
 
 const FamilyProfilePage = () => {
   const authToken = localStorage.getItem("authToken");
@@ -24,14 +22,10 @@ const FamilyProfilePage = () => {
 
   const mapGender = (genderID) => {
     switch (genderID) {
-      case 1:
-        return "Nam";
-      case 2:
-        return "Nữ";
-      case 3:
-        return "Khác";
-      default:
-        return "Không rõ";
+      case 1: return "Nam";
+      case 2: return "Nữ";
+      case 3: return "Khác";
+      default: return "Không rõ";
     }
   };
 
@@ -60,6 +54,7 @@ const FamilyProfilePage = () => {
       <AvatarCard family={family} mapGender={mapGender} defaultAvatar={defaultAvatar} />
       <IntroductionCard introduction={family?.introduction} />
       <ContactCard family={family} />
+      <PreferencesCard familyID={family?.familyID} token={authToken} />
     </div>
   );
 };
