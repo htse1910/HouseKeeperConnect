@@ -36,7 +36,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).Include(j => j.JobDetail).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).Where(j => j.Status==(int)JobStatus.Verified && !j.JobDetail.IsOffered).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).Include(j => j.JobDetail).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).Where(j => j.Status==(int)JobStatus.Verified && !j.JobDetail.IsOffered && j.Status == (int)JobStatus.Accepted).ToListAsync();
                 }
             }
             catch (Exception ex)
