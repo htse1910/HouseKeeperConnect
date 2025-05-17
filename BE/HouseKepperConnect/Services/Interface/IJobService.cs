@@ -9,6 +9,12 @@ namespace Services.Interface
         Task<List<Job>> GetAllPendingJobsAsync(int pageNumber, int pageSize);
         Task<List<Job>> GetAllJobsForStaffAsync(int pageNumber, int pageSize);
 
+        Task<List<Job>> GetAcceptedJobsForStaffAsync(int pageNumber, int pageSize);
+
+        Task<int> CountVerifiedJobsStaffAsync();
+
+        Task<int> CountAcceptedJobsStaffAsync();
+
         Task<int> CountVerifiedJobsAsync();
 
         Task<int> CountPendingJobsAsync();

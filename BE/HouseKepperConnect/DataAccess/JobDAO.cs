@@ -45,7 +45,24 @@ namespace DataAccess
             }
             return list;
         }
-        public async Task<List<Job>> GetAllJobsForStaffAsync(int pageNumber, int pageSize)
+        public async Task<List<Job>> GetVerifiedJobsForStaffAsync(int pageNumber, int pageSize)
+        {
+            var list = new List<Job>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Job.Include(j => j.Family).Where(j => j.Status == (int)JobStatus.Accepted).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
+        
+        public async Task<List<Job>> GetAcceptedJobsForStaffAsync(int pageNumber, int pageSize)
         {
             var list = new List<Job>();
             try
@@ -72,6 +89,44 @@ namespace DataAccess
                         .AsNoTracking()
                         .Include(j => j.JobDetail)
                         .CountAsync(j => j.Status == (int)JobStatus.Verified && !j.JobDetail.IsOffered)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<int> CountVerifiedJobsStaffAsync()
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Job
+                        .AsNoTracking()
+                        .Include(j => j.JobDetail)
+                        .CountAsync(j => j.Status == (int)JobStatus.Verified)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<int> CountAcceptedJobsStaffAsync()
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Job
+                        .AsNoTracking()
+                        .Include(j => j.JobDetail)
+                        .CountAsync(j => j.Status == (int)JobStatus.Accepted)
                         .ConfigureAwait(false);
                 }
             }

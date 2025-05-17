@@ -51,5 +51,11 @@ namespace Services
         public async Task<int> CountJobsOfferByAccountIDAsync(int housekeeperID) => await _jobRepository.CountJobsOfferByAccountIDAsync(housekeeperID);
 
         public async Task<List<Job>> GetAllJobsForStaffAsync(int pageNumber, int pageSize) => await _jobRepository.GetAllJobsForStaffAsync(pageNumber, pageSize);
+
+        public async Task<List<Job>> GetAcceptedJobsForStaffAsync(int pageNumber, int pageSize) => await _jobRepository.GetAcceptedJobsForStaffAsync(pageNumber, pageSize);
+
+        public async Task<int> CountVerifiedJobsStaffAsync() => await _jobRepository.CountVerifiedJobsAsync();
+
+        public async Task<int> CountAcceptedJobsStaffAsync() => await _jobRepository.CountAcceptedJobsStaffAsync();
     }
 }
