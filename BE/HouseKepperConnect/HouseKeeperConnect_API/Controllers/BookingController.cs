@@ -77,7 +77,7 @@ namespace HouseKeeperConnect_API.Controllers
 
         [HttpGet("GetBookingByHousekeeperID")]
         [Authorize(Policy = "Housekeeper")]
-        public async Task<ActionResult<IEnumerable<object>>> GetBookingByHousekeeperID([FromQuery] int housekeeperId, int pageNumber, int pageSize)
+        public async Task<ActionResult<IEnumerable<BookingDisplayDTO>>> GetBookingByHousekeeperID([FromQuery] int housekeeperId, int pageNumber, int pageSize)
         {
             var bookings = await _bookingService.GetBookingsByHousekeeperIDAsync(housekeeperId, pageNumber, pageSize);
             if (bookings == null || !bookings.Any())
@@ -85,7 +85,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("No records!");
             }
 
-            var result = new List<object>();
+            var display = new List<BookingDisplayDTO>();
 
             foreach (var booking in bookings)
             {
@@ -95,19 +95,29 @@ namespace HouseKeeperConnect_API.Controllers
                 var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(booking.JobID);
                 var jobServices = await _jobServiceService.GetJob_ServicesByJobIDAsync(booking.JobID);
 
-                result.Add(new
-                {
-                    booking.BookingID,
-                    booking.JobID,
-                    JobDetail = jobDetail,
-                    SlotIDs = jobSlots.Select(js => js.SlotID).Distinct().ToList(),
-                    DayofWeek = jobSlots.Select(js => js.DayOfWeek).Distinct().ToList(),
-                    ServiceIDs = jobServices.Select(js => js.ServiceID).Distinct().ToList(),
-                    booking.Status,
-                });
+                var dis = new BookingDisplayDTO();
+                dis.BookingID = booking.BookingID;
+                dis.JobID = booking.JobID;
+                dis.FamilyID = job.FamilyID;
+                dis.Familyname = job.Family.Account.Name;
+                dis.HousekeeperID = booking.HousekeeperID;
+                dis.StartDate = jobDetail.StartDate;
+                dis.EndDate = jobDetail.EndDate;
+                dis.Location = jobDetail.Location;
+                dis.DetailLocation = jobDetail.DetailLocation;
+                dis.Description = jobDetail.Description;
+                dis.Status = booking.Status;
+                dis.PricePerHour = jobDetail.PricePerHour;
+                dis.TotalPrice = jobDetail.Price;
+
+                dis.ServiceIDs = jobServices.Select(js => js.ServiceID).Distinct().ToList();
+                dis.DayofWeek = jobSlots.Select(js => js.DayOfWeek).Distinct().ToList();
+                dis.SlotIDs = jobSlots.Select(js => js.SlotID).Distinct().ToList();
+
+                display.Add(dis);
             }
 
-            return Ok(result);
+            return Ok(display);
         }
 
         [HttpPost("AddBooking")]
