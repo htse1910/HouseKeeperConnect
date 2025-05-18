@@ -51,5 +51,7 @@ namespace Repositories
         public async Task InvalidateResetTokenAsync(int accountId) => await AccountDAO.Instance.InvalidateResetTokenAsync(accountId);
 
         public async Task<List<Account>> GetAllAccountsAsync() => await AccountDAO.Instance.GetAllAccountsAsync();
+
+        public async Task<List<Account>> GetAllStaffsAsync() => await AccountDAO.Instance.GetAllStaffsAsync();
     }
 }

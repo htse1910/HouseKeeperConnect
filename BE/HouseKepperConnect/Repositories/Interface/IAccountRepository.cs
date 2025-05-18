@@ -11,6 +11,7 @@ namespace Repositories.Interface
         Task<List<Account>> GetAllAccountsAsync(int pageNumber, int pageSize);
 
         Task<List<Account>> GetAllAccountsAsync();
+        Task<List<Account>> GetAllStaffsAsync();
 
         Task<List<Account>> SearchAccountsByNameAsync(string name);
 

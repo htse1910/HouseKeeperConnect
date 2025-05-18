@@ -58,5 +58,7 @@ namespace Services
         public async Task InvalidateResetTokenAsync(int accountId) => await _accountRepository.InvalidateResetTokenAsync(accountId);
 
         public async Task<List<Account>> GetAllAccountsAsync() => await _accountRepository.GetAllAccountsAsync();
+
+        public async Task<List<Account>> GetAllStaffsAsync() => await _accountRepository.GetAllStaffsAsync();
     }
 }
