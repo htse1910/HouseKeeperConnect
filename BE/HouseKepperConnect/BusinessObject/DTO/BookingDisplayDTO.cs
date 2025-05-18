@@ -39,7 +39,9 @@ namespace BusinessObject.DTO
         public DateTime EndDate { get; set; }
 
         [Required]
-        public int Status { get; set; }
+        public int BookingStatus { get; set; }
+        [Required]
+        public int JobStatus { get; set; }
 
         [Required]
         public List<int> ServiceIDs { get; set; }
