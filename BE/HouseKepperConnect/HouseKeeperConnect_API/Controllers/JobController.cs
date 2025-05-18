@@ -579,6 +579,22 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
+            var staffList = await _accountService.GetAllStaffsAsync();
+            if (staffList.Count == 0)
+            {
+                Message = "Không tìm thấy danh sách nhân viên!";
+                return NotFound(Message);
+            }
+
+            foreach (var staff in staffList)
+            {
+                var noti = new Notification();
+                noti.Message = "Có đơn rút tiền cần xử lý!";
+                noti.AccountID = staff.AccountID;
+
+                await _notificationService.AddNotificationAsync(noti);
+            }
+
             return Ok("Tạo công việc thành công!");
         }
 

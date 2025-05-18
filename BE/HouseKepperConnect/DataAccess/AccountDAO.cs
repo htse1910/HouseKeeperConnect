@@ -181,6 +181,23 @@ namespace DataAccess
             }
             return list;
         }
+        
+        public async Task<List<Account>> GetAllStaffsAsync()
+        {
+            var list = new List<Account>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Account.Where(a => a.RoleID==3).AsNoTracking().ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
 
         public async Task<List<Account>> GetAllAccountsAsync()
         {
