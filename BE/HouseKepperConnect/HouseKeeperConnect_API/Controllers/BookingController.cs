@@ -90,7 +90,18 @@ namespace HouseKeeperConnect_API.Controllers
             foreach (var booking in bookings)
             {
                 var job = await _jobService.GetJobByIDAsync(booking.JobID);
-                var jobDetail = job != null ? await _jobService.GetJobDetailByJobIDAsync(job.JobID) : null;
+                if (job == null)
+                {
+                    Message = "Không tìm thấy công việc !";
+                    return NotFound(Message);
+                }
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+
+                if (jobDetail == null)
+                {
+                    Message = "Không tìm thấy chi tiết công việc !";
+                    return NotFound(Message);
+                }
 
                 var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(booking.JobID);
                 var jobServices = await _jobServiceService.GetJob_ServicesByJobIDAsync(booking.JobID);
@@ -98,6 +109,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var dis = new BookingDisplayDTO();
                 dis.BookingID = booking.BookingID;
                 dis.JobID = booking.JobID;
+                dis.JobName = job.JobName;
                 dis.FamilyID = job.FamilyID;
                 dis.Familyname = job.Family.Account.Name;
                 dis.HousekeeperID = booking.HousekeeperID;
