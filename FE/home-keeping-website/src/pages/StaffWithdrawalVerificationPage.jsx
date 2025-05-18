@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
 
 const StaffWithdrawalVerificationPage = () => {
   const [withdrawals, setWithdrawals] = useState([]);
@@ -25,14 +25,14 @@ const StaffWithdrawalVerificationPage = () => {
     axios
       .get(`${API_BASE_URL}/Withdraw/WithdrawList?pageNumber=1&pageSize=100`, { headers })
       .then(async (res) => {
-        const verifiedList = res.data.filter((w) => w.status === 2); // Only OTP Verified
+        const verifiedList = res.data.filter((w) => w.status === 2);
         const enriched = await Promise.all(
           verifiedList.map(async (w) => {
             try {
               const acc = await axios.get(`${API_BASE_URL}/Account/GetAccount?id=${w.accountID}`, { headers });
               return { ...w, account: acc.data };
             } catch {
-              return { ...w, account: { name: "Unknown", email: "N/A" } };
+              return { ...w, account: { name: "Không rõ", email: "N/A" } };
             }
           })
         );
@@ -48,11 +48,10 @@ const StaffWithdrawalVerificationPage = () => {
   const handleUpdateStatus = async (withdrawID, newStatus) => {
     const formData = new FormData();
     const picture = pictures[withdrawID];
-    if (picture) formData.append("Picture", picture);
-    else formData.append("Picture", "");
+    formData.append("Picture", picture || "");
 
     try {
-      await axios.put(`${API_BASE_URL}/Withdraw/UpdateWithdraw`, formData, {
+      const res = await axios.put(`${API_BASE_URL}/Withdraw/UpdateWithdraw`, formData, {
         headers: {
           ...headers,
           "Content-Type": "multipart/form-data",
@@ -61,41 +60,47 @@ const StaffWithdrawalVerificationPage = () => {
           WithdrawID: withdrawID,
           Status: newStatus,
         },
+        responseType: 'text', // 👈 force plain text response (axios default is JSON)
       });
 
       setWithdrawals((prev) => prev.filter((w) => w.withdrawID !== withdrawID));
-      toast.success(
+
+      toast.success(res.data || (
         newStatus === WithdrawStatus.Success
           ? "✅ Phê duyệt yêu cầu rút tiền thành công!"
           : "❌ Từ chối yêu cầu rút tiền thành công!"
-      );
+      ));
     } catch (err) {
+      const message =
+        err?.response?.data ||
+        "⚠️ Lỗi khi cập nhật trạng thái rút tiền.";
+      toast.error(message);
       console.error("Update failed", err);
-      toast.error("⚠️ Lỗi khi cập nhật trạng thái rút tiền.");
     }
   };
 
-  if (loading) return <div className="p-4">Loading...</div>;
+  if (loading) return <div className="p-4">Đang tải...</div>;
 
   return (
     <div className="container py-4">
       <ToastContainer position="top-center" autoClose={3000} />
-      <h3 className="mb-4">Pending Withdrawal Requests</h3>
+      <h3 className="mb-4">Yêu cầu rút tiền đang chờ duyệt</h3>
       {withdrawals.length === 0 ? (
-        <p>No pending withdrawals found.</p>
+        <p>Không có yêu cầu nào đang chờ duyệt.</p>
       ) : (
         <div className="table-responsive">
           <table className="table table-bordered table-hover align-middle">
             <thead className="table-light">
               <tr>
-                <th>Withdraw ID</th>
-                <th>Account Name</th>
+                <th>ID</th>
+                <th>Họ tên</th>
                 <th>Email</th>
-                <th>Amount</th>
-                <th>Bank Number</th>
-                <th>Requested On</th>
-                <th>Upload Picture</th>
-                <th>Action</th>
+                <th>Số tiền</th>
+                <th>Số tài khoản</th>
+                <th>Ngân hàng</th>
+                <th>Ngày yêu cầu</th>
+                <th>Ảnh giao dịch</th>
+                <th>Hành động</th>
               </tr>
             </thead>
             <tbody>
@@ -106,6 +111,7 @@ const StaffWithdrawalVerificationPage = () => {
                   <td>{w.account?.email}</td>
                   <td>{w.amount.toLocaleString()} VND</td>
                   <td>{w.bankNumber}</td>
+                  <td>{w.bankName}</td> {/* ✅ NEW FIELD */}
                   <td>{new Date(w.requestDate).toLocaleString()}</td>
                   <td>
                     <input
@@ -120,13 +126,13 @@ const StaffWithdrawalVerificationPage = () => {
                       className="btn btn-success btn-sm me-2"
                       onClick={() => handleUpdateStatus(w.withdrawID, WithdrawStatus.Success)}
                     >
-                      Approve
+                      Duyệt
                     </button>
                     <button
                       className="btn btn-danger btn-sm"
                       onClick={() => handleUpdateStatus(w.withdrawID, WithdrawStatus.Failed)}
                     >
-                      Reject
+                      Từ chối
                     </button>
                   </td>
                 </tr>
