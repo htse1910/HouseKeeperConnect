@@ -71,18 +71,19 @@ const HousekeeperWalletPage = () => {
         }
       );
 
-      const data = await res.json();
+      const text = await res.text();
 
       if (res.ok) {
+        const data = JSON.parse(text); // safe because we control success format
         toast.info("Nhập mã OTP đã gửi để xác nhận.");
         setWithdrawID(data.withdrawID);
         setOtpExpiredTime(data.otpExpiredTime);
         setShowModal(false);
         setShowOtpModal(true);
       } else {
-        toast.error("Không thể gửi yêu cầu OTP.");
+        toast.error(text || "Không thể gửi yêu cầu OTP.");
       }
-    } catch {
+    } catch (error) {
       toast.error("Lỗi khi gửi yêu cầu OTP.");
     }
   };
