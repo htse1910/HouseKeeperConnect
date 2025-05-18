@@ -14,6 +14,7 @@ import { Modal } from "react-bootstrap";
 import "react-toastify/dist/ReactToastify.css";
 import { serviceMap } from "../utils/serviceMap";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import { AnimatePresence, motion } from "framer-motion";
 
 const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 const slotMap = {
@@ -186,52 +187,9 @@ const HousekeeperBookingManagementPage = () => {
         });
         const bookingData = await res.json();
 
-        const fullRows = await Promise.all(
-          bookingData.map(async (booking) => {
-            let jobDetail = null;
-            let familyName = "Đang cập nhật";
 
-            try {
-              const jobRes = await fetch(`${API_BASE_URL}/Job/GetJobDetailByID?id=${booking.jobID}`, {
-                headers: { Authorization: `Bearer ${authToken}` }
-              });
-              jobDetail = await jobRes.json();
 
-              const familyRes = await fetch(`${API_BASE_URL}/Families/GetFamilyByID?id=${jobDetail.familyID}`, {
-                headers: { Authorization: `Bearer ${authToken}` }
-              });
-              const familyData = await familyRes.json();
-
-              const accountRes = await fetch(`${API_BASE_URL}/Account/GetAccount?id=${familyData.accountID}`, {
-                headers: { Authorization: `Bearer ${authToken}` }
-              });
-              const accountData = await accountRes.json();
-
-              familyName = accountData.name;
-            } catch (error) {
-              console.warn("Some data missing", error);
-            }
-
-            return {
-              jobID: booking.jobID,
-              bookingID: booking.bookingID,
-              jobName: jobDetail?.jobName || "Đang cập nhật",
-              familyName,
-              status: booking.status,
-              jobStatus: jobDetail?.status ?? null, // ⬅️ Add this line
-              location: jobDetail?.location || "Đang cập nhật",
-              price: jobDetail?.price ? `${jobDetail.price.toLocaleString()} VND` : "Đang cập nhật",
-              startDate: jobDetail?.startDate ? new Date(jobDetail.startDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
-              endDate: jobDetail?.endDate ? new Date(jobDetail.endDate).toLocaleDateString("vi-VN") : "Đang cập nhật",
-              description: jobDetail?.description || "Đang cập nhật",
-              slot: Array.isArray(jobDetail?.slotIDs) ? jobDetail.slotIDs.map(s => slotMap[s] || `Slot ${s}`) : [],
-              days: Array.isArray(jobDetail?.dayofWeek) ? jobDetail.dayofWeek : [],
-              services: Array.isArray(jobDetail?.serviceIDs) ? jobDetail.serviceIDs.map(id => serviceMap[id]) : [],
-            };
-          })
-        );
-
-        setRows(fullRows);
+        setRows(bookingData);
       } catch (err) {
         console.error("Error fetching booking data:", err);
       } finally {
@@ -353,144 +311,151 @@ const HousekeeperBookingManagementPage = () => {
               Trang {currentPage} / {totalPages}
             </div>
           </div>
-          {paginatedRows.map((row, idx) => (
-            <div className="col-12" key={idx}>
-              <div className="card shadow-sm border-0 rounded-3 p-2 mb-4">
-                <div className="d-flex justify-content-between align-items-center mb-1">
-                  <h6 className="fw-bold mb-0">
-                    <FaBriefcase className="me-2 text-warning" />
-                    {row.jobName}
-                  </h6>
-                  <span className="text-muted small">#{row.bookingID}</span>
-                </div>
-
-                <div className="mb-1 text-muted small d-flex align-items-center">
-                  <FaUser className="me-1" />
-                  <span className="me-1"><strong>Gia đình:</strong></span> {row.familyName}
-                </div>
-
-                <div className="d-flex flex-wrap mb-1">
-                  <div className="small me-3 d-flex align-items-center">
-                    <FaMapMarkerAlt className="me-1 text-danger" />
-                    <strong>Địa điểm:</strong> {row.location}
-                  </div>
-                  <div className="small d-flex align-items-center">
-                    <FaMoneyBillWave className="me-1 text-success" />
-                    <strong>Lương:</strong> {row.price}
-                  </div>
-                </div>
-
-                <div className="d-flex flex-wrap mb-1">
-                  <div className="small me-3 d-flex align-items-center">
-                    <FaCalendarAlt className="me-1 text-primary" />
-                    <strong>Bắt đầu:</strong> {row.startDate}
-                  </div>
-                  <div className="small d-flex align-items-center">
-                    <FaCalendarAlt className="me-1 text-danger" />
-                    <strong>Kết thúc:</strong> {row.endDate}
-                  </div>
-                </div>
-
-                <div className="mb-1 small d-flex align-items-center">
-                  <FaFileAlt className="me-1 text-secondary" />
-                  <strong>Mô tả:</strong> {row.description}
-                </div>
-
-                <div className="mb-1 small d-flex align-items-center">
-                  <FaCheckCircle className="me-1 text-success" />
-                  <strong>Trạng thái công việc:</strong> {getJobStatusText(row.jobStatus)}
-                </div>
-                {/* <pre>Booking Status: {row.status}, Job Status: {row.jobStatus}</pre> */}
-
-                <div className="d-flex flex-wrap">
-                  <div className="col-12 col-md-4 small">
-                    <strong>
-                      <FaClock className="me-1 text-info" />Ca làm việc:
-                    </strong>
-                    <ul className="ps-3 mb-0">
-                      {row.slot.map((s, i) => (
-                        <li key={i} className="text-info">{s}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="col-12 col-md-4 small">
-                    <strong>📅 Thứ:</strong>
-                    <ul className="ps-3 mb-0">
-                      {row.days.map((dayIndex, i) => {
-                        const dayLabel = dayNames[dayIndex];
-                        return (
-                          <li
-                            key={i}
-                            className="text-warning"
-                            style={{ cursor: "pointer", textDecoration: "underline" }}
-                            onClick={() => openDayModal(row, dayIndex)}
-                          >
-                            {dayLabel}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                  <div className="col-12 col-md-4 small">
-                    <strong>🛎️ Dịch vụ:</strong>
-                    <ul className="ps-3 mb-0">
-                      {row.services.map((s, i) => (
-                        <li key={i} className="text-success">{s}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="text-end mt-2">
-                  <div className="d-flex justify-content-between align-items-center mt-2">
-                    <div>
-                      {row.jobStatus === 3 &&
-                        row.status !== 6 &&
-                        getVNDate() >= new Date(row.endDate.split("/").reverse().join("-")) ? (
-                        <button
-                          className="btn btn-sm btn-success rounded-pill fw-bold me-2"
-                          onClick={() => handleMarkComplete(row.jobID)}
-                        >
-                          <FaCheckCircle className="me-1" />
-                          Báo hoàn thành
-                        </button>
-                      ) : row.status === 4 && row.jobStatus !== 6 ? (
-                        <span className="badge bg-success px-3 py-2 rounded-pill">
-                          Đã hoàn thành ✅
-                        </span>
-                      )
-                        : row.status === 2 ? (
-                          <span className="badge bg-secondary px-3 py-2 rounded-pill">
-                            Đang thực hiện
-                          </span>
-                        ) : row.jobStatus === 3 &&
-                          (() => {
-                            const todayVN = new Date().toLocaleDateString("vi-VN");
-                            const start = row.startDate;
-                            const end = row.endDate;
-                            return todayVN >= start && todayVN <= end;
-                          })() ? (
-                          <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
-                            Chưa tới ngày xác nhận
-                          </span>
-                        ) : null
-                      }
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pageNumber} // important to re-trigger animation
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              {paginatedRows.map((row, idx) => (
+                <div className="col-12" key={idx}>
+                  <div className="card shadow-sm border-0 rounded-3 p-2 mb-4">
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                      <h6 className="fw-bold mb-0">
+                        <FaBriefcase className="me-2 text-warning" />
+                        {row.jobName}
+                      </h6>
+                      <span className="text-muted small">#{row.bookingID}</span>
                     </div>
-                    <div>
-                      {row.jobStatus === 3 && (
-                        <button
-                          className="btn btn-outline-danger btn-sm rounded-pill fw-bold"
-                          onClick={() => handleForceAbandon(row.jobID)}
-                        >
-                          🛑 Huỷ việc
-                        </button>
-                      )}
+
+                    <div className="mb-1 text-muted small d-flex align-items-center">
+                      <FaUser className="me-1" />
+                      <span className="me-1"><strong>Gia đình:</strong></span> {row.familyName}
+                    </div>
+
+                    <div className="d-flex flex-wrap mb-1">
+                      <div className="small me-3 d-flex align-items-center">
+                        <FaMapMarkerAlt className="me-1 text-danger" />
+                        <strong>Địa điểm:</strong> {row.location}
+                      </div>
+                      <div className="small d-flex align-items-center">
+                        <FaMoneyBillWave className="me-1 text-success" />
+                        <strong>Lương:</strong> {row.totalPrice}
+                      </div>
+                    </div>
+
+                    <div className="d-flex flex-wrap mb-1">
+                      <div className="small me-3 d-flex align-items-center">
+                        <FaCalendarAlt className="me-1 text-primary" />
+                        <strong>Bắt đầu:</strong> {new Date(row.startDate).toLocaleDateString("vi-VN")}
+                      </div>
+                      <div className="small d-flex align-items-center">
+                        <FaCalendarAlt className="me-1 text-danger" />
+                        <strong>Kết thúc:</strong> {new Date(row.endDate).toLocaleDateString("vi-VN")}
+                      </div>
+                    </div>
+
+                    <div className="mb-1 small d-flex align-items-center">
+                      <FaFileAlt className="me-1 text-secondary" />
+                      <strong>Mô tả:</strong> {row.description}
+                    </div>
+
+                    <div className="mb-1 small d-flex align-items-center">
+                      <FaCheckCircle className="me-1 text-success" />
+                      <strong>Trạng thái công việc:</strong> {getJobStatusText(row.jobStatus)}
+                    </div>
+                    {/* <pre>Booking Status: {row.status}, Job Status: {row.jobStatus}</pre> */}
+
+                    <div className="d-flex flex-wrap">
+                      <div className="col-12 col-md-4 small">
+                        <strong>
+                          <FaClock className="me-1 text-info" />Ca làm việc:
+                        </strong>
+                        <ul className="ps-3 mb-0">
+                          {row.slotIDs?.map((s, i) => (
+                            <li key={i} className="text-info">{slotMap[s] || `Slot ${s}`}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="col-12 col-md-4 small">
+                        <strong>📅 Thứ:</strong>
+                        <ul className="ps-3 mb-0">
+                          {row.dayofWeek?.map((dayIndex, i) => (
+                            <li
+                              key={i}
+                              className="text-warning"
+                              style={{ cursor: "pointer", textDecoration: "underline" }}
+                              onClick={() => openDayModal(row, dayIndex)}
+                            >
+                              {dayNames[dayIndex]}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="col-12 col-md-4 small">
+                        <strong>🛎️ Dịch vụ:</strong>
+                        <ul className="ps-3 mb-0">
+                          {row.serviceIDs?.map((s, i) => (
+                            <li key={i} className="text-success">{serviceMap[s]}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="text-end mt-2">
+                      <div className="d-flex justify-content-between align-items-center mt-2">
+                        <div>
+                          {row.jobStatus === 3 &&
+                            row.status !== 6 &&
+                            getVNDate() >= new Date(row.endDate.split("/").reverse().join("-")) ? (
+                            <button
+                              className="btn btn-sm btn-success rounded-pill fw-bold me-2"
+                              onClick={() => handleMarkComplete(row.jobID)}
+                            >
+                              <FaCheckCircle className="me-1" />
+                              Báo hoàn thành
+                            </button>
+                          ) : row.status === 4 && row.jobStatus !== 6 ? (
+                            <span className="badge bg-success px-3 py-2 rounded-pill">
+                              Đã hoàn thành ✅
+                            </span>
+                          )
+                            : row.status === 2 ? (
+                              <span className="badge bg-secondary px-3 py-2 rounded-pill">
+                                Đang thực hiện
+                              </span>
+                            ) : row.jobStatus === 3 &&
+                              (() => {
+                                const todayVN = new Date().toLocaleDateString("vi-VN");
+                                const start = row.startDate;
+                                const end = row.endDate;
+                                return todayVN >= start && todayVN <= end;
+                              })() ? (
+                              <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
+                                Chưa tới ngày xác nhận
+                              </span>
+                            ) : null
+                          }
+                        </div>
+                        <div>
+                          {row.jobStatus === 3 && (
+                            <button
+                              className="btn btn-outline-danger btn-sm rounded-pill fw-bold"
+                              onClick={() => handleForceAbandon(row.jobID)}
+                            >
+                              🛑 Huỷ việc
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))}
+            </motion.div>
+          </AnimatePresence>
           {totalPages > 1 && (
             <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
               <button
