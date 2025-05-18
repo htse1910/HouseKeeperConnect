@@ -342,7 +342,7 @@ const HousekeeperBookingManagementPage = () => {
                       </div>
                       <div className="small d-flex align-items-center">
                         <FaMoneyBillWave className="me-1 text-success" />
-                        <strong>Lương:</strong> {row.totalPrice}
+                        <strong>Lương:</strong>{row.totalPrice.toLocaleString("vi-VN")} VNĐ
                       </div>
                     </div>
 
