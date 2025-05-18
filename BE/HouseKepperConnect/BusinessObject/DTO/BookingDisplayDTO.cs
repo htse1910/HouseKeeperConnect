@@ -9,6 +9,8 @@ namespace BusinessObject.DTO
 
         [Required]
         public int JobID { get; set; }
+        [Required]
+        public string JobName { get; set; }
         
         [Required]
         public decimal TotalPrice { get; set; }
