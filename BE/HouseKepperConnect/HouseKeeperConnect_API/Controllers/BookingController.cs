@@ -118,7 +118,8 @@ namespace HouseKeeperConnect_API.Controllers
                 dis.Location = jobDetail.Location;
                 dis.DetailLocation = jobDetail.DetailLocation;
                 dis.Description = jobDetail.Description;
-                dis.Status = booking.Status;
+                dis.JobStatus = job.Status;
+                dis.BookingStatus = booking.Status;
                 dis.PricePerHour = jobDetail.PricePerHour;
                 dis.TotalPrice = jobDetail.Price;
 
