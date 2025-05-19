@@ -19,7 +19,7 @@ import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Adapter.EnhancedBookingAdapter;
 import com.example.housekeeperapplication.Model.Account;
-import com.example.housekeeperapplication.Model.DTOs.BookingHousekeeperDTO;
+import com.example.housekeeperapplication.Model.DTOs.BookingResponseDTO;
 import com.example.housekeeperapplication.Model.DTOs.EnhancedBookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
@@ -27,6 +27,7 @@ import com.example.housekeeperapplication.profile.FamilyProfile;
 import com.example.housekeeperapplication.profile.HousekeeperProfile;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,10 +43,14 @@ public class HousekeeperBookingActivity extends AppCompatActivity
 
     private RecyclerView rvBookings;
     private EnhancedBookingAdapter adapter;
-    private List<EnhancedBookingDTO> bookings = new ArrayList<>();
+    private List<BookingResponseDTO> bookings = new ArrayList<>();
     private TextView tvEmptyList;
     private ProgressBar progressBar;
     private APIServices apiServices;
+    private int currentPage = 1;
+    private final int pageSize = 10;
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +67,7 @@ public class HousekeeperBookingActivity extends AppCompatActivity
         rvBookings = findViewById(R.id.rvBookings);
         tvEmptyList = findViewById(R.id.tvEmptyList);
         progressBar = findViewById(R.id.progressBar);
-
         apiServices = APIClient.getClient(this).create(APIServices.class);
-
         rvBookings.setLayoutManager(new LinearLayoutManager(this));
         rvBookings.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
@@ -74,9 +77,10 @@ public class HousekeeperBookingActivity extends AppCompatActivity
         rvBookings.setAdapter(adapter);
     }
 
-
-
     private void loadBookings() {
+        if (isLoading || isLastPage) return;
+
+        isLoading = true;
         progressBar.setVisibility(View.VISIBLE);
         tvEmptyList.setVisibility(View.GONE);
 
@@ -84,111 +88,66 @@ public class HousekeeperBookingActivity extends AppCompatActivity
         int housekeeperId = prefs.getInt("housekeeperID", -1);
 
         if (housekeeperId != -1) {
-            apiServices.getBookingsByHousekeeperID(housekeeperId).enqueue(new Callback<List<JobDetailForBookingDTO>>() {
-                @Override
-                public void onResponse(Call<List<JobDetailForBookingDTO>> call, Response<List<JobDetailForBookingDTO>> response) {
-                    progressBar.setVisibility(View.GONE);
+            apiServices.getBookingsByHousekeeperID(housekeeperId, currentPage, pageSize)
+                    .enqueue(new Callback<List<BookingResponseDTO>>() {
+                        @Override
+                        public void onResponse(Call<List<BookingResponseDTO>> call,
+                                               Response<List<BookingResponseDTO>> response) {
+                            isLoading = false;
+                            progressBar.setVisibility(View.GONE);
 
-                    if (response.isSuccessful() && response.body() != null) {
-                        processBookingData(response.body());
-                    } else {
-                        showEmptyState();
-                    }
-                }
+                            if (response.isSuccessful() && response.body() != null) {
+                                List<BookingResponseDTO> newBookings = response.body();
 
-                @Override
-                public void onFailure(Call<List<JobDetailForBookingDTO>> call, Throwable t) {
-                    progressBar.setVisibility(View.GONE);
-                    showError("Lỗi kết nối: " + t.getMessage());
-                }
-            });
+                                if (newBookings.size() < pageSize) {
+                                    isLastPage = true;
+                                }
+
+                                processBookingData(newBookings);
+                                currentPage++;
+                            } else {
+                                showEmptyState();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<BookingResponseDTO>> call, Throwable t) {
+                            isLoading = false;
+                            progressBar.setVisibility(View.GONE);
+                            showError("Lỗi kết nối: " + t.getMessage());
+                        }
+                    });
         } else {
             progressBar.setVisibility(View.GONE);
             showError("Không tìm thấy thông tin housekeeper");
         }
     }
 
-    private void processBookingData(List<JobDetailForBookingDTO> jobDetails) {
-        bookings.clear();
+    private void processBookingData(List<BookingResponseDTO> bookingResponses) {
+        runOnUiThread(() -> {
+            Log.d("BookingDebug", "Processing data: " + (bookingResponses != null ? bookingResponses.size() : 0) + " items");
 
-        if (jobDetails.isEmpty()) {
-            showEmptyState();
-            return;
-        }
-
-        for (JobDetailForBookingDTO jobDetail : jobDetails) {
-            EnhancedBookingDTO booking = convertToEnhancedDTO(jobDetail);
-            bookings.add(booking);
-
-            // Load additional info if needed
-            if (jobDetail.familyID > 0) {
-                loadFamilyInfo(booking, jobDetail.familyID);
-            }
-        }
-
-        adapter.updateData(bookings);
-        rvBookings.setVisibility(View.VISIBLE);
-        tvEmptyList.setVisibility(View.GONE);
-    }
-
-    private EnhancedBookingDTO convertToEnhancedDTO(JobDetailForBookingDTO jobDetail) {
-        EnhancedBookingDTO booking = new EnhancedBookingDTO();
-        booking.bookingID = jobDetail.bookingID != null ? jobDetail.bookingID : 0;
-        booking.jobID = jobDetail.jobID;
-        booking.status = jobDetail.status;
-        booking.jobName = jobDetail.jobName;
-        booking.location = jobDetail.location;
-        booking.price = jobDetail.price;
-        booking.startDate = jobDetail.startDate;
-        booking.endDate = jobDetail.endDate;
-        booking.description = jobDetail.description;
-        booking.serviceIDs = jobDetail.serviceIDs;
-        booking.slotIDs = jobDetail.slotIDs;
-        booking.dayofWeek = jobDetail.dayofWeek;
-        return booking;
-    }
-
-    private void loadFamilyInfo(EnhancedBookingDTO booking, int familyId) {
-        apiServices.getFamilyByID(familyId).enqueue(new Callback<FamilyAccountMappingDTO>() {
-            @Override
-            public void onResponse(Call<FamilyAccountMappingDTO> call, Response<FamilyAccountMappingDTO> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    booking.familyName = response.body().name;
-                    adapter.notifyItemChanged(bookings.indexOf(booking));
-
-                    // Load account info for profile picture
-                    if (response.body().accountID > 0) {
-                        loadAccountInfo(booking, response.body().accountID);
-                    }
-                }
+            if (bookingResponses == null || bookingResponses.isEmpty()) {
+                showEmptyState();
+                return;
             }
 
-            @Override
-            public void onFailure(Call<FamilyAccountMappingDTO> call, Throwable t) {
-                Log.e("FamilyInfo", "Error loading family info", t);
-            }
+            // Clear dữ liệu cũ
+            bookings.clear();
+
+            // Thêm tất cả dữ liệu mới
+            bookings.addAll(bookingResponses);
+
+            // Cập nhật Adapter
+            adapter.updateData(bookings);
+
+            // Hiển thị RecyclerView
+            rvBookings.setVisibility(View.VISIBLE);
+            tvEmptyList.setVisibility(View.GONE);
+
+            Log.d("BookingDebug", "Data updated in adapter: " + bookings.size() + " items");
         });
     }
-
-    private void loadAccountInfo(EnhancedBookingDTO booking, int accountId) {
-        apiServices.getAccountById(accountId).enqueue(new Callback<Account>() {
-            @Override
-            public void onResponse(Call<Account> call, Response<Account> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Account account = response.body();
-                    booking.familyProfilePicture = account.getGoogleProfilePicture() != null ?
-                            account.getGoogleProfilePicture() : account.getLocalProfilePicture();
-                    adapter.notifyItemChanged(bookings.indexOf(booking));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Account> call, Throwable t) {
-                Log.e("AccountInfo", "Error loading account info", t);
-            }
-        });
-    }
-
     private void showEmptyState() {
         rvBookings.setVisibility(View.GONE);
         tvEmptyList.setVisibility(View.VISIBLE);
@@ -204,82 +163,70 @@ public class HousekeeperBookingActivity extends AppCompatActivity
 
     // Implement interface methods
     @Override
-    public void onBookingClicked(EnhancedBookingDTO booking) {
-        showBookingDetailDialog(booking);
-    }
-
-    @Override
-    public void onCheckInClicked(EnhancedBookingDTO booking) {
+    public void onCheckInClicked(BookingResponseDTO booking) {
         showCheckInConfirmation(booking);
     }
 
     @Override
-    public void onCompleteJobClicked(EnhancedBookingDTO booking) {
+    public void onCompleteJobClicked(BookingResponseDTO booking) {
         showCompleteJobConfirmation(booking);
     }
 
-    private void showBookingDetailDialog(EnhancedBookingDTO booking) {
-        new AlertDialog.Builder(this)
-                .setTitle(booking.jobName)
-                .setMessage(formatBookingDetails(booking))
-                .setPositiveButton("Đóng", null)
-                .show();
-    }
 
-    private String formatBookingDetails(EnhancedBookingDTO booking) {
-        return "Mã đặt: #" + booking.bookingID + "\n\n" +
-                "Gia đình: " + (booking.familyName != null ? booking.familyName : "Chưa rõ") + "\n" +
-                "Địa điểm: " + booking.location + "\n\n" +
-                "Thời gian: " + formatDate(booking.startDate) + " - " + formatDate(booking.endDate) + "\n" +
-                "Mô tả: " + booking.description + "\n\n" +
-                "Trạng thái: " + getStatusText(booking.status);
-    }
 
-    private void showCheckInConfirmation(EnhancedBookingDTO booking) {
+    private void showCheckInConfirmation(BookingResponseDTO booking) {
         new AlertDialog.Builder(this)
-                .setTitle("Xác nhận Check-In")
+                .setTitle("Xác nhận Check-in")
                 .setMessage("Bạn có chắc muốn check-in công việc này?")
-                .setPositiveButton("Check-In", (dialog, which) -> {
-                    performCheckIn(booking);
-                })
+                .setPositiveButton("Xác nhận", (dialog, which) -> performCheckIn(booking))
                 .setNegativeButton("Hủy", null)
                 .show();
     }
 
-    private void performCheckIn(EnhancedBookingDTO booking) {
-        apiServices.checkIn(booking.bookingID).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(HousekeeperBookingActivity.this,
-                            "Check-In thành công!", Toast.LENGTH_SHORT).show();
-                    refreshBookingStatus(booking);
-                } else {
-                    Toast.makeText(HousekeeperBookingActivity.this,
-                            "Check-In thất bại", Toast.LENGTH_SHORT).show();
-                }
-            }
+    private void performCheckIn(BookingResponseDTO booking) {
+        progressBar.setVisibility(View.VISIBLE);
 
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(HousekeeperBookingActivity.this,
-                        "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        apiServices.checkIn(booking.bookingID)
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        progressBar.setVisibility(View.GONE);
+                        if (response.isSuccessful()) {
+                            Toast.makeText(HousekeeperBookingActivity.this,
+                                    "Check-in thành công!", Toast.LENGTH_SHORT).show();
+                            refreshBookingStatus();
+                        } else {
+                            try {
+                                String errorBody = response.errorBody() != null ?
+                                        response.errorBody().string() : "Unknown error";
+                                Toast.makeText(HousekeeperBookingActivity.this,
+                                        "Check-in thất bại: " + errorBody, Toast.LENGTH_SHORT).show();
+                            } catch (IOException e) {
+                                Toast.makeText(HousekeeperBookingActivity.this,
+                                        "Check-in thất bại", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(HousekeeperBookingActivity.this,
+                                "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-    private void showCompleteJobConfirmation(EnhancedBookingDTO booking) {
+    private void showCompleteJobConfirmation(BookingResponseDTO booking) {
         new AlertDialog.Builder(this)
                 .setTitle("Xác nhận Hoàn thành")
                 .setMessage("Bạn có chắc đã hoàn thành công việc này?")
-                .setPositiveButton("Xác nhận", (dialog, which) -> {
-                    completeJob(booking);
-                })
+                .setPositiveButton("Xác nhận", (dialog, which) -> completeJob(booking))
                 .setNegativeButton("Hủy", null)
                 .show();
     }
 
-    private void completeJob(EnhancedBookingDTO booking) {
+    private void completeJob(BookingResponseDTO booking) {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int accountId = prefs.getInt("accountID", -1);
 
@@ -289,7 +236,7 @@ public class HousekeeperBookingActivity extends AppCompatActivity
                 if (response.isSuccessful()) {
                     Toast.makeText(HousekeeperBookingActivity.this,
                             "Đã xác nhận hoàn thành!", Toast.LENGTH_SHORT).show();
-                    refreshBookingStatus(booking);
+                    refreshBookingStatus();
                 } else {
                     Toast.makeText(HousekeeperBookingActivity.this,
                             "Xác nhận thất bại", Toast.LENGTH_SHORT).show();
@@ -304,24 +251,44 @@ public class HousekeeperBookingActivity extends AppCompatActivity
         });
     }
 
-    private void refreshBookingStatus(EnhancedBookingDTO booking) {
-        apiServices.getJobDetailByID(booking.jobID).enqueue(new Callback<JobDetailForBookingDTO>() {
-            @Override
-            public void onResponse(Call<JobDetailForBookingDTO> call, Response<JobDetailForBookingDTO> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    int position = bookings.indexOf(booking);
-                    if (position != -1) {
-                        booking.status = response.body().status;
-                        adapter.notifyItemChanged(position);
-                    }
-                }
-            }
+    private void refreshBookingStatus() {
+        currentPage = 1;
+        isLastPage = false;
+        bookings.clear(); // Xóa dữ liệu cũ
 
-            @Override
-            public void onFailure(Call<JobDetailForBookingDTO> call, Throwable t) {
-                Log.e("RefreshStatus", "Error refreshing status", t);
-            }
-        });
+        // Hiển thị loading
+        progressBar.setVisibility(View.VISIBLE);
+        tvEmptyList.setVisibility(View.GONE);
+        rvBookings.setVisibility(View.GONE);
+
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int housekeeperId = prefs.getInt("housekeeperID", -1);
+
+        if (housekeeperId != -1) {
+            apiServices.getBookingsByHousekeeperID(housekeeperId, currentPage, pageSize)
+                    .enqueue(new Callback<List<BookingResponseDTO>>() {
+                        @Override
+                        public void onResponse(Call<List<BookingResponseDTO>> call,
+                                               Response<List<BookingResponseDTO>> response) {
+                            progressBar.setVisibility(View.GONE);
+
+                            if (response.isSuccessful() && response.body() != null
+                                    && !response.body().isEmpty()) {
+                                bookings.addAll(response.body());
+                                adapter.updateData(bookings);
+                                rvBookings.setVisibility(View.VISIBLE);
+                            } else {
+                                showEmptyState();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<BookingResponseDTO>> call, Throwable t) {
+                            progressBar.setVisibility(View.GONE);
+                            showError("Lỗi kết nối: " + t.getMessage());
+                        }
+                    });
+        }
     }
 
     private String getStatusText(int status) {
@@ -346,6 +313,10 @@ public class HousekeeperBookingActivity extends AppCompatActivity
         } catch (Exception e) {
             return rawDate.split("T")[0];
         }
+    }
+
+    private String formatPrice(double price) {
+        return String.format(Locale.getDefault(), "%,.0f VND", price);
     }
 
     private void setupBottomNavigation() {

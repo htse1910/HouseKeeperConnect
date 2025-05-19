@@ -5,17 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c4b1b0be-3a72-44da-aa53-6b30db0698d8" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Model/DTOs/HousekeeperUpdateDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BE/HouseKepperConnect/BusinessObject/DTO/AccountDisplayDTO.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BE/HouseKepperConnect/BusinessObject/DTO/AccountDisplayDTO.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BE/HouseKepperConnect/BusinessObject/DTO/LoginInfoDTO.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BE/HouseKepperConnect/BusinessObject/DTO/LoginInfoDTO.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Model/DTOs/BookingResponseDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/API/Interfaces/APIServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/API/Interfaces/APIServices.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Model/Account.java" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Model/Account.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Model/DTOs/Housekeeper.java" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Model/DTOs/Housekeeper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/profile/EditHousekeeperProfile.java" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/profile/EditHousekeeperProfile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/profile/HousekeeperProfile.java" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/profile/HousekeeperProfile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/res/layout/activity_edit_housekeeper_profile.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/res/layout/activity_edit_housekeeper_profile.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Adapter/EnhancedBookingAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Adapter/EnhancedBookingAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/HousekeeperBookingActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/HousekeeperBookingActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Model/DTOs/EnhancedBookingDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Mobile/app/src/main/java/com/example/housekeeperapplication/Model/DTOs/EnhancedBookingDTO.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,19 +43,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "triet",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/GitHub/HouseKeeperConnect/Mobile"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;triet&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/GitHub/HouseKeeperConnect/Mobile&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">

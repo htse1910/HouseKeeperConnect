@@ -3,6 +3,7 @@ package com.example.housekeeperapplication.API.Interfaces;
 import com.example.housekeeperapplication.Model.Account;
 import com.example.housekeeperapplication.Model.DTOs.ApplicationDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.BookingHousekeeperDTO;
+import com.example.housekeeperapplication.Model.DTOs.BookingResponseDTO;
 import com.example.housekeeperapplication.Model.DTOs.Chat;
 import com.example.housekeeperapplication.Model.DTOs.ChatReturnDTO;
 import com.example.housekeeperapplication.Model.DTOs.FamilyAccountDetailDTO;
@@ -143,7 +144,10 @@ public interface APIServices {
     @GET("api/Account/GetAccount")
     Call<Account> getAccountById(@Query("id") int accountId);
     @GET("api/Booking/GetBookingByHousekeeperID")
-    Call<List<JobDetailForBookingDTO>> getBookingsByHousekeeperID(@Query("housekeeperId") int housekeeperId);
+    Call<List<BookingResponseDTO>> getBookingsByHousekeeperID(
+            @Query("housekeeperId") int housekeeperId,
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize);
     @GET("api/Job/GetJobByID")
     Call<Job> getJobById(@Query("id") int jobId);
 
@@ -314,4 +318,9 @@ public interface APIServices {
     );
     @PUT("api/Application/UpdateApplication")
     Call<Void> UpdateApplication(@Query("AppID") int applicationID, @Query("status") int status);
+    @POST("api/Job/ConfirmSlotWorked/api/Job/ConfirmSlotWorked")
+    Call<Void> ConfirmSlotWorked(@Query("bookingId") int bookingId);
+
+    @POST("api/Job/ConfirmJobCompletion")
+    Call<Void> ConfirmJobCompletion(@Query("jobId") int jobId, @Query("accountID") int accountID);
 }
