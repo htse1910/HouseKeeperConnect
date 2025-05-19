@@ -90,7 +90,7 @@ const ManageAcceptedJobsPage = () => {
       const message = await response.text();
 
       if (response.ok) {
-        toast.success("✔️ Công việc đã hủy và hoàn tiền!");
+        toast.success(message || "✔️ Công việc đã hủy và hoàn tiền!");
         setJobs((prev) => prev.filter((job) => job.jobID !== jobID));
       } else {
         toast.error(message || "❌ Không thể từ chối công việc.");
