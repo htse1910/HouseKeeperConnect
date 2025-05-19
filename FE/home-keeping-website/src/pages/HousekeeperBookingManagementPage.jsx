@@ -33,7 +33,7 @@ const slotMap = {
 };
 
 const HousekeeperBookingManagementPage = () => {
-  const [rows, setRows] = useState([]);
+  // const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const accountID = localStorage.getItem("accountID");
   const housekeeperID = localStorage.getItem("housekeeperID");
@@ -48,27 +48,35 @@ const HousekeeperBookingManagementPage = () => {
   const [rowsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("all");
   const [bookingCount, setBookingCount] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
   const pageSize = 5;
+  const [allBookings, setAllBookings] = useState([]);
+
+  const filteredBookings = allBookings.filter(b => {
+    if (statusFilter === "all") return true;
+    return b.jobStatus === Number(statusFilter); // ✅ CORRECT
+  });
+
+  const paginatedBookings = filteredBookings.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const totalPages = Math.ceil(filteredBookings.length / pageSize);
 
   const fetchBookingCount = async () => {
+    if (!authToken || !accountID) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/Booking/CountBookingsByHousekeeperID?accountID=${accountID}`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      const statusParam = statusFilter === "all" ? "" : `&status=${statusFilter}`;
+      const res = await fetch(
+        `${API_BASE_URL}/Booking/CountBookingsByHousekeeperID?accountID=${accountID}${statusParam}`,
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
       const count = await res.json();
       setBookingCount(count);
     } catch (error) {
       console.error("Failed to fetch booking count:", error);
     }
   };
-
-  const filteredRows = statusFilter === "all"
-    ? rows
-    : rows.filter(row => row.jobStatus === Number(statusFilter));
-
-  const totalPages = Math.ceil(bookingCount / pageSize);
-  const paginatedRows = filteredRows.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   const handleMarkComplete = async (jobID) => {
     if (!authToken || !accountID) {
@@ -88,7 +96,7 @@ const HousekeeperBookingManagementPage = () => {
       const msg = await res.text();
       if (res.ok) {
         toast.success(msg || "✅ Đã báo hoàn thành công việc!");
-        setRows(prev =>
+        setAllBookings(prev =>
           prev.map(row =>
             row.jobID === jobID ? { ...row, status: 6 } : row
           )
@@ -179,29 +187,42 @@ const HousekeeperBookingManagementPage = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/Booking/GetBookingByHousekeeperID?housekeeperId=${housekeeperID}&pageNumber=${pageNumber}&pageSize=${pageSize}`, {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
-        const bookingData = await res.json();
+  const fetchAllBookings = async () => {
+    if (!authToken || !housekeeperID) return;
 
+    setLoading(true);
+    try {
+      // Step 1: Get total count
+      const countRes = await fetch(
+        `${API_BASE_URL}/Booking/CountBookingsByHousekeeperID?accountID=${accountID}`,
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      const total = await countRes.json();
+      setBookingCount(total);
 
+      // ✅ Fix: calculate totalPages locally
+      const totalPages = Math.ceil(total / pageSize);
 
-        setRows(bookingData);
-      } catch (err) {
-        console.error("Error fetching booking data:", err);
-      } finally {
-        setLoading(false);
+      const bookings = [];
+
+      for (let page = 1; page <= totalPages; page++) {
+        const res = await fetch(
+          `${API_BASE_URL}/Booking/GetBookingByHousekeeperID?housekeeperId=${housekeeperID}&pageNumber=${page}&pageSize=${pageSize}`,
+          { headers: { Authorization: `Bearer ${authToken}` } }
+        );
+        const data = await res.json();
+        bookings.push(...data);
       }
-    };
 
-    if (housekeeperID && authToken) {
-      fetchData();           // existing function
-      fetchBookingCount();   // <-- add this
+      setAllBookings(bookings);
+    } catch (error) {
+      toast.error("Lỗi khi tải công việc.");
+      console.error("Fetch failed:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [housekeeperID, authToken, pageNumber]);
+  };
+
 
   const getJobStatusText = (status) => {
     switch (status) {
@@ -257,13 +278,16 @@ const HousekeeperBookingManagementPage = () => {
       }
 
       toast.success(toastMsg);
-      setRows(prev => prev.filter(row => row.jobID !== jobID));
+      setAllBookings(prev => prev.filter(row => row.jobID !== jobID));
     } catch (err) {
       console.error("❌ Fetch failed:", err);
       toast.error("❌ Lỗi khi gọi API.");
     }
   };
 
+  useEffect(() => {
+    fetchAllBookings();
+  }, [housekeeperID, authToken]);
 
   return (
     <div className="container py-4">
@@ -279,10 +303,9 @@ const HousekeeperBookingManagementPage = () => {
 
       {loading ? (
         <p className="text-muted">⏳ Đang tải dữ liệu...</p>
-      ) : rows.length === 0 ? (
-        <p className="text-muted">Không có công việc nào được đặt.</p>
       ) : (
-        <div className="row g-3">
+        <>
+          {/* Always show filter and pagination bar */}
           <div className="d-flex justify-content-between align-items-center mb-3">
             <div>
               <label className="me-2 fw-bold">Lọc theo trạng thái:</label>
@@ -295,213 +318,222 @@ const HousekeeperBookingManagementPage = () => {
                 }}
               >
                 <option value="all">Tất cả</option>
-                <option value="1">🕐 Chờ xác nhận</option> {/* Pending */}
-                <option value="2">📋 Đã duyệt</option>     {/* Verified */}
-                <option value="3">✔️ Đã nhận</option>      {/* Accepted */}
-                <option value="4">✅ Hoàn thành</option>   {/* Completed */}
-                <option value="5">⌛ Hết hạn</option>      {/* Expired */}
-                <option value="6">❌ Đã hủy</option>       {/* Canceled */}
-                <option value="7">🚫 Không cho phép</option> {/* NotPermitted */}
-                <option value="8">🕓 Chờ xác nhận gia đình</option> {/* PendingFamilyConfirmation */}
-                <option value="9">🚪 Bạn đã bỏ việc</option>     {/* HousekeeperQuitJob */}
-                <option value="10">🔁 Đã phân công lại</option> {/* ReAssignedJob */}
+                <option value="1">🕐 Chờ xác nhận</option>
+                <option value="2">📋 Đã duyệt</option>
+                <option value="3">✔️ Đã nhận</option>
+                <option value="4">✅ Hoàn thành</option>
+                <option value="5">⌛ Hết hạn</option>
+                <option value="6">❌ Đã hủy</option>
+                <option value="7">🚫 Không cho phép</option>
+                <option value="8">🕓 Chờ xác nhận gia đình</option>
+                <option value="9">🚪 Bạn đã bỏ việc</option>
+                <option value="10">🔁 Đã phân công lại</option>
               </select>
             </div>
             <div className="text-muted small">
               Trang {currentPage} / {totalPages}
             </div>
           </div>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={pageNumber} // important to re-trigger animation
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-            >
-              {paginatedRows.map((row, idx) => (
-                <div className="col-12" key={idx}>
-                  <div className="card shadow-sm border-0 rounded-3 p-2 mb-4">
-                    <div className="d-flex justify-content-between align-items-center mb-1">
-                      <h6 className="fw-bold mb-0">
-                        <FaBriefcase className="me-2 text-warning" />
-                        {row.jobName}
-                      </h6>
-                      <span className="text-muted small">#{row.bookingID}</span>
-                    </div>
 
-                    <div className="mb-1 text-muted small d-flex align-items-center">
-                      <FaUser className="me-1" />
-                      <span className="me-1"><strong>Gia đình:</strong></span> {row.familyName}
-                    </div>
+          {filteredBookings.length === 0 ? (
+            <p className="text-muted">Không có công việc nào được đặt.</p>
+          ) : (
+            <>
+              <div className="row g-3">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentPage}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {paginatedBookings.map((row, idx) => (
+                      // ⬅️ You already have this job card block
+                      <div className="col-12" key={idx}>
+                        {/* Job card rendering... */}
+                        <div className="col-12" key={idx}>
+                          <div className="card shadow-sm border-0 rounded-3 p-2 mb-4">
+                            <div className="d-flex justify-content-between align-items-center mb-1">
+                              <h6 className="fw-bold mb-0">
+                                <FaBriefcase className="me-2 text-warning" />
+                                {row.jobName}
+                              </h6>
+                              <span className="text-muted small">#{row.bookingID}</span>
+                            </div>
 
-                    <div className="d-flex flex-wrap mb-1">
-                      <div className="small me-3 d-flex align-items-center">
-                        <FaMapMarkerAlt className="me-1 text-danger" />
-                        <strong>Địa điểm:</strong> {row.location}
-                      </div>
-                      <div className="small d-flex align-items-center">
-                        <FaMoneyBillWave className="me-1 text-success" />
-                        <strong>Lương:</strong>{row.totalPrice.toLocaleString("vi-VN")} VNĐ
-                      </div>
-                    </div>
+                            <div className="mb-1 text-muted small d-flex align-items-center">
+                              <FaUser className="me-1" />
+                              <span className="me-1"><strong>Gia đình:</strong></span> {row.familyName}
+                            </div>
 
-                    <div className="d-flex flex-wrap mb-1">
-                      <div className="small me-3 d-flex align-items-center">
-                        <FaCalendarAlt className="me-1 text-primary" />
-                        <strong>Bắt đầu:</strong> {new Date(row.startDate).toLocaleDateString("vi-VN")}
-                      </div>
-                      <div className="small d-flex align-items-center">
-                        <FaCalendarAlt className="me-1 text-danger" />
-                        <strong>Kết thúc:</strong> {new Date(row.endDate).toLocaleDateString("vi-VN")}
-                      </div>
-                    </div>
+                            <div className="d-flex flex-wrap mb-1">
+                              <div className="small me-3 d-flex align-items-center">
+                                <FaMapMarkerAlt className="me-1 text-danger" />
+                                <strong>Địa điểm:</strong> {row.location}
+                              </div>
+                              <div className="small d-flex align-items-center">
+                                <FaMoneyBillWave className="me-1 text-success" />
+                                <strong>Lương:</strong> {row.totalPrice.toLocaleString("vi-VN")} VNĐ
+                              </div>
+                            </div>
 
-                    <div className="mb-1 small d-flex align-items-center">
-                      <FaFileAlt className="me-1 text-secondary" />
-                      <strong>Mô tả:</strong> {row.description}
-                    </div>
+                            <div className="d-flex flex-wrap mb-1">
+                              <div className="small me-3 d-flex align-items-center">
+                                <FaCalendarAlt className="me-1 text-primary" />
+                                <strong>Bắt đầu:</strong> {new Date(row.startDate).toLocaleDateString("vi-VN")}
+                              </div>
+                              <div className="small d-flex align-items-center">
+                                <FaCalendarAlt className="me-1 text-danger" />
+                                <strong>Kết thúc:</strong> {new Date(row.endDate).toLocaleDateString("vi-VN")}
+                              </div>
+                            </div>
 
-                    <div className="mb-1 small d-flex align-items-center">
-                      <FaCheckCircle className="me-1 text-success" />
-                      <strong>Trạng thái công việc:</strong> {getJobStatusText(row.jobStatus)}
-                    </div>
-                    {/* <pre>Booking Status: {row.status}, Job Status: {row.jobStatus}</pre> */}
+                            <div className="mb-1 small d-flex align-items-center">
+                              <FaFileAlt className="me-1 text-secondary" />
+                              <strong>Mô tả:</strong> {row.description}
+                            </div>
 
-                    <div className="d-flex flex-wrap">
-                      <div className="col-12 col-md-4 small">
-                        <strong>
-                          <FaClock className="me-1 text-info" />Ca làm việc:
-                        </strong>
-                        <ul className="ps-3 mb-0">
-                          {row.slotIDs?.map((s, i) => (
-                            <li key={i} className="text-info">{slotMap[s] || `Slot ${s}`}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="col-12 col-md-4 small">
-                        <strong>📅 Thứ:</strong>
-                        <ul className="ps-3 mb-0">
-                          {row.dayofWeek?.map((dayIndex, i) => (
-                            <li
-                              key={i}
-                              className="text-warning"
-                              style={{ cursor: "pointer", textDecoration: "underline" }}
-                              onClick={() => openDayModal(row, dayIndex)}
-                            >
-                              {dayNames[dayIndex]}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="col-12 col-md-4 small">
-                        <strong>🛎️ Dịch vụ:</strong>
-                        <ul className="ps-3 mb-0">
-                          {row.serviceIDs?.map((s, i) => (
-                            <li key={i} className="text-success">{serviceMap[s]}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
+                            <div className="mb-1 small d-flex align-items-center">
+                              <FaCheckCircle className="me-1 text-success" />
+                              <strong>Trạng thái công việc:</strong> {getJobStatusText(row.jobStatus)}
+                            </div>
 
-                    <div className="text-end mt-2">
-                      <div className="d-flex justify-content-between align-items-center mt-2">
-                        <div>
-                          {row.jobStatus === 3 &&
-                            row.status !== 6 &&
-                            getVNDate() >= new Date(row.endDate.split("/").reverse().join("-")) ? (
-                            <button
-                              className="btn btn-sm btn-success rounded-pill fw-bold me-2"
-                              onClick={() => handleMarkComplete(row.jobID)}
-                            >
-                              <FaCheckCircle className="me-1" />
-                              Báo hoàn thành
-                            </button>
-                          ) : row.status === 4 && row.jobStatus !== 6 ? (
-                            <span className="badge bg-success px-3 py-2 rounded-pill">
-                              Đã hoàn thành ✅
-                            </span>
-                          )
-                            : row.status === 2 ? (
-                              <span className="badge bg-secondary px-3 py-2 rounded-pill">
-                                Đang thực hiện
-                              </span>
-                            ) : row.jobStatus === 3 &&
-                              (() => {
-                                const todayVN = new Date().toLocaleDateString("vi-VN");
-                                const start = row.startDate;
-                                const end = row.endDate;
-                                return todayVN >= start && todayVN <= end;
-                              })() ? (
-                              <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
-                                Chưa tới ngày xác nhận
-                              </span>
-                            ) : null
-                          }
+                            <div className="d-flex flex-wrap">
+                              <div className="col-12 col-md-4 small">
+                                <strong>
+                                  <FaClock className="me-1 text-info" />Ca làm việc:
+                                </strong>
+                                <ul className="ps-3 mb-0">
+                                  {row.slotIDs?.map((s, i) => (
+                                    <li key={i} className="text-info">{slotMap[s] || `Slot ${s}`}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div className="col-12 col-md-4 small">
+                                <strong>📅 Thứ:</strong>
+                                <ul className="ps-3 mb-0">
+                                  {row.dayofWeek?.map((dayIndex, i) => (
+                                    <li
+                                      key={i}
+                                      className="text-warning"
+                                      style={{ cursor: "pointer", textDecoration: "underline" }}
+                                      onClick={() => openDayModal(row, dayIndex)}
+                                    >
+                                      {dayNames[dayIndex]}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div className="col-12 col-md-4 small">
+                                <strong>🛎️ Dịch vụ:</strong>
+                                <ul className="ps-3 mb-0">
+                                  {row.serviceIDs?.map((s, i) => (
+                                    <li key={i} className="text-success">{serviceMap[s]}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+
+                            <div className="text-end mt-2">
+                              <div className="d-flex justify-content-between align-items-center mt-2">
+                                <div>
+                                  {row.jobStatus === 3 &&
+                                    row.status !== 6 &&
+                                    getVNDate() >= new Date(row.endDate.split("/").reverse().join("-")) ? (
+                                    <button
+                                      className="btn btn-sm btn-success rounded-pill fw-bold me-2"
+                                      onClick={() => handleMarkComplete(row.jobID)}
+                                    >
+                                      <FaCheckCircle className="me-1" />
+                                      Báo hoàn thành
+                                    </button>
+                                  ) : row.status === 4 && row.jobStatus !== 6 ? (
+                                    <span className="badge bg-success px-3 py-2 rounded-pill">
+                                      Đã hoàn thành ✅
+                                    </span>
+                                  ) : row.status === 2 ? (
+                                    <span className="badge bg-secondary px-3 py-2 rounded-pill">
+                                      Đang thực hiện
+                                    </span>
+                                  ) : row.jobStatus === 3 &&
+                                    (() => {
+                                      const todayVN = new Date().toLocaleDateString("vi-VN");
+                                      return todayVN >= row.startDate && todayVN <= row.endDate;
+                                    })() ? (
+                                    <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
+                                      Chưa tới ngày xác nhận
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div>
+                                  {row.jobStatus === 3 && (
+                                    <button
+                                      className="btn btn-outline-danger btn-sm rounded-pill fw-bold"
+                                      onClick={() => handleForceAbandon(row.jobID)}
+                                    >
+                                      🛑 Huỷ việc
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          {row.jobStatus === 3 && (
-                            <button
-                              className="btn btn-outline-danger btn-sm rounded-pill fw-bold"
-                              onClick={() => handleForceAbandon(row.jobID)}
-                            >
-                              🛑 Huỷ việc
-                            </button>
-                          )}
-                        </div>
                       </div>
-                    </div>
-                  </div>
+                    ))}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    ⬅️ Trước
+                  </button>
+
+                  <input
+                    type="number"
+                    min="1"
+                    max={totalPages}
+                    value={currentPage}
+                    onChange={(e) => {
+                      const page = parseInt(e.target.value, 10);
+                      if (!isNaN(page) && page >= 1 && page <= totalPages) {
+                        setCurrentPage(page);
+                      }
+                    }}
+                    className="form-control form-control-sm text-center"
+                    style={{ width: "60px" }}
+                  />
+
+                  <span className="small">/ {totalPages}</span>
+
+                  <button
+                    className="btn btn-sm btn-outline-primary"
+                    onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Sau ➡️
+                  </button>
                 </div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
-          {totalPages > 1 && (
-            <div className="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap">
-              <button
-                className="btn btn-sm btn-outline-primary"
-                onClick={() => setPageNumber(p => Math.max(p - 1, 1))}
-                disabled={pageNumber === 1}
-              >
-                ⬅️ Trước
-              </button>
-
-              <input
-                type="number"
-                min="1"
-                max={totalPages}
-                value={pageNumber}
-                onChange={(e) => {
-                  const page = parseInt(e.target.value, 10);
-                  if (!isNaN(page) && page >= 1 && page <= totalPages) {
-                    setPageNumber(page);
-                  }
-                }}
-                className="form-control form-control-sm text-center"
-                style={{ width: "60px" }}
-              />
-
-              <span className="small">/ {totalPages}</span>
-
-              <button
-                className="btn btn-sm btn-outline-primary"
-                onClick={() => setPageNumber(p => Math.min(p + 1, totalPages))}
-                disabled={pageNumber === totalPages}
-              >
-                Sau ➡️
-              </button>
-            </div>
+              )}
+            </>
           )}
-        </div>
+        </>
       )}
 
+      {/* Modal */}
       {selectedBooking && (
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
             <Modal.Title>Thông tin ca làm việc</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p><strong>Công việc:</strong> {selectedBooking.jobName}</p>
             <p><strong>Gia đình:</strong> {selectedBooking.familyName}</p>
             <p><strong>Bắt đầu:</strong> {selectedBooking.startDate}</p>
             <p><strong>Kết thúc:</strong> {selectedBooking.endDate}</p>
@@ -523,6 +555,6 @@ const HousekeeperBookingManagementPage = () => {
       )}
     </div>
   );
-};
+}
 
 export default HousekeeperBookingManagementPage;
