@@ -34,7 +34,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Withdraw.AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Withdraw.OrderByDescending(a => a.RequestDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -69,6 +69,7 @@ namespace DataAccess
                 {
                     var oneWeekAgo = DateTime.Now.AddDays(-7);
                     var Withdraws = await context.Withdraw
+                        .OrderByDescending(a => a.RequestDate)
                 .Where(x => x.RequestDate >= oneWeekAgo && x.Status == (int)TransactionStatus.Completed)
                 .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
                 .ToListAsync();
@@ -90,6 +91,7 @@ namespace DataAccess
                 {
                     var oneWeekAgo = DateTime.Now.AddDays(-7);
                     var Withdraws = await context.Withdraw
+                        .OrderByDescending(a => a.RequestDate)
                 .Where(x => x.Status == (int)TransactionStatus.Pending)
                 .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
                 .ToListAsync();
@@ -127,7 +129,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    trans = await context.Withdraw.Where(t => t.AccountID == uId).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    trans = await context.Withdraw.Where(t => t.AccountID == uId).OrderByDescending(a => a.RequestDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

@@ -87,7 +87,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Application.Include(a => a.HouseKepper.Account).Include(a => a.Job.Family).Where(a => a.HouseKeeperID == uid).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Application.Include(a => a.HouseKepper.Account).Include(a => a.Job.Family).Include(a => a.Job.Family.Account).Where(a => a.HouseKeeperID == uid).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -104,7 +104,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Application.Include(a => a.HouseKepper.Account).Include(a => a.Job.Family).Where(a => a.HouseKeeperID == uid).AsNoTracking().ToListAsync();
+                    list = await context.Application.Include(a => a.HouseKepper.Account).Include(a => a.Job.Family).Where(a => a.HouseKeeperID == uid).OrderByDescending(j => j.CreatedDate).AsNoTracking().ToListAsync();
                 }
             }
             catch (Exception ex)

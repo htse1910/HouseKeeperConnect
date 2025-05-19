@@ -589,7 +589,7 @@ namespace HouseKeeperConnect_API.Controllers
             foreach (var staff in staffList)
             {
                 var noti = new Notification();
-                noti.Message = "Có đơn rút tiền cần xử lý!";
+                noti.Message = "Có công việc cần được duyệt!";
                 noti.AccountID = staff.AccountID;
 
                 await _notificationService.AddNotificationAsync(noti);
