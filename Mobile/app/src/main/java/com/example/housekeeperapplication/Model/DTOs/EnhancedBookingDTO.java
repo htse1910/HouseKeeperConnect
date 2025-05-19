@@ -9,18 +9,14 @@ public class EnhancedBookingDTO {
     public List<Integer> slotIDs;
     public List<Integer> dayofWeek;
     public List<Integer> serviceIDs;
-
-    // Thông tin từ JobDetail
     public String jobName;
     public String location;
+    public String detailLocation;
     public double price;
+    public double pricePerHour;
     public String startDate;
     public String endDate;
     public String description;
-
-    // Thông tin gia đình
     public String familyName;
-
-    // Thông tin account
     public String familyProfilePicture;
 }

@@ -176,13 +176,15 @@
                     android:textSize="14sp"
                     android:textColor="@color/gray"/>
 
-                <TextView
-                    android:id="@+id/tvWeekday"
-                    android:layout_width="wrap_content"
+                <com.google.android.flexbox.FlexboxLayout
+                    android:id="@+id/layoutWeekdays"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thứ Tư"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    app:flexWrap="wrap"
+                    app:alignItems="flex_start"
+                    app:justifyContent="flex_start"
+                    android:paddingTop="4dp">
+                </com.google.android.flexbox.FlexboxLayout>
             </LinearLayout>
         </LinearLayout>
         <!-- Job Description -->
@@ -193,6 +195,15 @@
             android:text="Mô tả: Nấu bữa tối cho gia đình 4 người, ưu tiên món Việt"
             android:textSize="14sp"
             android:textColor="@color/gray"
+            android:layout_marginBottom="8dp"/>
+        <Button
+            android:id="@+id/btnCheckIn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Check In"
+            android:visibility="gone"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@android:color/white"
             android:layout_marginBottom="8dp"/>
         <!-- Action Buttons - 2 nút ngang hàng -->
         <LinearLayout

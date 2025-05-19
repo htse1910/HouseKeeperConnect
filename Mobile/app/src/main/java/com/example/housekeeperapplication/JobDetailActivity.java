@@ -21,6 +21,7 @@ import com.example.housekeeperapplication.Model.DTOs.ApplicationDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,6 +58,101 @@ public class JobDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Job ID không hợp lệ", Toast.LENGTH_SHORT).show();
             finish();
         }
+        btnConfirmSlotWorked.setOnClickListener(v -> confirmSlotWorked());
+        btnConfirmJobCompletion.setOnClickListener(v -> confirmJobCompletion());
+    }
+    private void confirmSlotWorked() {
+        // Show confirmation dialog
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận Check-In")
+                .setMessage("Bạn có chắc chắn muốn xác nhận người giúp việc đã check-in hôm nay?")
+                .setPositiveButton("Xác nhận", (dialog, which) -> {
+                    callConfirmSlotWorkedAPI();
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void callConfirmSlotWorkedAPI() {
+        // Get booking ID - you might need to adjust this based on your data structure
+        // If you don't have booking ID directly, you might need to get it from job details
+        int bookingId = getIntent().getIntExtra("bookingId", -1);
+        if (bookingId == -1) {
+            Toast.makeText(this, "Không tìm thấy thông tin booking", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        api.ConfirmSlotWorked(bookingId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(JobDetailActivity.this, "Đã xác nhận check-in thành công", Toast.LENGTH_SHORT).show();
+                } else {
+                    try {
+                        String errorBody = response.errorBody().string();
+                        Toast.makeText(JobDetailActivity.this, "Lỗi: " + errorBody, Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Toast.makeText(JobDetailActivity.this, "Lỗi khi xác nhận check-in", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(JobDetailActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void confirmJobCompletion() {
+        // Show confirmation dialog
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận hoàn thành công việc")
+                .setMessage("Bạn có chắc chắn muốn xác nhận hoàn thành công việc này?")
+                .setPositiveButton("Xác nhận", (dialog, which) -> {
+                    callConfirmJobCompletionAPI();
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void callConfirmJobCompletionAPI() {
+        int jobId = getIntent().getIntExtra("jobID", -1);
+        if (jobId == -1) {
+            Toast.makeText(this, "Không tìm thấy thông tin công việc", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Get account ID from shared preferences or wherever you store it
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int accountId = prefs.getInt("accountID", -1);
+        if (accountId == -1) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        api.ConfirmJobCompletion(jobId, accountId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(JobDetailActivity.this, "Đã xác nhận hoàn thành công việc", Toast.LENGTH_SHORT).show();
+                    // Optionally update UI or finish activity
+                    finish();
+                } else {
+                    try {
+                        String errorBody = response.errorBody().string();
+                        Toast.makeText(JobDetailActivity.this, "Lỗi: " + errorBody, Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Toast.makeText(JobDetailActivity.this, "Lỗi khi xác nhận hoàn thành", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(JobDetailActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void initViews() {

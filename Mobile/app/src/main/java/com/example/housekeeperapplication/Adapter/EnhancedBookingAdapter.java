@@ -3,29 +3,33 @@ package com.example.housekeeperapplication.Adapter;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
+import android.text.Layout;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
-import com.example.housekeeperapplication.Model.DTOs.BookingHousekeeperDTO;
-import com.example.housekeeperapplication.Model.DTOs.EnhancedBookingDTO;
-import com.example.housekeeperapplication.Model.DTOs.FamilyAccountMappingDTO;
-import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
+import com.example.housekeeperapplication.Model.DTOs.BookingResponseDTO;
 import com.example.housekeeperapplication.Model.Service;
 import com.example.housekeeperapplication.R;
-import com.google.gson.Gson;
+import com.google.android.flexbox.FlexboxLayout;
+
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -35,22 +39,21 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBookingAdapter.BookingViewHolder> {
-    private final List<EnhancedBookingDTO> bookings;
+    private List<BookingResponseDTO> bookings;
     private final Context context;
     private final OnBookingActionListener listener;
-    private final APIServices apiServices;
     private final SparseArray<String> serviceNames = new SparseArray<>();
     private boolean servicesLoaded = false;
+    private final APIServices apiServices;
 
     public interface OnBookingActionListener {
-        void onBookingClicked(EnhancedBookingDTO booking);
-        void onCheckInClicked(EnhancedBookingDTO booking);
-        void onCompleteJobClicked(EnhancedBookingDTO booking);
+        void onCheckInClicked(BookingResponseDTO booking);
+        void onCompleteJobClicked(BookingResponseDTO booking);
     }
 
-    public EnhancedBookingAdapter(Context context, List<EnhancedBookingDTO> bookings, OnBookingActionListener listener) {
+    public EnhancedBookingAdapter(Context context, List<BookingResponseDTO> bookings, OnBookingActionListener listener) {
         this.context = context;
-        this.bookings = bookings;
+        this.bookings = bookings != null ? bookings : new ArrayList<>();
         this.listener = listener;
         this.apiServices = APIClient.getClient(context).create(APIServices.class);
         loadServiceNames();
@@ -66,12 +69,13 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
                     }
                     servicesLoaded = true;
                     notifyDataSetChanged();
+                    Log.d("ServiceLoad", "Loaded " + serviceNames.size() + " services");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Service>> call, Throwable t) {
-                Log.e("EnhancedBookingAdapter", "Failed to load services", t);
+                Log.e("ServiceLoad", "Failed to load services", t);
             }
         });
     }
@@ -83,100 +87,171 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
         return new BookingViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull BookingViewHolder holder, int position) {
-        EnhancedBookingDTO booking = bookings.get(position);
+        BookingResponseDTO booking = bookings.get(position);
         if (booking == null) return;
 
-        // Hiển thị thông tin cơ bản
-        holder.tvBookingID.setText("#" + booking.bookingID);
-        holder.tvJobTitle.setText(booking.jobName != null ? booking.jobName : "Công việc #" + booking.jobID);
+        try {
+            // Hiển thị thông tin cơ bản
+            holder.tvBookingID.setText(String.format(Locale.getDefault(), "#%d", booking.bookingID));
+            holder.tvJobTitle.setText(booking.jobName != null ? booking.jobName :
+                    String.format(Locale.getDefault(), "Công việc #%d", booking.jobID));
 
-        // Hiển thị thông tin gia đình
-        if (booking.familyName != null) {
-            holder.tvFamily.setText("👨‍👩‍👧‍👦 " + booking.familyName);
-        }
-
-
-
-        // Hiển thị thông tin chi tiết
-        displayBasicInfo(holder, booking);
-        displayScheduleInfo(holder, booking);
-        displayStatusInfo(booking.status);
-        displayServices(holder, booking.serviceIDs);
-
-        // Xử lý sự kiện
-        setupClickListeners(holder, booking);
-    }
-
-    private void displayBasicInfo(BookingViewHolder holder, EnhancedBookingDTO booking) {
-        holder.tvDescription.setText("📝 " + (booking.description != null ? booking.description : "Không có mô tả"));
-        holder.tvLocation.setText("📍 " + (booking.location != null ? booking.location : "Địa điểm chưa xác định"));
-        holder.tvSalary.setText("💵 " + formatPrice(booking.price));
-        holder.tvStartDate.setText("📅 Bắt đầu: " + formatDate(booking.startDate));
-        holder.tvEndDate.setText("📅 Kết thúc: " + formatDate(booking.endDate));
-    }
-
-    private void displayScheduleInfo(BookingViewHolder holder, EnhancedBookingDTO booking) {
-        if (booking.slotIDs != null && !booking.slotIDs.isEmpty()) {
-            holder.tvSlot.setText("🕐 Ca: " + getSlotString(booking.slotIDs));
-        }
-        if (booking.dayofWeek != null && !booking.dayofWeek.isEmpty()) {
-            holder.tvWeekday.setText("📆 Thứ: " + getWeekdayString(booking.dayofWeek));
-        }
-    }
-
-    private void displayServices(BookingViewHolder holder, List<Integer> serviceIDs) {
-        if (serviceIDs != null && !serviceIDs.isEmpty()) {
-            StringBuilder servicesBuilder = new StringBuilder("🛎️ ");
-            for (int i = 0; i < serviceIDs.size(); i++) {
-                if (i > 0) servicesBuilder.append(", ");
-                int serviceId = serviceIDs.get(i);
-                String serviceName = servicesLoaded ? serviceNames.get(serviceId, "Dịch vụ #" + serviceId)
-                        : "Đang tải...";
-                servicesBuilder.append(serviceName);
+            // Thông tin gia đình
+            if (booking.familyname != null && !booking.familyname.isEmpty()) {
+                holder.tvFamily.setText(String.format("👨‍👩‍👧‍👦 %s", booking.familyname));
+                holder.tvFamily.setVisibility(View.VISIBLE);
+            } else {
+                holder.tvFamily.setVisibility(View.GONE);
             }
-            holder.tvServices.setText(servicesBuilder.toString());
-        } else {
-            holder.tvServices.setText("🛎️ Chưa có dịch vụ");
+
+            // Trạng thái
+            holder.tvJobStatus.setText(getStatusText(booking.bookingStatus));
+
+            // Địa điểm
+            String location = booking.location;
+            if (booking.detailLocation != null && !booking.detailLocation.trim().isEmpty()) {
+                location += ", " + booking.detailLocation.trim();
+            }
+            holder.tvLocation.setText(String.format("📍 %s", location));
+
+            // Giá cả
+            String priceText = String.format(Locale.getDefault(), "💵 %,.0f VND", booking.totalPrice);
+            if (booking.pricePerHour > 0) {
+                priceText += String.format(Locale.getDefault(), " (%,.0f VND/giờ)", booking.pricePerHour);
+            }
+            holder.tvSalary.setText(priceText);
+
+            // Ngày tháng
+            holder.tvStartDate.setText(String.format("📅 Bắt đầu: %s", formatDate(booking.startDate)));
+            holder.tvEndDate.setText(String.format("📅 Kết thúc: %s", formatDate(booking.endDate)));
+
+            // Mô tả
+            holder.tvJobDescription.setText(String.format("📝 %s",
+                    booking.description != null ? booking.description : "Không có mô tả"));
+
+            // Ca làm việc
+            if (booking.slotIDs != null && !booking.slotIDs.isEmpty()) {
+                holder.tvSlot.setText(String.format("🕐 Ca: %s", getSlotString(booking.slotIDs)));
+                holder.tvSlot.setVisibility(View.VISIBLE);
+            } else {
+                holder.tvSlot.setVisibility(View.GONE);
+            }
+
+            // Xử lý hiển thị các thứ làm việc
+            holder.layoutWeekdays.removeAllViews();
+            if (booking.dayofWeek != null && !booking.dayofWeek.isEmpty()) {
+                for (int day : booking.dayofWeek) {
+                    TextView tvDay = new TextView(context);
+                    tvDay.setText(dayToString(day));
+                    tvDay.setTextSize(14);
+                    tvDay.setPadding(32, 8, 32, 8);
+
+                    // Tạo background với bo tròn
+                    GradientDrawable shape = new GradientDrawable();
+                    shape.setShape(GradientDrawable.RECTANGLE);
+                    shape.setCornerRadius(16f);
+
+                    boolean isToday = isToday(day);
+                    if (isToday) {
+                        shape.setColor(ContextCompat.getColor(context, R.color.colorPrimary));
+                        tvDay.setTextColor(ContextCompat.getColor(context, android.R.color.white));
+                    } else {
+                        shape.setColor(ContextCompat.getColor(context, R.color.gray));
+                        tvDay.setTextColor(ContextCompat.getColor(context, R.color.black));
+                    }
+
+                    tvDay.setBackground(shape);
+
+                    FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
+                            FlexboxLayout.LayoutParams.WRAP_CONTENT,
+                            FlexboxLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    params.setMargins(0, 0, 8, 8); // Thêm margin right và bottom
+                    tvDay.setLayoutParams(params);
+
+                    tvDay.setOnClickListener(v -> {
+                        if (isToday) {
+                            holder.btnCheckIn.setVisibility(View.VISIBLE);
+                        } else {
+                            holder.btnCheckIn.setVisibility(View.GONE);
+                            Toast.makeText(context,
+                                    "Chỉ có thể check-in vào " + dayToString(day),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    holder.layoutWeekdays.addView(tvDay);
+                }
+            }
+
+
+
+            // Nút Check-in (ẩn mặc định)
+            holder.btnCheckIn.setVisibility(View.GONE);
+            holder.btnCheckIn.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onCheckInClicked(booking);
+                }
+            });
+
+            // Dịch vụ
+            if (booking.serviceIDs != null && !booking.serviceIDs.isEmpty()) {
+                StringBuilder servicesBuilder = new StringBuilder("🛎️ ");
+                for (int i = 0; i < booking.serviceIDs.size(); i++) {
+                    if (i > 0) servicesBuilder.append(", ");
+                    int serviceId = booking.serviceIDs.get(i);
+                    String serviceName = servicesLoaded ?
+                            serviceNames.get(serviceId, String.format("Dịch vụ #%d", serviceId)) : "Đang tải...";
+                    servicesBuilder.append(serviceName);
+                }
+                holder.tvServices.setText(servicesBuilder.toString());
+                holder.tvServices.setVisibility(View.VISIBLE);
+            } else {
+                holder.tvServices.setVisibility(View.GONE);
+            }
+            // Nút hoàn thành công việc
+            if (booking.bookingStatus == 3) {
+                holder.btnCompleteJob.setVisibility(View.VISIBLE);
+                holder.btnCompleteJob.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onCompleteJobClicked(booking);
+                    }
+                });
+            } else {
+                holder.btnCompleteJob.setVisibility(View.GONE);
+            }
+
+        } catch (Exception e) {
+            Log.e("BookingAdapter", "Error binding data", e);
         }
     }
 
-    private String displayStatusInfo(int status) {
+    private boolean isToday(int dayOfWeek) {
+        Calendar calendar = Calendar.getInstance();
+        int today = calendar.get(Calendar.DAY_OF_WEEK) - 1; // Chủ Nhật = 0
+        return dayOfWeek == today;
+    }
+
+    private String getCurrentDateFormatted() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy", Locale.getDefault());
+        return sdf.format(new Date());
+    }
+
+    private String getStatusText(int status) {
         switch (status) {
-            case 1: return "🕒 Công việc đang chờ duyệt";
-            case 2: return "✔️ Công việc đã xác minh";
-            case 3: return "📌 Công việc đã chấp nhận";
-            case 4: return "✅ Công việc đã hoàn thành";
-            case 5: return "❌ Công việc đã hủy";
-            case 6: return "🕒Chờ xác nhận của gia đình";
-            default: return "❓ Unknown";
+            case 1: return "🕒 Đang chờ xác nhận";
+            case 2: return "✔️ Đã xác nhận";
+            case 3: return "📌 Đang thực hiện";
+            case 4: return "✅ Đã hoàn thành";
+            case 5: return "⭐ Đã đánh giá";
+            case 6: return "❌ Đã hủy";
+            default: return "❓ Trạng thái không xác định";
         }
-
     }
 
-    private void setupClickListeners(BookingViewHolder holder, EnhancedBookingDTO booking) {
-        // Click toàn bộ item
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onBookingClicked(booking);
-            }
-        });
-
-        // Click vào nút Check-In
-
-
-        // Click vào nút Hoàn thành
-        holder.btnCompleteJob.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onCompleteJobClicked(booking);
-            }
-        });
-    }
-
-    private String formatPrice(double price) {
-        return String.format(Locale.getDefault(), "%,.0f VND", price);
-    }
 
     private String formatDate(String rawDate) {
         if (rawDate == null) return "Chưa xác định";
@@ -186,16 +261,16 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
             Date date = inputFormat.parse(rawDate);
             return outputFormat.format(date);
         } catch (Exception e) {
-            return rawDate.split("T")[0]; // Fallback
+            return rawDate.split("T")[0]; // Fallback to date part only
         }
     }
 
     private String getSlotString(List<Integer> slots) {
-        if (slots == null || slots.isEmpty()) return "Chưa xác định";
+        if (slots == null || slots.isEmpty()) return "";
         StringBuilder sb = new StringBuilder();
-        for (int slot : slots) {
-            if (sb.length() > 0) sb.append(", ");
-            sb.append(slotToString(slot));
+        for (int i = 0; i < slots.size(); i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(slotToString(slots.get(i)));
         }
         return sb.toString();
     }
@@ -243,20 +318,27 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
 
     @Override
     public int getItemCount() {
-        return bookings != null ? bookings.size() : 0;
+        return bookings.size();
     }
 
-    public void updateData(List<EnhancedBookingDTO> newBookings) {
-        this.bookings.clear();
-        this.bookings.addAll(newBookings);
-        notifyDataSetChanged();
+    public void updateData(List<BookingResponseDTO> newBookings) {
+        if (newBookings != null) {
+            this.bookings = newBookings; // Gán thẳng list mới
+            notifyDataSetChanged();
+            Log.d("Adapter", "Data updated - Item count: " + getItemCount());
+        } else {
+            this.bookings.clear();
+            notifyDataSetChanged();
+        }
     }
+
 
     static class BookingViewHolder extends RecyclerView.ViewHolder {
         TextView tvJobTitle, tvBookingID, tvFamily, tvLocation, tvSalary,
-                tvStartDate, tvEndDate, tvDescription, tvSlot, tvWeekday,
-                tvServices, tvJobStatus;
-        Button btnCancelJob, btnCompleteJob;
+                tvStartDate, tvEndDate, tvJobDescription, tvSlot,
+                tvServices, tvJobStatus, tvCurrentDate ;
+        Button btnCancelJob, btnCompleteJob, btnCheckIn;
+        FlexboxLayout  layoutWeekdays;
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -264,14 +346,15 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
             tvBookingID = itemView.findViewById(R.id.tvBookingID);
             tvFamily = itemView.findViewById(R.id.tvFamily);
             tvJobStatus = itemView.findViewById(R.id.tvJobStatus);
-            tvDescription = itemView.findViewById(R.id.tvJobDescription);
+            tvJobDescription = itemView.findViewById(R.id.tvJobDescription);
             tvLocation = itemView.findViewById(R.id.tvLocation);
             tvSalary = itemView.findViewById(R.id.tvSalary);
             tvStartDate = itemView.findViewById(R.id.tvStartDate);
             tvEndDate = itemView.findViewById(R.id.tvEndDate);
             tvSlot = itemView.findViewById(R.id.tvSlot);
-            tvWeekday = itemView.findViewById(R.id.tvWeekday);
+            layoutWeekdays = itemView.findViewById(R.id.layoutWeekdays);
             tvServices = itemView.findViewById(R.id.tvServices);
+            btnCheckIn = itemView.findViewById(R.id.btnCheckIn);
             btnCancelJob = itemView.findViewById(R.id.btnCancelJob);
             btnCompleteJob = itemView.findViewById(R.id.btnCompleteJob);
         }
