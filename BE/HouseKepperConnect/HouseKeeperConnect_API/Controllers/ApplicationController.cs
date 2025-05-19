@@ -132,6 +132,7 @@ namespace HouseKeeperConnect_API.Controllers
                 display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
                 display.AccountID = item.HouseKepper.AccountID;
                 display.Nickname = item.HouseKepper.Account.Nickname;
+                display.CreatedDate = item.CreatedDate;
                 display.Status = item.Status;
                 display.Rating = item.HouseKepper.Rating.GetValueOrDefault();
                 lA.Add(display);
@@ -158,6 +159,7 @@ namespace HouseKeeperConnect_API.Controllers
             display.GoogleProfilePicture = app.HouseKepper.Account.GoogleProfilePicture;
             display.AccountID = app.HouseKepper.AccountID;
             display.Nickname = app.HouseKepper.Account.Nickname;
+            display.CreatedDate = app.CreatedDate;
             display.Status = app.Status;
             display.Rating = app.HouseKepper.Rating.GetValueOrDefault();
 
@@ -200,7 +202,9 @@ namespace HouseKeeperConnect_API.Controllers
                 display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
                 display.AccountID = item.HouseKepper.AccountID;
                 display.FamilyID = item.Job.FamilyID;
+                display.FamilyName = item.Job.Family.Account.Name;
                 display.JobID = item.JobID;
+                display.CreatedDate = item.CreatedDate;
                 display.StartDate = jobDetail.StartDate;
                 display.EndDate = jobDetail.EndDate;
                 display.Services = services;
@@ -327,6 +331,7 @@ namespace HouseKeeperConnect_API.Controllers
             var app = new Application();
             app.HouseKeeperID = hk.HousekeeperID;
             app.JobID = job.JobID;
+            app.CreatedDate = vietnamTime;
             app.Status = (int)ApplicationStatus.Pending;
 
             await _applicationService.AddApplicationAsync(app);

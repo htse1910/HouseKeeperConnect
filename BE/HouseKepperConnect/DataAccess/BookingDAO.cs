@@ -121,6 +121,7 @@ namespace DataAccess
             using var context = new PCHWFDBContext();
             return await context.Booking
                 .Where(b => b.HousekeeperID == housekeeperId)
+                .OrderByDescending(j => j.CreatedAt)
                 .AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize)
                 .ToListAsync();
         }

@@ -12,6 +12,7 @@ namespace BusinessObject.Models
 
         public int HouseKeeperID { get; set; }
         public int Status { get; set; }
+        public DateTime CreatedDate { get; set; }
         public virtual Job Job { get; set; }
 
         public virtual Housekeeper HouseKepper { get; set; }

@@ -36,7 +36,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).Include(j => j.JobDetail).Where(j => j.Status == (int)JobStatus.Verified && !j.JobDetail.IsOffered).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).Include(j => j.JobDetail).Where(j => j.Status == (int)JobStatus.Verified && !j.JobDetail.IsOffered).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -52,7 +52,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).Where(j => j.Status == (int)JobStatus.Verified).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).Where(j => j.Status == (int)JobStatus.Verified).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -69,7 +69,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).Where(j => j.Status == (int)JobStatus.Accepted).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).Where(j => j.Status == (int)JobStatus.Accepted).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -197,7 +197,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.Family).Where(j => j.Status==(int)JobStatus.Pending).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Job.Include(j => j.Family).Where(j => j.Status==(int)JobStatus.Pending).OrderByDescending(j => j.CreatedDate).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
@@ -322,12 +322,12 @@ namespace DataAccess
         public async Task<List<Job>> GetJobsByAccountIDAsync(int accountId, int pageNumber, int pageSize)
         {
             using var context = new PCHWFDBContext();
-            return await context.Job.Where(j => j.FamilyID == accountId).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return await context.Job.Where(j => j.FamilyID == accountId).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
         public async Task<List<Job>> GetJobsOfferedByHKAsync(int hktId, int pageNumber, int pageSize)
         {
             using var context = new PCHWFDBContext();
-            return await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.HousekeeperID == hktId && j.JobDetail.IsOffered == true && j.Status != (int)JobStatus.Pending).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.HousekeeperID == hktId && j.JobDetail.IsOffered == true && j.Status != (int)JobStatus.Pending).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public async Task<List<Job>> GetJobsPastWeekAsync(int pageNumber, int pageSize)
@@ -338,7 +338,7 @@ namespace DataAccess
                 {
                     var oneWeekAgo = DateTime.Now.AddDays(-7);
                     var jobs = await context.Job
-                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Completed).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Completed).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
 
                     return jobs;
                 }
@@ -357,7 +357,7 @@ namespace DataAccess
                 {
                     var oneWeekAgo = DateTime.Now.AddDays(-7);
                     var jobs = await context.Job
-                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Verified).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                .Where(x => x.UpdatedDate >= oneWeekAgo && x.Status == (int)JobStatus.Verified).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
 
                     return jobs;
                 }

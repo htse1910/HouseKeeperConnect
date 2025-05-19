@@ -79,7 +79,7 @@ public static class ServiceExtentions
             policy.WithOrigins("https://house-keeper-connect-mo9s.vercel.app", "http://localhost:5173") // Allow frontend
                   .AllowAnyHeader()
                   .AllowAnyMethod()
-                  .AllowCredentials();
+                  .AllowAnyOrigin();
         });
         });
 
