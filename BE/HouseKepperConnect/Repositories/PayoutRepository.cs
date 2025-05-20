@@ -19,5 +19,7 @@ namespace Repositories
         public async Task<Payout> GetPayoutByJobIDAsync(int jobID) => await PayoutDAO.Instance.GetPayoutByJobIDAsync(jobID);
 
         public async Task UpdatePayoutAsync(Payout Payout) => await PayoutDAO.Instance.UpdatePayoutAsync(Payout);
+
+        public async Task<int> CountPayoutByHKAsync(int hkID) => await PayoutDAO.Instance.CountPayoutByHKAsync(hkID);
     }
 }

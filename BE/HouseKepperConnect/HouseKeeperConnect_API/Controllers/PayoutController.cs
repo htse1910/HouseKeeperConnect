@@ -48,12 +48,27 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(list);
         }
 
+        [HttpGet("CountPayoutsByHK")]
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<int>> CountPayoutsByHKAsync(int accountID)
+        {
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if (hk == null)
+            {
+                Message = "Không tìm thấy người giúp việc!";
+                return NotFound(Message);
+            }
+            var count = await _payoutService.CountPayoutByHKAsync(hk.HousekeeperID);
+
+            return Ok(count);
+        }
+
         [HttpGet("GetPayoutsByHK")]
         [Authorize(Policy = "Housekeeper")]
         public async Task<ActionResult<List<Payout>>> GetPayoutsByHK([FromQuery] int accountID, int pageNumber, int pageSize)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
-            if(hk == null)
+            if (hk == null)
             {
                 Message = "Không tìm thấy người giúp việc!";
                 return NotFound(Message);
@@ -108,7 +123,9 @@ namespace HouseKeeperConnect_API.Controllers
                 dis.Status = item.Status;
                 dis.Amount = item.Amount;
                 dis.FamilyID = job.FamilyID;
-                dis.Nickname = job.Family.Account.Nickname;
+                dis.FamilyName = job.Family.Account.Name;
+                dis.BankAccountNumber = job.Family.Account.BankAccountNumber;
+                dis.Phone = job.Family.Account.Phone;
                 dis.PayoutID = item.PayoutID;
                 dis.JobID = job.JobID;
                 dis.JobName = job.JobName;

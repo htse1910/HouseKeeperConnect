@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
@@ -43,6 +44,24 @@ namespace DataAccess
             return list;
         }
 
+        public async Task<int> CountPayoutByHKAsync(int hkID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Payout
+                        .AsNoTracking()
+                        .CountAsync(c => c.HousekeeperID==hkID)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<Payout> GetPayoutByIDAsync(int rID)
         {
             try
@@ -64,7 +83,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    return await context.Payout.Where(r => r.HousekeeperID == hkID).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    return await context.Payout.Where(r => r.HousekeeperID == hkID).OrderByDescending(r => r.PayoutDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)
