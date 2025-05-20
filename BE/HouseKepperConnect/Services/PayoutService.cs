@@ -26,5 +26,7 @@ namespace Services
         public async Task<Payout> GetPayoutByJobIDAsync(int jobID) => await _payoutRepository.GetPayoutByJobIDAsync(jobID);
 
         public async Task UpdatePayoutAsync(Payout Payout) => await _payoutRepository.UpdatePayoutAsync(Payout);
+
+        public async Task<int> CountPayoutByHKAsync(int hkID) => await _payoutRepository.CountPayoutByHKAsync(hkID);
     }
 }

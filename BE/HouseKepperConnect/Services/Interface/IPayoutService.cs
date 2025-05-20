@@ -9,6 +9,7 @@ namespace Services.Interface
         Task<Payout> GetPayoutByIDAsync(int rID);
 
         Task<List<Payout>> GetPayoutsByHKAsync(int hkID, int pageNumber, int pageSize);
+        Task<int> CountPayoutByHKAsync(int hkID);
 
         Task<Payout> GetPayoutByJobIDAsync(int jobID);
 

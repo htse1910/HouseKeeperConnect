@@ -980,39 +980,48 @@ namespace HouseKeeperConnect_API.Controllers
                 TransactionType = (int)TransactionType.Refund,
                 Status = (int)TransactionStatus.Completed
             });*/
-
-            var hkWallet = await _walletService.GetWalletByUserAsync(hk.AccountID);
-            if (hkWallet == null)
+            if (payoutAmount > 0)
             {
-                Message = "Không tìm thấy ví giúp việc!";
-                return NotFound(Message);
+                var hkWallet = await _walletService.GetWalletByUserAsync(hk.AccountID);
+                if (hkWallet == null)
+                {
+                    Message = "Không tìm thấy ví giúp việc!";
+                    return NotFound(Message);
+                }
+                hkWallet.Balance += payoutAmount;
+                hkWallet.UpdatedAt = vietnamTime;
+                await _walletService.UpdateWalletAsync(hkWallet);
+
+                var payout = new Payout();
+                payout.PayoutDate = null;
+                payout.Status = (int)PayoutStatus.Completed;
+                payout.BookingID = booking.BookingID;
+                payout.Amount = payoutAmount;
+                payout.HousekeeperID = hk.HousekeeperID;
+
+                await _payoutService.AddPayoutAsync(payout);
+
+                await _transactionService.AddTransactionAsync(new Transaction
+                {
+                    TransactionID = int.Parse(DateTimeOffset.Now.ToString("ffffff")) + 1,
+                    WalletID = hkWallet.WalletID,
+                    AccountID = hk.AccountID,
+                    Amount = payoutAmount,
+                    Fee = 0,
+                    CreatedDate = vietnamTime,
+                    Description = $"Lương cho những ngày đã làm của công việc #{jobId}",
+                    UpdatedDate = vietnamTime,
+                    TransactionType = (int)TransactionType.Payout,
+                    Status = (int)TransactionStatus.Completed
+                });
             }
-            hkWallet.Balance += payoutAmount;
-            hkWallet.UpdatedAt = vietnamTime;
-            await _walletService.UpdateWalletAsync(hkWallet);
 
-            var payout = new Payout();
-            payout.PayoutDate = null;
-            payout.Status = (int)PayoutStatus.Completed;
-            payout.BookingID = booking.BookingID;
-            payout.Amount = payoutAmount;
-            payout.HousekeeperID = hk.HousekeeperID;
+            var notis = new Notification();
+            notis.AccountID = hk.AccountID;
+            notis.Message = "Công việc #" + oldJob.JobID + " - " + oldJob.JobName + " đã bị hủy! Tổng slot đã làm: " + (allSlots.Count - totalUnworkedSlots)
+                + ". Tiền lương nhận được: " + payoutAmount +" VNĐ";
 
-            await _payoutService.AddPayoutAsync(payout);
-
-            await _transactionService.AddTransactionAsync(new Transaction
-            {
-                TransactionID = int.Parse(DateTimeOffset.Now.ToString("ffffff")) + 1,
-                WalletID = hkWallet.WalletID,
-                AccountID = hk.AccountID,
-                Amount = payoutAmount,
-                Fee = 0,
-                CreatedDate = vietnamTime,
-                Description = $"Lương cho những ngày đã làm của công việc #{jobId}",
-                UpdatedDate = vietnamTime,
-                TransactionType = (int)TransactionType.Payout,
-                Status = (int)TransactionStatus.Completed
-            });
+            await _notificationService.AddNotificationAsync(notis);
 
             var oldJobDetail = await _jobService.GetJobDetailByJobIDAsync(oldJob.JobID);
 
