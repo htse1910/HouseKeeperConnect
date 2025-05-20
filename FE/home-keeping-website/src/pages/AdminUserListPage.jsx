@@ -3,22 +3,29 @@ import { toast } from "react-toastify";
 import UserTableRow from "../components/UserTableRow";
 import UserDetailsModal from "../components/UserDetailsModal";
 import AdminSidebar from "../components/AdminSidebar";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
 
 const AdminUserListPage = () => {
-  const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const USERS_PER_PAGE = 6;
+
+  const paginatedUsers = allUsers.slice(
+    (currentPage - 1) * USERS_PER_PAGE,
+    currentPage * USERS_PER_PAGE
+  );
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("authToken");
-      const res = await fetch(`${API_BASE_URL}/Account/AccountList?pageNumber=1&pageSize=9999999`, {
+      const res = await fetch(`${API_BASE_URL}/Account/AccountList?pageNumber=1&pageSize=99999`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      setUsers(data);
+      setAllUsers(data);
     } catch (err) {
       console.error("Failed to fetch users", err);
     } finally {
@@ -87,12 +94,10 @@ const AdminUserListPage = () => {
       `}</style>
 
       <div className="row">
-        {/* Sidebar */}
         <div className="col-md-2 bg-light min-vh-100 py-4 px-3">
           <AdminSidebar />
         </div>
 
-        {/* Main Content */}
         <div className="col-md-10 py-5">
           <h2 className="fw-bold mb-4 text-primary text-center">Bảng Tài Khoản</h2>
 
@@ -103,38 +108,71 @@ const AdminUserListPage = () => {
               </div>
             </div>
           ) : (
-            <div className="card-custom">
-              <div className="table-responsive">
-                <table className="table table-bordered table-hover table-striped align-middle">
-                  <thead className="text-center">
-                    <tr>
-                      <th>ID</th>
-                      <th>Ảnh</th>
-                      <th>Họ tên</th>
-                      <th>Email</th>
-                      <th>Vai trò</th>
-                      <th>Giới tính</th>
-                      <th>Trạng thái</th>
-                      <th>Ngày tạo</th>
-                      <th>Chi tiết</th>
-                      <th>Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((user) => (
-                      <UserTableRow
-                        key={user.accountID}
-                        user={user}
-                        onSelect={setSelectedUser}
-                        onChangeStatus={handleChangeStatus}
-                        getRole={getRole}
-                        getGender={getGender}
-                      />
-                    ))}
-                  </tbody>
-                </table>
+            <>
+              <div className="card-custom">
+                <div className="table-responsive">
+                  <table className="table table-bordered table-hover table-striped align-middle">
+                    <thead className="text-center">
+                      <tr>
+                        <th>ID</th>
+                        <th>Ảnh</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Vai trò</th>
+                        <th>Giới tính</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Chi tiết</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedUsers.map((user) => (
+                        <UserTableRow
+                          key={user.accountID}
+                          user={user}
+                          onSelect={setSelectedUser}
+                          onChangeStatus={handleChangeStatus}
+                          getRole={getRole}
+                          getGender={getGender}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+
+              {/* Pagination */}
+              {allUsers.length > USERS_PER_PAGE && (
+                <div className="d-flex justify-content-center mt-4">
+                  <nav>
+                    {allUsers.length > USERS_PER_PAGE && (
+                      <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
+                        <button
+                          className="btn btn-outline-primary"
+                          disabled={currentPage === 1}
+                          onClick={() => setCurrentPage((p) => p - 1)}
+                        >
+                          <span className="me-1">&larr;</span> Trước
+                        </button>
+
+                        <span className="fw-bold">
+                          {currentPage} / {Math.ceil(allUsers.length / USERS_PER_PAGE)}
+                        </span>
+
+                        <button
+                          className="btn btn-outline-primary"
+                          disabled={currentPage === Math.ceil(allUsers.length / USERS_PER_PAGE)}
+                          onClick={() => setCurrentPage((p) => p + 1)}
+                        >
+                          Sau <span className="ms-1">&rarr;</span>
+                        </button>
+                      </div>
+                    )}
+                  </nav>
+                </div>
+              )}
+            </>
           )}
 
           <UserDetailsModal
