@@ -63,5 +63,10 @@ namespace Services
         {
             return await _bookingSlotsRepository.GetBookingSlotsByDateAndBookingIDAsync(bookingId, date);
         }
+        public async Task<List<Booking_Slots>> GetBookingSlotsForHousekeeperByWeekAsync(int housekeeperId, DateTime weekStart, DateTime weekEnd)
+        {
+            return await _bookingSlotsRepository.GetBookingSlotsForHousekeeperByWeekAsync(housekeeperId, weekStart, weekEnd);
+
+        }
     }
 }
