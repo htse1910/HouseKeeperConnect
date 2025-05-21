@@ -120,7 +120,7 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 var dis = new ScheduleWeekDTO();
                 dis.BookingID = bookingSlot.BookingID;
-                dis.Booking_SlotsId = bookingSlot.BookingID;
+                dis.Booking_SlotsId = bookingSlot.Booking_SlotsId;
                 dis.JobName = bookingSlot.Booking.Job.JobName;
                 dis.DayOfWeek = bookingSlot.DayOfWeek;
                 dis.Date = bookingSlot.Date;
