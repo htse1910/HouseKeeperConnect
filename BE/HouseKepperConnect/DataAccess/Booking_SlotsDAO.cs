@@ -134,6 +134,7 @@ namespace DataAccess
             return await context.Booking_Slots
                 .Include(bs => bs.Slot)
                 .Include(bs => bs.Booking)
+                .Include(bs => bs.Booking.Job)
                 .Where(bs => bs.Booking.HousekeeperID == housekeeperId &&
                              bs.Date >= weekStart.Date &&
                              bs.Date <= weekEnd.Date &&
