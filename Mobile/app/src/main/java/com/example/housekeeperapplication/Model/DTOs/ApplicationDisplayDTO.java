@@ -8,6 +8,7 @@ public class ApplicationDisplayDTO {
     private int applicationID;
     private String localProfilePicture;
     private String googleProfilePicture;
+    private String familyName;
     private int accountID;
     private int jobID;
     private int housekeeperID;
@@ -104,5 +105,11 @@ public class ApplicationDisplayDTO {
 
     public void setRating(double rating) {
         this.rating = rating;
+    }
+    public String getFamilyName() {
+        return familyName;
+    }
+    public void setFamilyName(String familyName) {
+        this.familyName = familyName;
     }
 }

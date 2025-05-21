@@ -33,12 +33,13 @@ import retrofit2.Response;
 public class JobDetailActivity extends AppCompatActivity {
 
     private TextView tvJobName, tvVerified, tvPostedDate, tvLocation, tvSalary,
-            tvDayOfWeek, tvService, tvDescription;
+            tvDayOfWeek, tvService, tvDescription, tvBookingId;
     private Button btnConfirmSlotWorked, btnConfirmJobCompletion;
     private RecyclerView rvApplicants;
     private ApplicantAdapter applicantAdapter;
     private APIServices api;
     private int jobID;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,11 +75,15 @@ public class JobDetailActivity extends AppCompatActivity {
     }
 
     private void callConfirmSlotWorkedAPI() {
-        // Get booking ID - you might need to adjust this based on your data structure
-        // If you don't have booking ID directly, you might need to get it from job details
-        int bookingId = getIntent().getIntExtra("bookingId", -1);
-        if (bookingId == -1) {
-            Toast.makeText(this, "Không tìm thấy thông tin booking", Toast.LENGTH_SHORT).show();
+        if (jobDetail == null) {
+            Toast.makeText(this, "Thông tin công việc chưa sẵn sàng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Lấy bookingId từ jobDetail
+        Integer bookingId = jobDetail.getBookingID();
+        if (bookingId == null || bookingId == -1) {
+            Toast.makeText(this, "Công việc này không có booking", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -167,6 +172,7 @@ public class JobDetailActivity extends AppCompatActivity {
         btnConfirmSlotWorked = findViewById(R.id.btnConfirmSlotWorked);
         btnConfirmJobCompletion = findViewById(R.id.btnConfirmJobCompletion);
         rvApplicants = findViewById(R.id.rvApplicants);
+        tvBookingId =findViewById(R.id.tvBookingID);
     }
 
     private void setupApplicantsRecyclerView() {
@@ -192,89 +198,20 @@ public class JobDetailActivity extends AppCompatActivity {
         // Thêm divider giữa các item (tuỳ chọn)
         rvApplicants.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
-
-    /*private void showConfirmationDialog(ApplicationDisplayDTO applicant, int position, boolean isAccept) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        String message = isAccept
-                ? "Bạn có chắc chắn muốn chấp nhận ứng viên " + applicant.getNickname() + "?"
-                : "Bạn có chắc chắn muốn từ chối ứng viên " + applicant.getNickname() + "?";
-
-        builder.setTitle("Xác nhận")
-                .setMessage(message)
-                .setCancelable(false) // Ngăn người dùng chạm ra ngoài để tắt dialog
-                .setPositiveButton("Xác nhận", (dialog, which) -> {
-                    if (isAccept) {
-                        acceptApplicant(applicant, position);
-                    } else {
-                        rejectApplicant(applicant, position);
-                    }
-                    dialog.dismiss();
-                })
-                .setNegativeButton("Hủy", (dialog, which) -> {
-                    // Không làm gì cả, chỉ đóng dialog
-                    dialog.dismiss();
-                })
-                .show();
-    }*/
-
-
-    private void acceptApplicant(ApplicationDisplayDTO applicant, int position) {
-        // Gọi API chấp nhận ứng viên
-        api.UpdateApplication(applicant.getApplicationID(), 2).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(JobDetailActivity.this, "Đã chấp nhận ứng viên thành công", Toast.LENGTH_SHORT).show();
-
-                    // Cập nhật giao diện
-                    applicant.setStatus(2); // 2 = Accepted
-                    applicantAdapter.notifyItemChanged(position);
-
-                    // Tải lại danh sách ứng viên
-                    loadApplicants(jobID, 1, 10);
-                } else {
-                    Toast.makeText(JobDetailActivity.this, "Lỗi khi chấp nhận ứng viên", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(JobDetailActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void rejectApplicant(ApplicationDisplayDTO applicant, int position) {
-        // Gọi API từ chối ứng viên
-        api.UpdateApplication(applicant.getApplicationID(), 3).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(JobDetailActivity.this, "Đã từ chối ứng viên thành công", Toast.LENGTH_SHORT).show();
-
-                    // Xóa ứng viên khỏi danh sách
-                    applicantAdapter.removeApplicant(position);
-                } else {
-                    Toast.makeText(JobDetailActivity.this, "Lỗi khi từ chối ứng viên", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(JobDetailActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
+    private JobDetailPageDTO jobDetail;
     private void loadJobDetail(int jobID) {
         api.getFullJobDetailByID(jobID).enqueue(new Callback<JobDetailPageDTO>() {
             @Override
             public void onResponse(Call<JobDetailPageDTO> call, Response<JobDetailPageDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    jobDetail = response.body(); // Lưu lại dữ liệu
                     updateJobDetailUI(response.body());
+
+                    // Log để kiểm tra
+                    Log.d("JobDetail", "BookingID: " + jobDetail.getBookingID());
+
                     if (response.body().serviceIDs != null && !response.body().serviceIDs.isEmpty()) {
-                        loadService(response.body().serviceIDs.get(0)); // Load service name
+                        loadService(response.body().serviceIDs.get(0));
                     }
                 } else {
                     Toast.makeText(JobDetailActivity.this, "Không tải được chi tiết công việc", Toast.LENGTH_SHORT).show();
