@@ -66,6 +66,11 @@ public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.Appl
                 .load(imageUrl)
                 .circleCrop()
                 .into(holder.imgApplicant);
+        if (applicant.getStatus() == 1) {
+            holder.layoutActionButtons.setVisibility(View.VISIBLE);
+        } else {
+            holder.layoutActionButtons.setVisibility(View.GONE);
+        }
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(applicant);

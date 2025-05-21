@@ -318,7 +318,7 @@ public interface APIServices {
     );
     @PUT("api/Application/UpdateApplication")
     Call<Void> UpdateApplication(@Query("AppID") int applicationID, @Query("status") int status);
-    @POST("api/Job/ConfirmSlotWorked/api/Job/ConfirmSlotWorked")
+    @POST("api/Job/ConfirmSlotWorked")
     Call<Void> ConfirmSlotWorked(@Query("bookingId") int bookingId);
 
     @POST("api/Job/ConfirmJobCompletion")

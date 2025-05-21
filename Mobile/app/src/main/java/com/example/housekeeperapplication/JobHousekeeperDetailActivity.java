@@ -221,7 +221,7 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
         tvSlots.setText(formatSlots(jobDetail.getSlotIDs()));
 
         // Hiển thị loại hình làm việc (jobType)
-        tvWorkType.setText(jobDetail.getJobType() == 1 ? "Full-time" : "Part-time");
+        tvWorkType.setText(jobDetail.getJobType() == 1 ? "1 lần duy nhất" : "Định kỳ");
 
         // Load dịch vụ
         loadServices(jobDetail.getServiceIDs());

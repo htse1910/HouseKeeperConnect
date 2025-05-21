@@ -41,7 +41,7 @@ public class FamilyJobAdapter extends RecyclerView.Adapter<FamilyJobAdapter.JobV
         holder.tvJobName.setText("🧽 " + job.getJobName());
         holder.tvJobLocation.setText("📍 Địa điểm: " + job.getLocation());
         holder.tvJobSalary.setText("💵 Lương: " + job.getPrice() + " VND");
-        holder.tvJobType.setText("⚙️ Loại: " + (job.getJobType() == 1 ? "Full-time" : "Part-time"));
+        holder.tvJobType.setText("⚙️ Loại: " + (job.getJobType() == 1 ? "1 lần duy nhất" : "Định kỳ"));
         holder.tvJobStatus.setText("📌 Trạng thái: " + getJobStatusString(job.getStatus()));
         /*holder.btnDelete.setOnClickListener(v -> {
             Toast.makeText(context, "Đã xóa công việc", Toast.LENGTH_SHORT).show();

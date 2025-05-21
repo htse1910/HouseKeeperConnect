@@ -147,4 +147,5 @@ public class JobDetailPageDTO {
     public void setDayofWeek(List<Integer> dayofWeek) {
         this.dayofWeek = dayofWeek;
     }
+
 }

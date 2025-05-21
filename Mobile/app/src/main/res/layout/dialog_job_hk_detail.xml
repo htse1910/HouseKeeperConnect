@@ -15,15 +15,6 @@
         android:textColor="@color/black"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Close button (X) -->
-    <ImageView
-        android:id="@+id/btnClose"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-
-        android:layout_gravity="end"
-        android:layout_marginBottom="16dp"/>
-
     <!-- Job Details Table -->
     <TableLayout
         android:layout_width="match_parent"
@@ -152,6 +143,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Một lần duy nhất"
+                android:textColor="@color/black"
+                android:layout_marginStart="16dp"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trang thái công việc:"
+                android:textColor="@color/gray"/>
+
+            <TextView
+                android:id="@+id/tvJobStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đã duyệt"
                 android:textColor="@color/black"
                 android:layout_marginStart="16dp"/>
         </TableRow>

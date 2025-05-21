@@ -65,6 +65,15 @@
                 android:textSize="16sp"
                 android:textColor="@android:color/white"
                 android:layout_marginTop="12dp" />
+            <TextView
+                android:id="@+id/tvBookingID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mức lương: 1.050.000 VNĐ"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="12dp"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <!-- Work Days -->
