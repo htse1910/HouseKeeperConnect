@@ -62,7 +62,7 @@ namespace HouseKeeperConnect_API.Controllers
                 display.LocalProfilePicture = item.HouseKepper.Account.LocalProfilePicture;
                 display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
                 display.AccountID = item.HouseKepper.AccountID;
-                display.Nickname = item.HouseKepper.Account.Nickname;
+                display.HKName = item.HouseKepper.Account.Name;
                 display.Status = item.Status;
                 display.Rating = item.HouseKepper.Rating.GetValueOrDefault();
                 lA.Add(display);
@@ -118,7 +118,7 @@ namespace HouseKeeperConnect_API.Controllers
             var list = await _applicationService.GetAllApplicationsByJobIDAsync(jobID, pageNumber, pageSize);
             if (list == null)
             {
-                Message = "No Records!";
+                Message = "Danh sách đơn ứng tuyển trống!";
                 return NotFound(Message);
             }
 
@@ -131,7 +131,7 @@ namespace HouseKeeperConnect_API.Controllers
                 display.LocalProfilePicture = item.HouseKepper.Account.LocalProfilePicture;
                 display.GoogleProfilePicture = item.HouseKepper.Account.GoogleProfilePicture;
                 display.AccountID = item.HouseKepper.AccountID;
-                display.Nickname = item.HouseKepper.Account.Nickname;
+                display.HKName = item.HouseKepper.Account.Name;
                 display.CreatedDate = item.CreatedDate;
                 display.Status = item.Status;
                 display.Rating = item.HouseKepper.Rating.GetValueOrDefault();
@@ -158,7 +158,7 @@ namespace HouseKeeperConnect_API.Controllers
             display.LocalProfilePicture = app.HouseKepper.Account.LocalProfilePicture;
             display.GoogleProfilePicture = app.HouseKepper.Account.GoogleProfilePicture;
             display.AccountID = app.HouseKepper.AccountID;
-            display.Nickname = app.HouseKepper.Account.Nickname;
+            display.HKName = app.HouseKepper.Account.Name;
             display.CreatedDate = app.CreatedDate;
             display.Status = app.Status;
             display.Rating = app.HouseKepper.Rating.GetValueOrDefault();
@@ -173,14 +173,14 @@ namespace HouseKeeperConnect_API.Controllers
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(uid);
             if (hk == null)
             {
-                Message = "No housekeeper found!";
+                Message = "Không tìm thấy giúp việc!";
                 return NotFound(Message);
             }
 
             var apps = await _applicationService.GetAllApplicationsByUserAsync(hk.HousekeeperID, pageNumber, pageSize);
             if (apps == null)
             {
-                Message = "No Records!";
+                Message = "Danh sách ứng tuyển trống!";
                 return NotFound(Message);
             }
 
@@ -208,7 +208,7 @@ namespace HouseKeeperConnect_API.Controllers
                 display.StartDate = jobDetail.StartDate;
                 display.EndDate = jobDetail.EndDate;
                 display.Services = services;
-                display.Nickname = item.HouseKepper.Account.Nickname;
+                display.Price = jobDetail.Price;
                 display.Status = item.Status;
                 display.Rating = item.HouseKepper.Rating.GetValueOrDefault();
                 lA.Add(display);
