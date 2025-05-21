@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessObject.DTO;
+using BusinessObject.Migrations;
 using BusinessObject.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +13,16 @@ namespace HouseKeeperConnect_API.Controllers
     public class Booking_SlotsController : ControllerBase
     {
         private readonly IBooking_SlotsService _bookingSlotsService;
+        private readonly IHouseKeeperService _houseKeeperService;
         private readonly IMapper _mapper;
         private string Message;
 
-        public Booking_SlotsController(IBooking_SlotsService bookingSlotsService, IMapper mapper)
+        public Booking_SlotsController(IBooking_SlotsService bookingSlotsService, IMapper mapper
+            , IHouseKeeperService houseKeeperService)
         {
             _bookingSlotsService = bookingSlotsService;
             _mapper = mapper;
+            _houseKeeperService = houseKeeperService;
         }
 
         [HttpGet("Booking_SlotsList")]
@@ -91,10 +95,14 @@ namespace HouseKeeperConnect_API.Controllers
         }
         [HttpGet("GetBookingSlotsForHousekeeperByWeekAsync")]
         [Authorize(Policy = "Housekeeper")]
-        public async Task<ActionResult<List<Booking_Slots>>> GetBookingSlotsForHousekeeperByWeekAsync([FromQuery] int housekeeperId, [FromQuery] DateTime dateInWeek)
+        public async Task<ActionResult<List<Booking_Slots>>> GetBookingSlotsForHousekeeperByWeekAsync([FromQuery] int accountID, [FromQuery] DateTime dateInWeek)
         {
-            if (housekeeperId <= 0)
-                return BadRequest("Invalid housekeeper ID.");
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if(hk == null)
+            {
+                Message = "Không tìm thấy người giúp việc!";
+                return NotFound(Message);
+            }
 
             int diff = dateInWeek.DayOfWeek - DayOfWeek.Sunday;
             if (diff < 0) diff += 7;
@@ -102,10 +110,10 @@ namespace HouseKeeperConnect_API.Controllers
             DateTime weekStart = dateInWeek.AddDays(-diff).Date;
             DateTime weekEnd = weekStart.AddDays(6).Date;
 
-            var bookingSlots = await _bookingSlotsService.GetBookingSlotsForHousekeeperByWeekAsync(housekeeperId, weekStart, weekEnd);
+            var bookingSlots = await _bookingSlotsService.GetBookingSlotsForHousekeeperByWeekAsync(hk.HousekeeperID, weekStart, weekEnd);
 
             if (bookingSlots == null || !bookingSlots.Any())
-                return NotFound("No booking slots found for this week.");
+                return NotFound("không tìm thấy Slot làm việc trong tuần này!");
 
             return Ok(bookingSlots);
         }

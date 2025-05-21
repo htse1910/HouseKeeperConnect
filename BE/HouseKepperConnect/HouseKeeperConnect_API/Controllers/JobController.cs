@@ -594,6 +594,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var noti = new Notification();
                 noti.Message = "Có công việc cần được duyệt!";
                 noti.AccountID = staff.AccountID;
+                noti.CreatedDate = vietnamTime;
 
                 await _notificationService.AddNotificationAsync(noti);
             }
@@ -1671,7 +1672,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return Unauthorized("Bạn không phải người tạo công việc này!");
 
             if (job.Status != (int)JobStatus.PendingFamilyConfirmation)
-                return BadRequest("Công việc đang đợi gia đình xác nhận hoàn thành!");
+                return BadRequest("Người giúp việc chưa báo công việc hoàn thành!");
 
             // Get the booking for the job
             var booking = await _bookingService.GetBookingByJobIDAsync(jobId);
