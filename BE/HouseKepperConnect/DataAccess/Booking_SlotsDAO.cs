@@ -127,5 +127,19 @@ namespace DataAccess
                 .Where(bs => bs.BookingID == bookingId && bs.Date == date.Date)
                 .ToListAsync();
         }
+        public async Task<List<Booking_Slots>> GetBookingSlotsForHousekeeperByWeekAsync(int housekeeperId, DateTime weekStart, DateTime weekEnd)
+        {
+            using var context = new PCHWFDBContext();
+
+            return await context.Booking_Slots
+                .Include(bs => bs.Slot)
+                .Include(bs => bs.Booking)
+                .Where(bs => bs.Booking.HousekeeperID == housekeeperId &&
+                             bs.Date >= weekStart.Date &&
+                             bs.Date <= weekEnd.Date &&
+                             bs.Status == BookingSlotStatus.Active &&
+                             bs.Booking.Status != (int)BookingStatus.Canceled)
+                .ToListAsync();
+        }
     }
 }

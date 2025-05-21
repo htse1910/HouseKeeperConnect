@@ -23,5 +23,6 @@ namespace Services.Interface
         Task UpdateBooking_SlotAsync(Booking_Slots bookingSlot);
 
         Task<List<Booking_Slots>> GetBookingSlotsByDateAndBookingIDAsync(int bookingId, DateTime date);
+        Task<List<Booking_Slots>> GetBookingSlotsForHousekeeperByWeekAsync(int housekeeperId, DateTime weekStart, DateTime weekEnd);
     }
 }

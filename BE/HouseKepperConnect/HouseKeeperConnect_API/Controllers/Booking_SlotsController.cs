@@ -89,5 +89,25 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(slots);
         }
+        [HttpGet("GetBookingSlotsForHousekeeperByWeekAsync")]
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<List<Booking_Slots>>> GetBookingSlotsForHousekeeperByWeekAsync([FromQuery] int housekeeperId, [FromQuery] DateTime dateInWeek)
+        {
+            if (housekeeperId <= 0)
+                return BadRequest("Invalid housekeeper ID.");
+
+            int diff = dateInWeek.DayOfWeek - DayOfWeek.Sunday;
+            if (diff < 0) diff += 7;
+
+            DateTime weekStart = dateInWeek.AddDays(-diff).Date;
+            DateTime weekEnd = weekStart.AddDays(6).Date;
+
+            var bookingSlots = await _bookingSlotsService.GetBookingSlotsForHousekeeperByWeekAsync(housekeeperId, weekStart, weekEnd);
+
+            if (bookingSlots == null || !bookingSlots.Any())
+                return NotFound("No booking slots found for this week.");
+
+            return Ok(bookingSlots);
+        }
     }
-}
+ }

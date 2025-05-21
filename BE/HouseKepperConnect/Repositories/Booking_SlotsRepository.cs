@@ -47,5 +47,7 @@ namespace Repositories
         {
             return await _bookingSlotsDAO.GetBookingSlotsByDateAndBookingIDAsync(bookingId, date);
         }
+        public async Task<List<Booking_Slots>> GetBookingSlotsForHousekeeperByWeekAsync(int housekeeperId, DateTime weekStart, DateTime weekEnd)
+            => await Booking_SlotsDAO.Instance.GetBookingSlotsForHousekeeperByWeekAsync(housekeeperId, weekStart, weekEnd);
     }
 }
