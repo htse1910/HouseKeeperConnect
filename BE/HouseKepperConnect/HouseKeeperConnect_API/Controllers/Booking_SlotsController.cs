@@ -95,7 +95,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
         [HttpGet("GetBookingSlotsForHousekeeperByWeekAsync")]
         [Authorize(Policy = "Housekeeper")]
-        public async Task<ActionResult<List<Booking_Slots>>> GetBookingSlotsForHousekeeperByWeekAsync([FromQuery] int accountID, [FromQuery] DateTime dateInWeek)
+        public async Task<ActionResult<List<ScheduleWeekDTO>>> GetBookingSlotsForHousekeeperByWeekAsync([FromQuery] int accountID, [FromQuery] DateTime dateInWeek)
         {
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
             if(hk == null)
@@ -115,7 +115,27 @@ namespace HouseKeeperConnect_API.Controllers
             if (bookingSlots == null || !bookingSlots.Any())
                 return NotFound("không tìm thấy Slot làm việc trong tuần này!");
 
-            return Ok(bookingSlots);
+            var display = new List<ScheduleWeekDTO>();
+            foreach (var bookingSlot in bookingSlots)
+            {
+                var dis = new ScheduleWeekDTO();
+                dis.BookingID = bookingSlot.BookingID;
+                dis.Booking_SlotsId = bookingSlot.BookingID;
+                dis.JobName = bookingSlot.Booking.Job.JobName;
+                dis.DayOfWeek = bookingSlot.DayOfWeek;
+                dis.Date = bookingSlot.Date;
+                dis.SlotID = bookingSlot.SlotID;
+                dis.Status = bookingSlot.Status;
+                dis.CheckInTime = bookingSlot.CheckInTime;
+                dis.IsCheckedIn = bookingSlot.IsCheckedIn;
+                dis.ConfirmedAt = bookingSlot.ConfirmedAt;
+                dis.IsConfirmedByFamily = bookingSlot.IsConfirmedByFamily;
+
+                display.Add(dis);
+            }
+
+
+            return Ok(display);
         }
     }
  }
