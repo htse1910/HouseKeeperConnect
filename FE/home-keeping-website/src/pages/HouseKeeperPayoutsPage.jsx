@@ -6,15 +6,19 @@ import { format } from "date-fns";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import PayoutDetailModal from "../components/PayoutDetailModal";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
 
 const HouseKeeperPayoutsPage = () => {
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPayout, setSelectedPayout] = useState(null);
+  const [totalPayouts, setTotalPayouts] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PAYOUTS_PER_PAGE = 5;
 
   useEffect(() => {
-    const fetchPayouts = async () => {
+    const fetchData = async () => {
       const accountID = localStorage.getItem("accountID");
       const token = localStorage.getItem("authToken");
 
@@ -23,41 +27,24 @@ const HouseKeeperPayoutsPage = () => {
         return;
       }
 
+      setLoading(true);
+
       try {
-        const res = await axios.get(
-          `${API_BASE_URL}/Payout/GetPayoutsByHK?accountID=${accountID}&pageNumber=1&pageSize=100`,
+        const countRes = await axios.get(
+          `${API_BASE_URL}/Payout/CountPayoutsByHK?accountID=${accountID}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+        setTotalPayouts(countRes.data);
 
-        const detailed = await Promise.all(
-          res.data.map(async (payout) => {
-            const familyRes = await axios.get(
-              `${API_BASE_URL}/Families/GetFamilyByID?id=${payout.familyID}`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-
-            const accountRes = await axios.get(
-              `${API_BASE_URL}/Account/GetAccount?id=${familyRes.data.accountID}`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-
-            return {
-              ...payout,
-              familyName: accountRes.data.name,
-              avatar: accountRes.data.localProfilePicture,
-              phone: accountRes.data.phone,
-              bank: accountRes.data.bankAccountNumber,
-            };
-          })
+        const payoutsRes = await axios.get(
+          `${API_BASE_URL}/Payout/GetPayoutsByHK?accountID=${accountID}&pageNumber=${currentPage}&pageSize=${PAYOUTS_PER_PAGE}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
-
-        setPayouts(detailed);
+        setPayouts(payoutsRes.data);
       } catch (error) {
         toast.error("Không thể tải dữ liệu thanh toán.");
       } finally {
@@ -65,8 +52,10 @@ const HouseKeeperPayoutsPage = () => {
       }
     };
 
-    fetchPayouts();
-  }, []);
+    fetchData();
+  }, [currentPage]);
+
+  const totalPages = Math.ceil(totalPayouts / PAYOUTS_PER_PAGE);
 
   const statusMap = {
     1: "Đang chờ",
@@ -113,7 +102,9 @@ const HouseKeeperPayoutsPage = () => {
                     <h5 className="mb-1">{payout.jobName}</h5>
                     <p className="mb-1 small">
                       Ngày thanh toán:{" "}
-                      {format(new Date(payout.payoutDate), "dd/MM/yyyy HH:mm")}
+                      {payout.payoutDate === "0001-01-01T00:00:00"
+                        ? "Chưa xác định"
+                        : format(new Date(payout.payoutDate), "dd/MM/yyyy HH:mm")}
                     </p>
                     <p className="mb-1 fw-semibold text-success">
                       Số tiền: {payout.amount.toLocaleString()}đ
@@ -129,6 +120,44 @@ const HouseKeeperPayoutsPage = () => {
         </div>
       )}
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center align-items-center mt-4 gap-2">
+          <button
+            className="btn btn-outline-primary"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            ← Trước
+          </button>
+
+          <div className="d-flex align-items-center gap-1">
+            <input
+              type="number"
+              className="form-control text-center"
+              value={currentPage}
+              min={1}
+              max={totalPages}
+              style={{ width: "60px" }}
+              onChange={(e) => {
+                const val = Math.max(1, Math.min(totalPages, Number(e.target.value)));
+                setCurrentPage(val);
+              }}
+            />
+            <span className="fw-semibold">/ {totalPages}</span>
+          </div>
+
+          <button
+            className="btn btn-outline-primary"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Sau →
+          </button>
+        </div>
+      )}
+
+      {/* Detail Modal */}
       {selectedPayout && (
         <PayoutDetailModal
           payout={selectedPayout}

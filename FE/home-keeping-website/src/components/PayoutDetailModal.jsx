@@ -5,7 +5,7 @@ const PayoutDetailModal = ({ payout, onClose }) => {
 
   return (
     <>
-      {/* Light backdrop (custom, not Bootstrap's dark one) */}
+      {/* Light backdrop */}
       <div
         className="position-fixed top-0 start-0 w-100 h-100"
         style={{ backgroundColor: "rgba(255, 255, 255, 0.4)", zIndex: 1040 }}
@@ -21,12 +21,12 @@ const PayoutDetailModal = ({ payout, onClose }) => {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content shadow rounded-4 border-0">
             <div className="modal-header border-0 pb-0">
-              <h5 className="modal-title fw-bold">Chi tiết gia đình</h5>
+              <h5 className="modal-title fw-bold">Chi tiết thanh toán</h5>
               <button type="button" className="btn-close" onClick={onClose}></button>
             </div>
             <div className="modal-body text-center">
               <img
-                src={payout.avatar}
+                src={payout.avatar || "/default-avatar.png"}
                 alt="avatar"
                 className="rounded-circle mb-3"
                 width="90"
@@ -34,7 +34,9 @@ const PayoutDetailModal = ({ payout, onClose }) => {
               />
               <h5 className="mb-1">{payout.familyName}</h5>
               <p className="text-muted small mb-1">SĐT: {payout.phone}</p>
-              <p className="text-muted small mb-1">STK ngân hàng: {payout.bank}</p>
+              <p className="text-muted small mb-1">
+                STK ngân hàng: {payout.bankAccountNumber}
+              </p>
               <p className="fw-semibold fs-6 mt-2">
                 Số tiền: {payout.amount.toLocaleString()}đ
               </p>

@@ -1,0 +1,52 @@
+.slot-label-cell {
+  position: relative;
+  background-color: #f8f9fa;
+  vertical-align: middle;
+  text-align: center;
+  min-width: 80px;
+  height: 60px;
+  border: 1px solid #dee2e6;
+  font-weight: bold;
+}
+
+.slot-label-cell::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(to top right, transparent 49%, black 50%, transparent 51%);
+  pointer-events: none;
+}
+
+.slot-label-text {
+  position: absolute;
+  bottom: 4px;
+  left: 6px;
+  font-size: 0.8rem;
+  color: #000;
+}
+
+.weekday-label-text {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 0.8rem;
+  color: #000;
+}
+
+.placeholder-glow .placeholder {
+  background-color: rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  height: 1rem;
+  width: 60%;
+  border-radius: 4px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}

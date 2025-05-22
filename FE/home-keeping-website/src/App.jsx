@@ -7,6 +7,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { UserRoleProvider } from "./components/UserRoleProvider";
 import "./i18n/i18n"; // Thêm hỗ trợ đa ngôn ngữ
 import './utils/fetchWrapper';
+import './utils/axiosInterceptor'; // 👈 injects global axios behavior
 
 const GOOGLE_CLIENT_ID = "389719592750-1bnfd3k1g787t8r8tmvltrfokvm87ur2.apps.googleusercontent.com";
 
