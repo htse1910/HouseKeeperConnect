@@ -176,30 +176,13 @@
         android:textColor="@color/black"
         android:layout_marginBottom="8dp"/>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tvServices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="• Tổng vệ sinh nhà cửa"
-            android:textColor="@color/gray"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="• Nấu ăn theo tuần/tháng"
-            android:textColor="@color/gray"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="• Sửa chữa điện nước"
-            android:textColor="@color/gray"/>
-    </LinearLayout>
+        android:text="- Dọn dẹp theo giờ\n- Nấu Ăn"
+        android:textColor="@color/gray"
+        android:layout_marginTop="4dp"/>
 
     <!-- Work Schedule -->
     <TextView
@@ -210,30 +193,13 @@
         android:textColor="@color/black"
         android:layout_marginBottom="8dp"/>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tvSchedules"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="• Thứ Hai"
-            android:textColor="@color/gray"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="• Thứ Tư"
-            android:textColor="@color/gray"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="• Thứ Sáu"
-            android:textColor="@color/gray"/>
-    </LinearLayout>
+        android:text="- Thứ 2\n- Thứ 4\n- Thứ 6"
+        android:textColor="@color/gray"
+        android:layout_marginTop="4dp"/>
 
     <!-- Work Shift -->
     <TextView
@@ -245,10 +211,12 @@
         android:layout_marginBottom="8dp"/>
 
     <TextView
+        android:id="@+id/tvSlots"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="• 8H - 9H"
-        android:textColor="@color/gray"/>
+        android:text="- 8H - 10H"
+        android:textColor="@color/gray"
+        android:layout_marginTop="4dp"/>
 
     <!-- Close Button -->
     <!-- Action Buttons -->
@@ -276,7 +244,7 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="Chấp nhận"
+            android:text="Đồng ý"
             android:textColor="@color/white"
             android:backgroundTint="@color/successGreen"/>
 
