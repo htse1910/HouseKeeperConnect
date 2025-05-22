@@ -9,9 +9,6 @@ namespace Repositories.Interface
         Task<int> CountApplicationsByJobIDAsync(int jobID);
 
         Task<int> CountApplicationsByHKIDAsync(int housekeeperID);
-        Task<int> CountPendingApplicationsByHKAsync(int housekeeperID);
-        Task<int> CountAcceptedApplicationsByHKAsync(int housekeeperID);
-        Task<int> CountDenieddApplicationsByHKAsync(int housekeeperID);
 
         Task<List<Application>> GetAllApplicationsByUserAsync(int uid, int pageNumber, int pageSize);
 
