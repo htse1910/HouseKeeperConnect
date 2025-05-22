@@ -8,9 +8,15 @@ namespace Repositories
     {
         public async Task AddApplicationAsync(Application noti) => await ApplicationDAO.Instance.AddApplicationAsync(noti);
 
+        public async Task<int> CountAcceptedApplicationsByHKAsync(int housekeeperID) => await ApplicationDAO.Instance.CountAcceptedApplicationsByHKAsync(housekeeperID);
+
         public async Task<int> CountApplicationsByHKIDAsync(int housekeeperID) => await ApplicationDAO.Instance.CountApplicationsByHKIDAsync(housekeeperID);
 
         public async Task<int> CountApplicationsByJobIDAsync(int jobID) => await ApplicationDAO.Instance.CountApplicationsByJobIDAsync(jobID);
+
+        public async Task<int> CountDenieddApplicationsByHKAsync(int housekeeperID) => await ApplicationDAO.Instance.CountDenieddApplicationsByHKAsync(housekeeperID);
+
+        public async Task<int> CountPendingApplicationsByHKAsync(int housekeeperID) => await ApplicationDAO.Instance.CountPendingApplicationsByHKAsync(housekeeperID);
 
         public async Task DeleteApplicationAsync(int id) => await ApplicationDAO.Instance.DeleteApplicationAsync(id);
 
