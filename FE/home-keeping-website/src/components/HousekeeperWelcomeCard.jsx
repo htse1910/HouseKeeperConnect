@@ -39,10 +39,16 @@ const HousekeeperWelcomeCard = () => {
         localStorage.setItem("housekeeperID", data.housekeeperID);
         localStorage.setItem("verifyID", data.verifyID);
 
-        const resApp = await fetch(
-          `${API_BASE_URL}/Application/GetApplicationsByAccountID?uid=${data.housekeeperID}&pageNumber=1&pageSize=1000`,
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        );
+        await Promise.all([
+          fetch(`${API_BASE_URL}/Application/CountPendingApplicationsByAccountID?accountID=${accountID}`, {
+            headers: { Authorization: `Bearer ${authToken}` }
+          }).then(res => res.ok ? res.json() : 0).then(setJobsPending).catch(() => setJobsPending(0)),
+
+          fetch(`${API_BASE_URL}/Application/CountAcceptedApplicationsByAccountID?accountID=${accountID}`, {
+            headers: { Authorization: `Bearer ${authToken}` }
+          }).then(res => res.ok ? res.json() : 0).then(setJobsAccepted).catch(() => setJobsAccepted(0))
+        ]);
+
 
         const apps = await resApp.json();
         setJobsPending(apps.filter(app => app.status === 1).length);
@@ -51,7 +57,7 @@ const HousekeeperWelcomeCard = () => {
       .catch(console.error);
   }, [accountID, authToken]);
 
- 
+
 
   return (
     <>
@@ -111,7 +117,7 @@ const HousekeeperWelcomeCard = () => {
         </div>
       </div>
 
-      
+
     </>
   );
 };

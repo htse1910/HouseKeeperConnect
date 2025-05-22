@@ -45,38 +45,13 @@ const HousekeeperBookingManagementPage = () => {
   const [matchedDate, setMatchedDate] = useState(null);
   const [isToday, setIsToday] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage] = useState(5);
-  const [statusFilter, setStatusFilter] = useState("all");
   const [bookingCount, setBookingCount] = useState(null);
   const pageSize = 5;
   const [allBookings, setAllBookings] = useState([]);
 
-  const filteredBookings = allBookings.filter(b => {
-    if (statusFilter === "all") return true;
-    return b.jobStatus === Number(statusFilter); // ✅ CORRECT
-  });
+  const paginatedBookings = allBookings;
 
-  const paginatedBookings = filteredBookings.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
-
-  const totalPages = Math.ceil(filteredBookings.length / pageSize);
-
-  const fetchBookingCount = async () => {
-    if (!authToken || !accountID) return;
-    try {
-      const statusParam = statusFilter === "all" ? "" : `&status=${statusFilter}`;
-      const res = await fetch(
-        `${API_BASE_URL}/Booking/CountBookingsByHousekeeperID?accountID=${accountID}${statusParam}`,
-        { headers: { Authorization: `Bearer ${authToken}` } }
-      );
-      const count = await res.json();
-      setBookingCount(count);
-    } catch (error) {
-      console.error("Failed to fetch booking count:", error);
-    }
-  };
+  const totalPages = Math.ceil(bookingCount / pageSize);
 
   const handleMarkComplete = async (jobID) => {
     if (!authToken || !accountID) {
@@ -187,42 +162,43 @@ const HousekeeperBookingManagementPage = () => {
     }
   };
 
-  const fetchAllBookings = async () => {
+  const fetchBookingsByPage = async (page) => {
     if (!authToken || !housekeeperID) return;
 
     setLoading(true);
     try {
-      // Step 1: Get total count
-      const countRes = await fetch(
-        `${API_BASE_URL}/Booking/CountBookingsByHousekeeperID?accountID=${accountID}`,
-        { headers: { Authorization: `Bearer ${authToken}` } }
+      const res = await fetch(
+        `${API_BASE_URL}/Booking/GetBookingByHousekeeperID?housekeeperId=${housekeeperID}&pageNumber=${page}&pageSize=${pageSize}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
-      const total = await countRes.json();
-      setBookingCount(total);
-
-      // ✅ Fix: calculate totalPages locally
-      const totalPages = Math.ceil(total / pageSize);
-
-      const bookings = [];
-
-      for (let page = 1; page <= totalPages; page++) {
-        const res = await fetch(
-          `${API_BASE_URL}/Booking/GetBookingByHousekeeperID?housekeeperId=${housekeeperID}&pageNumber=${page}&pageSize=${pageSize}`,
-          { headers: { Authorization: `Bearer ${authToken}` } }
-        );
-        const data = await res.json();
-        bookings.push(...data);
-      }
-
-      setAllBookings(bookings);
+      const data = await res.json();
+      setAllBookings(data);
     } catch (error) {
-      toast.error("Lỗi khi tải công việc.");
+      toast.error("❌ Lỗi khi tải công việc.");
       console.error("Fetch failed:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchBookingCount = async () => {
+    if (!authToken || !accountID) return;
+
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/Booking/CountBookingsByHousekeeperID?accountID=${accountID}`,
+        { headers: { Authorization: `Bearer ${authToken}` } }
+      );
+      const total = await res.json();
+      setBookingCount(total);
+    } catch (error) {
+      console.error("Failed to fetch booking count:", error);
+    }
+  };
 
   const getJobStatusText = (status) => {
     switch (status) {
@@ -238,6 +214,15 @@ const HousekeeperBookingManagementPage = () => {
       default: return "Không rõ";
     }
   };
+
+  useEffect(() => {
+    fetchBookingCount();
+    fetchBookingsByPage(currentPage);
+  }, [housekeeperID, authToken]);
+
+  useEffect(() => {
+    fetchBookingsByPage(currentPage);
+  }, [currentPage]);
 
   // Inside the component, before return:
   const handleForceAbandon = async (jobID) => {
@@ -285,57 +270,40 @@ const HousekeeperBookingManagementPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAllBookings();
-  }, [housekeeperID, authToken]);
-
   return (
     <div className="container py-4">
       <ToastContainer />
-      <h4 className="fw-bold mb-4 text-primary">
-        📋 Danh sách công việc đã nhận
-        {bookingCount !== null && (
-          <span className="badge bg-info ms-2">
-            Tổng số: {bookingCount}
-          </span>
-        )}
-      </h4>
-
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h4 className="fw-bold text-primary mb-0">
+            📋 Danh sách công việc đã nhận
+            {bookingCount !== null && (
+              <span className="badge bg-info ms-2">
+                Tổng số: {bookingCount}
+              </span>
+            )}
+          </h4>
+        </div>
+        <div>
+          <button
+            className="btn btn-outline-primary"
+            onClick={() => window.location.href = "/housekeeper-schedule"}
+          >
+            🗓️ Xem Lịch Làm Việc
+          </button>
+        </div>
+      </div>
       {loading ? (
         <p className="text-muted">⏳ Đang tải dữ liệu...</p>
       ) : (
         <>
-          {/* Always show filter and pagination bar */}
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <label className="me-2 fw-bold">Lọc theo trạng thái:</label>
-              <select
-                className="form-select d-inline-block w-auto"
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-              >
-                <option value="all">Tất cả</option>
-                <option value="1">🕐 Chờ xác nhận</option>
-                <option value="2">📋 Đã duyệt</option>
-                <option value="3">✔️ Đã nhận</option>
-                <option value="4">✅ Hoàn thành</option>
-                <option value="5">⌛ Hết hạn</option>
-                <option value="6">❌ Đã hủy</option>
-                <option value="7">🚫 Không cho phép</option>
-                <option value="8">🕓 Chờ xác nhận gia đình</option>
-                <option value="9">🚪 Bạn đã bỏ việc</option>
-                <option value="10">🔁 Đã phân công lại</option>
-              </select>
-            </div>
+          <div className="d-flex justify-content-end align-items-center mb-3">
             <div className="text-muted small">
               Trang {currentPage} / {totalPages}
             </div>
           </div>
 
-          {filteredBookings.length === 0 ? (
+          {paginatedBookings.length === 0 ? (
             <p className="text-muted">Không có công việc nào được đặt.</p>
           ) : (
             <>

@@ -63,6 +63,7 @@ import ManagePlatformFeesPage from "./pages/ManagePlatformFeesPage";
 import StaffTransactionListPage from './pages/StaffTransactionListPage.jsx';
 import FamilyAbandonedJobsPage from './pages/FamilyAbandonedJobsPage.jsx';
 import CreateDirectJobOfferPage from './pages/CreateDirectJobOfferPage.jsx';
+import HousekeeperSchedulePage from './pages/HousekeeperSchedulePage.jsx';
 
 function AppRoutes() {
   return (
@@ -100,6 +101,7 @@ function AppRoutes() {
         <Route path="/housekeeper/payouts" element={<HouseKeeperPayoutsPage />} />
         <Route path="/housekeeper/support-requests" element={<HousekeeperSupportRequestPage />} />
         <Route path="/housekeeper/withdraw-details" element={<WithdrawRequestPage />} />
+        <Route path="/housekeeper-schedule" element={<HousekeeperSchedulePage />} />
         {/* Staff Dashboard Pages */}
         <Route path="/staff/dashboard" element={<StaffDashboardPage />} />
         <Route path="/dashboard/users" element={<StaffUserVerificationPage />} />

@@ -17,7 +17,7 @@ function FindJobsPage() {
   const [page, setPage] = useState(1);
   const [totalJobs, setTotalJobs] = useState(0);
 
-  const [filters, setFilters] = useState({ location: "", jobType: "", salary: "" });
+  // const [filters, setFilters] = useState({ location: "", jobType: "", salary: "" });
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -62,24 +62,24 @@ function FindJobsPage() {
     fetchJobs();
   }, [page]);
 
-  const filteredJobs = jobs.filter((job) => {
-    const matchesSearch = searchTerm ? job.jobName?.toLowerCase().includes(searchTerm.toLowerCase()) : true;
-    const matchesLocation = filters.location ? job.location?.trim().toLowerCase() === filters.location.trim().toLowerCase() : true;
-    const matchesJobType = filters.jobType
-      ? job.jobType === (filters.jobType === "fulltime" ? 1 : 2)
-      : true;
-    const matchesSalary = (() => {
-      const salary = job.price || 0;
-      switch (filters.salary) {
-        case "500-1000": return salary >= 500000 && salary <= 1000000;
-        case "1000-1500": return salary > 1000000 && salary <= 1500000;
-        case "1500-2500": return salary > 1500000 && salary <= 2500000;
-        case "2500+": return salary > 2500000;
-        default: return true;
-      }
-    })();
-    return matchesSearch && matchesLocation && matchesJobType && matchesSalary;
-  });
+  // const filteredJobs = jobs.filter((job) => {
+  //   const matchesSearch = searchTerm ? job.jobName?.toLowerCase().includes(searchTerm.toLowerCase()) : true;
+  //   const matchesLocation = filters.location ? job.location?.trim().toLowerCase() === filters.location.trim().toLowerCase() : true;
+  //   const matchesJobType = filters.jobType
+  //     ? job.jobType === (filters.jobType === "fulltime" ? 1 : 2)
+  //     : true;
+  //   const matchesSalary = (() => {
+  //     const salary = job.price || 0;
+  //     switch (filters.salary) {
+  //       case "500-1000": return salary >= 500000 && salary <= 1000000;
+  //       case "1000-1500": return salary > 1000000 && salary <= 1500000;
+  //       case "1500-2500": return salary > 1500000 && salary <= 2500000;
+  //       case "2500+": return salary > 2500000;
+  //       default: return true;
+  //     }
+  //   })();
+  //   return matchesSearch && matchesLocation && matchesJobType && matchesSalary;
+  // });
 
   const maxPage = Math.ceil(totalJobs / jobsPerPage);
 
@@ -152,7 +152,7 @@ function FindJobsPage() {
         </div>
 
         <div className="w-75 mt-3">
-          <div className="row g-2">
+          {/* <div className="row g-2">
             <div className="col-md-4 col-lg-3">
               <select className="form-select" value={filters.location} onChange={(e) => setFilters({ ...filters, location: e.target.value })}>
                 <option value="">Tất cả địa điểm</option>
@@ -178,7 +178,7 @@ function FindJobsPage() {
             <div className="col-md-12 col-lg-3">
               <button className="btn btn-outline-primary w-100" onClick={() => setPage(1)}>Áp dụng bộ lọc</button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -188,7 +188,7 @@ function FindJobsPage() {
             <div className="spinner-border text-warning" role="status" />
             <p className="mt-3">Đang tải công việc...</p>
           </div>
-        ) : filteredJobs.length === 0 ? (
+        ) : jobs.length === 0 ? (
           <div className="text-center text-muted py-5">Không tìm thấy công việc phù hợp.</div>
         ) : (
           <>
@@ -196,7 +196,7 @@ function FindJobsPage() {
               Tổng số công việc hiện giờ: <strong>{totalJobs}</strong>
             </p>
             <div className="row justify-content-center g-4">
-              {filteredJobs.map((job) => (
+              {jobs.map((job) => (
                 <div key={job.jobID} className="col-md-6 col-lg-4 d-flex">
                   <div className="card job-card shadow-sm p-3 border-0 flex-fill rounded-4 position-relative">
                     <span className="position-absolute top-0 end-0 bg-warning text-dark fw-bold px-3 py-1 rounded-bottom-start">

@@ -20,20 +20,11 @@ const FamilyJobManagementPage = () => {
   const [totalPostedJobs, setTotalPostedJobs] = useState(null);
 
   const [allJobs, setAllJobs] = useState([]);
-  const [statusFilter, setStatusFilter] = useState("all");
   const pageSize = 6;
   const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedJobs, setPaginatedJobs] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const filteredJobs = allJobs.filter(job =>
-    statusFilter === "all" ? true : job.status === Number(statusFilter)
-  );
-
-  const totalPages = Math.ceil(filteredJobs.length / pageSize);
-
-  const paginatedJobs = filteredJobs.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
   const {
     jobs,
     housekeepers,
@@ -102,30 +93,24 @@ const FamilyJobManagementPage = () => {
 
     const headers = { Authorization: `Bearer ${authToken}` };
 
-    const fetchAllJobs = async () => {
+    const fetchPaginatedJobs = async () => {
       try {
-        const countRes = await axios.get(`${API_BASE_URL}/Job/CountJobsByAccountID?accountID=${accountID}`, { headers });
+        const [countRes, listRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/Job/CountJobsByAccountID?accountID=${accountID}`, { headers }),
+          axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=${currentPage}&pageSize=${pageSize}`, { headers })
+        ]);
+
         const totalJobs = countRes.data || 0;
         setTotalPostedJobs(totalJobs);
-
-        const totalPages = Math.ceil(totalJobs / pageSize);
-        const jobList = [];
-
-        for (let page = 1; page <= totalPages; page++) {
-          const res = await axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}&pageNumber=${page}&pageSize=${pageSize}`, { headers });
-          jobList.push(...(res.data || []));
-        }
-
-        setAllJobs(jobList);
+        setTotalPages(Math.ceil(totalJobs / pageSize));
+        setPaginatedJobs(listRes.data || []);
       } catch (err) {
         console.error("Lỗi khi tải công việc:", err);
       }
     };
 
-    fetchAllJobs();
-  }, [accountID, authToken]);
-
-
+    fetchPaginatedJobs();
+  }, [accountID, authToken, currentPage]);
 
   const [jobToDelete, setJobToDelete] = useState(null);
   const showBackToTop = useBackToTop();
@@ -381,29 +366,6 @@ const FamilyJobManagementPage = () => {
       </div>
 
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <label className="me-2 fw-bold">Lọc theo trạng thái:</label>
-          <select
-            className="form-select d-inline-block w-auto"
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-          >
-            <option value="all">Tất cả</option>
-            <option value="1">🕐 Chờ duyệt</option>
-            <option value="2">📋 Đã duyệt</option>
-            <option value="3">✔️ Đã nhận</option>
-            <option value="4">✅ Hoàn thành</option>
-            <option value="5">⌛ Hết hạn</option>
-            <option value="6">❌ Đã hủy</option>
-            <option value="7">🚫 Không được phép</option>
-            <option value="8">🕓 Chờ xác nhận gia đình</option>
-            <option value="9">🚪 Người giúp việc bỏ</option>
-            <option value="10">🔁 Đã phân công lại</option>
-          </select>
-        </div>
         <div className="text-muted small">
           Trang {currentPage} / {totalPages}
         </div>
