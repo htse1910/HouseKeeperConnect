@@ -61,6 +61,60 @@ namespace DataAccess
                 throw new Exception(ex.Message);
             }
         }
+        
+        public async Task<int> CountPendingApplicationsByHKAsync(int housekeeperID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Application
+                        .AsNoTracking()
+                        .CountAsync(j => j.Status == (int)ApplicationStatus.Pending && j.HouseKeeperID == housekeeperID)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<int> CountAcceptedApplicationsByHKAsync(int housekeeperID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Application
+                        .AsNoTracking()
+                        .CountAsync(j => j.Status == (int)ApplicationStatus.Accepted && j.HouseKeeperID==housekeeperID)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<int> CountDenieddApplicationsByHKAsync(int housekeeperID)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Application
+                        .AsNoTracking()
+                        .CountAsync(j => j.Status == (int)ApplicationStatus.Denied && j.HouseKeeperID==housekeeperID)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         public async Task<int> CountApplicationsByJobIDAsync(int jobID)
         {
@@ -87,7 +141,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Application.Include(a => a.HouseKepper.Account).Include(a => a.Job.Family).Include(a => a.Job.Family.Account).Where(a => a.HouseKeeperID == uid).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                    list = await context.Application.Include(a => a.HouseKepper.Account).Include(a => a.Job).Include(a => a.Job.Family).Include(a => a.Job.Family.Account).Where(a => a.HouseKeeperID == uid).OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
             catch (Exception ex)

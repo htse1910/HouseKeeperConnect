@@ -91,6 +91,66 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(count);
         }
         
+        [HttpGet("CountPendingApplicationsByAccountID")]
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<int>> CountPendingApplicationsByAccountIDAsync(int accountID)
+        {
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if (hk == null)
+            {
+                Message = "Không tìm thấy người giúp việc!";
+                return NotFound(Message);
+            }
+            var count = await _applicationService.CountPendingApplicationsByHKAsync(hk.HousekeeperID);
+            if (count == 0)
+            {
+                Message = "Danh sách đơn ứng tuyển đang chờ của người giúp việc trống!";
+                return NotFound(Message);
+            }
+
+            return Ok(count);
+        }
+        
+        [HttpGet("CountAcceptedApplicationsByAccountID")]
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<int>> CountAcceptedApplicationsByAccountIDAsync(int accountID)
+        {
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if (hk == null)
+            {
+                Message = "Không tìm thấy người giúp việc!";
+                return NotFound(Message);
+            }
+            var count = await _applicationService.CountAcceptedApplicationsByHKAsync(hk.HousekeeperID);
+            if (count == 0)
+            {
+                Message = "Danh sách đơn ứng tuyển được chấp nhận của người giúp việc trống!";
+                return NotFound(Message);
+            }
+
+            return Ok(count);
+        }
+        
+        [HttpGet("CountDeniedApplicationsByAccountID")]
+        [Authorize(Policy = "Housekeeper")]
+        public async Task<ActionResult<int>> CountDeniedApplicationsByAccountIDAsync(int accountID)
+        {
+            var hk = await _houseKeeperService.GetHousekeeperByUserAsync(accountID);
+            if (hk == null)
+            {
+                Message = "Không tìm thấy người giúp việc!";
+                return NotFound(Message);
+            }
+            var count = await _applicationService.CountDenieddApplicationsByHKAsync(hk.HousekeeperID);
+            if (count == 0)
+            {
+                Message = "Danh sách đơn ứng tuyển bị từ chối của người giúp việc trống!";
+                return NotFound(Message);
+            }
+
+            return Ok(count);
+        }
+        
         [HttpGet("CountApplicationsByJobID")]
         [Authorize(Policy = "Family")]
         public async Task<ActionResult<int>> CountApplicationsByJobIDAsync(int jobID)
@@ -204,12 +264,14 @@ namespace HouseKeeperConnect_API.Controllers
                 display.FamilyID = item.Job.FamilyID;
                 display.FamilyName = item.Job.Family.Account.Name;
                 display.JobID = item.JobID;
+                display.JobName = item.Job.JobName;
                 display.CreatedDate = item.CreatedDate;
                 display.StartDate = jobDetail.StartDate;
                 display.EndDate = jobDetail.EndDate;
                 display.Services = services;
                 display.Price = jobDetail.Price;
-                display.Status = item.Status;
+                display.ApplicationStatus = item.Status;
+                display.JobStatus = item.Job.Status;
                 display.Rating = item.HouseKepper.Rating.GetValueOrDefault();
                 lA.Add(display);
             }
