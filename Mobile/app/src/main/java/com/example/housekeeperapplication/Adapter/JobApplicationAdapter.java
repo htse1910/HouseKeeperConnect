@@ -1,5 +1,6 @@
 package com.example.housekeeperapplication.Adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.housekeeperapplication.HousekeeperJob;
 import com.example.housekeeperapplication.Model.CombinedJobApplication;
 import com.example.housekeeperapplication.R;
 
@@ -21,12 +23,14 @@ public class JobApplicationAdapter extends RecyclerView.Adapter<JobApplicationAd
 
     private List<CombinedJobApplication> combinedJobs;
     private OnItemClickListener listener;
+    private HousekeeperJob activity;
 
     public interface OnItemClickListener {
         void onItemClick(CombinedJobApplication job);
     }
 
-    public JobApplicationAdapter(List<CombinedJobApplication> combinedJobs, OnItemClickListener listener) {
+    public JobApplicationAdapter(HousekeeperJob activity, List<CombinedJobApplication> combinedJobs, OnItemClickListener listener) {
+        this.activity = activity;
         this.combinedJobs = combinedJobs;
         this.listener = listener;
     }
@@ -85,8 +89,18 @@ public class JobApplicationAdapter extends RecyclerView.Adapter<JobApplicationAd
 
             // Handle item click
             itemView.setOnClickListener(v -> {
+                // Chỉ gọi MỘT trong hai cách sau:
+
+                // Cách 1: Ưu tiên dùng listener nếu có
                 if (listener != null) {
                     listener.onItemClick(item);
+                }
+                // Hoặc cách 2: Dùng trực tiếp từ context
+                else {
+                    Context context = itemView.getContext();
+                    if (context instanceof HousekeeperJob) {
+                        ((HousekeeperJob) context).showJobDetailDialog(item);
+                    }
                 }
             });
         }
