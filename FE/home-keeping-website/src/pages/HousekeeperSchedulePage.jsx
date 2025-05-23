@@ -111,7 +111,14 @@ const HousekeeperSchedulePage = () => {
                 window.location.reload();
             }, 1500);
         } catch (err) {
-            const msg = err.response?.data || "❌ Lỗi khi check-in.";
+            let msg = "❌ Lỗi khi check-in.";
+            if (err.response?.data) {
+                if (typeof err.response.data === "string") {
+                    msg = err.response.data;
+                } else if (typeof err.response.data === "object" && err.response.data.message) {
+                    msg = err.response.data.message;
+                }
+            }
             toast.error(msg);
             console.error(err);
         }
@@ -119,6 +126,17 @@ const HousekeeperSchedulePage = () => {
 
     return (
         <div className="container py-4">
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
             <h4 className="fw-bold text-primary mb-4">🗓️ Lịch Làm Việc của Bạn</h4>
 
             <div className="mb-3">
