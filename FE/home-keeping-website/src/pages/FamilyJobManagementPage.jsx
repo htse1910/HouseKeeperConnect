@@ -137,13 +137,6 @@ const FamilyJobManagementPage = () => {
     [jobs]
   );
 
-  // const filteredJobs = jobs.filter((job) => {
-  //   const matchStatus = filter.status === "all" || job.status?.toString() === filter.status;
-  //   const matchJobType = filter.jobType === "all" || job.jobType?.toString() === filter.jobType;
-  //   const matchStartDate = !filter.start_date || new Date(job.startDate).toISOString().split("T")[0] === filter.start_date;
-  //   return matchStatus && matchJobType && matchStartDate;
-  // });
-
 
   const confirmDelete = async () => {
     if (!jobToDelete) return;
@@ -172,20 +165,6 @@ const FamilyJobManagementPage = () => {
       toast.error("❌ Không thể gửi yêu cầu xoá.");
     }
   };
-
-  // const handleCancelJob = async (jobID) => {
-  //   try {
-  //     await axios.post(`${API_BASE_URL}/Job/CancelJob`, null, {
-  //       headers: { Authorization: `Bearer ${authToken}` },
-  //       params: { jobId: jobID, accountId: accountID },
-  //     });
-  //     toast.success("✅ Đã huỷ công việc.");
-  //     setJobs(prev => prev.map(j => j.jobID === jobID ? { ...j, status: 6 } : j));
-  //   } catch (err) {
-  //     console.error("Lỗi khi huỷ công việc:", err);
-  //     toast.error("❌ Không thể huỷ công việc.");
-  //   }
-  // };
 
   const renderDeleteModal = () => {
     if (!jobToDelete) return null;

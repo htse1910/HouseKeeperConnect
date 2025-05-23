@@ -217,7 +217,6 @@ const HousekeeperBookingManagementPage = () => {
 
   useEffect(() => {
     fetchBookingCount();
-    fetchBookingsByPage(currentPage);
   }, [housekeeperID, authToken]);
 
   useEffect(() => {
