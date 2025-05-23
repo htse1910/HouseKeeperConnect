@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../assets/styles/timetable.css";
 import API_BASE_URL from "../config/apiConfig";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const slots = [
     { id: 1, label: "8H - 9H" },
@@ -90,6 +92,30 @@ const HousekeeperSchedulePage = () => {
         setWeekDates(weekDateList);
         fetchSchedule();
     }, [selectedDate]);
+
+    const handleCheckIn = async () => {
+        if (!selectedSlot) return;
+        const token = localStorage.getItem("authToken");
+
+        try {
+            const res = await axios.post(
+                `${API_BASE_URL}/Job/CheckIn?bookingId=${selectedSlot.bookingID}`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            toast.success(res.data || "✅ Check-in thành công!");
+
+            // Give the toast a moment to show before reload
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } catch (err) {
+            const msg = err.response?.data || "❌ Lỗi khi check-in.";
+            toast.error(msg);
+            console.error(err);
+        }
+    };
 
     return (
         <div className="container py-4">
@@ -222,6 +248,14 @@ const HousekeeperSchedulePage = () => {
                                 )}
                                 {selectedSlot.confirmedAt && (
                                     <p><strong>📬 Xác nhận lúc:</strong> {new Date(selectedSlot.confirmedAt).toLocaleString("vi-VN")}</p>
+                                )}
+
+                                {!selectedSlot.isCheckedIn && (
+                                    <div className="text-center mt-3">
+                                        <button className="btn btn-success" onClick={handleCheckIn}>
+                                            ✅ Check In
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
