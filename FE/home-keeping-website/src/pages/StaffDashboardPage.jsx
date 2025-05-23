@@ -3,20 +3,19 @@ import { NavLink, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   FaUserTie, FaUsers, FaBriefcase, FaMoneyBillWave, FaLifeRing,
-  FaStar, FaExclamationTriangle, FaBook
+  FaStar, FaBook
 } from "react-icons/fa";
 import axios from "axios";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
 
 const StaffDashboardPage = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const isDemo = searchParams.get("demo") === "true";
 
-  const [accountInfo, setAccountInfo] = useState(null);
   const [statsData, setStatsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,7 +32,7 @@ const StaffDashboardPage = () => {
         totalHousekeepers: 120,
         totalFamilies: 85,
         newAccounts7Days: 11,
-        totalJobs: 1, // Adjusted for demo
+        totalJobs: 1,
         completedJobs: 0,
         completedJobs7Days: 0,
         successfulTransactions: 540,
@@ -42,51 +41,36 @@ const StaffDashboardPage = () => {
       setLoading(false);
       return;
     }
-  
+
     const token = localStorage.getItem("authToken");
-    const accountID = localStorage.getItem("accountID");
-  
-    if (!token || !accountID) {
+    if (!token) {
       setError(t("error_auth", "Authentication error."));
       setLoading(false);
       return;
     }
-  
+
     const headers = {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     };
-  
-    axios
-      .get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers })
-      .then((accountRes) => {
-        const account = accountRes.data;
-        if (!account) throw new Error(t("error_auth", "Unauthorized"));
-  
-        setAccountInfo(account);
-  
-        return Promise.allSettled([
-          axios.get(`${API_BASE_URL}/Account/TotalAccount`, { headers }),
-          axios.get(`${API_BASE_URL}/Account/NewAccounts`, { headers }),
-          axios.get(`${API_BASE_URL}/Transaction/GetTotalTransactions`, { headers }),
-          axios.get(`${API_BASE_URL}/Transaction/TransactionInPastWeek`, { headers }),
-          axios.get(`${API_BASE_URL}/Job/JobList?pageNumber=1&pageSize=100000`, { headers }), // <-- Add this
-        ]);
-      })
+
+    Promise.allSettled([
+      axios.get(`${API_BASE_URL}/Account/TotalAccount`, { headers }),
+      axios.get(`${API_BASE_URL}/Account/NewAccounts`, { headers }),
+      axios.get(`${API_BASE_URL}/Transaction/GetTotalTransactions`, { headers }),
+      axios.get(`${API_BASE_URL}/Transaction/TransactionInPastWeek`, { headers }),
+      axios.get(`${API_BASE_URL}/Job/CountVerifiedJobsStaff`, { headers }),
+    ])
       .then((results) => {
-        const [accStats, newAccs, txTotal, txWeek, jobList] = results;
-  
+        const [accStats, newAccs, txTotal, txWeek, jobCount] = results;
+
         const totalHousekeepers = accStats.status === "fulfilled" ? accStats.value.data.totalHousekeepers : 0;
         const totalFamilies = accStats.status === "fulfilled" ? accStats.value.data.totalFamilies : 0;
         const newAccounts7Days = newAccs.status === "fulfilled" ? newAccs.value.data.newAccounts7Days : 0;
         const successfulTransactions = txTotal.status === "fulfilled" ? txTotal.value.data : 0;
         const successfulTransactions7Days = txWeek.status === "fulfilled" ? txWeek.value.data.length : 0;
-  
-        let totalJobs = 0;
-        if (jobList.status === "fulfilled" && Array.isArray(jobList.value.data)) {
-          totalJobs = jobList.value.data.filter(job => job.status === 2).length; // Status 2 = Verified
-        }
-  
+        const totalJobs = jobCount.status === "fulfilled" ? jobCount.value.data : 0;
+
         setStatsData({
           totalHousekeepers,
           totalFamilies,
@@ -100,7 +84,7 @@ const StaffDashboardPage = () => {
       })
       .catch(() => setError(t("error_loading", "Failed to load data.")))
       .finally(() => setLoading(false));
-  }, [isDemo, t]);  
+  }, [isDemo, t]);
 
   const CustomTooltip = ({ active, payload }) =>
     active && payload?.length ? (
@@ -153,7 +137,6 @@ const StaffDashboardPage = () => {
   return (
     <div className="container-fluid py-4">
       <div className="row">
-        {/* Sidebar */}
         <div className="col-md-3 mb-4">
           <div className="card shadow-sm p-3">
             <h5 className="fw-bold mb-3">{t("navigation.dashboard", "Dashboard")}</h5>
@@ -170,14 +153,12 @@ const StaffDashboardPage = () => {
           </div>
         </div>
 
-        {/* Main content */}
         <div className="col-md-9">
           <div className="mb-4">
             <h3>{t("dashboard.dashboard_welcome_message", { name: userName }) || `Welcome back, ${userName}`}</h3>
             <p className="text-muted">{t("misc.select_category", "Choose a category to manage")}</p>
           </div>
 
-          {/* Stats cards */}
           <div className="row g-3">
             <StatCard icon={<FaUserTie />} value={statsData.totalHousekeepers} label={t("misc.total_housekeepers", "Total Housekeepers")} />
             <StatCard icon={<FaUsers />} value={statsData.totalFamilies} label={t("misc.total_families", "Total Families")} />
@@ -185,7 +166,6 @@ const StaffDashboardPage = () => {
             <StatCard icon={<FaMoneyBillWave />} value={statsData.successfulTransactions} label={t("misc.total_transactions", "Total Transactions")} />
           </div>
 
-          {/* Charts */}
           <div className="row mt-4">
             <ChartSection title={t("misc.stats_title", "Account Stats")} data={statsData} bars={[
               { key: "totalHousekeepers", fill: "#0074D9", name: t("misc.total_housekeepers", "Total Housekeepers") },
