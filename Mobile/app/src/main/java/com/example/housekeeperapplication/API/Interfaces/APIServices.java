@@ -21,6 +21,7 @@ import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.PaymentLinkDTO;
 import com.example.housekeeperapplication.Model.DTOs.RatingCreateDTO;
+import com.example.housekeeperapplication.Model.DTOs.SupportRequestCreateDTO;
 import com.example.housekeeperapplication.Model.Family;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.Model.Notification;
@@ -331,5 +332,11 @@ public interface APIServices {
             @Query("Reviewee") int reviewee,
             @Query("Content") String content,
             @Query("Score") int score
+    );
+    @POST("api/SupportRequest/AddSupportRequest")
+    Call<ResponseBody> addSupportRequest(
+            @Query("requestedBy") int requestedBy,
+            @Query("type") int type,
+            @Query("content") String content
     );
 }
