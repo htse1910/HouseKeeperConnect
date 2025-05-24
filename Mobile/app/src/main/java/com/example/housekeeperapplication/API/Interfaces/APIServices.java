@@ -20,6 +20,7 @@ import com.example.housekeeperapplication.Model.DTOs.JobDetailForBookingDTO;
 import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.PaymentLinkDTO;
+import com.example.housekeeperapplication.Model.DTOs.RatingCreateDTO;
 import com.example.housekeeperapplication.Model.Family;
 import com.example.housekeeperapplication.Model.Job;
 import com.example.housekeeperapplication.Model.Notification;
@@ -323,4 +324,12 @@ public interface APIServices {
 
     @POST("api/Job/ConfirmJobCompletion")
     Call<Void> ConfirmJobCompletion(@Query("jobId") int jobId, @Query("accountID") int accountID);
+
+    @POST("api/Rating/AddRating")
+    Call<ResponseBody> AddRating(
+            @Query("Reviewer") int reviewer,
+            @Query("Reviewee") int reviewee,
+            @Query("Content") String content,
+            @Query("Score") int score
+    );
 }

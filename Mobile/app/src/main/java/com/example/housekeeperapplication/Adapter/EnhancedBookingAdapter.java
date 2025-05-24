@@ -242,13 +242,17 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
 
     private String getStatusText(int status) {
         switch (status) {
-            case 1: return "🕒 Đang chờ xác nhận";
-            case 2: return "✔️ Đã xác nhận";
-            case 3: return "📌 Đang thực hiện";
-            case 4: return "✅ Đã hoàn thành";
-            case 5: return "⭐ Đã đánh giá";
-            case 6: return "❌ Đã hủy";
-            default: return "❓ Trạng thái không xác định";
+            case 1: return "🕒 Công việc đang chờ duyệt";
+            case 2: return "✔️ Công việc đã xác minh";
+            case 3: return "📌 Công việc đã chấp nhận";
+            case 4: return "✅ Công việc đã hoàn thành";
+            case 5: return "⏰ Công việc đã hết hạn";
+            case 6: return "❌ Công việc đã hủy";
+            case 7: return "🚫 Không được phép";
+            case 8: return "👨‍👩‍👧 Công việc đang chờ xác nhận của gia đình";
+            case 9: return "👨‍👩‍👧 Người giúp việc đã nghỉ";
+            case 10: return "👨‍👩‍👧 Công việc đã giao lại";
+            default: return "❓ Unknown";
         }
     }
 
