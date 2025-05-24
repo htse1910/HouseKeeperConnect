@@ -37,34 +37,62 @@ function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match!');
-      return;
+    // Trimmed values for string validations
+    const {
+      name,
+      nickname,
+      email,
+      password,
+      confirmPassword,
+      phone,
+      roleID,
+      bankAccountNumber,
+      genderID,
+      introduction,
+      address,
+      LocalProfilePicture
+    } = formData;
+
+    // Required Fields
+    if (!roleID) return toast.error("Vui lòng chọn vai trò.");
+    if (!name.trim()) return toast.error("Họ và tên không được để trống.");
+    if (!nickname.trim()) return toast.error("Nickname không được để trống.");
+    if (!email.trim()) return toast.error("Email không được để trống.");
+    if (!password) return toast.error("Mật khẩu không được để trống.");
+    if (!confirmPassword) return toast.error("Xác nhận mật khẩu không được để trống.");
+    if (!phone.trim()) return toast.error("Số điện thoại không được để trống.");
+    if (!genderID) return toast.error("Vui lòng chọn giới tính.");
+    if (!introduction.trim()) return toast.error("Giới thiệu không được để trống.");
+    if (!address.trim()) return toast.error("Địa chỉ không được để trống.");
+    if (!LocalProfilePicture) return toast.error("Vui lòng tải lên ảnh đại diện.");
+
+    // Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return toast.error("Địa chỉ email không hợp lệ.");
+
+    // Phone format (Vietnam 10-digit mobile)
+    const phoneRegex = /^(03|05|07|08|09)\d{8}$/;
+    if (!phoneRegex.test(phone)) return toast.error("Số điện thoại không hợp lệ.");
+
+    // Password strength
+    if (password.length < 5) return toast.error("Mật khẩu phải có ít nhất 5 ký tự.");
+    if (password !== confirmPassword) return toast.error("Mật khẩu xác nhận không khớp.");
+
+    // Bank account number (optional, but validate format if filled)
+    if (bankAccountNumber && !/^\d{8,20}$/.test(bankAccountNumber)) {
+      return toast.error("Số tài khoản ngân hàng không hợp lệ.");
     }
 
-    if (!formData.LocalProfilePicture) {
-      toast.error('Please upload a profile picture!');
-      return;
-    }
-
+    // Passed all validations — continue
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (value === null || value === '') return;
-    
-      // Fix keys that must match backend exactly (case-sensitive)
-      if (key === 'genderID') {
-        formDataToSend.append('Gender', parseInt(value, 10));
-      } else if (key === 'roleID') {
-        formDataToSend.append('RoleID', parseInt(value, 10));
-      } else {
-        formDataToSend.append(key, value);
-      }
+      if (key === 'genderID') formDataToSend.append('Gender', parseInt(value, 10));
+      else if (key === 'roleID') formDataToSend.append('RoleID', parseInt(value, 10));
+      else formDataToSend.append(key, value);
     });
-    
+
     try {
-      for (let pair of formDataToSend.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }      
       const registerResponse = await axios.post(
         `${API_BASE_URL}/Account/Register`,
         formDataToSend,
@@ -78,7 +106,6 @@ function RegisterPage() {
 
       if (registerResponse.status === 200) {
         toast.success('🎉 Registration successful! Auto-login in 5 seconds...');
-        // 👇 Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setCountdown(5);
         setShouldAutoLogin(true);
@@ -103,7 +130,7 @@ function RegisterPage() {
             'Content-Type': 'application/json'
           }
         }
-      );      
+      );
 
       if (response.status === 200) {
         const loginData = response.data;

@@ -4,6 +4,8 @@ import UserTableRow from "../components/UserTableRow";
 import UserDetailsModal from "../components/UserDetailsModal";
 import AdminSidebar from "../components/AdminSidebar";
 import API_BASE_URL from "../config/apiConfig";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminUserListPage = () => {
   const [allUsers, setAllUsers] = useState([]);
@@ -11,21 +13,30 @@ const AdminUserListPage = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const USERS_PER_PAGE = 6;
+  const [totalUsers, setTotalUsers] = useState(0);
 
-  const paginatedUsers = allUsers.slice(
-    (currentPage - 1) * USERS_PER_PAGE,
-    currentPage * USERS_PER_PAGE
-  );
+  const paginatedUsers = allUsers;
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page = 1) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("authToken");
-      const res = await fetch(`${API_BASE_URL}/Account/AccountList?pageNumber=1&pageSize=99999`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setAllUsers(data);
+
+      const [listRes, countRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/Account/AccountList?pageNumber=${page}&pageSize=${USERS_PER_PAGE}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API_BASE_URL}/Account/TotalAccount`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      const listData = await listRes.json();
+      const countData = await countRes.json();
+
+      setAllUsers(listData);
+      setTotalUsers(countData.totalHousekeepers + countData.totalFamilies); // ✅
+      console.log("Total: ", totalUsers)
     } catch (err) {
       console.error("Failed to fetch users", err);
     } finally {
@@ -53,14 +64,25 @@ const AdminUserListPage = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(currentPage);
+  }, [currentPage]);
 
   const getRole = (id) => (id === 1 ? "Người giúp việc" : id === 2 ? "Gia đình" : id === 3 ? "Nhân viên" : "Không xác định");
   const getGender = (g) => (g === 1 ? "Nam" : g === 2 ? "Nữ" : "Không rõ");
 
   return (
     <div className="container-fluid">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <style>{`
         .card-custom {
           border: 2px solid #0d6efd;
@@ -143,33 +165,43 @@ const AdminUserListPage = () => {
               </div>
 
               {/* Pagination */}
-              {allUsers.length > USERS_PER_PAGE && (
-                <div className="d-flex justify-content-center mt-4">
-                  <nav>
-                    {allUsers.length > USERS_PER_PAGE && (
-                      <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
-                        <button
-                          className="btn btn-outline-primary"
-                          disabled={currentPage === 1}
-                          onClick={() => setCurrentPage((p) => p - 1)}
-                        >
-                          <span className="me-1">&larr;</span> Trước
-                        </button>
+              {totalUsers > USERS_PER_PAGE && (
+                <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
+                  <button
+                    className="btn btn-outline-primary"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                  >
+                    <span className="me-1">&larr;</span> Trước
+                  </button>
 
-                        <span className="fw-bold">
-                          {currentPage} / {Math.ceil(allUsers.length / USERS_PER_PAGE)}
-                        </span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={Math.ceil(totalUsers / USERS_PER_PAGE)}
+                    value={currentPage}
+                    onChange={(e) => {
+                      const page = Number(e.target.value);
+                      const max = Math.ceil(totalUsers / USERS_PER_PAGE);
+                      if (page >= 1 && page <= max) {
+                        setCurrentPage(page);
+                      }
+                    }}
+                    className="form-control text-center"
+                    style={{ width: "70px" }}
+                  />
 
-                        <button
-                          className="btn btn-outline-primary"
-                          disabled={currentPage === Math.ceil(allUsers.length / USERS_PER_PAGE)}
-                          onClick={() => setCurrentPage((p) => p + 1)}
-                        >
-                          Sau <span className="ms-1">&rarr;</span>
-                        </button>
-                      </div>
-                    )}
-                  </nav>
+                  <span className="fw-bold">
+                    / {Math.ceil(totalUsers / USERS_PER_PAGE)}
+                  </span>
+
+                  <button
+                    className="btn btn-outline-primary"
+                    disabled={currentPage === Math.ceil(totalUsers / USERS_PER_PAGE)}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                  >
+                    Sau <span className="ms-1">&rarr;</span>
+                  </button>
                 </div>
               )}
             </>
