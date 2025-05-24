@@ -54,7 +54,10 @@ const FamilyProfilePage = () => {
       <AvatarCard family={family} mapGender={mapGender} defaultAvatar={defaultAvatar} />
       <IntroductionCard introduction={family?.introduction} />
       <ContactCard family={family} />
-      <PreferencesCard familyID={family?.familyID} token={authToken} />
+      <div className="mb-4">
+        <PreferencesCard familyID={family?.familyID} token={authToken} />
+      </div>
+
     </div>
   );
 };

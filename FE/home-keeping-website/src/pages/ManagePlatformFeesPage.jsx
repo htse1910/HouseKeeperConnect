@@ -3,6 +3,8 @@ import axios from "axios";
 import { FaSave, FaEdit } from "react-icons/fa";
 import AdminSidebar from "../components/AdminSidebar";
 import API_BASE_URL from "../config/apiConfig";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Utility: Format to Vietnam Time
 const formatVietnamTime = (isoString) => {
@@ -36,16 +38,27 @@ const ManagePlatformFeesPage = () => {
 
   const saveUpdate = async () => {
     if (!editFee || !editPercent) return;
+
     try {
-      await axios.put(
+      const res = await axios.put(
         `${API_BASE_URL}/PlatformFee/UpdateFee?fID=${editFee.feeID}&percent=${editPercent}`,
         null,
         { headers }
       );
+
+      toast.success("Cập nhật thành công!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
       setEditFee(null);
       setEditPercent("");
       fetchFees();
     } catch (err) {
+      toast.error("Cập nhật thất bại!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
       console.error("Failed to update fee:", err);
     }
   };
@@ -56,6 +69,18 @@ const ManagePlatformFeesPage = () => {
 
   return (
     <div className="container-fluid">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
       <style>{`
         .card-custom {
           border: 2px solid #0d6efd;

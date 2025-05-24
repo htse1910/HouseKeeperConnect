@@ -5,6 +5,8 @@ import API_BASE_URL from "../config/apiConfig";
 import { useTranslation } from "react-i18next";
 import { FaUserCircle } from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const slotMap = {
   1: "8H - 9H", 2: "9H - 10H", 3: "10H - 11H", 4: "11H - 12H",
@@ -41,10 +43,10 @@ function FamilyAbandonedJobsPage() {
         {},
         { headers }
       );
-      alert("✅ Đã gửi lời mời thành công!");
+      toast.success("✅ Đã gửi lời mời thành công!");
     } catch (err) {
       console.error("Invite failed", err);
-      alert("❌ Gửi lời mời thất bại.");
+      toast.error("❌ Gửi lời mời thất bại.");
     }
   };
 
@@ -55,7 +57,7 @@ function FamilyAbandonedJobsPage() {
       setShowHKModal(true);
     } catch (err) {
       console.error("Failed to load housekeeper details", err);
-      alert("Không thể tải thông tin người giúp việc.");
+      toast.error("Không thể tải thông tin người giúp việc.");
     }
   };
 
@@ -84,7 +86,7 @@ function FamilyAbandonedJobsPage() {
           try {
             const detail = await axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByID?id=${hk.housekeeperID}`, { headers });
             profileMap[hk.housekeeperID] = detail.data;
-          } catch {}
+          } catch { }
         }
         setDetailedProfiles(profileMap);
       } catch (err) {
@@ -101,6 +103,7 @@ function FamilyAbandonedJobsPage() {
 
   return (
     <div className="container py-4">
+      <ToastContainer position="top-right" autoClose={3000} />
       <h3 className="mb-3">Người giúp việc mới</h3>
 
       {selectedJob && (

@@ -1,16 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import AdminSidebar from "../components/AdminSidebar";
 import API_BASE_URL from "../config/apiConfig";
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Modal, Button, Form } from "react-bootstrap";
+
+const SERVICE_TYPES = {
+  1: "Dọn dẹp nhà cửa",
+  2: "Chăm sóc trẻ em/người cao tuổi",
+  3: "Nấu ăn tại nhà",
+  4: "Giặt ủi & chăm sóc quần áo",
+  5: "Chăm sóc sân vườn & thú cưng",
+  6: "Dịch vụ sửa chữa & bảo trì nhà cửa",
+  7: "Hỗ trợ đặc biệt",
+};
 
 const AdminServiceListPage = () => {
   const [services, setServices] = useState([]);
   const [editServiceID, setEditServiceID] = useState(null);
-  const [editPrice, setEditPrice] = useState("");
-  const [editDescription, setEditDescription] = useState("");
+  const [editedData, setEditedData] = useState({});
   const [loading, setLoading] = useState(true);
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newService, setNewService] = useState({
+    serviceName: "",
+    price: "",
+    serviceTypeID: 1,
+    description: "",
+  });
 
   const token = localStorage.getItem("authToken");
 
@@ -22,41 +39,76 @@ const AdminServiceListPage = () => {
       });
       const data = await res.json();
       setServices(data);
-    } catch (err) {
-      console.error("Failed to fetch services", err);
-      toast.error("Không thể tải danh sách dịch vụ.", { position: "top-right" });
+    } catch {
+      toast.error("Không thể tải danh sách dịch vụ.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSave = async (service) => {
-    try {
-      const url = `${API_BASE_URL}/Service/UpdateService?ServiceID=${service.serviceID}&ServiceName=${encodeURIComponent(
-        service.serviceName
-      )}&Price=${editPrice}&ServiceTypeID=${service.serviceType.serviceTypeID}&Description=${encodeURIComponent(
-        editDescription
-      )}`;
+    const { serviceName, price, serviceTypeID, description } = editedData;
+    const url = `${API_BASE_URL}/Service/UpdateService?ServiceID=${service.serviceID}&ServiceName=${encodeURIComponent(serviceName)}&Price=${price}&ServiceTypeID=${serviceTypeID}&Description=${encodeURIComponent(description)}`;
 
+    try {
       const res = await fetch(url, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const msg = await res.text();
       if (res.ok) {
-        toast.success(msg, {
-          position: "top-right",
-          autoClose: 2000,
-          onClose: () => window.location.reload(),
-        });
+        toast.success(msg);
+        fetchServices();
       } else {
-        toast.error(msg, { position: "top-right" });
+        toast.error(msg);
       }
-    } catch (err) {
-      toast.error("Lỗi khi cập nhật dịch vụ.", { position: "top-right" });
+    } catch {
+      toast.error("Lỗi khi cập nhật dịch vụ.");
     } finally {
       setEditServiceID(null);
+    }
+  };
+
+  const handleAddService = async () => {
+    const { serviceName, price, serviceTypeID, description } = newService;
+    const url = `${API_BASE_URL}/Service/AddService?ServiceName=${encodeURIComponent(serviceName)}&Price=${price}&ServiceTypeID=${serviceTypeID}&Description=${encodeURIComponent(description)}`;
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const msg = await res.text();
+      if (res.ok) {
+        toast.success(msg);
+        fetchServices();
+        setShowAddModal(false);
+        setNewService({ serviceName: "", price: "", serviceTypeID: 1, description: "" });
+      } else {
+        toast.error(msg);
+      }
+    } catch {
+      toast.error("Lỗi khi thêm dịch vụ.");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    toast.info("Đang xóa dịch vụ...");
+
+    try {
+      const url = `${API_BASE_URL}/Service/DeleteService?id=${id}`;
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const msg = await res.text();
+      if (res.ok) {
+        toast.success(msg);
+        fetchServices();
+      } else {
+        toast.error(msg);
+      }
+    } catch {
+      toast.error("Lỗi khi xóa dịch vụ.");
     }
   };
 
@@ -66,29 +118,22 @@ const AdminServiceListPage = () => {
 
   return (
     <div className="container-fluid">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="row">
         <div className="col-md-2 bg-light min-vh-100 py-4 px-3">
           <AdminSidebar />
         </div>
         <div className="col-md-10 py-5">
-          <h2 className="fw-bold mb-4 text-primary text-center">Danh Sách Dịch Vụ</h2>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h2 className="fw-bold text-primary">Danh Sách Dịch Vụ</h2>
+            <Button variant="success" onClick={() => setShowAddModal(true)}>
+              Thêm Dịch Vụ
+            </Button>
+          </div>
 
           {loading ? (
             <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Đang tải...</span>
-              </div>
+              <div className="spinner-border text-primary" role="status" />
             </div>
           ) : (
             <div className="card p-4 shadow-sm border-primary rounded">
@@ -108,16 +153,57 @@ const AdminServiceListPage = () => {
                     {services.map((service) => (
                       <tr key={service.serviceID} className="text-center">
                         <td>{service.serviceID}</td>
-                        <td>{service.serviceName}</td>
-                        <td>{service.serviceType?.serviceTypeName}</td>
+                        <td>
+                          {editServiceID === service.serviceID ? (
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={editedData.serviceName}
+                              onChange={(e) =>
+                                setEditedData((prev) => ({
+                                  ...prev,
+                                  serviceName: e.target.value,
+                                }))
+                              }
+                            />
+                          ) : (
+                            service.serviceName
+                          )}
+                        </td>
+                        <td>
+                          {editServiceID === service.serviceID ? (
+                            <select
+                              className="form-select"
+                              value={editedData.serviceTypeID}
+                              onChange={(e) =>
+                                setEditedData((prev) => ({
+                                  ...prev,
+                                  serviceTypeID: parseInt(e.target.value),
+                                }))
+                              }
+                            >
+                              {Object.entries(SERVICE_TYPES).map(([id, name]) => (
+                                <option key={id} value={id}>
+                                  {name}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            service.serviceType?.serviceTypeName
+                          )}
+                        </td>
                         <td>
                           {editServiceID === service.serviceID ? (
                             <input
                               type="number"
                               className="form-control"
-                              value={editPrice}
-                              onChange={(e) => setEditPrice(e.target.value)}
-                              style={{ maxWidth: "100px", margin: "auto" }}
+                              value={editedData.price}
+                              onChange={(e) =>
+                                setEditedData((prev) => ({
+                                  ...prev,
+                                  price: e.target.value,
+                                }))
+                              }
                             />
                           ) : (
                             `${service.price.toLocaleString("vi-VN")} ₫`
@@ -128,8 +214,13 @@ const AdminServiceListPage = () => {
                             <input
                               type="text"
                               className="form-control"
-                              value={editDescription}
-                              onChange={(e) => setEditDescription(e.target.value)}
+                              value={editedData.description}
+                              onChange={(e) =>
+                                setEditedData((prev) => ({
+                                  ...prev,
+                                  description: e.target.value,
+                                }))
+                              }
                             />
                           ) : (
                             service.description || "Không có"
@@ -137,24 +228,39 @@ const AdminServiceListPage = () => {
                         </td>
                         <td>
                           {editServiceID === service.serviceID ? (
-                            <button
-                              className="btn btn-primary btn-sm"
+                            <Button
+                              size="sm"
+                              variant="primary"
+                              className="me-2"
                               onClick={() => handleSave(service)}
                             >
                               Lưu
-                            </button>
+                            </Button>
                           ) : (
-                            <button
-                              className="btn btn-warning btn-sm"
+                            <Button
+                              size="sm"
+                              variant="warning"
+                              className="me-2"
                               onClick={() => {
                                 setEditServiceID(service.serviceID);
-                                setEditPrice(service.price);
-                                setEditDescription(service.description || "");
+                                setEditedData({
+                                  serviceName: service.serviceName,
+                                  price: service.price,
+                                  description: service.description || "",
+                                  serviceTypeID: service.serviceTypeID,
+                                });
                               }}
                             >
                               Sửa
-                            </button>
+                            </Button>
                           )}
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => handleDelete(service.serviceID)}
+                          >
+                            Xóa
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -165,6 +271,73 @@ const AdminServiceListPage = () => {
           )}
         </div>
       </div>
+
+      {/* Add Modal */}
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Thêm Dịch Vụ</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Tên dịch vụ</Form.Label>
+              <Form.Control
+                type="text"
+                value={newService.serviceName}
+                onChange={(e) =>
+                  setNewService({ ...newService, serviceName: e.target.value })
+                }
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Giá</Form.Label>
+              <Form.Control
+                type="number"
+                value={newService.price}
+                onChange={(e) =>
+                  setNewService({ ...newService, price: e.target.value })
+                }
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Loại dịch vụ</Form.Label>
+              <Form.Select
+                value={newService.serviceTypeID}
+                onChange={(e) =>
+                  setNewService({
+                    ...newService,
+                    serviceTypeID: parseInt(e.target.value),
+                  })
+                }
+              >
+                {Object.entries(SERVICE_TYPES).map(([id, name]) => (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Mô tả</Form.Label>
+              <Form.Control
+                type="text"
+                value={newService.description}
+                onChange={(e) =>
+                  setNewService({ ...newService, description: e.target.value })
+                }
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="success" onClick={handleAddService}>
+            Thêm
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

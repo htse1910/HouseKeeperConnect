@@ -31,39 +31,57 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const { email, password } = formData;
+
+    // Email required & format
+    if (!email.trim()) {
+      toast.error("Email không được để trống.", { position: 'top-center' });
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Địa chỉ email không hợp lệ.", { position: 'top-center' });
+      return;
+    }
+
+    // Password required & length
+    if (!password) {
+      toast.error("Mật khẩu không được để trống.", { position: 'top-center' });
+      return;
+    }
+    if (password.length < 5) {
+      toast.error("Mật khẩu phải có ít nhất 5 ký tự.", { position: 'top-center' });
+      return;
+    }
+
+    // Proceed with backend call
     try {
       const response = await axios.post(
         `${API_BASE_URL}/Account/Login`,
-        {
-          email: formData.email,
-          password: formData.password
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
+        { email, password },
+        { headers: { 'Content-Type': 'application/json' } }
       );
-  
+
       if (response.status === 200) {
         const loginData = response.data;
-  
+
         localStorage.setItem('authToken', loginData.token);
         localStorage.setItem('userRoleID', loginData.roleID);
         localStorage.setItem('userName', loginData.name);
         localStorage.setItem('userRole', loginData.roleName);
         localStorage.setItem('accountID', loginData.accountID);
-  
+
         setUserRole(loginData.roleName);
         toast.success(`Welcome ${loginData.name}!`, { position: 'top-center', autoClose: 3000 });
-  
+
         redirectUser(loginData.roleID);
       }
     } catch (error) {
-      toast.error('Invalid email or password.', { position: 'top-center', autoClose: 3000 });
+      toast.error('Email hoặc mật khẩu không chính xác.', { position: 'top-center', autoClose: 3000 });
     }
   };
-  
+
   const startGoogleLogin = (roleID) => {
     setSelectedRoleID(roleID);
   };
@@ -73,7 +91,7 @@ function LoginPage() {
       toast.error("Please select a role before logging in with Google.", { position: "top-center" });
       return;
     }
-  
+
     try {
       const response = await axios.post(
         `${API_BASE_URL}/Account/LoginWithGoogle`,
@@ -86,23 +104,23 @@ function LoginPage() {
           headers: { 'Accept': 'application/json' }
         }
       );
-  
+
       if (response.status === 200) {
         const userData = response.data;
-  
+
         localStorage.setItem('authToken', userData.token);
         localStorage.setItem('userRoleID', userData.roleID);
         localStorage.setItem('userName', userData.name);
         localStorage.setItem('userRole', userData.roleName);
         localStorage.setItem('accountID', userData.accountID);
-  
+
         if (userData.profilePicture) {
           localStorage.setItem('userProfilePicture', userData.profilePicture);
         }
-  
+
         setUserRole(userData.roleName);
         toast.success(`Welcome ${userData.name}!`, { position: "top-center", autoClose: 3000 });
-  
+
         redirectUser(userData.roleID); // FE always trusts BE roleID
       }
     } catch (error) {
@@ -110,7 +128,7 @@ function LoginPage() {
       toast.error(message, { position: "top-center", autoClose: 3000 });
     }
   };
-  
+
 
   const redirectUser = (roleID) => {
     switch (roleID) {

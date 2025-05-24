@@ -4,6 +4,8 @@ import UserTableRow from "../components/UserTableRow";
 import UserDetailsModal from "../components/UserDetailsModal";
 import AdminSidebar from "../components/AdminSidebar";
 import API_BASE_URL from "../config/apiConfig";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminUserListPage = () => {
   const [allUsers, setAllUsers] = useState([]);
@@ -70,6 +72,17 @@ const AdminUserListPage = () => {
 
   return (
     <div className="container-fluid">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <style>{`
         .card-custom {
           border: 2px solid #0d6efd;
