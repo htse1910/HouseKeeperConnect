@@ -1251,6 +1251,12 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("Không tìm thấy thông tin chi tiết công việc!");
             }
 
+            if(jobDetail.HousekeeperID != null)
+            {
+                Message = "Bạn đã mời 1 người giúp việc cho công việc này rôi!";
+                return Conflict(Message);
+            }
+
             // Get job slots
             var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(jobId);
             if (jobSlots == null || !jobSlots.Any())
