@@ -193,7 +193,10 @@ function HouseKeeperManagePage() {
               <div className="text-end">
                 <button
                   className="btn btn-sm btn-outline-warning fw-semibold"
-                  onClick={() => setSelectedApplication({ jobID: app.jobID, status: app.status })}
+                  onClick={() => {
+                    console.log("🔍 Clicked application:", app);
+                    setSelectedApplication({ jobID: app.jobID, applicationStatus: app.applicationStatus });
+                  }}
                   aria-label="Xem chi tiết công việc"
                 >
                   Xem chi tiết
@@ -240,7 +243,7 @@ function HouseKeeperManagePage() {
       {selectedApplication && (
         <JobDetailModal
           jobID={selectedApplication.jobID}
-          applicationStatus={selectedApplication.status}
+          applicationStatus={selectedApplication.applicationStatus}
           onClose={() => {
             setSelectedApplication(null);
             fetchApplicationsByPage(currentPage);

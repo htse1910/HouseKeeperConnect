@@ -86,6 +86,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
       fetchJobDetail();
     }
   }, [jobID]);
+  console.log("🧪 Props received in JobDetailModal:", { jobID, applicationStatus });
 
   const handleAcceptJob = async () => {
     try {
