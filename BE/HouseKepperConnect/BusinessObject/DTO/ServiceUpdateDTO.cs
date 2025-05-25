@@ -14,7 +14,6 @@ namespace BusinessObject.DTOs
         [Required]
         [Range(0, double.MaxValue, ErrorMessage = "Price must be at least 0.")]
         public decimal Price { get; set; }
-
         [Required]
         public int ServiceTypeID { get; set; }
 

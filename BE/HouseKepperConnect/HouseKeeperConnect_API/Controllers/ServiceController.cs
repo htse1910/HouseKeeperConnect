@@ -2,6 +2,7 @@
 using BusinessObject.DTO;
 using BusinessObject.DTOs;
 using BusinessObject.Models;
+using BusinessObject.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -53,19 +54,35 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult> AddService([FromQuery] ServiceCreateDTO serviceCreateDTO)
         {
-            var service = _mapper.Map<Service>(serviceCreateDTO);
+
             if (serviceCreateDTO == null)
             {
-                return BadRequest("Invalid service data.");
+                return BadRequest("Dữ liểu tạo không hợp lệ!");
             }
 
-            await _serviceService.AddServiceAsync(service);
+            var count = await _serviceService.GetAllServicesAsync();
+            if (count.Count == 0)
+            {
 
-            return Ok("Service added successfully!");
+            }
+
+            var ser = new Service();
+            ser.ServiceID = count.Count + 2;
+            ser.ServiceName = serviceCreateDTO.ServiceName;
+            ser.Price = serviceCreateDTO.Price;
+            ser.ServiceTypeID = serviceCreateDTO.ServiceTypeID;
+            ser.Description = serviceCreateDTO.Description;
+            ser.Status = (int)ServiceStatus.Inactive;
+
+
+
+            await _serviceService.AddServiceAsync(ser);
+
+            return Ok("Đã tạo dịch vụ mới");
         }
 
         [HttpPut("UpdateService")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> UpdateService([FromQuery] ServiceUpdateDTO serviceUpdateDTO)
         {
             var service = await _serviceService.GetServiceByIDAsync(serviceUpdateDTO.ServiceID);
@@ -82,12 +99,39 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
-        [HttpDelete("DeleteService")]
-        [Authorize]
+        [HttpPut("DisableService")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> DeleteService([FromQuery] int id)
         {
-            await _serviceService.DeleteServiceAsync(id);
-            Message = "Service deleted successfully!";
+            var ser = await _serviceService.GetServiceByIDAsync(id);
+            if (ser==null)
+            {
+                Message = "Không tìm thấy dịch vụ!";
+                return NotFound(Message);
+            }
+
+            ser.Status = (int)ServiceStatus.Inactive;
+            await _serviceService.UpdateServiceAsync(ser);
+
+            Message = "Dịch vụ đã bị vô hiệu hóa!";
+            return Ok(Message);
+        }
+        
+        [HttpPut("EnableService")]
+        [Authorize(Policy = "Admin")]
+        public async Task<ActionResult> EnableService([FromQuery] int id)
+        {
+            var ser = await _serviceService.GetServiceByIDAsync(id);
+            if (ser==null)
+            {
+                Message = "Không tìm thấy dịch vụ!";
+                return NotFound(Message);
+            }
+
+            ser.Status = (int)ServiceStatus.Active;
+            await _serviceService.UpdateServiceAsync(ser);
+
+            Message = "Dịch vụ đã được kích hoạt!";
             return Ok(Message);
         }
     }
