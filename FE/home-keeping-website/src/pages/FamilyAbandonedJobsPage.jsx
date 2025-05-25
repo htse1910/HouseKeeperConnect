@@ -32,7 +32,6 @@ function FamilyAbandonedJobsPage() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [suggestedHousekeepers, setSuggestedHousekeepers] = useState([]);
-  const [detailedProfiles, setDetailedProfiles] = useState({});
   const [showHKModal, setShowHKModal] = useState(false);
   const [activeHousekeeper, setActiveHousekeeper] = useState(null);
 
@@ -80,15 +79,6 @@ function FamilyAbandonedJobsPage() {
           { headers }
         );
         setSuggestedHousekeepers(hkRes.data || []);
-
-        const profileMap = {};
-        for (const hk of hkRes.data || []) {
-          try {
-            const detail = await axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByID?id=${hk.housekeeperID}`, { headers });
-            profileMap[hk.housekeeperID] = detail.data;
-          } catch { }
-        }
-        setDetailedProfiles(profileMap);
       } catch (err) {
         console.error("Error loading job or housekeepers", err);
       } finally {
@@ -125,9 +115,7 @@ function FamilyAbandonedJobsPage() {
             <p>Không tìm thấy người phù hợp.</p>
           ) : (
             suggestedHousekeepers.map(hk => {
-              const full = detailedProfiles[hk.housekeeperID];
-              const avatar = full?.googleProfilePicture || full?.localProfilePicture;
-
+              const avatar = hk.googleProfilePicture || hk.localProfilePicture;
               return (
                 <Card key={hk.housekeeperID} className="mb-3">
                   <Card.Body className="d-flex align-items-center gap-3">
@@ -144,10 +132,13 @@ function FamilyAbandonedJobsPage() {
                     )}
 
                     <div className="flex-grow-1">
-                      <h6>{full?.name || hk.nickname || "Chưa đặt tên"}</h6>
-                      <p className="mb-1"><strong>Email:</strong> {full?.email || hk.email}</p>
-                      <p className="mb-1"><strong>Địa chỉ:</strong> {full?.address || hk.address || "N/A"}</p>
-                      <p className="mb-1"><strong>Giới thiệu:</strong> {full?.introduction || "Không có"}</p>
+                      <h6>{hk.nickname || "Chưa đặt tên"}</h6>
+                      <p className="mb-1"><strong>Email:</strong> {hk.email}</p>
+                      <p className="mb-1"><strong>Địa chỉ:</strong> {hk.address}</p>
+                      <p className="mb-1"><strong>SĐT:</strong> {hk.phone}</p>
+                      <p className="mb-1"><strong>Giới tính:</strong> {hk.gender === 1 ? "Nam" : "Nữ"}</p>
+                      <p className="mb-1"><strong>Hình thức làm việc:</strong> {hk.workType === 1 ? "Full-time" : "Part-time"}</p>
+                      <p className="mb-1"><strong>Đánh giá:</strong> {hk.rating}</p>
                     </div>
 
                     <div className="d-flex flex-column gap-2">
