@@ -82,7 +82,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("UpdateService")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> UpdateService([FromQuery] ServiceUpdateDTO serviceUpdateDTO)
         {
             var service = await _serviceService.GetServiceByIDAsync(serviceUpdateDTO.ServiceID);
@@ -100,7 +100,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpPut("DisableService")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> DeleteService([FromQuery] int id)
         {
             var ser = await _serviceService.GetServiceByIDAsync(id);
@@ -118,7 +118,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
         
         [HttpPut("EnableService")]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> EnableService([FromQuery] int id)
         {
             var ser = await _serviceService.GetServiceByIDAsync(id);
