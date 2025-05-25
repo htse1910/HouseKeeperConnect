@@ -34,6 +34,30 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(trans);
         }
+        
+        [HttpGet("GetTotalFeeAmount")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<Transaction>>> GetTotalFeeAmountAsync()
+        {
+            var trans = await _transactionService.GetAllTransactionsAsync();
+            if (trans == null)
+            {
+                Message = "Danh sách giao dịch trống!";
+                return NotFound(Message);
+            }
+
+            decimal money = 0;
+
+            foreach (var item in trans)
+            {
+                if (item.Fee > 0)
+                {
+                    money += item.Fee;
+                }
+            }
+
+            return Ok(money);
+        }
 
         [HttpGet("TransactionInPastWeek")]
         [Authorize]

@@ -67,7 +67,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             var ser = new Service();
-            ser.ServiceID = count.Count + 2;
+            ser.ServiceID = count.Count + 1;
             ser.ServiceName = serviceCreateDTO.ServiceName;
             ser.Price = serviceCreateDTO.Price;
             ser.ServiceTypeID = serviceCreateDTO.ServiceTypeID;

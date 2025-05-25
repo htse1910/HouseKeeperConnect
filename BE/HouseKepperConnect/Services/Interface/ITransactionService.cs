@@ -7,6 +7,7 @@ namespace Services.Interface
         Task<List<Transaction>> GetAllTransactionsAsync(int pageNumber, int pageSize);
 
         Task<List<Transaction>> GetTransactionsPastWeekAsync(int pageNumber, int pageSize);
+        Task<List<Transaction>> GetAllTransactionsAsync();
 
         Task<int> GetTotalTransAsync();
 

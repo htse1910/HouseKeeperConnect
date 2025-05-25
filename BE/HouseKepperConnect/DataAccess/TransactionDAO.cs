@@ -45,6 +45,23 @@ namespace DataAccess
             }
             return list;
         }
+        
+        public async Task<List<Transaction>> GetAllTransactionsAsync()
+        {
+            var list = new List<Transaction>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Transaction.Where(a => a.Status==(int)TransactionStatus.Completed).AsNoTracking().ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
 
         public async Task<Transaction> GetTransactionByIDAsync(int id)
         {

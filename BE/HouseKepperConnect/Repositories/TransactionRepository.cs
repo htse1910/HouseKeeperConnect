@@ -12,6 +12,8 @@ namespace Repositories
 
         public async Task<List<Transaction>> GetAllTransactionsAsync(int pageNumber, int pageSize) => await TransactionDAO.Instance.GetAllTransactionsAsync(pageNumber, pageSize);
 
+        public async Task<List<Transaction>> GetAllTransactionsAsync() => await TransactionDAO.Instance.GetAllTransactionsAsync();
+
         public async Task<int> GetTotalTransAsync() => await TransactionDAO.Instance.GetTotalTransAsync();
 
         public async Task<Transaction> GetTransactionByIDAsync(int id) => await TransactionDAO.Instance.GetTransactionByIDAsync(id);
