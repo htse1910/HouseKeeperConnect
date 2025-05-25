@@ -141,7 +141,7 @@ const AdminServiceListPage = () => {
                       <th>ID</th>
                       <th>Tên dịch vụ</th>
                       <th>Loại dịch vụ</th>
-                      <th>Giá</th>
+                      <th>Giá theo giờ</th>
                       <th>Mô tả</th>
                       <th>Trạng thái</th>
                       <th>Chỉnh sửa</th>
@@ -306,7 +306,7 @@ const AdminServiceListPage = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Giá</Form.Label>
+              <Form.Label>Giá theo giờ</Form.Label>
               <Form.Control
                 type="number"
                 value={newService.price}
