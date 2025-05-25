@@ -125,7 +125,10 @@ const FamilyJobPostingPage = () => {
                 // Lấy danh sách dịch vụ
                 axios
                     .get(`${API_BASE_URL}/Service/ServiceList`, { headers })
-                    .then((res) => setServices(res.data || []))
+                    .then((res) => {
+                        const activeServices = (res.data || []).filter(s => s.status === 1);
+                        setServices(activeServices);
+                    })
                     .catch((err) => {
                         console.error("Không thể tải dịch vụ:", err);
                         setServices([]);
@@ -656,7 +659,7 @@ const FamilyJobPostingPage = () => {
                                                         onChange={handleChange}
                                                     />
                                                     <span>
-                                                        {t(`serviceName.${type}.${name}`, service.description || name)}
+                                                        <span>{name}</span> {/* ← Only show service name */}
                                                     </span>
                                                 </label>
                                             );
@@ -756,7 +759,7 @@ const FamilyJobPostingPage = () => {
                 {/* Mức lương & thời gian */}
                 <div className="job-posting-section">
                     <div className="job-posting-pair">
-                       
+
                         <p className="job-posting-note">{t("job.jobPost.priceAutoCalculationNote")}</p>
                         <div className="job-posting-auto-price">
                             <ul className="job-posting-service-detail-list">
@@ -791,7 +794,7 @@ const FamilyJobPostingPage = () => {
                                     </span>
                                 </li>
                             </ul>
-                             <label>{t("job.jobPost.totalCharge")}</label><br/>
+                            <label>{t("job.jobPost.totalCharge")}</label><br />
                             <span>{formatTotalCurrency(calculatedPrice, t)}</span>
                         </div>
                     </div>
