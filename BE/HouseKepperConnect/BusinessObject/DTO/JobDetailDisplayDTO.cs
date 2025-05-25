@@ -33,6 +33,8 @@ namespace BusinessObject.DTO
 
         [Required]
         public DateTime EndDate { get; set; }
+        [Required]
+        public DateTime CreatedDate { get; set; }
 
         [StringLength(500)]
         public string Description { get; set; }
