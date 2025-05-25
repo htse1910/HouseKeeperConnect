@@ -171,7 +171,10 @@ public class HousekeeperBookingActivity extends AppCompatActivity
     public void onCompleteJobClicked(BookingResponseDTO booking) {
         showCompleteJobConfirmation(booking);
     }
-
+    @Override
+    public void onCancelJobClicked(BookingResponseDTO booking) {
+        showCancelJobConfirmation(booking);
+    }
 
 
     private void showCheckInConfirmation(BookingResponseDTO booking) {
@@ -249,6 +252,57 @@ public class HousekeeperBookingActivity extends AppCompatActivity
                         "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void showCancelJobConfirmation(BookingResponseDTO booking) {
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận hủy công việc")
+                .setMessage("Bạn có chắc chắn muốn hủy công việc này?")
+                .setPositiveButton("Xác nhận", (dialog, which) -> cancelJob(booking))
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void cancelJob(BookingResponseDTO booking) {
+        progressBar.setVisibility(View.VISIBLE);
+
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int accountId = prefs.getInt("accountID", -1);
+
+        if (accountId == -1) {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(this, "Không tìm thấy thông tin tài khoản", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        apiServices.forceAbandonJobAndReassign(booking.jobID, accountId)
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        progressBar.setVisibility(View.GONE);
+                        if (response.isSuccessful()) {
+                            Toast.makeText(HousekeeperBookingActivity.this,
+                                    "Đã hủy công việc thành công", Toast.LENGTH_SHORT).show();
+                            refreshBookingStatus();
+                        } else {
+                            try {
+                                String errorBody = response.errorBody() != null ?
+                                        response.errorBody().string() : "Lỗi không xác định";
+                                Toast.makeText(HousekeeperBookingActivity.this,
+                                        "Hủy công việc thất bại: " + errorBody, Toast.LENGTH_SHORT).show();
+                            } catch (IOException e) {
+                                Toast.makeText(HousekeeperBookingActivity.this,
+                                        "Hủy công việc thất bại", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(HousekeeperBookingActivity.this,
+                                "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void refreshBookingStatus() {

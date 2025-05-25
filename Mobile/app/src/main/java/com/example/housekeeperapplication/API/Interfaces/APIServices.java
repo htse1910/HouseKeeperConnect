@@ -339,4 +339,9 @@ public interface APIServices {
             @Query("type") int type,
             @Query("content") String content
     );
+    @POST("api/Job/ForceAbandonJobAndReassign")
+    Call<Void> forceAbandonJobAndReassign(
+            @Query("jobId") int jobId,
+            @Query("accountID") int accountID
+    );
 }

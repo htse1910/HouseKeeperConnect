@@ -87,10 +87,10 @@ public class CombinedJobApplication {
     }
 
     public int getAplicationStatus() {
-        return application != null ? application.getStatus() : 0;
+        return application != null ? application.getApplicationStatus() : 0;
     }
     public void setAplicationStatus(int jobType) {
-        this.application.getStatus();
+        this.application.getApplicationStatus();
     }
     public int getJobStatus() {
         return application != null ? jobDetail.getStatus() : 0;

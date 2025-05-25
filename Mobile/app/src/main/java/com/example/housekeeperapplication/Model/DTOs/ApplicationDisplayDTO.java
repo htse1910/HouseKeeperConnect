@@ -14,8 +14,8 @@ public class ApplicationDisplayDTO {
     private int housekeeperID;
     private String startDate;
     private String endDate;
-    private String nickname;
-    private int status;
+    private String hkName;
+    private int applicationStatus;
     private double rating;
 
 
@@ -59,20 +59,20 @@ public class ApplicationDisplayDTO {
         this.endDate = endDate;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getHkName() {
+        return hkName;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setHkName(String hkName) {
+        this.hkName = hkName;
     }
 
-    public int getStatus() {
-        return status;
+    public int getApplicationStatus() {
+        return applicationStatus;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setApplicationStatus(int applicationStatus) {
+        this.applicationStatus = applicationStatus;
     }
 
     public String getLocalProfilePicture() {

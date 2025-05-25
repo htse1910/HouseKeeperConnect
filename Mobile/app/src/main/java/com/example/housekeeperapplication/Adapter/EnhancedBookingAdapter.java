@@ -49,6 +49,7 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
     public interface OnBookingActionListener {
         void onCheckInClicked(BookingResponseDTO booking);
         void onCompleteJobClicked(BookingResponseDTO booking);
+        void onCancelJobClicked(BookingResponseDTO booking);
     }
 
     public EnhancedBookingAdapter(Context context, List<BookingResponseDTO> bookings, OnBookingActionListener listener) {
@@ -108,7 +109,7 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
             }
 
             // Trạng thái
-            holder.tvJobStatus.setText(getStatusText(booking.bookingStatus));
+            holder.tvJobStatus.setText(getStatusText(booking.jobStatus));
 
             // Địa điểm
             String location = booking.location;
@@ -213,16 +214,41 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
                 holder.tvServices.setVisibility(View.GONE);
             }
             // Nút hoàn thành công việc
-            if (booking.bookingStatus == 3) {
-                holder.btnCompleteJob.setVisibility(View.VISIBLE);
-                holder.btnCompleteJob.setOnClickListener(v -> {
-                    if (listener != null) {
-                        listener.onCompleteJobClicked(booking);
+            if (booking.jobStatus == 3 && booking.bookingStatus != 6) {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                    Date endDate = sdf.parse(booking.endDate);
+                    Date currentDate = new Date();
+
+                    // Nếu ngày hiện tại >= ngày kết thúc
+                    if (!currentDate.before(endDate)) {
+                        holder.btnCompleteJob.setVisibility(View.VISIBLE);
+                        holder.btnCompleteJob.setOnClickListener(v -> {
+                            if (listener != null) {
+                                listener.onCompleteJobClicked(booking);
+                            }
+                        });
+                    } else {
+                        holder.btnCompleteJob.setVisibility(View.GONE);
                     }
-                });
+                } catch (Exception e) {
+                    Log.e("DateParse", "Error parsing date", e);
+                    holder.btnCompleteJob.setVisibility(View.GONE);
+                }
             } else {
                 holder.btnCompleteJob.setVisibility(View.GONE);
             }
+            if (booking.jobStatus == 3) {
+                holder.btnCancelJob.setVisibility(View.VISIBLE);
+                holder.btnCancelJob.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onCancelJobClicked(booking);
+                    }
+                });
+            } else {
+                holder.btnCancelJob.setVisibility(View.GONE);
+            }
+
 
         } catch (Exception e) {
             Log.e("BookingAdapter", "Error binding data", e);
@@ -242,16 +268,16 @@ public class EnhancedBookingAdapter extends RecyclerView.Adapter<EnhancedBooking
 
     private String getStatusText(int status) {
         switch (status) {
-            case 1: return "🕒 Công việc đang chờ duyệt";
-            case 2: return "✔️ Công việc đã xác minh";
-            case 3: return "📌 Công việc đã chấp nhận";
-            case 4: return "✅ Công việc đã hoàn thành";
-            case 5: return "⏰ Công việc đã hết hạn";
-            case 6: return "❌ Công việc đã hủy";
-            case 7: return "🚫 Không được phép";
-            case 8: return "👨‍👩‍👧 Công việc đang chờ xác nhận của gia đình";
-            case 9: return "👨‍👩‍👧 Người giúp việc đã nghỉ";
-            case 10: return "👨‍👩‍👧 Công việc đã giao lại";
+            case 1: return "Công việc đang chờ duyệt";
+            case 2: return "Công việc đã duyệt";
+            case 3: return "Công việc đã chấp nhận";
+            case 4: return "Công việc đã hoàn thành";
+            case 5: return "Công việc đã hết hạn";
+            case 6: return "Công việc đã hủy";
+            case 7: return "Không được phép";
+            case 8: return "Chờ xác nhận của gia đình";
+            case 9: return "Bạn đã bỏ việc";
+            case 10: return "Công việc đã giao lại";
             default: return "❓ Unknown";
         }
     }
