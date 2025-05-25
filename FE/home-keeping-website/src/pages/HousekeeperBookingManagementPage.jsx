@@ -12,7 +12,8 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import { Modal } from "react-bootstrap";
 import "react-toastify/dist/ReactToastify.css";
-import { serviceMap } from "../utils/serviceMap";
+// import { serviceMap } from "../utils/serviceMap";
+import useServiceMap from "../utils/useServiceMap";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -52,6 +53,7 @@ const HousekeeperBookingManagementPage = () => {
   const paginatedBookings = allBookings;
 
   const totalPages = Math.ceil(bookingCount / pageSize);
+  const serviceMap = useServiceMap();
 
   const handleMarkComplete = async (jobID) => {
     if (!authToken || !accountID) {
