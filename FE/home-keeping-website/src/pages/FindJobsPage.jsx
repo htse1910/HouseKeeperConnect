@@ -24,6 +24,9 @@ function FindJobsPage() {
 
   const jobsPerPage = 9;
   const authToken = localStorage.getItem("authToken");
+  const [isSearching, setIsSearching] = useState(false);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const hcmDistricts = [
     "Quận 1", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8",
@@ -62,25 +65,6 @@ function FindJobsPage() {
     fetchJobs();
   }, [page]);
 
-  // const filteredJobs = jobs.filter((job) => {
-  //   const matchesSearch = searchTerm ? job.jobName?.toLowerCase().includes(searchTerm.toLowerCase()) : true;
-  //   const matchesLocation = filters.location ? job.location?.trim().toLowerCase() === filters.location.trim().toLowerCase() : true;
-  //   const matchesJobType = filters.jobType
-  //     ? job.jobType === (filters.jobType === "fulltime" ? 1 : 2)
-  //     : true;
-  //   const matchesSalary = (() => {
-  //     const salary = job.price || 0;
-  //     switch (filters.salary) {
-  //       case "500-1000": return salary >= 500000 && salary <= 1000000;
-  //       case "1000-1500": return salary > 1000000 && salary <= 1500000;
-  //       case "1500-2500": return salary > 1500000 && salary <= 2500000;
-  //       case "2500+": return salary > 2500000;
-  //       default: return true;
-  //     }
-  //   })();
-  //   return matchesSearch && matchesLocation && matchesJobType && matchesSalary;
-  // });
-
   const maxPage = Math.ceil(totalJobs / jobsPerPage);
 
   const handleSearchTermChange = (e) => {
@@ -112,6 +96,33 @@ function FindJobsPage() {
     }
   };
 
+  const fetchAllJobsForSearch = async () => {
+    setSearchLoading(true);
+    try {
+      const countRes = await fetch(`${API_BASE_URL}/Job/CountVerifiedJobs`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const totalCount = await countRes.json();
+
+      const allJobsRes = await fetch(`${API_BASE_URL}/Job/JobList?pageNumber=1&pageSize=${totalCount}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const allJobs = await allJobsRes.json();
+
+      const matched = allJobs.filter((job) =>
+        job.jobName?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredJobs(matched);
+      setIsSearching(true);
+    } catch (error) {
+      console.error("Failed to fetch all jobs for search:", error);
+      setFilteredJobs([]);
+      setIsSearching(true);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
   return (
     <div className="container-fluid p-0">
       <div className="d-flex flex-column align-items-center justify-content-center bg-light py-5">
@@ -129,9 +140,28 @@ function FindJobsPage() {
               onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             />
-            <button className="btn btn-warning px-4">Tìm kiếm</button>
+            <button
+              className="btn btn-warning px-4"
+              onClick={fetchAllJobsForSearch}
+            >
+              {searchLoading ? "Đang tìm..." : "Tìm kiếm"}
+            </button>
           </div>
-
+          {isSearching && (
+            <div className="text-end mt-2">
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => {
+                  setIsSearching(false);
+                  setSearchTerm("");
+                  setFilteredJobs([]);
+                  setPage(1); // reset to page 1 after clearing search
+                }}
+              >
+                Xóa tìm kiếm
+              </button>
+            </div>
+          )}
           {showSuggestions && suggestions.length > 0 && (
             <ul className="list-group position-absolute w-100 z-3 mt-1 rounded shadow-sm">
               {suggestions.map((suggestion, index) => (
@@ -183,7 +213,7 @@ function FindJobsPage() {
       </div>
 
       <div className="container py-4">
-        {loading ? (
+        {loading || searchLoading ? (
           <div className="text-center py-5">
             <div className="spinner-border text-warning" role="status" />
             <p className="mt-3">Đang tải công việc...</p>
@@ -196,7 +226,7 @@ function FindJobsPage() {
               Tổng số công việc hiện giờ: <strong>{totalJobs}</strong>
             </p>
             <div className="row justify-content-center g-4">
-              {jobs.map((job) => (
+              {(isSearching ? filteredJobs : jobs).map((job) => (
                 <div key={job.jobID} className="col-md-6 col-lg-4 d-flex">
                   <div className="card job-card shadow-sm p-3 border-0 flex-fill rounded-4 position-relative">
                     <span className="position-absolute top-0 end-0 bg-warning text-dark fw-bold px-3 py-1 rounded-bottom-start">
@@ -220,25 +250,27 @@ function FindJobsPage() {
               ))}
             </div>
 
-            <div className="d-flex justify-content-between align-items-center mt-4">
-              <button
-                className="btn btn-outline-secondary rounded-pill px-4"
-                disabled={page <= 1}
-                onClick={() => setPage((prev) => prev - 1)}
-              >
-                <FaChevronLeft className="me-2" />
-                Trang trước
-              </button>
-              <span className="text-muted">Trang {page} / {maxPage}</span>
-              <button
-                className="btn btn-outline-primary rounded-pill px-4"
-                disabled={page >= maxPage}
-                onClick={() => setPage((prev) => prev + 1)}
-              >
-                Trang sau
-                <FaChevronRight className="ms-2" />
-              </button>
-            </div>
+            {!isSearching && (
+              <div className="d-flex justify-content-between align-items-center mt-4">
+                <button
+                  className="btn btn-outline-secondary rounded-pill px-4"
+                  disabled={page <= 1}
+                  onClick={() => setPage((prev) => prev - 1)}
+                >
+                  <FaChevronLeft className="me-2" />
+                  Trang trước
+                </button>
+                <span className="text-muted">Trang {page} / {maxPage}</span>
+                <button
+                  className="btn btn-outline-primary rounded-pill px-4"
+                  disabled={page >= maxPage}
+                  onClick={() => setPage((prev) => prev + 1)}
+                >
+                  Trang sau
+                  <FaChevronRight className="ms-2" />
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>

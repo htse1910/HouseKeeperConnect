@@ -21,7 +21,7 @@ function HomePageHeader() {
   const handleClose = () => setShowModal(false);
   const handleYes = () => {
     setShowModal(false);
-    // Intentionally left blank for now (no download URL)
+    window.open('https://drive.google.com/drive/folders/1l2RuUtflP9-34i-wJ3qJ2ObgqS2T9xkR?usp=sharing', '_blank');
   };
 
   return (
