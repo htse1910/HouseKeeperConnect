@@ -54,6 +54,8 @@ const HousekeeperBookingManagementPage = () => {
 
   const totalPages = Math.ceil(bookingCount / pageSize);
   const serviceMap = useServiceMap();
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [jobToCancel, setJobToCancel] = useState(null);
 
   const handleMarkComplete = async (jobID) => {
     if (!authToken || !accountID) {
@@ -260,7 +262,7 @@ const HousekeeperBookingManagementPage = () => {
 
       let toastMsg = `✅ ${result.message}`;
       if (result.newPrice) {
-        toastMsg += `\n🔁 Hoàn lại cho gia đình: ${result.newPrice.toLocaleString()} VND`;
+        toastMsg += `\n🔁 Giá tiền cho công việc mới tạo lại: ${result.newPrice.toLocaleString()} VND`;
       }
 
       toast.success(toastMsg);
@@ -439,7 +441,10 @@ const HousekeeperBookingManagementPage = () => {
                                   {row.jobStatus === 3 && (
                                     <button
                                       className="btn btn-outline-danger btn-sm rounded-pill fw-bold"
-                                      onClick={() => handleForceAbandon(row.jobID)}
+                                      onClick={() => {
+                                        setJobToCancel(row.jobID);
+                                        setShowCancelConfirm(true);
+                                      }}
                                     >
                                       🛑 Huỷ việc
                                     </button>
@@ -522,6 +527,28 @@ const HousekeeperBookingManagementPage = () => {
           </Modal.Footer>
         </Modal>
       )}
+      <Modal show={showCancelConfirm} onHide={() => setShowCancelConfirm(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận huỷ công việc</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Bạn có chắc chắn muốn huỷ công việc này? Hành động này không thể hoàn tác.
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-secondary" onClick={() => setShowCancelConfirm(false)}>
+            Không
+          </button>
+          <button
+            className="btn btn-danger"
+            onClick={() => {
+              handleForceAbandon(jobToCancel);
+              setShowCancelConfirm(false);
+            }}
+          >
+            Đồng ý huỷ
+          </button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
