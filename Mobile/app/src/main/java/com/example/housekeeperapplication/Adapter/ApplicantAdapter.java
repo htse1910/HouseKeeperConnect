@@ -57,7 +57,7 @@ public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.Appl
     public void onBindViewHolder(@NonNull ApplicantViewHolder holder, int position) {
         ApplicationDisplayDTO applicant = applicants.get(position);
 
-        holder.tvApplicantName.setText(applicant.getNickname());
+        holder.tvApplicantName.setText(applicant.getHkName());
         double rating = applicant.getRating();
         holder.tvApplicantRating.setText(String.format("⭐ %.1f", rating));
         String imageUrl = applicant.getGoogleProfilePicture() != null ?
@@ -66,11 +66,12 @@ public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.Appl
                 .load(imageUrl)
                 .circleCrop()
                 .into(holder.imgApplicant);
-        if (applicant.getStatus() == 1) {
+        if (applicant.getApplicationStatus() == 1) {
             holder.layoutActionButtons.setVisibility(View.VISIBLE);
         } else {
             holder.layoutActionButtons.setVisibility(View.GONE);
         }
+        //holder.layoutActionButtons.setVisibility(View.VISIBLE);
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(applicant);
@@ -110,7 +111,7 @@ public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.Appl
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    applicants.get(position).setStatus(status);
+                    applicants.get(position).setApplicationStatus(status);
                     notifyItemChanged(position);
                     String message = status == 2 ? "Đã chấp nhận ứng viên" : "Đã từ chối ứng viên";
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
