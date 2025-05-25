@@ -126,11 +126,11 @@ const CreateDirectJobOfferPage = () => {
                 // Lấy danh sách dịch vụ
                 axios
                     .get(`${API_BASE_URL}/Service/ServiceList`, { headers })
-                    .then((res) => setServices(res.data || []))
-                    .catch((err) => {
-                        console.error("Không thể tải dịch vụ:", err);
-                        setServices([]);
-                    });
+                    .then((res) => {
+                        const activeServices = (res.data || []).filter(s => s.status === 1);
+                        setServices(activeServices);
+                    })
+                    ;
 
                 // Lấy thông tin Family
                 axios
@@ -666,9 +666,7 @@ const CreateDirectJobOfferPage = () => {
                                                         checked={formData.ServiceIDs.includes(service.serviceID)}
                                                         onChange={handleChange}
                                                     />
-                                                    <span>
-                                                        {t(`serviceName.${type}.${name}`, service.description || name)}
-                                                    </span>
+                                                    <span>{name}</span>
                                                 </label>
                                             );
                                         })}

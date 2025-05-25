@@ -20,7 +20,6 @@ const AdminServiceListPage = () => {
   const [editServiceID, setEditServiceID] = useState(null);
   const [editedData, setEditedData] = useState({});
   const [loading, setLoading] = useState(true);
-
   const [showAddModal, setShowAddModal] = useState(false);
   const [newService, setNewService] = useState({
     serviceName: "",
@@ -91,13 +90,11 @@ const AdminServiceListPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    toast.info("Đang xóa dịch vụ...");
-
+  const toggleServiceStatus = async (id, enable) => {
+    const url = `${API_BASE_URL}/Service/${enable ? "EnableService" : "DisableService"}?id=${id}`;
     try {
-      const url = `${API_BASE_URL}/Service/DeleteService?id=${id}`;
       const res = await fetch(url, {
-        method: "DELETE",
+        method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       });
       const msg = await res.text();
@@ -108,7 +105,7 @@ const AdminServiceListPage = () => {
         toast.error(msg);
       }
     } catch {
-      toast.error("Lỗi khi xóa dịch vụ.");
+      toast.error("Lỗi khi cập nhật trạng thái dịch vụ.");
     }
   };
 
@@ -146,7 +143,9 @@ const AdminServiceListPage = () => {
                       <th>Loại dịch vụ</th>
                       <th>Giá</th>
                       <th>Mô tả</th>
-                      <th>Hành động</th>
+                      <th>Trạng thái</th>
+                      <th>Chỉnh sửa</th>
+                      <th>Sửa trạng thái dịch vụ</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -227,11 +226,17 @@ const AdminServiceListPage = () => {
                           )}
                         </td>
                         <td>
+                          {service.status === 1 ? (
+                            <span className="badge bg-success">Hoạt động</span>
+                          ) : (
+                            <span className="badge bg-secondary">Không hoạt động</span>
+                          )}
+                        </td>
+                        <td>
                           {editServiceID === service.serviceID ? (
                             <Button
                               size="sm"
                               variant="primary"
-                              className="me-2"
                               onClick={() => handleSave(service)}
                             >
                               Lưu
@@ -240,7 +245,6 @@ const AdminServiceListPage = () => {
                             <Button
                               size="sm"
                               variant="warning"
-                              className="me-2"
                               onClick={() => {
                                 setEditServiceID(service.serviceID);
                                 setEditedData({
@@ -254,13 +258,25 @@ const AdminServiceListPage = () => {
                               Sửa
                             </Button>
                           )}
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => handleDelete(service.serviceID)}
-                          >
-                            Xóa
-                          </Button>
+                        </td>
+                        <td>
+                          {service.status === 1 ? (
+                            <Button
+                              size="sm"
+                              variant="outline-danger"
+                              onClick={() => toggleServiceStatus(service.serviceID, false)}
+                            >
+                              Vô hiệu hóa
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline-success"
+                              onClick={() => toggleServiceStatus(service.serviceID, true)}
+                            >
+                              Kích hoạt
+                            </Button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -272,7 +288,7 @@ const AdminServiceListPage = () => {
         </div>
       </div>
 
-      {/* Add Modal */}
+      {/* Add Service Modal */}
       <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Thêm Dịch Vụ</Modal.Title>
