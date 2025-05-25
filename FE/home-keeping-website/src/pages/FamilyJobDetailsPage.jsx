@@ -318,7 +318,7 @@ const FamilyJobDetailsPage = () => {
             <div className="card mb-4 shadow rounded-4 border-primary-subtle" style={{ padding: "2rem", backgroundColor: "#fff9e6" }}>
                 <h2 className="fw-bold" style={{ color: "#0d6efd", fontSize: "1.75rem" }}>{job.jobName}</h2>
                 <div className="mt-3 mb-3">{renderJobStatus(job.status)}</div>
-                <p><FaClock className="me-2" /> <strong style={{ color: "#333" }}>Ngày tạo:</strong> <span style={{ color: "#000" }}>{new Date(createdDate).toLocaleDateString("vi-VN")}</span></p>
+                <p><FaClock className="me-2" /> <strong style={{ color: "#333" }}>Ngày tạo:</strong> <span style={{ color: "#000" }}>{new Date(job.createdDate).toLocaleDateString("vi-VN")}</span></p>
                 <p><FaMapMarkerAlt className="me-2" /> <strong style={{ color: "#333" }}>Địa điểm:</strong> <span style={{ color: "#000" }}>{job.location}{job.detailLocation && ` - ${job.detailLocation}`}</span></p>
                 <p><strong style={{ color: "#333" }}>Mức lương:</strong> <span style={{ color: "#000" }}>{job.price > 0 ? `${job.price.toLocaleString("vi-VN")} VNĐ` : "Thỏa thuận"}</span></p>
                 {job.status === 8 && (
@@ -447,7 +447,7 @@ const FamilyJobDetailsPage = () => {
                                                 Nhắn tin
                                             </button>
                                         </div>
-                                        {applicant.status === 1 && (
+                                        {applicant.applicationStatus === 1 && (
                                             <div className="d-flex gap-2">
                                                 <button className="btn btn-success btn-sm" onClick={() => handleAccept(applicant.applicationID)}>Chấp nhận</button>
                                                 <button className="btn btn-danger btn-sm" onClick={() => handleReject(applicant.applicationID)}>Từ chối</button>

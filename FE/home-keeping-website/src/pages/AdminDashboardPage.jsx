@@ -8,7 +8,8 @@ import {
 } from "react-icons/fa";
 import CountUp from "react-countup";
 import AdminSidebar from "../components/AdminSidebar";
-import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
+import API_BASE_URL from "../config/apiConfig";
+import { FaMoneyBillWave } from "react-icons/fa";
 
 const AdminDashboardPage = () => {
   const [userCount, setUserCount] = useState(0);
@@ -16,6 +17,7 @@ const AdminDashboardPage = () => {
   const [housekeeperCount, setHousekeeperCount] = useState(0);
   const [serviceCount, setServiceCount] = useState(0);
   const [transactionCount, setTransactionCount] = useState(0);
+  const [totalFeeAmount, setTotalFeeAmount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +26,13 @@ const AdminDashboardPage = () => {
       try {
         const token = localStorage.getItem("authToken");
 
-        const [usersRes, familiesRes, housekeepersRes, serviceRes, transactionRes] = await Promise.all([
+        const [
+          usersRes,
+          familiesRes,
+          housekeepersRes,
+          serviceRes,
+          transactionRes
+        ] = await Promise.all([
           fetch(`${API_BASE_URL}/Account/AccountList?pageNumber=1&pageSize=9999999`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
@@ -47,6 +55,12 @@ const AdminDashboardPage = () => {
         setHousekeeperCount((await housekeepersRes.json()).length);
         setServiceCount((await serviceRes.json()).length);
         setTransactionCount((await transactionRes.json()).length);
+
+        const totalFeeRes = await fetch(`${API_BASE_URL}/Transaction/GetTotalFeeAmount`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const totalFee = await totalFeeRes.json();
+        setTotalFeeAmount(totalFee);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
       } finally {
@@ -79,33 +93,31 @@ const AdminDashboardPage = () => {
         }}
       >
         <div className="d-flex flex-column justify-content-center align-items-center h-100">
-          <Icon
-            size={28}
-            className="mb-2"
-            style={{
-              color,
-              transition: "filter 0.3s ease, transform 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.filter = `drop-shadow(0 0 6px ${color})`;
-              e.currentTarget.style.transform = "scale(1.15)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.filter = "none";
-              e.currentTarget.style.transform = "scale(1)";
-            }}
-          />
+          <Icon />
           <h6 className="fw-semibold mb-1">{title}</h6>
           {loading ? (
             <p className="text-muted mb-0">Đang tải...</p>
           ) : (
             <h2 className="fw-bold mb-0">
-              <CountUp end={count} duration={1.4} />
+              {typeof count === "number" ? (
+                <CountUp end={count} duration={1.4} />
+              ) : (
+                count
+              )}
             </h2>
           )}
         </div>
       </div>
     </div>
+  );
+
+  const VNDIcon = () => (
+    <div style={{
+      fontSize: "28px",
+      fontWeight: "bold",
+      color: "#6f42c1",
+      marginBottom: "8px"
+    }}>₫</div>
   );
 
   return (
@@ -128,11 +140,19 @@ const AdminDashboardPage = () => {
         {/* Main Content */}
         <div className="col-md-10 py-5">
           <div className="row g-4 justify-content-center">
-            {renderCard("Tổng số người dùng", userCount, "#0d6efd", "#e7f1ff", FaUsers, 0.1)}
-            {renderCard("Tài khoản gia đình", familyCount, "#198754", "#eaf6f0", FaHome, 0.2)}
-            {renderCard("Người giúp việc", housekeeperCount, "#0dcaf0", "#e6fafd", FaBroom, 0.3)}
-            {renderCard("Tổng số dịch vụ", serviceCount, "#ffc107", "#fff8e5", FaConciergeBell, 0.4)}
-            {renderCard("Tổng số giao dịch", transactionCount, "#dc3545", "#fde8ea", FaExchangeAlt, 0.5)}
+            {renderCard("Tổng số người dùng", userCount, "#0d6efd", "#e7f1ff", () => <FaUsers size={28} className="mb-2" style={{ color: "#0d6efd" }} />, 0.1)}
+            {renderCard("Tài khoản gia đình", familyCount, "#198754", "#eaf6f0", () => <FaHome size={28} className="mb-2" style={{ color: "#198754" }} />, 0.2)}
+            {renderCard("Người giúp việc", housekeeperCount, "#0dcaf0", "#e6fafd", () => <FaBroom size={28} className="mb-2" style={{ color: "#0dcaf0" }} />, 0.3)}
+            {renderCard("Tổng số dịch vụ", serviceCount, "#ffc107", "#fff8e5", () => <FaConciergeBell size={28} className="mb-2" style={{ color: "#ffc107" }} />, 0.4)}
+            {renderCard("Tổng số giao dịch", transactionCount, "#dc3545", "#fde8ea", () => <FaExchangeAlt size={28} className="mb-2" style={{ color: "#dc3545" }} />, 0.5)}
+            {renderCard(
+              "Tổng thu nhập của nền tảng",
+              totalFeeAmount.toLocaleString("vi-VN", { style: "currency", currency: "VND" }),
+              "#6f42c1",
+              "#f5f0ff",
+              () => <FaMoneyBillWave size={28} className="mb-2" style={{ color: "#6f42c1" }} />,
+              0.6
+            )}
           </div>
         </div>
       </div>
