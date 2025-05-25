@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaSave, FaEdit } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import AdminSidebar from "../components/AdminSidebar";
 import API_BASE_URL from "../config/apiConfig";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Modal, Form, Button, Spinner } from "react-bootstrap";
 
-// Utility: Format to Vietnam Time
 const formatVietnamTime = (isoString) => {
   const date = new Date(isoString);
   return date.toLocaleString("vi-VN", {
@@ -17,9 +17,11 @@ const formatVietnamTime = (isoString) => {
 
 const ManagePlatformFeesPage = () => {
   const [fees, setFees] = useState([]);
-  const [editFee, setEditFee] = useState(null);
-  const [editPercent, setEditPercent] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedFee, setSelectedFee] = useState(null);
+  const [modalPercent, setModalPercent] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const token = localStorage.getItem("authToken");
   const headers = { Authorization: `Bearer ${token}` };
@@ -36,50 +38,38 @@ const ManagePlatformFeesPage = () => {
     }
   };
 
-  const saveUpdate = async () => {
-    if (!editFee || !editPercent) return;
-
-    try {
-      const res = await axios.put(
-        `${API_BASE_URL}/PlatformFee/UpdateFee?fID=${editFee.feeID}&percent=${editPercent}`,
-        null,
-        { headers }
-      );
-
-      toast.success("Cập nhật thành công!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-
-      setEditFee(null);
-      setEditPercent("");
-      fetchFees();
-    } catch (err) {
-      toast.error("Cập nhật thất bại!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      console.error("Failed to update fee:", err);
-    }
-  };
-
   useEffect(() => {
     fetchFees();
   }, []);
 
+  const handleSave = async () => {
+    const percentValue = parseFloat(modalPercent);
+    if (isNaN(percentValue)) {
+      toast.error("Tỷ lệ không hợp lệ.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await axios.put(
+        `${API_BASE_URL}/PlatformFee/UpdateFee?fID=${selectedFee.feeID}&percent=${percentValue}`,
+        null,
+        { headers }
+      );
+      toast.success("Cập nhật thành công!");
+      setShowModal(false);
+      fetchFees();
+    } catch (err) {
+      toast.error("Cập nhật thất bại.");
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="container-fluid">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer position="top-right" autoClose={3000} />
 
       <style>{`
         .card-custom {
@@ -100,10 +90,6 @@ const ManagePlatformFeesPage = () => {
           background-color: #e0f0ff;
           transition: background-color 0.3s ease;
         }
-        .btn-outline-primary:hover {
-          background-color: #0d6efd;
-          color: white;
-        }
         .btn-warning {
           background-color: #ffc107;
           border: none;
@@ -114,20 +100,16 @@ const ManagePlatformFeesPage = () => {
       `}</style>
 
       <div className="row">
-        {/* Sidebar */}
         <div className="col-md-2 bg-light min-vh-100 py-4 px-3">
           <AdminSidebar />
         </div>
 
-        {/* Main Content */}
         <div className="col-md-10 py-5">
           <h2 className="fw-bold mb-4 text-primary text-center">Quản Lý Phí Nền Tảng</h2>
 
           {loading ? (
             <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Đang tải...</span>
-              </div>
+              <Spinner animation="border" variant="primary" />
             </div>
           ) : (
             <div className="card-custom">
@@ -146,43 +128,54 @@ const ManagePlatformFeesPage = () => {
                     {fees.map((fee) => (
                       <tr key={fee.feeID} className="text-center">
                         <td>{fee.feeID}</td>
-                        <td>
-                          {editFee?.feeID === fee.feeID ? (
-                            <input
-                              type="number"
-                              value={editPercent}
-                              onChange={(e) => setEditPercent(e.target.value)}
-                              className="form-control mx-auto"
-                              style={{ maxWidth: "80px" }}
-                            />
-                          ) : (
-                            `${fee.percent * 100}%`
-                          )}
-                        </td>
+                        <td>{(fee.percent * 100).toFixed(1)}%</td>
                         <td>{formatVietnamTime(fee.createdDate)}</td>
                         <td>{formatVietnamTime(fee.updatedDate)}</td>
                         <td>
-                          {editFee?.feeID === fee.feeID ? (
-                            <button className="btn btn-primary btn-sm" onClick={saveUpdate}>
-                              <FaSave className="me-1" /> Lưu
-                            </button>
-                          ) : (
-                            <button
-                              className="btn btn-warning btn-sm"
-                              onClick={() => {
-                                setEditFee(fee);
-                                setEditPercent(fee.percent);
-                              }}
-                            >
-                              <FaEdit className="me-1" /> Sửa
-                            </button>
-                          )}
+                          <button
+                            className="btn btn-warning btn-sm"
+                            onClick={() => {
+                              setSelectedFee(fee);
+                              setModalPercent((fee.percent * 100).toString());
+                              setShowModal(true);
+                            }}
+                          >
+                            <FaEdit className="me-1" /> Sửa
+                          </button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+
+              <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Chỉnh sửa phí nền tảng</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form.Group>
+                    <Form.Label>Tỷ lệ phần trăm</Form.Label>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={modalPercent}
+                      onChange={(e) => setModalPercent(e.target.value)}
+                    />
+                  </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setShowModal(false)}>
+                    Hủy
+                  </Button>
+                  <Button variant="success" onClick={handleSave} disabled={saving}>
+                    {saving ? <Spinner animation="border" size="sm" className="me-2" /> : ""}
+                    Lưu
+                  </Button>
+                </Modal.Footer>
+              </Modal>
             </div>
           )}
         </div>
