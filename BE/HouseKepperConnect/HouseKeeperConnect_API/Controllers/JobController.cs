@@ -920,7 +920,7 @@ namespace HouseKeeperConnect_API.Controllers
             allSlots.AddRange(slots);
 
             var countAfterAbandonDate = allSlots
-                .Where(s => s.Date >= abandonDate && (s.IsConfirmedByFamily || s.IsCheckedIn == false) && s.Status == BookingSlotStatus.Active)
+                .Where(s => s.Date >= abandonDate && (s.IsConfirmedByFamily == false || s.IsCheckedIn == false) && s.Status == BookingSlotStatus.Active)
                 .Select(s => new Booking_Slots
                 {
                     SlotID = s.SlotID,
@@ -1021,6 +1021,7 @@ namespace HouseKeeperConnect_API.Controllers
             notis.AccountID = hk.AccountID;
             notis.Message = "Công việc #" + oldJob.JobID + " - " + oldJob.JobName + " đã bị hủy! Tổng slot đã làm: " + (allSlots.Count - totalUnworkedSlots)
                 + ". Tiền lương nhận được: " + payoutAmount +" VNĐ";
+            notis.CreatedDate = vietnamTime;
 
             await _notificationService.AddNotificationAsync(notis);
 
@@ -1089,6 +1090,7 @@ namespace HouseKeeperConnect_API.Controllers
             noti.AccountID = family.AccountID;
             noti.Message = "Công việc #" + oldJob.JobID + " - " + oldJob.JobName + " đã bị người giúp việc bỏ!\n " +
                 "Công việc tương ứng với thời gian còn lại đã được tạo!";
+            noti.CreatedDate = vietnamTime;
 
             await _notificationService.AddNotificationAsync(noti);
 
