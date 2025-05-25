@@ -11,7 +11,9 @@ using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Services.Interface;
+using static System.Net.WebRequestMethods;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -270,6 +272,41 @@ namespace HouseKeeperConnect_API.Controllers
             await _accountService.UpdateAccountAsync(account);
             return Ok("Cập nhật tài khoản thành công!");
         }
+        
+        [HttpPut("AdminResetPassword")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> AdminResetPwd([FromQuery] string password, [FromQuery] int accountID)
+        {
+            var u = await _accountService.GetAccountByIDAsync(accountID);
+            if (u == null)
+            {
+                return NotFound("Không tìm thấy tài khoản!");
+            }
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+            if (!password.IsNullOrEmpty())
+            {
+                u.Password = _passwordHasher.HashPassword(u, password);
+            }
+
+
+            await _accountService.UpdateAccountAsync(u);
+
+            var noti = new Notification();
+            noti.Message = "Mật khẩu của bạn đã được reset! Hãy kiểm tra email để lấy mật khẩu!";
+            noti.CreatedDate = vietnamTime;
+
+            const string subject = "Reset mật khẩu";
+            string body = $"Mật khẩu mới của bạn là: {password}. Hãy đổi mật khẩu sớm nhất có thể!";
+            await _emailHelper.SendEmailAsync(u.Email, subject, body);
+
+            return Ok("Reset mật khẩu thành công!");
+        }
 
         [HttpPut("ChangeStatus")]
         [Authorize(Policy = "Admin")]
@@ -289,6 +326,19 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+        
+        [HttpPut("SearchAccountByEmail")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> SearchAccByEmail([FromQuery] string email)
+        {
+                var account = await _accountService.GetAccountByEmailAsync(email);
+                if (account == null)
+                {
+                    return NotFound("Không tìm thấy tài khoản!");
+                }
+                var display = _mapper.Map<AccountDisplayDTO>(account);
+                return Ok(display);
         }
 
         [HttpPost("LoginWithGoogle")]

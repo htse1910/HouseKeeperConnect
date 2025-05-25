@@ -19,6 +19,6 @@ namespace BusinessObject.DTOs
         public int ServiceTypeID { get; set; }
 
         [StringLength(255, ErrorMessage = "Description cannot exceed 255 characters.")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }

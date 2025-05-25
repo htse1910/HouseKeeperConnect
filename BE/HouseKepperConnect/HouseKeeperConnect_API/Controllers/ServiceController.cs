@@ -29,7 +29,7 @@ namespace HouseKeeperConnect_API.Controllers
             var services = await _serviceService.GetAllServicesAsync();
             if (services == null || !services.Any())
             {
-                Message = "No records!";
+                Message = "Danh sách dịch vụ trống!";
                 return NotFound(Message);
             }
 
@@ -71,14 +71,14 @@ namespace HouseKeeperConnect_API.Controllers
             var service = await _serviceService.GetServiceByIDAsync(serviceUpdateDTO.ServiceID);
             if (service == null)
             {
-                Message = "No records!";
+                Message = "Không tìm thấy thông tin dịch vụ!";
                 return NotFound(Message);
             }
 
             _mapper.Map(serviceUpdateDTO, service);
             await _serviceService.UpdateServiceAsync(service);
 
-            Message = "Service updated successfully!";
+            Message = "Cập nhật dịch vụ thành công";
             return Ok(Message);
         }
 

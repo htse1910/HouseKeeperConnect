@@ -5,7 +5,6 @@ using BusinessObject.Models.AppWrite;
 using HouseKeeperConnect_API.CustomServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
