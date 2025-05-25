@@ -56,6 +56,12 @@
         Pending = 1,
         Success = 2,
     }
+    
+    public enum ServiceStatus
+    {
+        Active = 1,
+        Inactive = 2,
+    }
 
     public enum BookingStatus
     {

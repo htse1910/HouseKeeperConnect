@@ -18,6 +18,7 @@ namespace BusinessObject.Models
 
         [MaxLength(255)]
         public string Description { get; set; }
+        public int Status {  get; set; }
 
         public virtual ServiceType ServiceType { get; set; }
     }
