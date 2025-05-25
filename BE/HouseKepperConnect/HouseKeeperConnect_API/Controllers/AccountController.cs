@@ -218,6 +218,51 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
+        [HttpPost("CreateStaff")]
+        [Authorize(Policy = "Admin")]
+        public async Task<ActionResult<AccountStaffCreateDTO>> CreateStaff([FromForm] AccountStaffCreateDTO accountStaffCreateDTO)
+        {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+            if (await _accountService.IsEmailExistsAsync(accountStaffCreateDTO.Email))
+            {
+                Message = "Email đã tồn tại!";
+                return Conflict(Message);
+            }
+
+            var acc = new BusinessObject.Models.Account();
+            acc.Status = 1;
+            acc.RoleID = 3;
+            acc.Address = "";
+            acc.LocalProfilePicture = "https://fra.cloud.appwrite.io/v1/storage/buckets/67e3d029000d5b9dd68e/files/09755f4c-388b-46ee-aad8-7c5870e2c0ae/view?project=67e3d001000d6659b782";
+            acc.Name = accountStaffCreateDTO.Name;
+            acc.Email = accountStaffCreateDTO.Email;
+            acc.CreatedAt = currentVietnamTime;
+            acc.UpdatedAt = currentVietnamTime;
+            acc.Phone = accountStaffCreateDTO.Phone;
+            acc.Gender = accountStaffCreateDTO.Gender;
+            acc.Password = _passwordHasher.HashPassword(acc, accountStaffCreateDTO.Password);
+
+            await _accountService.AddAccountAsync(acc);
+
+            var wallet = new Wallet
+            {
+                AccountID = acc.AccountID,
+                CreatedAt = currentVietnamTime,
+                UpdatedAt = currentVietnamTime,
+                Status = 1
+            };
+            await _walletService.AddWalletAsync(wallet);
+
+            Message = "Tạo tài khoản mới thành công!";
+            return Ok(Message);
+        }
+
         // PUT api/<AccountController>/5
         /*[HttpPut("UpdateAccount")]
         [Authorize(Policy ="Admin")]
@@ -272,7 +317,7 @@ namespace HouseKeeperConnect_API.Controllers
             await _accountService.UpdateAccountAsync(account);
             return Ok("Cập nhật tài khoản thành công!");
         }
-        
+
         [HttpPut("AdminResetPassword")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> AdminResetPwd([FromQuery] string password, [FromQuery] int accountID)
@@ -293,7 +338,6 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 u.Password = _passwordHasher.HashPassword(u, password);
             }
-
 
             await _accountService.UpdateAccountAsync(u);
 
@@ -327,18 +371,18 @@ namespace HouseKeeperConnect_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
+
         [HttpPut("SearchAccountByEmail")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> SearchAccByEmail([FromQuery] string email)
         {
-                var account = await _accountService.GetAccountByEmailAsync(email);
-                if (account == null)
-                {
-                    return NotFound("Không tìm thấy tài khoản!");
-                }
-                var display = _mapper.Map<AccountDisplayDTO>(account);
-                return Ok(display);
+            var account = await _accountService.GetAccountByEmailAsync(email);
+            if (account == null)
+            {
+                return NotFound("Không tìm thấy tài khoản!");
+            }
+            var display = _mapper.Map<AccountDisplayDTO>(account);
+            return Ok(display);
         }
 
         [HttpPost("LoginWithGoogle")]

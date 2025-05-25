@@ -53,6 +53,13 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Family")]
         public async Task<ActionResult<List<Payment>>> GetPaymentsByFA([FromQuery] int accountID, int pageNumber, int pageSize)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var fa = await _familyProfileService.GetFamilyByAccountIDAsync(accountID);
             if (fa == null)
             {
@@ -112,7 +119,7 @@ namespace HouseKeeperConnect_API.Controllers
                 dis.PaymentID = item.PaymentID;
                 dis.JobID = job.JobID;
                 dis.JobName = job.JobName;
-                dis.PaymentDate = DateTime.Now;
+                dis.PaymentDate = currentVietnamTime;
                 dis.Commission = jobDetail.Price * 0.1m;
 
                 display.Add(dis);
@@ -123,6 +130,13 @@ namespace HouseKeeperConnect_API.Controllers
         [HttpGet("success")]
         public async Task<IActionResult> PaymentSuccess([FromQuery] int orderCode)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var check = await _paymentService.GetPaymentStatus(orderCode);
 
             if (check.status != "PAID")
@@ -138,7 +152,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            trans.UpdatedDate = DateTime.Now;
+            trans.UpdatedDate = currentVietnamTime;
             trans.Status = (int)TransactionStatus.Completed;
 
             await _transactionService.UpdateTransactionAsync(trans);
@@ -150,7 +164,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = currentVietnamTime;
             wallet.Balance += wallet.OnHold;
             wallet.OnHold -= wallet.OnHold;
 
@@ -171,6 +185,12 @@ namespace HouseKeeperConnect_API.Controllers
         {
             var check = await _paymentService.GetPaymentStatus(orderCode);
 
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             if (check.status == "CANCELLED")
             {
                 var trans = await _transactionService.GetTransactionByIDAsync(orderCode);
@@ -180,7 +200,7 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound(Message);
                 }
 
-                trans.UpdatedDate = DateTime.Now;
+                trans.UpdatedDate = currentVietnamTime;
                 trans.Status = (int)TransactionStatus.Canceled;
 
                 await _transactionService.UpdateTransactionAsync(trans);
@@ -192,7 +212,7 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound(Message);
                 }
 
-                wallet.UpdatedAt = DateTime.Now;
+                wallet.UpdatedAt = currentVietnamTime;
                 wallet.OnHold -= trans.Amount;
 
                 await _walletService.UpdateWalletAsync(wallet);
@@ -212,6 +232,13 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<IActionResult> PaymentCheckStatus([FromQuery] int id)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var status = await _paymentService.GetPaymentStatus(id);
             if (status == null)
             {
@@ -232,7 +259,7 @@ namespace HouseKeeperConnect_API.Controllers
                     return Ok(status.status);
                 }
 
-                trans.UpdatedDate = DateTime.Now;
+                trans.UpdatedDate = currentVietnamTime;
                 trans.Status = (int)TransactionStatus.Expired;
 
                 await _transactionService.UpdateTransactionAsync(trans);
@@ -244,7 +271,7 @@ namespace HouseKeeperConnect_API.Controllers
                     return NotFound(Message);
                 }
 
-                wallet.UpdatedAt = DateTime.Now;
+                wallet.UpdatedAt = currentVietnamTime;
                 wallet.OnHold -= trans.Amount;
 
                 await _walletService.UpdateWalletAsync(wallet);

@@ -107,6 +107,13 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Family")]
         public async Task<ActionResult> Addrating([FromQuery] RatingCreateDTO ratingCreateDTO)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(ratingCreateDTO.Reviewee);
             if (hk == null)
             {
@@ -126,7 +133,7 @@ namespace HouseKeeperConnect_API.Controllers
             ra.HouseKeeperID = hk.HousekeeperID;
             ra.Content = ratingCreateDTO.Content;
             ra.Score = ratingCreateDTO.Score;
-            ra.CreateAt = DateTime.Now;
+            ra.CreateAt = currentVietnamTime;
 
             await _ratingService.AddRatingAsync(ra);
 

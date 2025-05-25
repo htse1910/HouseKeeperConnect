@@ -60,12 +60,18 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Admin")]
         public async Task<ActionResult> AddFee([FromQuery] int percent)
         {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var nFee = new PlatformFee();
             int id = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
             nFee.FeeID = id;
             nFee.Percent = percent;
-            nFee.CreatedDate = DateTime.Now;
-            nFee.UpdatedDate = DateTime.Now;
+            nFee.CreatedDate = currentVietnamTime;
+            nFee.UpdatedDate = currentVietnamTime;
 
             await _platformFeeService.AddPlatformFeeAsync(nFee);
             Message = "New fee added!";
@@ -76,6 +82,13 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Admin")]
         public async Task<ActionResult> UpdateFee([FromQuery] decimal percent, int fID)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             var fee = await _platformFeeService.GetPlatformFeeByIDAsync(fID);
             if (fee == null)
             {
@@ -84,7 +97,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             fee.Percent = percent / 100m;
-            fee.UpdatedDate = DateTime.Now;
+            fee.UpdatedDate = currentVietnamTime;
 
             await _platformFeeService.UpdatePlatformFeeAsync(fee);
 
@@ -101,6 +114,7 @@ namespace HouseKeeperConnect_API.Controllers
                 var noti = new Notification();
                 noti.Message = "Nền tảng đã cập nhập phí nền tảng thành " + fee.Percent * 100 + "%" + " có hiệu lực từ " + fee.UpdatedDate.ToString("dd/MM/yyyy");
                 noti.AccountID = account.AccountID;
+                noti.CreatedDate = currentVietnamTime;
 
                 await _notificationService.AddNotificationAsync(noti);
             }

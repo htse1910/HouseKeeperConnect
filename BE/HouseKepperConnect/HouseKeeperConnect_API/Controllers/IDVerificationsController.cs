@@ -190,7 +190,7 @@ namespace HouseKeeperConnect_API.Controllers
             var verificationTask = new VerificationTask
             {
                 VerifyID = verifyId,
-                AssignedDate = DateTime.Now,
+                AssignedDate = currentVietnamTime,
                 Status = 1 // Pending
             };
 
