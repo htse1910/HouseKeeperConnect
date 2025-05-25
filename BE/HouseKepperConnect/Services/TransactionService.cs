@@ -19,6 +19,8 @@ namespace Services
 
         public async Task<List<Transaction>> GetAllTransactionsAsync(int pageNumber, int pageSize) => await _transactionRepository.GetAllTransactionsAsync(pageNumber, pageSize);
 
+        public async Task<List<Transaction>> GetAllTransactionsAsync() => await _transactionRepository.GetAllTransactionsAsync();
+
         public async Task<int> GetTotalTransAsync() => await _transactionRepository.GetTotalTransAsync();
 
         public async Task<Transaction> GetTransactionByIDAsync(int id) => await _transactionRepository.GetTransactionByIDAsync(id);

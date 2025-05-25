@@ -5,6 +5,7 @@ namespace Repositories.Interface
     public interface ITransactionRepository
     {
         Task<List<Transaction>> GetAllTransactionsAsync(int pageNumber, int pageSize);
+        Task<List<Transaction>> GetAllTransactionsAsync();
 
         Task<List<Transaction>> GetTransactionsPastWeekAsync(int pageNumber, int pageSize);
 
