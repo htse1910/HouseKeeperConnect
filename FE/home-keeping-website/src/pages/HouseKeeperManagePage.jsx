@@ -164,16 +164,16 @@ function HouseKeeperManagePage() {
                   <div className="fw-semibold text-dark">{app.jobName}</div>
                 </div>
                 <span className={`badge text-white ${app.applicationStatus === 1 ? "bg-info" :
-                  app.applicationStatus === 2 && app.jobStatus === 6 ? "bg-primary" :
-                    app.applicationStatus === 2 && app.jobStatus === 3 ? "bg-secondary" :
-                      app.applicationStatus === 2 ? "bg-success" :
-                        app.applicationStatus === 3 ? "bg-danger" :
-                          "bg-dark"
+                    app.applicationStatus === 2 && app.jobStatus === 4 ? "bg-primary" : // Completed
+                      app.applicationStatus === 2 && app.jobStatus === 6 ? "bg-secondary" : // ❌ Đã hủy → gray
+                        app.applicationStatus === 2 ? "bg-success" :                         // ✅ Đã chấp nhận → green
+                          app.applicationStatus === 3 ? "bg-danger" :
+                            "bg-dark"
                   }`}>
                   {
                     app.applicationStatus === 1 ? "Đang chờ" :
-                      app.applicationStatus === 2 && app.jobStatus === 6 ? "Đã hoàn thành" :
-                        app.applicationStatus === 2 && app.jobStatus === 3 ? "Đã hủy" :
+                      app.applicationStatus === 2 && app.jobStatus === 4 ? "Đã hoàn thành" :
+                        app.applicationStatus === 2 && app.jobStatus === 6 ? "Đã hủy" :
                           app.applicationStatus === 2 ? "Đã chấp nhận" :
                             app.applicationStatus === 3 ? "Đã từ chối" :
                               "Không xác định"
