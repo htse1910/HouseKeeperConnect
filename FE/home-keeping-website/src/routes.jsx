@@ -64,6 +64,7 @@ import StaffTransactionListPage from './pages/StaffTransactionListPage.jsx';
 import FamilyAbandonedJobsPage from './pages/FamilyAbandonedJobsPage.jsx';
 import CreateDirectJobOfferPage from './pages/CreateDirectJobOfferPage.jsx';
 import HousekeeperSchedulePage from './pages/HousekeeperSchedulePage.jsx';
+import AdminManageStaffPage from './pages/AdminManageStaffPage.jsx';
 
 function AppRoutes() {
   return (
@@ -138,8 +139,9 @@ function AppRoutes() {
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUserListPage />} />
-        <Route path="/admin/services" element={<AdminServiceListPage />} />  // ✅ NEW SERVICE PAGE
+        <Route path="/admin/services" element={<AdminServiceListPage />} />  
         <Route path="/admin/platform-fees" element={<ManagePlatformFeesPage />} />
+        <Route path="/admin/manage-staffs" element={<AdminManageStaffPage />} />
       </Routes>
     </Layout>
   );
