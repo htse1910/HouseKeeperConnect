@@ -130,7 +130,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
             var nWi = _mapper.Map<List<WithdrawDisplayDTO>>(wi);
-            
+
             return Ok(nWi);
         }
 
@@ -138,6 +138,11 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Admin")]
         public async Task<ActionResult<Withdraw>> CreateWithdraw([FromQuery] WithdrawCreateDTO withdrawCreateDTO)
         {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
             var acc = await _accountService.GetAccountByIDAsync(withdrawCreateDTO.AccountID);
             if (acc == null)
             {
@@ -158,7 +163,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            if(wallet.Balance < 0)
+            if (wallet.Balance < 0)
             {
                 Message = "Số tiền cần rút không được âm!";
                 return BadRequest(Message);
@@ -177,7 +182,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             wallet.Balance -= withdrawCreateDTO.Amount;
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = vietnamTime;
 
             await _walletService.UpdateWalletAsync(wallet);
 
@@ -189,9 +194,9 @@ namespace HouseKeeperConnect_API.Controllers
                 AccountID = acc.AccountID,
                 Amount = withdrawCreateDTO.Amount,
                 Fee = 0,
-                CreatedDate = DateTime.Now,
+                CreatedDate = vietnamTime,
                 Description = "Rút tiền về tài khoản ngân hàng",
-                UpdatedDate = DateTime.Now,
+                UpdatedDate = vietnamTime,
                 TransactionType = (int)TransactionType.Withdrawal,
                 Status = (int)TransactionStatus.Pending,
             };
@@ -199,7 +204,7 @@ namespace HouseKeeperConnect_API.Controllers
             await _transactionService.AddTransactionAsync(trans);
 
             var wi = _mapper.Map<Withdraw>(withdrawCreateDTO);
-            wi.RequestDate = DateTime.Now;
+            wi.RequestDate = vietnamTime;
             wi.BankNumber = acc.BankAccountNumber;
             wi.TransactionID = orderCode;
             wi.Status = (int)TransactionStatus.Pending;
@@ -219,6 +224,11 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Staff")]
         public async Task<ActionResult<Withdraw>> UpdateWithdraw([FromQuery] WithdrawUpdateDTO withdrawUpdateDTO)
         {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
             var wi = await _withdrawService.GetWithdrawByIDAsync(withdrawUpdateDTO.WithdrawID);
 
             if (wi == null)
@@ -278,13 +288,13 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             /*wallet.Balance += wi.Amount;
-            wallet.UpdatedAt = DateTime.Now;*/
+            wallet.UpdatedAt = vietnamTime;*/
             if (withdrawUpdateDTO.Status == (int)WithdrawStatus.Failed)
             {
                 wallet.Balance += wi.Amount;
             }
 
-            wallet.UpdatedAt = DateTime.Now;
+            wallet.UpdatedAt = vietnamTime;
 
             await _walletService.UpdateWalletAsync(wallet);
 
@@ -324,6 +334,12 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
+                DateTime utcNow = DateTime.UtcNow;
+
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
                 var acc = await _accountService.GetAccountByIDAsync(withdrawCreateDTO.AccountID);
                 if (acc == null)
                     return NotFound("Không tìm thấy tài khoản!");
@@ -335,7 +351,7 @@ namespace HouseKeeperConnect_API.Controllers
                 if (wallet == null)
                     return NotFound("Không tìm thấy ví!");
 
-                if(withdrawCreateDTO.Amount == 0)
+                if (withdrawCreateDTO.Amount == 0)
                 {
                     return BadRequest("Số tiền muốn rút không được âm");
                 }
@@ -354,17 +370,17 @@ namespace HouseKeeperConnect_API.Controllers
                 // Tạo OTP và Withdraw
                 var withdraw = _mapper.Map<Withdraw>(withdrawCreateDTO);
                 withdraw.TransactionID = orderCode;
-                withdraw.RequestDate = DateTime.Now;
+                withdraw.RequestDate = vietnamTime;
                 withdraw.BankNumber = acc.BankAccountNumber;
                 withdraw.BankName = acc.BankAccountName;
                 withdraw.Status = (int)TransactionStatus.Pending;
                 withdraw.OTPCode = otp;
-                withdraw.OTPCreatedTime = DateTime.Now;
-                withdraw.OTPExpiredTime = DateTime.Now.AddMinutes(5);
+                withdraw.OTPCreatedTime = vietnamTime;
+                withdraw.OTPExpiredTime = vietnamTime.AddMinutes(5);
                 withdraw.IsOTPVerified = false;
 
                 var staffList = await _accountService.GetAllStaffsAsync();
-                if (staffList.Count==0)
+                if (staffList.Count == 0)
                 {
                     Message = "Không tìm thấy danh sách nhân viên!";
                     return NotFound(Message);
@@ -379,7 +395,6 @@ namespace HouseKeeperConnect_API.Controllers
                     await _notificationService.AddNotificationAsync(noti);
                 }
 
-                    
                 var trans = new Transaction
                 {
                     TransactionID = orderCode,
@@ -387,9 +402,9 @@ namespace HouseKeeperConnect_API.Controllers
                     AccountID = withdraw.AccountID,
                     Amount = withdraw.Amount,
                     Fee = 0,
-                    CreatedDate = DateTime.Now,
+                    CreatedDate = vietnamTime,
                     Description = "Yêu cầu rút tiền đang chờ xác minh OTP",
-                    UpdatedDate = DateTime.Now,
+                    UpdatedDate = vietnamTime,
                     TransactionType = (int)TransactionType.Withdrawal,
                     Status = (int)TransactionStatus.Pending
                 };
@@ -418,10 +433,15 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<ActionResult<object>> NewOTP([FromQuery] int withdrawID)
         {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
             var w = await _withdrawService.GetWithdrawByIDAsync(withdrawID);
             w.OTPCode = GenerateOTP();
-            w.OTPCreatedTime = DateTime.Now;
-            w.OTPExpiredTime = DateTime.Now.AddMinutes(5);
+            w.OTPCreatedTime = vietnamTime;
+            w.OTPExpiredTime = vietnamTime.AddMinutes(5);
             await _withdrawService.UpdateWithdrawAsync(w);
 
             return Ok(new
@@ -467,18 +487,18 @@ namespace HouseKeeperConnect_API.Controllers
 
                 await _withdrawService.UpdateWithdrawAsync(withdraw);
 
-/*                // Cập nhật Transaction tương ứng nếu có
-                if (withdraw.TransactionID != 0)
-                {
-                    var trans = await _transactionService.GetTransactionByIDAsync(withdraw.TransactionID);
-                    if (trans != null)
-                    {
-                        trans.Status = (int)TransactionStatus.Completed;
-                        trans.UpdatedDate = DateTime.Now;
+                /*                // Cập nhật Transaction tương ứng nếu có
+                                if (withdraw.TransactionID != 0)
+                                {
+                                    var trans = await _transactionService.GetTransactionByIDAsync(withdraw.TransactionID);
+                                    if (trans != null)
+                                    {
+                                        trans.Status = (int)TransactionStatus.Completed;
+                                        trans.UpdatedDate = vietnamTime;
 
-                        await _transactionService.UpdateTransactionAsync(trans);
-                    }
-                }*/
+                                        await _transactionService.UpdateTransactionAsync(trans);
+                                    }
+                                }*/
 
                 // Trừ tiền khỏi ví người dùng
                 var wallet = await _walletService.GetWalletByUserAsync(withdraw.AccountID);

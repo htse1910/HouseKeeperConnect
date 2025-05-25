@@ -133,6 +133,13 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize(Policy = "Staff")]
         public async Task<ActionResult> VerifyRequest([FromQuery] SupportRequestUpdateDTO supportRequestUpdateDTO)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
             // Check tải khoản staff có tồn tại?
             var staff = await _accountService.GetAccountByIDAsync(supportRequestUpdateDTO.AccountID);
             if (staff == null)
@@ -152,7 +159,7 @@ namespace HouseKeeperConnect_API.Controllers
             req.Status = (int)SupportRequestStatus.Completed;
             req.ReviewedBy = staff.AccountID;
             req.ReviewNote = supportRequestUpdateDTO.Content;
-            req.UpdatedDate = DateTime.Now;
+            req.UpdatedDate = currentVietnamTime;
 
             await _supportRequestService.UpdateSupportRequestAsync(req);
 

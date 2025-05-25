@@ -65,6 +65,13 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
+
+                DateTime utcNow = DateTime.UtcNow;
+
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
                 var verification = await _verificationTaskService.GetTaskByIdAsync(verifyID);
                 if (verification == null)
                 {
@@ -75,7 +82,7 @@ namespace HouseKeeperConnect_API.Controllers
                 {
                     VerifyID = verifyID,
                     Status = 1,
-                    AssignedDate = DateTime.Now
+                    AssignedDate = currentVietnamTime
                 };
 
                 await _verificationTaskService.CreateVerificationTaskAsync(task);
@@ -93,6 +100,14 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
+
+                DateTime utcNow = DateTime.UtcNow;
+
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+
                 var task = await _verificationTaskService.GetTaskByIdAsync(taskId);
                 if (task == null || task.Status != 1)
                 {
@@ -120,7 +135,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 task.AccountID = request.AccountID;
                 task.Status = 2;
-                task.CompletedDate = DateTime.Now;
+                task.CompletedDate = currentVietnamTime;
                 task.Notes = request.Notes;
                 task.IDVerification.Status = 2;
                 task.IDVerification.IDNumber = request.IDNumber;
@@ -149,6 +164,14 @@ namespace HouseKeeperConnect_API.Controllers
         {
             try
             {
+
+                DateTime utcNow = DateTime.UtcNow;
+
+                TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+                DateTime currentVietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+
                 var task = await _verificationTaskService.GetTaskByIdAsync(taskId);
                 if (task == null || task.Status != 1)
                 {
@@ -169,7 +192,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 task.AccountID = request.AccountID;
                 task.Status = (int)VerificationStatus.Denied;
-                task.CompletedDate = DateTime.Now;
+                task.CompletedDate = currentVietnamTime;
                 task.Notes = request.Notes;
                 task.IDVerification.Status = (int)VerificationStatus.Denied;
 
