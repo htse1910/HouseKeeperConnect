@@ -37,15 +37,17 @@ function FamilyAbandonedJobsPage() {
 
   const handleInvite = async (housekeeperID) => {
     try {
-      await axios.put(
+      const res = await axios.put(
         `${API_BASE_URL}/Job/OfferJob?jobId=${jobID}&housekeeperId=${housekeeperID}`,
         {},
         { headers }
       );
-      toast.success("✅ Đã gửi lời mời thành công!");
+      const message = res?.data || "✅ Đã gửi lời mời thành công!";
+      toast.success(`✅ ${message}`);
     } catch (err) {
       console.error("Invite failed", err);
-      toast.error("❌ Gửi lời mời thất bại.");
+      const errorMsg = err?.response?.data || "❌ Gửi lời mời thất bại.";
+      toast.error(`❌ ${errorMsg}`);
     }
   };
 
