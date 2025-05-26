@@ -105,7 +105,7 @@ function RegisterPage() {
       );
 
       if (registerResponse.status === 200) {
-        toast.success('🎉 Registration successful! Auto-login in 5 seconds...');
+        toast.success('🎉 Đăng ký thành công! Tự động đăng nhập trong vòng 5 giây...');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setCountdown(5);
         setShouldAutoLogin(true);

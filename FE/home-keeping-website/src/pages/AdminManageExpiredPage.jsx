@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminSidebar from "../components/AdminSidebar";
 import API_BASE_URL from "../config/apiConfig";
+import { Modal, Button } from "react-bootstrap";
 
 const PAGE_SIZE = 5;
 
@@ -22,6 +23,33 @@ const AdminManageExpiredPage = () => {
   const [loading, setLoading] = useState(true);
 
   const totalPages = Math.ceil(totalJobs / PAGE_SIZE);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState(null);
+
+  const confirmDeleteJob = async () => {
+    if (!jobToDelete) return;
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const res = await fetch(`${API_BASE_URL}/Job/DeleteJobAdmin?id=${jobToDelete.jobID}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        toast.success("✅ Xóa công việc thành công!");
+        fetchExpiredJobs(currentPage);
+      } else {
+        toast.error("❌ Không thể xóa công việc.");
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+      toast.error("❌ Lỗi khi xóa công việc.");
+    } finally {
+      setShowDeleteModal(false);
+      setJobToDelete(null);
+    }
+  };
 
   const getJobStatusText = (status) => {
     switch (status) {
@@ -106,6 +134,9 @@ const AdminManageExpiredPage = () => {
           ) : (
             <>
               <div className="card-custom">
+                <h5 className="mb-3 text-end text-muted">
+                  Tổng số công việc hết hạn: <strong className="text-danger">{totalJobs}</strong>
+                </h5>
                 <div className="table-responsive">
                   <Table bordered hover className="align-middle">
                     <thead className="text-center">
@@ -117,6 +148,7 @@ const AdminManageExpiredPage = () => {
                         <th>Giá</th>
                         <th>Ngày tạo</th>
                         <th>Trạng thái</th> {/* 👈 New column */}
+                        <th>Hành động</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -129,6 +161,17 @@ const AdminManageExpiredPage = () => {
                           <td>{job.price.toLocaleString()} đ</td>
                           <td>{formatVietnamTime(job.createdAt)}</td>
                           <td>{getJobStatusText(job.status)}</td> {/* 👈 Status */}
+                          <td>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => {
+                                setJobToDelete(job);
+                                setShowDeleteModal(true);
+                              }}
+                            >
+                              🗑 Xóa
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -177,6 +220,22 @@ const AdminManageExpiredPage = () => {
           )}
         </div>
       </div>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận xóa công việc</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Bạn có chắc chắn muốn xóa công việc <strong>{jobToDelete?.jobName}</strong> không? Hành động này không thể hoàn tác.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="danger" onClick={confirmDeleteJob}>
+            Xóa
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
