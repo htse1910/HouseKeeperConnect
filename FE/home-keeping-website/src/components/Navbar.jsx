@@ -70,6 +70,9 @@ function Navbar() {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const accountID = localStorage.getItem("accountID");
+    const rawRole = localStorage.getItem("userRole");
+
+    if (rawRole?.toLowerCase() === "admin" || accountID === "0") return; // ⛔ Skip API for Admin
 
     if (token && accountID) {
       axios.get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, {

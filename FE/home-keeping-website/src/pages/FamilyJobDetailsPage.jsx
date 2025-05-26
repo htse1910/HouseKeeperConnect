@@ -229,7 +229,7 @@ const FamilyJobDetailsPage = () => {
             headers
         })
             .then(() => {
-                toast.success("✅ Đã check-in cho ngày hôm nay!");
+                toast.success(res.data || "✅ Đã check-in cho ngày hôm nay!");
                 setConfirmedSlots(prev => ({ ...prev, [selectedDayIndex]: true }));
             })
             .catch(() => toast.error("❌ Không thể xác nhận ca làm."));
@@ -242,7 +242,7 @@ const FamilyJobDetailsPage = () => {
             headers
         })
             .then(() => {
-                toast.success("🎉 Công việc đã được xác nhận hoàn thành!");
+                toast.success(res.data || "🎉 Công việc đã được xác nhận hoàn thành!");
                 setShowRatingModal(true);
             })
             .catch(() => {
@@ -255,7 +255,7 @@ const FamilyJobDetailsPage = () => {
             params: { AppID: applicationID, status: 2 }, headers
         })
             .then(() => {
-                toast.success("✅ Đã chấp nhận ứng viên!");
+                toast.success(res.data || "✅ Đã chấp nhận ứng viên!");
                 setTimeout(() => window.location.reload(), 1500); // give user time to see the toast
             })
             .catch(() => toast.error("❌ Không thể chấp nhận ứng viên."));
@@ -266,7 +266,7 @@ const FamilyJobDetailsPage = () => {
             params: { AppID: applicationID, status: 3 }, headers
         })
             .then(() => {
-                toast.success("🚫 Đã từ chối ứng viên.");
+                toast.success(res.data || "🚫 Đã từ chối ứng viên.");
                 setTimeout(() => window.location.reload(), 1500); // optional delay for clarity
             })
             .catch(() => toast.error("❌ Không thể từ chối ứng viên."));
@@ -302,7 +302,7 @@ const FamilyJobDetailsPage = () => {
                 headers
             });
 
-            toast.success("✅ Gửi đánh giá thành công!");
+            toast.success(res.data.message || "✅ Gửi đánh giá thành công!");
             setShowRatingModal(false);
             window.location.reload();
 
