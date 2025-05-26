@@ -1479,6 +1479,21 @@ namespace HouseKeeperConnect_API.Controllers
                 await _jobServiceService.DeleteJob_ServiceAsync(service.ServiceID);
             }
 
+            var applications = await _applicationService.GetAllApplicationsByJobIDAsync(job.JobID);
+            if (applications.Count != 0)
+            {
+                foreach (var app in applications)
+                {
+                    var notis = new Notification();
+                    notis.Message = "Một trong những công việc mà bạn ứng tuyển đã bị xóa vì quá hạn làm việc!";
+                    notis.AccountID = app.HouseKepper.AccountID;
+                    notis.CreatedDate = vietnamTime;
+
+                    await _notificationService.AddNotificationAsync(notis);
+                    await _applicationService.DeleteApplicationAsync(app.ApplicationID);
+                }
+            }
+
             var noti = new Notification();
             noti.Message = "Công việc #" + job.JobID+" - "+job.JobName+" đã bị xóa do đã quá hạn công việc!";
             noti.AccountID = job.Family.AccountID;
