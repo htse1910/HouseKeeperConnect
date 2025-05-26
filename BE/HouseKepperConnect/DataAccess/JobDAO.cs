@@ -69,7 +69,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    list = await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.EndDate < time)
+                    list = await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.EndDate < time && j.Status==(int)JobStatus.Verified || j.Status == (int)JobStatus.Pending)
                         .OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }
@@ -454,6 +454,19 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     context.Job.Remove(job);
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+        
+        public async Task DeleteJobDetailAsync(int id)
+        {
+            var jobDetail = await GetJobDetailByJobIDAsync(id);
+            if (jobDetail != null)
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    context.JobDetail.Remove(jobDetail);
                     await context.SaveChangesAsync();
                 }
             }

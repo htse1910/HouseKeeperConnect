@@ -1419,20 +1419,59 @@ namespace HouseKeeperConnect_API.Controllers
             return Ok(Message);
         }
 
-        [HttpDelete("DeleteJob")]
-        [Authorize]
-        public async Task<ActionResult> DeleteJob([FromQuery] int id)
+        [HttpDelete("DeleteJobAdmin")]
+        [Authorize(Policy ="Admin")]
+        public async Task<ActionResult> DeleteJobAdmin([FromQuery] int id)
         {
+
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+
             var job = await _jobService.GetJobByIDAsync(id);
             if (job == null)
             {
-                Message = "Job not found!";
-                return NotFound(Message);
+                return NotFound("Không tìm thấy thông tin công việc!");
             }
 
-            // Set status to Canceled
-            job.Status = (int)JobStatus.Canceled;
-            await _jobService.UpdateJobAsync(job);
+            var jobDetail = await _jobService.GetJobDetailByJobIDAsync(job.JobID);
+            if (jobDetail == null)
+            {
+                return NotFound("Không tìm thấy thông tin chi tiết công việc!");
+            }
+
+            var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
+            if(jobSlots == null)
+            {
+                return NotFound("Danh sách slot của công việc trống!");
+            }
+
+            var jobService = await _jobServiceService.GetJob_ServicesByJobIDAsync(job.JobID);
+            if (jobService == null)
+            {
+                return NotFound("Danh sách dịch vụ của công việc trống!");
+            }
+
+            foreach (var slot in jobSlots)
+            {
+                await _jobSlotsService.DeleteJob_SlotsAsync(slot.SlotID);
+            }
+
+            foreach(var service in jobService)
+            {
+                await _jobServiceService.DeleteJob_ServiceAsync(service.ServiceID);
+            }
+
+            var noti = new Notification();
+            noti.Message = "Công việc #" + job.JobID+" - "+job.JobName+" đã bị xóa do đã quá hạn công việc!";
+            noti.AccountID = job.Family.AccountID;
+            noti.CreatedDate = vietnamTime;
+
+            await _jobService.DeleteJobDetailAsync(jobDetail.JobDetailID);
+            await _jobService.DeleteJobAsync(job.JobID);
 
             Message = "Job has been canceled successfully!";
             return Ok(Message);

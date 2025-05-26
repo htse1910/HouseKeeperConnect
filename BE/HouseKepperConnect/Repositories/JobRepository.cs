@@ -61,5 +61,7 @@ namespace Repositories
         public async Task<List<Job>> GetExpiredJobForAdminAsync(int pageNumber, int pageSize, DateTime time) => await _jobDAO.GetExpiredJobForAdminAsync(pageNumber, pageSize, time);
 
         public async Task<int> CountExpiredJobsAsync(DateTime date) => await _jobDAO.CountExpiredJobsAsync(date);
+
+        public async Task DeleteJobDetailAsync(int id) => await _jobDAO.DeleteJobDetailAsync(id);
     }
 }

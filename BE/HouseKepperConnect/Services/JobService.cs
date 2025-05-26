@@ -61,5 +61,7 @@ namespace Services
         public async Task<List<Job>> GetExpiredJobForAdminAsync(int pageNumber, int pageSize, DateTime time) => await _jobRepository.GetExpiredJobForAdminAsync(pageNumber, pageSize, time);
 
         public async Task<int> CountExpiredJobsAsync(DateTime date) => await _jobRepository.CountExpiredJobsAsync(date);
+
+        public async Task DeleteJobDetailAsync(int id) => await _jobRepository.DeleteJobDetailAsync(id);
     }
 }

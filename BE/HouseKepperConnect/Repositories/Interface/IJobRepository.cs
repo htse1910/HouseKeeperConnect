@@ -47,6 +47,7 @@ namespace Repositories.Interface
         Task AddJobDetailAsync(JobDetail jobDetail);
 
         Task DeleteJobAsync(int id);
+        Task DeleteJobDetailAsync(int id);
 
         Task UpdateJobAsync(Job job);
 
