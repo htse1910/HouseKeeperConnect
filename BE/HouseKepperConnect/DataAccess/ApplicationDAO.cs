@@ -201,6 +201,23 @@ namespace DataAccess
             }
             return list;
         }
+        
+        public async Task<List<Application>> GetApplicationsByJobIDAsync(int jobID)
+        {
+            var list = new List<Application>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Application.Include(a => a.HouseKepper).Include(a => a.HouseKepper.Account).Where(a => a.JobID == jobID).AsNoTracking().ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
 
         public async Task<Application> GetApplicationByIDAsync(int id)
         {

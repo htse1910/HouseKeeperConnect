@@ -5,6 +5,7 @@ namespace Repositories.Interface
     public interface IApplicationRepository
     {
         Task<List<Application>> GetAllApplicationsAsync(int pageNumber, int pageSize);
+        Task<List<Application>> GetApplicationsByJobIDAsync(int jobID);
 
         Task<int> CountApplicationsByJobIDAsync(int jobID);
 

@@ -33,6 +33,8 @@ namespace Repositories
 
         public async Task<Application> GetApplicationByIDAsync(int id) => await ApplicationDAO.Instance.GetApplicationByIDAsync(id);
 
+        public async Task<List<Application>> GetApplicationsByJobIDAsync(int jobID) => await ApplicationDAO.Instance.GetApplicationsByJobIDAsync(jobID);
+
         public async Task UpdateApplicationAsync(Application noti) => await ApplicationDAO.Instance.UpdateApplicationAsync(noti);
     }
 }

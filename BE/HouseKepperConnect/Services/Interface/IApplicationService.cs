@@ -5,6 +5,7 @@ namespace Services.Interface
     public interface IApplicationService
     {
         Task<List<Application>> GetAllApplicationsAsync(int pageNumber, int pageSize);
+        Task<List<Application>> GetApplicationsByJobIDAsync(int jobID);
 
         Task<int> CountApplicationsByJobIDAsync(int jobID);
 
