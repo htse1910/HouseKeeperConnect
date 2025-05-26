@@ -12,6 +12,10 @@ namespace Repositories.Interface
 
         Task<List<Job>> GetAcceptedJobsForStaffAsync(int pageNumber, int pageSize);
 
+        Task<List<Job>> GetExpiredJobForAdminAsync(int pageNumber, int pageSize, DateTime time);
+
+        Task<int> CountExpiredJobsAsync(DateTime date);
+
         Task<int> CountVerifiedJobsStaffAsync();
 
         Task<int> CountAcceptedJobsStaffAsync();

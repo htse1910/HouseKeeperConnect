@@ -85,6 +85,42 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(display);
         }
+        
+        [HttpGet("GetExpiredJobs")]
+        [Authorize(Policy = "Admin")]
+        public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetExpiredJobsAsync(int pageNumber, int pageSize)
+        {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+            var jobs = await _jobService.GetExpiredJobForAdminAsync(pageNumber, pageSize, vietnamTime);
+
+            if (jobs == null || !jobs.Any())
+            {
+                return NotFound("Danh sách công việc hết hạn trống!");
+            }
+            var display = new List<JobDisplayDTO>();
+            foreach (var j in jobs)
+            {
+                var d = new JobDisplayDTO();
+                var jobDetail = await _jobService.GetJobDetailByJobIDAsync(j.JobID);
+                d.JobName = j.JobName;
+                d.FamilyID = j.FamilyID;
+                d.Location = jobDetail.Location;
+                d.DetailLocation = jobDetail.DetailLocation;
+                d.Price = jobDetail.Price;
+                d.CreatedAt = j.CreatedDate;
+                d.Status = j.Status;
+                d.JobType = j.JobType;
+                d.JobID = j.JobID;
+                display.Add(d);
+            }
+
+            return Ok(display);
+        }
 
         [HttpGet("JobVerifiedListStaff")]
         [Authorize]
@@ -183,6 +219,21 @@ namespace HouseKeeperConnect_API.Controllers
         public async Task<ActionResult<int>> CountPendingJobsAsync()
         {
             var count = await _jobService.CountPendingJobsAsync();
+
+            return Ok(count);
+        }
+        
+        [HttpGet("CountExpiredJobs")]
+        [Authorize(Policy = "Admin")]
+        public async Task<ActionResult<int>> CountExpiredJobsAsync()
+        {
+            DateTime utcNow = DateTime.UtcNow;
+
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, vietnamTimeZone);
+
+            var count = await _jobService.CountExpiredJobsAsync(vietnamTime);
 
             return Ok(count);
         }
@@ -676,6 +727,7 @@ namespace HouseKeeperConnect_API.Controllers
                         app.Status = (int)ApplicationStatus.Denied;
                         app.HouseKeeperID = item.HouseKeeperID;
                         app.JobID = item.JobID;
+                        app.CreatedDate = item.CreatedDate;
 
                         var noti = new Notification();
                         noti.Message = "Đơn ứng tuyển của bạn cho công việc #" + job.JobID + " - " + job.JobName + " đã bị từ chối!";

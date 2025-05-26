@@ -62,6 +62,25 @@ namespace DataAccess
             return list;
         }
         
+        public async Task<List<Job>> GetExpiredJobForAdminAsync(int pageNumber, int pageSize, DateTime time)
+        {
+            var list = new List<Job>();
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    list = await context.Job.Include(j => j.JobDetail).Where(j => j.JobDetail.EndDate < time)
+                        .OrderByDescending(j => j.CreatedDate).AsNoTracking().Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return list;
+        }
+
+        
         public async Task<List<Job>> GetAcceptedJobsForStaffAsync(int pageNumber, int pageSize)
         {
             var list = new List<Job>();
@@ -89,6 +108,25 @@ namespace DataAccess
                         .AsNoTracking()
                         .Include(j => j.JobDetail)
                         .CountAsync(j => j.Status == (int)JobStatus.Verified && !j.JobDetail.IsOffered)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        
+        public async Task<int> CountExpiredJobsAsync(DateTime date)
+        {
+            try
+            {
+                using (var context = new PCHWFDBContext())
+                {
+                    return await context.Job
+                        .AsNoTracking()
+                        .Include(j => j.JobDetail)
+                        .CountAsync(j => j.JobDetail.EndDate < date)
                         .ConfigureAwait(false);
                 }
             }
