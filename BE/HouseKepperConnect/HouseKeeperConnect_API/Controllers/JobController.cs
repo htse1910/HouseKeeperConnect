@@ -76,6 +76,8 @@ namespace HouseKeeperConnect_API.Controllers
                 d.Location = jobDetail.Location;
                 d.DetailLocation = jobDetail.DetailLocation;
                 d.Price = jobDetail.Price;
+                d.StartDate = jobDetail.StartDate;
+                d.EndDate = jobDetail.EndDate;
                 d.CreatedAt = j.CreatedDate;
                 d.Status = j.Status;
                 d.JobType = j.JobType;
@@ -112,6 +114,8 @@ namespace HouseKeeperConnect_API.Controllers
                 d.Location = jobDetail.Location;
                 d.DetailLocation = jobDetail.DetailLocation;
                 d.Price = jobDetail.Price;
+                d.StartDate = jobDetail.StartDate;
+                d.EndDate = jobDetail.EndDate;
                 d.CreatedAt = j.CreatedDate;
                 d.Status = j.Status;
                 d.JobType = j.JobType;
@@ -142,6 +146,8 @@ namespace HouseKeeperConnect_API.Controllers
                 d.Location = jobDetail.Location;
                 d.DetailLocation = jobDetail.DetailLocation;
                 d.Price = jobDetail.Price;
+                d.StartDate = jobDetail.StartDate;
+                d.EndDate = jobDetail.EndDate;
                 d.CreatedAt = j.CreatedDate;
                 d.Status = j.Status;
                 d.JobType = j.JobType;
@@ -174,6 +180,8 @@ namespace HouseKeeperConnect_API.Controllers
                     d.DetailLocation = jobDetail.DetailLocation;
                     d.Price = jobDetail.Price;
                     d.CreatedAt = j.CreatedDate;
+                    d.StartDate = jobDetail.StartDate;
+                    d.EndDate = jobDetail.EndDate;
                     d.Status = j.Status;
                     d.JobType = j.JobType;
                     d.JobID = j.JobID;
@@ -205,6 +213,8 @@ namespace HouseKeeperConnect_API.Controllers
                 d.DetailLocation = jobDetail.DetailLocation;
                 d.Price = jobDetail.Price;
                 d.CreatedAt = j.CreatedDate;
+                d.StartDate = jobDetail.StartDate;
+                d.EndDate = jobDetail.EndDate;
                 d.Status = j.Status;
                 d.JobType = j.JobType;
                 d.JobID = j.JobID;
@@ -402,6 +412,8 @@ namespace HouseKeeperConnect_API.Controllers
                 d.FamilyID = j.FamilyID;
                 d.Location = jobDetail.Location;
                 d.DetailLocation = jobDetail.DetailLocation;
+                d.StartDate = jobDetail.StartDate;
+                d.EndDate = jobDetail.EndDate;
                 d.Price = jobDetail.Price;
                 d.CreatedAt = j.CreatedDate;
                 d.Status = j.Status;
@@ -440,6 +452,8 @@ namespace HouseKeeperConnect_API.Controllers
                 d.Location = jobDetail.Location;
                 d.DetailLocation = jobDetail.DetailLocation;
                 d.Price = jobDetail.Price;
+                d.StartDate = jobDetail.StartDate;
+                d.EndDate = jobDetail.EndDate;
                 d.CreatedAt = j.CreatedDate;
                 d.Status = j.Status;
                 d.JobID = j.JobID;
