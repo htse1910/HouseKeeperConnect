@@ -41,6 +41,8 @@ namespace Services
 
         public async Task<Application> GetApplicationByIDAsync(int id) => await _repository.GetApplicationByIDAsync(id);
 
+        public async Task<List<Application>> GetApplicationsByJobIDAsync(int jobID) => await _repository.GetApplicationsByJobIDAsync(jobID);
+
         public async Task UpdateApplicationAsync(Application noti) => await _repository.UpdateApplicationAsync(noti);
     }
 }

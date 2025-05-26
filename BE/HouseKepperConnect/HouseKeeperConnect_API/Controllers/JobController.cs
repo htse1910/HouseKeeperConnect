@@ -1479,7 +1479,7 @@ namespace HouseKeeperConnect_API.Controllers
                 await _jobServiceService.DeleteJob_ServiceAsync(service.ServiceID);
             }
 
-            var applications = await _applicationService.GetAllApplicationsByJobIDAsync(job.JobID);
+            var applications = await _applicationService.GetApplicationsByJobIDAsync(job.JobID);
             if (applications.Count != 0)
             {
                 foreach (var app in applications)
