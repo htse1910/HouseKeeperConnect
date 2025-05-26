@@ -335,7 +335,7 @@ const HousekeeperBookingManagementPage = () => {
 
                             <div className="mb-1 text-muted small d-flex align-items-center">
                               <FaUser className="me-1" />
-                              <span className="me-1"><strong>Gia đình:</strong></span> {row.familyName}
+                              <span className="me-1"><strong>Gia đình:</strong></span> {row.familyname}
                             </div>
 
                             <div className="d-flex flex-wrap mb-1">

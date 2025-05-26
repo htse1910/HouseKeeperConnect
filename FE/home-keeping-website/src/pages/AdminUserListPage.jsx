@@ -20,6 +20,46 @@ const AdminUserListPage = () => {
   const [searchEmail, setSearchEmail] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [staffForm, setStaffForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    gender: 1,
+  });
+
+  const handleStaffFormChange = (e) => {
+    const { name, value } = e.target;
+    setStaffForm({ ...staffForm, [name]: value });
+  };
+
+  const handleCreateStaff = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const form = new FormData();
+      form.append("Name", staffForm.name);
+      form.append("Email", staffForm.email);
+      form.append("Password", staffForm.password);
+      form.append("Phone", staffForm.phone);
+      form.append("Gender", staffForm.gender);
+
+      await fetch(`${API_BASE_URL}/Account/CreateStaff`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
+
+      toast.success("✅ Tạo nhân viên thành công!");
+      setShowCreateModal(false);
+      setStaffForm({ name: "", email: "", password: "", phone: "", gender: 1 });
+      fetchUsers(currentPage);
+    } catch (err) {
+      toast.error("❌ Lỗi khi tạo nhân viên!");
+    }
+  };
 
   const openResetModal = (user) => {
     setTargetUser(user);
@@ -219,35 +259,37 @@ const AdminUserListPage = () => {
 
         <div className="col-md-10 py-5">
           <h2 className="fw-bold mb-4 text-primary text-center">Bảng Tài Khoản</h2>
-          <div className="d-flex align-items-center gap-2 mb-3">
-            <input
-              type="text"
-              placeholder="Tìm theo email..."
-              className="form-control"
-              value={searchEmail}
-              onChange={(e) => setSearchEmail(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearchByEmail()}
-              style={{ maxWidth: "300px" }}
-            />
-            <button className="btn btn-primary" onClick={handleSearchByEmail}>
-              {isSearching ? (
-                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              ) : (
-                "Tìm"
-              )}
-            </button>
-            {isSearchMode && (
-              <button
-                className="btn btn-outline-secondary"
-                onClick={() => {
-                  setSearchEmail("");
-                  setIsSearchMode(false);
-                  fetchUsers(currentPage);
-                }}
-              >
-                Xóa tìm kiếm
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <div className="d-flex align-items-center gap-2">
+              <input
+                type="text"
+                placeholder="Tìm theo email..."
+                className="form-control"
+                value={searchEmail}
+                onChange={(e) => setSearchEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearchByEmail()}
+                style={{ maxWidth: "300px" }}
+              />
+              <button className="btn btn-primary" onClick={handleSearchByEmail}>
+                {isSearching ? <span className="spinner-border spinner-border-sm" /> : "Tìm"}
               </button>
-            )}
+              {isSearchMode && (
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => {
+                    setSearchEmail("");
+                    setIsSearchMode(false);
+                    fetchUsers(currentPage);
+                  }}
+                >
+                  Xóa tìm kiếm
+                </button>
+              )}
+            </div>
+
+            <button className="btn btn-success" onClick={() => setShowCreateModal(true)}>
+              + Tạo Nhân Viên Mới
+            </button>
           </div>
 
           {loading ? (
@@ -310,6 +352,66 @@ const AdminUserListPage = () => {
                   <Modal.Footer>
                     <Button variant="secondary" onClick={closeResetModal}>Hủy</Button>
                     <Button variant="danger" onClick={handleConfirmReset}>Xác nhận</Button>
+                  </Modal.Footer>
+                </Modal>
+                <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} centered>
+                  <Modal.Header closeButton>
+                    <Modal.Title>Tạo Nhân Viên</Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>
+                    <Form>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Tên</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="name"
+                          value={staffForm.name}
+                          onChange={handleStaffFormChange}
+                        />
+                      </Form.Group>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control
+                          type="email"
+                          name="email"
+                          value={staffForm.email}
+                          onChange={handleStaffFormChange}
+                        />
+                      </Form.Group>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Mật khẩu</Form.Label>
+                        <Form.Control
+                          type="password"
+                          name="password"
+                          value={staffForm.password}
+                          onChange={handleStaffFormChange}
+                        />
+                      </Form.Group>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Số điện thoại</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="phone"
+                          value={staffForm.phone}
+                          onChange={handleStaffFormChange}
+                        />
+                      </Form.Group>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Giới tính</Form.Label>
+                        <Form.Select name="gender" value={staffForm.gender} onChange={handleStaffFormChange}>
+                          <option value={1}>Nam</option>
+                          <option value={2}>Nữ</option>
+                        </Form.Select>
+                      </Form.Group>
+                    </Form>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+                      Đóng
+                    </Button>
+                    <Button variant="primary" onClick={handleCreateStaff}>
+                      Tạo
+                    </Button>
                   </Modal.Footer>
                 </Modal>
 

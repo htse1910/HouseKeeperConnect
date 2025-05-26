@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaTable, FaChartBar, FaTools, FaUserShield } from "react-icons/fa";
+import { FaTable, FaChartBar, FaTools, FaUserShield, FaCalendarTimes } from "react-icons/fa"; // ⬅️ Add FaCalendarTimes
 
 const AdminSidebar = () => {
   const { pathname } = useLocation();
@@ -10,7 +10,7 @@ const AdminSidebar = () => {
     { path: "/admin/users", icon: <FaTable />, label: "Bảng Tài Khoản" },
     { path: "/admin/services", icon: <FaTools />, label: "Dịch vụ" },
     { path: "/admin/platform-fees", icon: <FaUserShield />, label: "Phí nền tảng" },
-    { path: "/admin/manage-staffs", icon: <FaUserShield />, label: "Quản lý nhân viên" },
+    { path: "/admin/manage-expired", icon: <FaCalendarTimes />, label: "Công việc hết hạn" }, // ✅ New item
   ];
 
   return (
@@ -23,9 +23,8 @@ const AdminSidebar = () => {
             <li key={idx} className="mb-2">
               <Link
                 to={item.path}
-                className={`d-flex align-items-center gap-2 px-3 py-2 rounded-pill fw-medium text-decoration-none ${
-                  isActive ? "bg-primary text-white shadow-sm" : "text-dark"
-                }`}
+                className={`d-flex align-items-center gap-2 px-3 py-2 rounded-pill fw-medium text-decoration-none ${isActive ? "bg-primary text-white shadow-sm" : "text-dark"
+                  }`}
                 style={{
                   transition: "background-color 0.2s ease",
                 }}
