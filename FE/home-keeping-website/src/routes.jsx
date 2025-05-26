@@ -65,6 +65,7 @@ import FamilyAbandonedJobsPage from './pages/FamilyAbandonedJobsPage.jsx';
 import CreateDirectJobOfferPage from './pages/CreateDirectJobOfferPage.jsx';
 import HousekeeperSchedulePage from './pages/HousekeeperSchedulePage.jsx';
 import AdminManageStaffPage from './pages/AdminManageStaffPage.jsx';
+import AdminManageExpiredPage from './pages/AdminManageExpiredPage';
 
 function AppRoutes() {
   return (
@@ -139,9 +140,11 @@ function AppRoutes() {
         {/* Admin Pages */}
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/users" element={<AdminUserListPage />} />
-        <Route path="/admin/services" element={<AdminServiceListPage />} />  
+        <Route path="/admin/services" element={<AdminServiceListPage />} />
         <Route path="/admin/platform-fees" element={<ManagePlatformFeesPage />} />
         <Route path="/admin/manage-staffs" element={<AdminManageStaffPage />} />
+        <Route path="/admin/manage-expired" element={<AdminManageExpiredPage />} />
+
       </Routes>
     </Layout>
   );
