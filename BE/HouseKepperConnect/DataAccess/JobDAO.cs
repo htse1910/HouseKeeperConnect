@@ -126,7 +126,7 @@ namespace DataAccess
                     return await context.Job
                         .AsNoTracking()
                         .Include(j => j.JobDetail)
-                        .CountAsync(j => j.JobDetail.EndDate < date)
+                        .CountAsync(j => j.JobDetail.EndDate < date && j.Status == (int)JobStatus.Verified || j.Status == (int)JobStatus.Pending)
                         .ConfigureAwait(false);
                 }
             }
