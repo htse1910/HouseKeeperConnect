@@ -84,7 +84,7 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.JobViewHolder> {
         // Set job type text based on jobType code
         String typeText = "";
         switch (job.getJobType()) {
-            case 1: typeText = "1 lần duy nhất"; break;
+            case 1: typeText = "Ngắn hạn"; break;
             case 2: typeText = "Định kỳ"; break;
         }
         holder.tvType.setText(typeText);

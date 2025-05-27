@@ -2,6 +2,7 @@ package com.example.housekeeperapplication.Adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.example.housekeeperapplication.API.APIClient;
 import com.example.housekeeperapplication.API.Interfaces.APIServices;
 import com.example.housekeeperapplication.Model.DTOs.ApplicationDisplayDTO;
 import com.example.housekeeperapplication.R;
+import com.example.housekeeperapplication.ReviewProflieHousekeeperActivity;
 
 import java.util.List;
 
@@ -103,6 +105,11 @@ public class ApplicantAdapter extends RecyclerView.Adapter<ApplicantAdapter.Appl
                     })
                     .setNegativeButton("Hủy", null)
                     .show();
+        });
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ReviewProflieHousekeeperActivity.class);
+            intent.putExtra("housekeeperAccountID", applicant.getAccountID()); // Truyền accountID của housekeeper
+            context.startActivity(intent);
         });
 
     }

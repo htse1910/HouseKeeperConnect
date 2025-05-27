@@ -2,6 +2,7 @@ package com.example.housekeeperapplication.Adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.housekeeperapplication.Model.DTOs.HousekeeperDisplayForFamilyDTO;
 import com.example.housekeeperapplication.R;
+import com.example.housekeeperapplication.ReviewProflieHousekeeperActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +76,13 @@ public class HousekeeperAdapter extends RecyclerView.Adapter<HousekeeperAdapter.
         } else {
             holder.imgProfile.setImageResource(R.drawable.ic_person); // fallback
         }
-
-        holder.btnViewDetails.setOnClickListener(v -> showDetailsDialog(hk));
+        holder.itemView.setOnClickListener(v -> {
+            // Chuyển sang ReviewProflieHousekeeperActivity
+            Intent intent = new Intent(context, ReviewProflieHousekeeperActivity.class);
+            intent.putExtra("housekeeperAccountID", hk.getAccountID());
+            context.startActivity(intent);
+        });
+        //holder.btnViewDetails.setOnClickListener(v -> showDetailsDialog(hk));
     }
 
     @Override

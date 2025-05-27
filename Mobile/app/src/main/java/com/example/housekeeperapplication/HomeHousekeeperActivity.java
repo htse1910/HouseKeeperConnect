@@ -173,6 +173,6 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         // Refresh data when returning to this activity
-        loadJobs(1, 10);
+        loadJobs(1, 100);
     }
 }
