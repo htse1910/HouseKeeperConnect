@@ -7,7 +7,8 @@ import {
   FaCalendarAlt,
   FaFileAlt,
   FaClock,
-  FaCheckCircle
+  FaCheckCircle,
+  FaInfoCircle
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import { Modal } from "react-bootstrap";
@@ -16,6 +17,7 @@ import "react-toastify/dist/ReactToastify.css";
 import useServiceMap from "../utils/useServiceMap";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
 import { AnimatePresence, motion } from "framer-motion";
+import { Tooltip } from "bootstrap";
 
 const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 const slotMap = {
@@ -56,6 +58,7 @@ const HousekeeperBookingManagementPage = () => {
   const serviceMap = useServiceMap();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [jobToCancel, setJobToCancel] = useState(null);
+  const [hoveredTooltipIndex, setHoveredTooltipIndex] = useState(null);
 
   const handleMarkComplete = async (jobID) => {
     if (!authToken || !accountID) {
@@ -227,6 +230,34 @@ const HousekeeperBookingManagementPage = () => {
     fetchBookingsByPage(currentPage);
   }, [currentPage]);
 
+  useEffect(() => {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach((el) => new Tooltip(el));
+
+    // Optional: style tooltip box globally
+    const tooltipStyle = document.createElement("style");
+    tooltipStyle.innerHTML = `
+    .tooltip.show {
+      background-color: #0dcaf0 !important;
+      color: #fff !important;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(13, 202, 240, 0.8);
+      font-size: 0.875rem;
+      padding: 6px 12px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .tooltip.show:hover {
+      box-shadow: 0 0 14px rgba(13, 202, 240, 1);
+    }
+
+    .tooltip .tooltip-inner {
+      background-color: transparent !important;
+    }
+  `;
+    document.head.appendChild(tooltipStyle);
+  }, []);
+
   // Inside the component, before return:
   const handleForceAbandon = async (jobID) => {
     if (!authToken || !accountID) {
@@ -382,7 +413,40 @@ const HousekeeperBookingManagementPage = () => {
                                 </ul>
                               </div>
                               <div className="col-12 col-md-4 small">
-                                <strong>📅 Thứ:</strong>
+                                <div style={{ display: "inline-block", position: "relative" }}>
+                                  <FaCalendarAlt className="me-1 text-primary" /> Thứ:
+                                  <FaInfoCircle
+                                    style={{
+                                      marginLeft: "8px",
+                                      cursor: "pointer",
+                                      color: "#0dcaf0",
+                                      transition: "transform 0.2s ease",
+                                    }}
+                                    onMouseEnter={() => setHoveredTooltipIndex(idx)}
+                                    onMouseLeave={() => setHoveredTooltipIndex(null)}
+                                  />
+
+                                  {hoveredTooltipIndex === idx && (
+                                    <div
+                                      style={{
+                                        position: "absolute",
+                                        top: "-45px",
+                                        left: "50%",
+                                        transform: "translateX(-50%)",
+                                        backgroundColor: "#0dcaf0",
+                                        color: "white",
+                                        padding: "8px 12px",
+                                        borderRadius: "8px",
+                                        boxShadow: "0 0 12px rgba(13, 202, 240, 0.9)",
+                                        whiteSpace: "nowrap",
+                                        fontSize: "0.85rem",
+                                        zIndex: 999,
+                                      }}
+                                    >
+                                      Check-In tại đây
+                                    </div>
+                                  )}
+                                </div>
                                 <ul className="ps-3 mb-0">
                                   {row.dayofWeek?.map((dayIndex, i) => (
                                     <li
