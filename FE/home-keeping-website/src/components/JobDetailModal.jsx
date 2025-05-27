@@ -30,7 +30,7 @@ const jobStatusMap = {
 };
 
 const jobTypeMap = {
-  1: "Một lần duy nhất",
+  1: "Ngắn hạn",
   2: "Định kỳ",
 };
 

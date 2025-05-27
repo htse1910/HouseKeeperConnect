@@ -249,7 +249,7 @@ const FamilyJobManagementPage = () => {
     console.log("🕓 daysAgo:", daysAgo);
 
 
-    const jobTypeMap = { 1: "Một lần duy nhất", 2: "Định kỳ" };
+    const jobTypeMap = { 1: "Ngắn hạn", 2: "Định kỳ" };
     const statusClassMap = {
       1: "bg-warning text-dark", 2: "bg-info text-dark", 3: "bg-primary",
       4: "bg-success", 5: "bg-secondary", 6: "bg-danger", 7: "bg-dark",

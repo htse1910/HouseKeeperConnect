@@ -160,7 +160,7 @@ const FamilyHousekeeperSearchPage = () => {
   const maxPage = Math.ceil(totalHousekeepers / cardsPerPage);
 
   const getWorkTypeLabel = (type) =>
-    type === 1 ? "Một lần duy nhất" : type === 2 ? "Định kỳ" : "Không rõ";
+    type === 1 ? "Ngắn hạn" : type === 2 ? "Định kỳ" : "Không rõ";
 
   const getWorkTypeClass = (type) =>
     type === 1 ? "bg-info text-white" : type === 2 ? "bg-success text-white" : "bg-secondary text-white";
@@ -217,6 +217,7 @@ const FamilyHousekeeperSearchPage = () => {
                           {h.name?.charAt(0).toUpperCase()}
                         </div>
                       )}
+                      <p className="text-muted small mb-1">Tiêu chí làm việc</p>
                       <span className={`badge ${getWorkTypeClass(h.workType)} mb-2`}>
                         {getWorkTypeLabel(h.workType)}
                       </span>

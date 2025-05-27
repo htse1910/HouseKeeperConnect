@@ -594,7 +594,7 @@ const CreateDirectJobOfferPage = () => {
                             required
                         >
                             <option value="">{t("job.jobPost.jobTypePlaceholder")}</option>
-                            <option value="1">{t("job.jobPost.once")}</option>
+                            <option value="1">{t("Ngắn hạn")}</option>
                             <option value="2">{t("job.jobPost.period")}</option>
                         </select>
                     </div>
