@@ -21,6 +21,6 @@
 
     <string-array name="job_type_array">
         <item>Định kỳ</item>
-        <item>1 lần</item>
+        <item>Ngắn hạn</item>
     </string-array>
 </resources>

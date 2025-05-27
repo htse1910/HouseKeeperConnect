@@ -21,6 +21,7 @@ import com.example.housekeeperapplication.Model.DTOs.JobDetailPageDTO;
 import com.example.housekeeperapplication.Model.DTOs.LoginInfo;
 import com.example.housekeeperapplication.Model.DTOs.PaymentLinkDTO;
 import com.example.housekeeperapplication.Model.DTOs.RatingCreateDTO;
+import com.example.housekeeperapplication.Model.DTOs.RatingDisplayDTO;
 import com.example.housekeeperapplication.Model.DTOs.SupportRequestCreateDTO;
 import com.example.housekeeperapplication.Model.Family;
 import com.example.housekeeperapplication.Model.Job;
@@ -343,5 +344,16 @@ public interface APIServices {
     Call<Void> forceAbandonJobAndReassign(
             @Query("jobId") int jobId,
             @Query("accountID") int accountID
+    );
+
+
+    @GET("api/HouseKeeperSkills/GetHousekeeperSkillById")
+    Call<HouseKeeperSkillDisplayDTO> getHousekeeperSkillById(@Query("id") int id);
+
+    @GET("api/Rating/GetRatingListByHK")
+    Call<List<RatingDisplayDTO>> getRatingsByHK(
+            @Query("id") int id,
+            @Query("pageNumber") int pageNumber,
+            @Query("pageSize") int pageSize
     );
 }
