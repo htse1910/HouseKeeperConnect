@@ -10,27 +10,77 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import API_BASE_URL from "../config/apiConfig";
+import { getSkillMap } from "../utils/skillUtils";
 
 const FamilyHousekeeperSearchPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [location, setLocation] = useState("");
-  const [selectedGender, setSelectedGender] = useState("");
-  const [selectedSalaryOrder, setSelectedSalaryOrder] = useState("");
-  const [selectedWorkType, setSelectedWorkType] = useState("");
   const [housekeepers, setHousekeepers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalHousekeepers, setTotalHousekeepers] = useState(0);
 
   const cardsPerPage = 6;
   const authToken = localStorage.getItem("authToken");
-  const accountID = localStorage.getItem("accountID");
 
   const headers = {
     Authorization: `Bearer ${authToken}`,
     "Content-Type": "application/json",
+  };
+
+  const handleFullSearch = async () => {
+    if (!searchTerm.trim()) return;
+
+    setLoading(true);
+    try {
+      const skillMap = await getSkillMap();
+      const res = await axios.get(`${API_BASE_URL}/Account/TotalAccount`, { headers });
+      const total = res.data.totalHousekeepers;
+      const totalPages = Math.ceil(total / cardsPerPage);
+
+      const allResults = [];
+
+      for (let page = 1; page <= totalPages; page++) {
+        const hkRes = await axios.get(`${API_BASE_URL}/HouseKeeper/HousekeeperDisplay`, {
+          headers,
+          params: { pageNumber: page, pageSize: cardsPerPage },
+        });
+
+        const enriched = await Promise.all(
+          hkRes.data.map(async (hk) => {
+            const rating = await getAverageRating(hk.housekeeperID);
+            const skills = (hk.skillIDs || []).map((id) => skillMap[id]).filter(Boolean);
+            return {
+              ...hk,
+              avatar:
+                hk.localProfilePicture?.trim() !== ""
+                  ? hk.localProfilePicture
+                  : hk.googleProfilePicture,
+              rating,
+              skills,
+            };
+          })
+        );
+
+        allResults.push(...enriched);
+      }
+
+      const normalize = (s) => (s ?? "").toLowerCase().trim();
+      const results = allResults.filter((h) =>
+        normalize(h.name).includes(normalize(searchTerm))
+      );
+
+      setHousekeepers(results);
+      setTotalHousekeepers(results.length);
+      setCurrentPage(1);
+    } catch (err) {
+      console.error("Search failed", err);
+      setHousekeepers([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getAverageRating = async (housekeeperID) => {
@@ -48,104 +98,66 @@ const FamilyHousekeeperSearchPage = () => {
     }
   };
 
-  const getSkillsByAccountID = async (accountID) => {
+  const fetchTotalHousekeepers = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/HousekeeperSkillMapping/GetSkillsByAccountID`, {
+      const res = await axios.get(`${API_BASE_URL}/Account/TotalAccount`, { headers });
+      setTotalHousekeepers(res.data.totalHousekeepers);
+    } catch {
+      setTotalHousekeepers(0);
+    }
+  };
+
+  const fetchPageData = async (page) => {
+    setLoading(true);
+    try {
+      const skillMap = await getSkillMap();
+      const hkRes = await axios.get(`${API_BASE_URL}/HouseKeeper/HousekeeperDisplay`, {
         headers,
-        params: { accountId: accountID },
+        params: { pageNumber: page, pageSize: cardsPerPage },
       });
 
-      const skills = await Promise.all(
-        res.data.map(async (mapping) => {
-          try {
-            const skillRes = await axios.get(`${API_BASE_URL}/HouseKeeperSkills/GetHousekeeperSkillById`, {
-              headers,
-              params: { id: mapping.houseKeeperSkillID },
-            });
-            return skillRes.data?.name;
-          } catch {
-            return null;
-          }
+      const enriched = await Promise.all(
+        hkRes.data.map(async (hk) => {
+          const rating = await getAverageRating(hk.housekeeperID);
+          const skills = (hk.skillIDs || []).map((id) => skillMap[id]).filter(Boolean);
+
+          return {
+            ...hk,
+            avatar:
+              hk.localProfilePicture?.trim() !== ""
+                ? hk.localProfilePicture
+                : hk.googleProfilePicture,
+            rating,
+            skills,
+          };
         })
       );
 
-      return skills.filter(Boolean);
+      setHousekeepers(enriched);
     } catch {
-      return [];
+      setHousekeepers([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!authToken || !accountID) return;
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const hkRes = await axios.get(`${API_BASE_URL}/HouseKeeper/HousekeeperDisplay`, {
-          headers,
-          params: { pageNumber: 1, pageSize: 100 },
-        });
-
-        const enriched = await Promise.all(
-          hkRes.data.map(async (hk) => {
-            try {
-              const acc = await axios.get(`${API_BASE_URL}/Account/GetAccount`, {
-                headers,
-                params: { id: hk.accountID },
-              });
-
-              if (acc.data?.roleID !== 1) return null;
-
-              const [rating, skills] = await Promise.all([
-                getAverageRating(hk.housekeeperID),
-                getSkillsByAccountID(hk.accountID),
-              ]);
-
-              return {
-                ...hk,
-                name: acc.data.name,
-                avatar:
-                  hk.localProfilePicture?.trim() !== ""
-                    ? hk.localProfilePicture
-                    : hk.googleProfilePicture,
-                rating,
-                skills,
-              };
-            } catch {
-              return null;
-            }
-          })
-        );
-
-        setHousekeepers(enriched.filter(Boolean));
-      } catch {
-        // silent fail
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    if (!authToken) return;
+    fetchTotalHousekeepers();
   }, []);
+
+  useEffect(() => {
+    if (!authToken) return;
+    fetchPageData(currentPage);
+  }, [currentPage]);
 
   const normalize = (s) => (s ?? "").toLowerCase().trim();
 
-  const filtered = housekeepers
-    .filter((h) => {
-      const matchesName = normalize(h.name).includes(normalize(searchTerm));
-      const matchesLocation = !location || normalize(h.address).includes(normalize(location));
-      const matchesGender = !selectedGender || String(h.gender) === selectedGender;
-      const matchesWorkType = !selectedWorkType || String(h.workType) === selectedWorkType;
-      return matchesName && matchesLocation && matchesGender && matchesWorkType;
-    })
-    .sort((a, b) => {
-      if (selectedSalaryOrder === "asc") return a.salary - b.salary;
-      if (selectedSalaryOrder === "desc") return b.salary - a.salary;
-      return 0;
-    });
+  const filtered = housekeepers.filter((h) =>
+    normalize(h.name).includes(normalize(searchTerm))
+  );
 
-  const maxPage = Math.ceil(filtered.length / cardsPerPage);
-  const paginated = filtered.slice((currentPage - 1) * cardsPerPage, currentPage * cardsPerPage);
+  const maxPage = Math.ceil(totalHousekeepers / cardsPerPage);
 
   const getWorkTypeLabel = (type) =>
     type === 1 ? "Một lần duy nhất" : type === 2 ? "Định kỳ" : "Không rõ";
@@ -155,6 +167,7 @@ const FamilyHousekeeperSearchPage = () => {
 
   return (
     <div className="container-fluid p-0">
+      {/* Search Input */}
       <div className="d-flex flex-column align-items-center justify-content-center bg-light py-5">
         <div className="position-relative w-75">
           <div className="input-group shadow-sm rounded mb-2">
@@ -163,60 +176,34 @@ const FamilyHousekeeperSearchPage = () => {
             </span>
             <input
               type="text"
-              className="form-control border-start-0 py-3"
+              className="form-control border-start-0 border-end-0 py-3"
               placeholder="Tìm kiếm người giúp việc..."
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div>
-        </div>
-
-        <div className="w-75 mt-3">
-          <div className="row g-2">
-            
-            <div className="col-md-3">
-              <select className="form-select" value={selectedGender} onChange={(e) => { setSelectedGender(e.target.value); setCurrentPage(1); }}>
-                <option value="">Tất cả giới tính</option>
-                <option value="1">Nam</option>
-                <option value="2">Nữ</option>
-              </select>
-            </div>
-            <div className="col-md-3">
-              <select className="form-select" value={selectedSalaryOrder} onChange={(e) => { setSelectedSalaryOrder(e.target.value); setCurrentPage(1); }}>
-                <option value="">Mức lương</option>
-                <option value="asc">Tăng dần</option>
-                <option value="desc">Giảm dần</option>
-              </select>
-            </div>
-            <div className="col-md-3">
-              <select className="form-select" value={selectedWorkType} onChange={(e) => { setSelectedWorkType(e.target.value); setCurrentPage(1); }}>
-                <option value="">Tất cả loại</option>
-                <option value="1">Một lần duy nhất</option>
-                <option value="2">Định kỳ</option>
-              </select>
-            </div>
+            <button className="btn btn-outline-primary px-4" onClick={handleFullSearch}>
+              Tìm kiếm
+            </button>
           </div>
         </div>
       </div>
 
+      {/* Results */}
       <div className="container py-4">
         {loading ? (
           <div className="text-center py-5">
             <div className="spinner-border text-warning" role="status" />
             <p className="mt-3">Đang tải người giúp việc...</p>
           </div>
-        ) : paginated.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <div className="text-center text-muted py-5">Không tìm thấy người giúp việc phù hợp.</div>
         ) : (
           <>
             <p className="text-muted text-center mb-4">
-              Tổng số người giúp việc hiện giờ: <strong>{filtered.length}</strong>
+              Tổng số người giúp việc hiện giờ: <strong>{totalHousekeepers}</strong>
             </p>
             <div className="row justify-content-center g-4">
-              {paginated.map((h) => (
+              {filtered.map((h) => (
                 <div key={h.accountID} className="col-md-6 col-lg-4 d-flex">
                   <div className="card shadow-sm p-3 border-0 flex-fill rounded-4 position-relative">
                     <span className="position-absolute top-0 end-0 bg-warning text-dark fw-bold px-3 py-1 rounded-bottom-start">
@@ -230,22 +217,17 @@ const FamilyHousekeeperSearchPage = () => {
                           {h.name?.charAt(0).toUpperCase()}
                         </div>
                       )}
-
                       <span className={`badge ${getWorkTypeClass(h.workType)} mb-2`}>
                         {getWorkTypeLabel(h.workType)}
                       </span>
-
                       <h5 className="fw-bold text-primary mb-2">{h.name}</h5>
-
                       <p className="mb-1"><FaMapMarkerAlt className="me-2 text-muted" /> {h.address ?? "Không rõ địa chỉ"}</p>
-
                       <div className="mb-2">
                         {Array.from({ length: 5 }, (_, i) => (
                           <FaStar key={i} className={i < Math.round(h.rating) ? "text-warning" : "text-muted"} />
                         ))}
                         <span className="ms-2 text-muted">{h.rating?.toFixed(1)}</span>
                       </div>
-
                       {Array.isArray(h.skills) && h.skills.length > 0 && (
                         <div className="mb-2">
                           {h.skills.map((skill, i) => (
@@ -253,7 +235,6 @@ const FamilyHousekeeperSearchPage = () => {
                           ))}
                         </div>
                       )}
-
                       <div className="d-flex gap-2 mt-3">
                         <button className="btn btn-outline-secondary" onClick={() => window.location.assign(`/messages?search=${h.name}`)}>
                           {t("misc.send_message")}
