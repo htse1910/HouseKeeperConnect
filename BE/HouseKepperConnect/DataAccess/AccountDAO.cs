@@ -500,7 +500,7 @@ namespace DataAccess
             }
         }
 
-        public async Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync()
+        public async Task<(int TotalHousekeepers, int TotalFamilies, int TotalStaff)> GetTotalAccountAsync()
         {
             try
             {
@@ -508,8 +508,9 @@ namespace DataAccess
                 {
                     int totalHousekeepers = await context.Account.CountAsync(a => a.RoleID == 1);
                     int totalFamilies = await context.Account.CountAsync(a => a.RoleID == 2);
+                    int totalStaffs = await context.Account.CountAsync(a => a.RoleID == 3);
 
-                    return (totalHousekeepers, totalFamilies);
+                    return (totalHousekeepers, totalFamilies, totalStaffs);
                 }
             }
             catch (Exception ex)

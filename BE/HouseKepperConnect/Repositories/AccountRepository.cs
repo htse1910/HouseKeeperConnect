@@ -34,7 +34,7 @@ namespace Repositories
 
         public async Task AdminUpdateAccountAsync(Account updatedAccount) => await AccountDAO.Instance.AdminUpdateAccountAsync(updatedAccount);
 
-        public async Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync() => await AccountDAO.Instance.GetTotalAccountAsync();
+        public async Task<(int TotalHousekeepers, int TotalFamilies, int TotalStaffs)> GetTotalAccountAsync() => await AccountDAO.Instance.GetTotalAccountAsync();
 
         public async Task<List<Account>> GetNewAccout() => await AccountDAO.Instance.GetNewAccout();
 

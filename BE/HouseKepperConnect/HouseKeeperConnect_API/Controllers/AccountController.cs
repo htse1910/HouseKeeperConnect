@@ -410,11 +410,12 @@ namespace HouseKeeperConnect_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetTotalAccount()
         {
-            var (totalHousekeepers, totalFamilies) = await _accountService.GetTotalAccountAsync();
+            var count = await _accountService.GetTotalAccountAsync();
             var result = new TotalAccountDTO
             {
-                TotalHousekeepers = totalHousekeepers,
-                TotalFamilies = totalFamilies
+                TotalHousekeepers = count.TotalHousekeepers,
+                TotalFamilies = count.TotalFamilies,
+                TotalStaffs = count.TotalStaffs
             };
             return Ok(result);
         }

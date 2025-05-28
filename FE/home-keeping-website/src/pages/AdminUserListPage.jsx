@@ -145,8 +145,10 @@ const AdminUserListPage = () => {
       const countData = await countRes.json();
 
       setAllUsers(listData);
-      setTotalUsers(countData.totalHousekeepers + countData.totalFamilies); // ✅
-      console.log("Total: ", totalUsers)
+      const total = countData.totalHousekeepers + countData.totalFamilies + countData.totalStaffs;
+      setTotalUsers(total);
+      console.log("Total: ", total); // ✅ logs correct total
+
     } catch (err) {
       console.error("Failed to fetch users", err);
     } finally {

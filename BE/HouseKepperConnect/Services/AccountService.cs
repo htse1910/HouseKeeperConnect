@@ -41,7 +41,7 @@ namespace Services
 
         public async Task AdminUpdateAccountAsync(Account updatedAccount) => await _accountRepository.AdminUpdateAccountAsync(updatedAccount);
 
-        public async Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync() => await _accountRepository.GetTotalAccountAsync();
+        public async Task<(int TotalHousekeepers, int TotalFamilies, int TotalStaffs)> GetTotalAccountAsync() => await _accountRepository.GetTotalAccountAsync();
 
         public async Task<List<Account>> GetNewAccout() => await _accountRepository.GetNewAccout();
 
