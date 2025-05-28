@@ -35,7 +35,7 @@ namespace Services.Interface
 
         Task AdminUpdateAccountAsync(Account updatedAccount);
 
-        Task<(int TotalHousekeepers, int TotalFamilies)> GetTotalAccountAsync();
+        Task<(int TotalHousekeepers, int TotalFamilies, int TotalStaffs)> GetTotalAccountAsync();
 
         Task<List<Account>> GetNewAccout();
 
