@@ -63,7 +63,7 @@ public class CombinedJobApplication {
     }
 
     public String getFamilyName() {
-        return jobDetail.familyName;
+        return application.getFamilyName();
     }
 
     public void setFamilyName(String familyName) {

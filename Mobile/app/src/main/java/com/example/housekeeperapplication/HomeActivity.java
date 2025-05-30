@@ -6,8 +6,11 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +29,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,11 +43,14 @@ public class HomeActivity extends AppCompatActivity {
     private APIServices apiService;
     private TextView greetingTextView;
     private EditText etSearch;
+    private ProgressBar progressBar;
+    private ScrollView scrollView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
+        progressBar = findViewById(R.id.progressBar);
+        scrollView = findViewById(R.id.scrollView);
 
         // 👋 Set greeting with actual name
         greetingTextView = findViewById(R.id.tvGreeting);
@@ -101,6 +108,15 @@ public class HomeActivity extends AppCompatActivity {
             return false;
         });
     }
+    private void showLoading() {
+        progressBar.setVisibility(View.VISIBLE);
+        scrollView.setVisibility(View.INVISIBLE);
+    }
+
+    private void hideLoading() {
+        progressBar.setVisibility(View.GONE);
+        scrollView.setVisibility(View.VISIBLE);
+    }
     private void setupSearch() {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -117,6 +133,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void loadHousekeepers() {
+        showLoading(); // Hiển thị ProgressBar khi bắt đầu tải
+
         apiService.getHousekeepersForFamily(1, 100).enqueue(new Callback<List<HousekeeperDisplayForFamilyDTO>>() {
             @Override
             public void onResponse(Call<List<HousekeeperDisplayForFamilyDTO>> call, Response<List<HousekeeperDisplayForFamilyDTO>> response) {
@@ -124,6 +142,11 @@ public class HomeActivity extends AppCompatActivity {
                     List<HousekeeperDisplayForFamilyDTO> displayList = response.body();
                     List<HousekeeperDisplayForFamilyDTO> validHousekeepers = new ArrayList<>();
 
+                    if (displayList.isEmpty()) {
+                        hideLoading();
+                        return;
+                    }
+                    AtomicInteger counter = new AtomicInteger(displayList.size());
                     for (HousekeeperDisplayForFamilyDTO hk : displayList) {
                         apiService.getAccountById(hk.getAccountID()).enqueue(new Callback<Account>() {
                             @Override
@@ -133,29 +156,36 @@ public class HomeActivity extends AppCompatActivity {
                                     if (acc.getRoleID() == 1) {
                                         hk.setName(acc.getName());
                                         validHousekeepers.add(hk);
-
-                                        // Cập nhật adapter khi có dữ liệu mới
-                                        if (adapter == null) {
-                                            adapter = new HousekeeperAdapter(HomeActivity.this, validHousekeepers);
-                                            recyclerJobs.setAdapter(adapter);
-                                        } else {
-                                            adapter.updateData(validHousekeepers);
-                                        }
                                     }
+                                }
+                                if (counter.decrementAndGet() == 0) {
+                                    runOnUiThread(() -> {
+                                        adapter.updateData(validHousekeepers);
+                                        hideLoading();
+                                    });
                                 }
                             }
 
                             @Override
                             public void onFailure(Call<Account> call, Throwable t) {
                                 Log.e("API", "Failed to fetch account: " + t.getMessage());
+                                if (counter.decrementAndGet() == 0) {
+                                    runOnUiThread(() -> {
+                                        adapter.updateData(validHousekeepers);
+                                        hideLoading();
+                                    });
+                                }
                             }
                         });
                     }
+                } else {
+                    hideLoading(); // Ẩn ProgressBar nếu response không thành công
                 }
             }
 
             @Override
             public void onFailure(Call<List<HousekeeperDisplayForFamilyDTO>> call, Throwable t) {
+                hideLoading();
                 Toast.makeText(HomeActivity.this, "Failed to load housekeepers", Toast.LENGTH_SHORT).show();
             }
         });

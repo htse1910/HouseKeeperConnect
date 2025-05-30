@@ -1,191 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white">
 
-    android:background="@android:color/white"
-    android:padding="16dp">
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- ProgressBar hiển thị khi đang tải -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:orientation="vertical">
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:indeterminateTint="@color/colorPrimary" />
 
-        <!-- Job Header -->
+    <!-- Nội dung chính -->
+    <ScrollView
+        android:id="@+id/mainContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:padding="16dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_job_header"
-            android:padding="16dp">
+            android:fitsSystemWindows="true"
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvJobName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Giúp việc gia đình 6/5"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white" />
-
-            <TextView
-                android:id="@+id/tvVerified"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="✔️ Đã xác minh"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="8dp" />
-
-            <TextView
-                android:id="@+id/tvPostedDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📅 Đăng vào: 6/5/2025"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="4dp" />
-
-            <TextView
-                android:id="@+id/tvLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📍 TP. Hồ Chí Minh"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="4dp" />
-
-            <TextView
-                android:id="@+id/tvSalary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mức lương: 1.050.000 VNĐ"
-                android:textSize="16sp"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="12dp" />
-            <TextView
-                android:id="@+id/tvBookingID"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mức lương: 1.050.000 VNĐ"
-                android:textSize="16sp"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="12dp"
-                android:visibility="gone"/>
-        </LinearLayout>
-
-        <!-- Work Days -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_section"
-            android:padding="16dp"
-            android:layout_marginTop="8dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="📅 Ngày làm việc:"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+            <!-- Job Header -->
             <LinearLayout
-                android:id="@+id/layoutDaysContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="8dp">
+                android:background="@drawable/bg_job_header"
+                android:padding="16dp">
+
                 <TextView
-                    android:id="@+id/tvDayOfWeek"
+                    android:id="@+id/tvJobName"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/tvVerified"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:id="@+id/tvPostedDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tvLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tvSalary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="12dp" />
+
+                <TextView
+                    android:id="@+id/tvBookingID"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mức lương: 1.050.000 VNĐ"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/white"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Work Days -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_section"
+                android:padding="16dp"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📅 Ngày làm việc:"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/layoutDaysContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:id="@+id/tvDayOfWeek"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Job Description -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_section"
+                android:padding="16dp"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📝 Thông tin công việc"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvService"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="italic" />
+
+                <TextView
+                    android:id="@+id/tvDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <!-- Applicants Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Danh sách người ứng tuyển"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvApplicants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp" />
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <Button
+                    android:id="@+id/btnConfirmSlotWorked"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Xác nhận Check-In"
+                    android:textAllCaps="false"
+                    android:backgroundTint="@color/teal_700"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btnConfirmJobCompletion"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Hoàn thành"
+                    android:textAllCaps="false"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="@color/successGreen"
+                    android:textColor="@android:color/white" />
             </LinearLayout>
         </LinearLayout>
-
-        <!-- Job Description -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_section"
-            android:padding="16dp"
-            android:layout_marginTop="8dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="📝 Thông tin công việc"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/tvService"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Nấu ăn"
-                android:textSize="14sp"
-                android:layout_marginTop="8dp"
-                android:textStyle="italic"/>
-            <TextView
-                android:id="@+id/tvDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Mô tả công việc"
-                android:textSize="14sp"
-                android:layout_marginTop="8dp" />
-
-
-        </LinearLayout>
-
-        <!-- Divider -->
-
-
-
-        <!-- Applicants Section -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Danh sách người ứng tuyển"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvApplicants"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:clipToPadding="false"
-            android:paddingBottom="16dp"/>
-
-        <!-- Action Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp">
-
-            <Button
-                android:id="@+id/btnConfirmSlotWorked"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Xác nhận Check-In"
-                android:textAllCaps="false"
-                android:backgroundTint="@color/teal_700"
-                android:textColor="@android:color/white" />
-
-            <Button
-                android:id="@+id/btnConfirmJobCompletion"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Hoàn thành"
-                android:textAllCaps="false"
-                android:layout_marginStart="8dp"
-                android:backgroundTint="@color/successGreen"
-                android:textColor="@android:color/white" />
-        </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</FrameLayout>

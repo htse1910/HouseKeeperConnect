@@ -12,7 +12,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,8 +57,8 @@ public class JobDetailActivity extends AppCompatActivity {
     private ApplicantAdapter applicantAdapter;
     private APIServices api;
     private int jobID;
-
-
+    private ProgressBar progressBar;
+    private ScrollView mainContent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +68,7 @@ public class JobDetailActivity extends AppCompatActivity {
         jobID = getIntent().getIntExtra("jobID", -1);
 
         initViews();
+        showLoading();
         setupApplicantsRecyclerView();
 
         if (jobID != -1) {
@@ -77,6 +80,32 @@ public class JobDetailActivity extends AppCompatActivity {
         }
         btnConfirmSlotWorked.setOnClickListener(v -> confirmSlotWorked());
         btnConfirmJobCompletion.setOnClickListener(v -> confirmJobCompletion());
+    }
+    private void initViews() {
+        tvJobName = findViewById(R.id.tvJobName);
+        tvVerified = findViewById(R.id.tvVerified);
+        tvPostedDate = findViewById(R.id.tvPostedDate);
+        tvLocation = findViewById(R.id.tvLocation);
+        tvSalary = findViewById(R.id.tvSalary);
+        tvDayOfWeek = findViewById(R.id.tvDayOfWeek);
+        tvService = findViewById(R.id.tvService);
+        tvDescription = findViewById(R.id.tvDescription);
+        btnConfirmSlotWorked = findViewById(R.id.btnConfirmSlotWorked);
+        btnConfirmJobCompletion = findViewById(R.id.btnConfirmJobCompletion);
+        rvApplicants = findViewById(R.id.rvApplicants);
+        layoutDaysContainer = findViewById(R.id.layoutDaysContainer);
+        progressBar = findViewById(R.id.progressBar);
+        mainContent = findViewById(R.id.mainContent);
+
+    }
+    private void showLoading() {
+        progressBar.setVisibility(View.VISIBLE);
+        mainContent.setVisibility(View.INVISIBLE);
+    }
+
+    private void hideLoading() {
+        progressBar.setVisibility(View.GONE);
+        mainContent.setVisibility(View.VISIBLE);
     }
     private int getCurrentAccountId() {
         return getSharedPreferences("user_prefs", MODE_PRIVATE).getInt("accountID", -1);
@@ -93,6 +122,7 @@ public class JobDetailActivity extends AppCompatActivity {
     }
 
     private void callConfirmSlotWorkedAPI() {
+        showLoading();
         if (jobDetail == null) {
             Toast.makeText(this, "Thông tin công việc chưa sẵn sàng", Toast.LENGTH_SHORT).show();
             return;
@@ -107,6 +137,7 @@ public class JobDetailActivity extends AppCompatActivity {
         api.ConfirmSlotWorked(bookingId).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
+                hideLoading();
                 if (response.isSuccessful()) {
                     Toast.makeText(JobDetailActivity.this, "Đã xác nhận check-in thành công", Toast.LENGTH_SHORT).show();
                 } else {
@@ -121,6 +152,7 @@ public class JobDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                hideLoading();
                 Toast.makeText(JobDetailActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -252,7 +284,7 @@ public class JobDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void handleRatingError(Response<String> response) {
+    /*private void handleRatingError(Response<String> response) {
         try {
             String error = response.errorBody().string();
             if (response.code() == 404) {
@@ -287,22 +319,9 @@ public class JobDetailActivity extends AppCompatActivity {
                 })
                 .setNeutralButton("Hủy", null)
                 .show();
-    }
+    }*/
 
-    private void initViews() {
-        tvJobName = findViewById(R.id.tvJobName);
-        tvVerified = findViewById(R.id.tvVerified);
-        tvPostedDate = findViewById(R.id.tvPostedDate);
-        tvLocation = findViewById(R.id.tvLocation);
-        tvSalary = findViewById(R.id.tvSalary);
-        tvDayOfWeek = findViewById(R.id.tvDayOfWeek);
-        tvService = findViewById(R.id.tvService);
-        tvDescription = findViewById(R.id.tvDescription);
-        btnConfirmSlotWorked = findViewById(R.id.btnConfirmSlotWorked);
-        btnConfirmJobCompletion = findViewById(R.id.btnConfirmJobCompletion);
-        rvApplicants = findViewById(R.id.rvApplicants);
-        layoutDaysContainer = findViewById(R.id.layoutDaysContainer);
-    }
+
 
     private void setupApplicantsRecyclerView() {
         applicantAdapter = new ApplicantAdapter(new ArrayList<>(), new ApplicantAdapter.ApplicantClickListener() {
@@ -329,9 +348,11 @@ public class JobDetailActivity extends AppCompatActivity {
     }
     private JobDetailPageDTO jobDetail;
     private void loadJobDetail(int jobID) {
+        showLoading();
         api.getFullJobDetailByID(jobID).enqueue(new Callback<JobDetailPageDTO>() {
             @Override
             public void onResponse(Call<JobDetailPageDTO> call, Response<JobDetailPageDTO> response) {
+                hideLoading();
                 if (response.isSuccessful() && response.body() != null) {
                     jobDetail = response.body(); // Lưu lại dữ liệu
                     updateJobDetailUI(response.body());
@@ -349,6 +370,7 @@ public class JobDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JobDetailPageDTO> call, Throwable t) {
+                hideLoading();
                 Toast.makeText(JobDetailActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e("JobDetail", t.getMessage());
             }
@@ -452,9 +474,11 @@ public class JobDetailActivity extends AppCompatActivity {
     }
 
     private void loadApplicants(int jobID, int pageNumber, int pageSize) {
+        showLoading();
         api.ApplicationListByJob(jobID, pageNumber, pageSize).enqueue(new Callback<List<ApplicationDisplayDTO>>() {
             @Override
             public void onResponse(Call<List<ApplicationDisplayDTO>> call, Response<List<ApplicationDisplayDTO>> response) {
+                hideLoading();
                 if (response.isSuccessful() && response.body() != null) {
                     applicantAdapter.updateData(response.body());
                 } else {
@@ -464,6 +488,7 @@ public class JobDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<ApplicationDisplayDTO>> call, Throwable t) {
+                hideLoading();
                 Toast.makeText(JobDetailActivity.this, "Lỗi tải danh sách ứng viên", Toast.LENGTH_SHORT).show();
                 Log.e("Applicants", t.getMessage());
             }

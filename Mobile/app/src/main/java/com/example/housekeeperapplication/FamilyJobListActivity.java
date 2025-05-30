@@ -5,10 +5,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +35,8 @@ public class FamilyJobListActivity extends AppCompatActivity {
     private RecyclerView recyclerJobs;
     private FamilyJobAdapter adapter;
     private TextView tvEmptyState;
+    private ProgressBar progressBar;
+    private ConstraintLayout mainContent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +45,9 @@ public class FamilyJobListActivity extends AppCompatActivity {
         recyclerJobs = findViewById(R.id.recyclerFamilyJobs);
         recyclerJobs.setLayoutManager(new LinearLayoutManager(this));
         tvEmptyState = findViewById(R.id.tvEmptyState);
+        progressBar = findViewById(R.id.progressBar);
+        mainContent = findViewById(R.id.mainContent);
+        showLoading();
         FloatingActionButton fabAddJob = findViewById(R.id.fabAddJob);
         fabAddJob.setOnClickListener(view -> {
             Intent intent = new Intent(FamilyJobListActivity.this, AddJobActivity.class);
@@ -60,6 +67,7 @@ public class FamilyJobListActivity extends AppCompatActivity {
         api.getJobsByAccountID(accountId, 1, 100).enqueue(new Callback<List<FamilyJobSummaryDTO>>() {
             @Override
             public void onResponse(Call<List<FamilyJobSummaryDTO>> call, Response<List<FamilyJobSummaryDTO>> response) {
+                hideLoading();
                 if (response.isSuccessful()) {
                     List<FamilyJobSummaryDTO> jobs = response.body();
                     if (jobs != null && !jobs.isEmpty()) {
@@ -112,6 +120,15 @@ public class FamilyJobListActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+    private void showLoading() {
+        progressBar.setVisibility(View.VISIBLE);
+        mainContent.setVisibility(View.INVISIBLE);
+    }
+
+    private void hideLoading() {
+        progressBar.setVisibility(View.GONE);
+        mainContent.setVisibility(View.VISIBLE);
     }
     private void showJobList(List<FamilyJobSummaryDTO> jobs) {
         recyclerJobs.setVisibility(View.VISIBLE);
