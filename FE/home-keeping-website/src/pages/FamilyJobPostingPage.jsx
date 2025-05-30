@@ -470,7 +470,7 @@ const FamilyJobPostingPage = () => {
     const [baseSalary, setBaseSalary] = useState(0);
     const [platformFee, setPlatformFee] = useState(0);
     const [calculatedPrice, setCalculatedPrice] = useState(0);
-    const [platformFeePercent, setPlatformFeePercent] = useState(0.1); // default 10%
+    const [platformFeePercent, setPlatformFeePercent] = useState(0); // default 10%
 
     const calculatePrice = () => {
         if (
