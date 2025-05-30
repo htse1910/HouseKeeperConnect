@@ -118,6 +118,7 @@ const ManagePlatformFeesPage = () => {
                   <thead className="text-center">
                     <tr>
                       <th>ID</th>
+                      <th>Loại công việc</th> {/* New Column */}
                       <th>Tỷ lệ phần trăm</th>
                       <th>Ngày tạo</th>
                       <th>Ngày cập nhật</th>
@@ -128,6 +129,9 @@ const ManagePlatformFeesPage = () => {
                     {fees.map((fee) => (
                       <tr key={fee.feeID} className="text-center">
                         <td>{fee.feeID}</td>
+                        <td>
+                          {fee.feeID === 1 ? "Ngắn hạn" : fee.feeID === 2 ? "Định kỳ" : "Không rõ"}
+                        </td>
                         <td>{(fee.percent * 100).toFixed(1)}%</td>
                         <td>{formatVietnamTime(fee.createdDate)}</td>
                         <td>{formatVietnamTime(fee.updatedDate)}</td>
