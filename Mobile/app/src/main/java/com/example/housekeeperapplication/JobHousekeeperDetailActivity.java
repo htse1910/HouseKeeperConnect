@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +45,8 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
     private int familyID;
     private Button btnApply;
     private Button btnMessage;
+    private ProgressBar progressBar;
+    private ScrollView mainContent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +72,18 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
             startActivity(intent);
         });
         btnApply.setOnClickListener(v -> applyForJob());
+    }
+    private void showLoading() {
+        runOnUiThread(() -> {
+            progressBar.setVisibility(View.VISIBLE);
+            mainContent.setVisibility(View.INVISIBLE); // Tạm ẩn nội dung
+        });
+    }
+    private void hideLoading() {
+        runOnUiThread(() -> {
+            progressBar.setVisibility(View.GONE);
+            mainContent.setVisibility(View.VISIBLE); // Hiển thị nội dung
+        });
     }
     private void applyForJob() {
         // Lấy accountID từ SharedPreferences hoặc nơi bạn lưu thông tin người dùng
@@ -133,9 +150,13 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
         tvSlots = findViewById(R.id.tvSlots);
         tvWorkType = findViewById(R.id.tvWorkType);
         tvDescription = findViewById(R.id.tvDescription);
+        progressBar = findViewById(R.id.progressBar);
+        mainContent = findViewById(R.id.main);
     }
 
     private void loadJobDetail(int jobID) {
+        showLoading();
+
         Call<JobDetailForBookingDTO> call = apiService.getJobDetailByID(jobID);
         call.enqueue(new Callback<JobDetailForBookingDTO>() {
             @Override
@@ -146,21 +167,21 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
                     bindJobDetail(jobDetail);
                     fetchFamilyName(familyID);
                 } else {
-                    Toast.makeText(JobHousekeeperDetailActivity.this, "Không thể tải chi tiết công việc", Toast.LENGTH_SHORT).show();
-                    Log.e("API_ERROR", "Response: " + response.message());
+                    hideLoading();
+                    Toast.makeText(JobHousekeeperDetailActivity.this,
+                            "Không thể tải chi tiết công việc", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<JobDetailForBookingDTO> call, Throwable t) {
-                Toast.makeText(JobHousekeeperDetailActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("NETWORK_ERROR", t.getMessage(), t);
+                hideLoading();
+                Toast.makeText(JobHousekeeperDetailActivity.this,
+                        "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
     private void fetchFamilyName(int familyID) {
-        // First set loading text
-        tvFamily.setText("Đang tải thông tin gia đình...");
 
         // First get the family to get accountID
         apiService.getFamilyByID(familyID).enqueue(new Callback<FamilyAccountMappingDTO>() {
@@ -178,16 +199,11 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
                             if (response.isSuccessful() && response.body() != null) {
                                 String name = response.body().getName();
                                 tvFamily.setText("Gia đình: " + name);
-                            } else {
-                                tvFamily.setText("Gia đình: Không xác định");
-                                Log.e("API_ERROR", "Error getting family details: " + response.message());
                             }
                         }
 
                         @Override
                         public void onFailure(Call<FamilyAccountDetailDTO> call, Throwable t) {
-                            tvFamily.setText("Gia đình: Không xác định");
-                            Log.e("NETWORK_ERROR", "Failed to get family details", t);
                         }
                     });
                 } else {
@@ -206,7 +222,6 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
 
     private void bindJobDetail(JobDetailForBookingDTO jobDetail) {
         tvJobTitle.setText(jobDetail.getJobName());
-
         tvLocation.setText(jobDetail.getLocation());
         tvSalary.setText(String.format("%,.0f VND", jobDetail.getPrice()));
         tvDescription.setText(jobDetail.getDescription());
@@ -222,8 +237,8 @@ public class JobHousekeeperDetailActivity extends AppCompatActivity {
 
         // Hiển thị loại hình làm việc (jobType)
         tvWorkType.setText(jobDetail.getJobType() == 1 ? "Ngắn hạn" : "Định kỳ");
-
-        // Load dịch vụ
+        hideLoading();
+        fetchFamilyName(familyID);
         loadServices(jobDetail.getServiceIDs());
     }
     private String formatDate(String dateString) {

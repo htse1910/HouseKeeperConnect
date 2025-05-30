@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,9 +39,9 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
     private List<Job> jobList = new ArrayList<>();
     private APIServices apiService;
     private SharedPreferences sharedPreferences;
-    private TextView tvGreeting;
+    private TextView tvGreeting, tvEmptyList;
     private EditText etSearch;
-
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,13 +49,14 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home_housekeeper);
 
-        // Initialize views
+
         recyclerJobs = findViewById(R.id.recyclerJobs);
         tvGreeting = findViewById(R.id.tvGreeting);
-        //search job
+        tvEmptyList = findViewById(R.id.tvEmptyList);
+        progressBar = findViewById(R.id.progressBar);
         etSearch = findViewById(R.id.etSearch);
         setupSearch();
-        // Get user info from SharedPreference
+
         sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
         String name = sharedPreferences.getString("name", "");
         int roleID = sharedPreferences.getInt("roleID", 0);
@@ -109,6 +112,45 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
             return false;
         });
     }
+    private void showLoading() {
+        runOnUiThread(() -> {
+            progressBar.setVisibility(View.VISIBLE);
+            recyclerJobs.setVisibility(View.GONE);
+            tvEmptyList.setVisibility(View.GONE);
+        });
+    }
+    private void hideLoading() {
+        runOnUiThread(() -> {
+            progressBar.setVisibility(View.GONE);
+        });
+    }
+    private void showContent() {
+        runOnUiThread(() -> {
+            progressBar.setVisibility(View.GONE);
+            recyclerJobs.setVisibility(View.VISIBLE);
+            tvEmptyList.setVisibility(View.GONE);
+        });
+    }
+
+    private void showEmpty() {
+        runOnUiThread(() -> {
+            progressBar.setVisibility(View.GONE);
+            recyclerJobs.setVisibility(View.GONE);
+            tvEmptyList.setVisibility(View.VISIBLE);
+            tvEmptyList.setText("Không có công việc nào");
+        });
+    }
+
+    private void showError(String message) {
+        runOnUiThread(() -> {
+            progressBar.setVisibility(View.GONE);
+            recyclerJobs.setVisibility(View.GONE);
+            tvEmptyList.setVisibility(View.VISIBLE);
+            tvEmptyList.setText(message);
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        });
+    }
+
     private void setupSearch() {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -125,6 +167,8 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
     }
 
     private void loadJobs(int pageNumber, int pageSize) {
+        showLoading();
+
         Call<List<Job>> call = apiService.getVerifyJob(pageNumber, 50);
 
         call.enqueue(new Callback<List<Job>>() {
@@ -138,6 +182,7 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
                             jobList.add(job);
                         }
                     }
+
                     jobAdapter = new JobAdapter(jobList, job -> {
                         Intent intent = new Intent(HomeHousekeeperActivity.this, JobHousekeeperDetailActivity.class);
                         intent.putExtra("jobID", job.getJobID());
@@ -147,23 +192,21 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
                     recyclerJobs.setAdapter(jobAdapter);
 
                     if (jobList.isEmpty()) {
-                        Toast.makeText(HomeHousekeeperActivity.this,
-                                "Không có công việc hoàn thành nào",
-                                Toast.LENGTH_SHORT).show();
+                        showEmpty();
+                    } else {
+                        showContent();
                     }
                 } else {
-                    Toast.makeText(HomeHousekeeperActivity.this,
-                            "Lỗi khi tải công việc: " + response.message(),
-                            Toast.LENGTH_SHORT).show();
+                    hideLoading();
+                    showError("Lỗi khi tải công việc: " + response.message());
                     Log.e("API_ERROR", "Error code: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<List<Job>> call, Throwable t) {
-                Toast.makeText(HomeHousekeeperActivity.this,
-                        "Lỗi mạng: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                hideLoading();
+                showError("Lỗi mạng: " + t.getMessage());
                 Log.e("NETWORK_ERROR", t.getMessage(), t);
             }
         });
@@ -172,7 +215,6 @@ public class HomeHousekeeperActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh data when returning to this activity
         loadJobs(1, 100);
     }
 }
