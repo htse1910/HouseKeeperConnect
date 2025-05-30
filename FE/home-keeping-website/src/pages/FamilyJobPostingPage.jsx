@@ -247,6 +247,27 @@ const FamilyJobPostingPage = () => {
         }
     };
 
+    useEffect(() => {
+        const fetchFee = async () => {
+            const jobType = parseInt(formData.JobType);
+            if (!jobType) return;
+
+            try {
+                const res = await axios.get(`${API_BASE_URL}/PlatformFee/GetPlatformFeeByID?fID=${jobType}`, {
+                    headers
+                });
+                if (res?.data?.percent !== undefined) {
+                    setPlatformFeePercent(res.data.percent); // 0.1 = 10%
+                }
+            } catch (err) {
+                console.error("❌ Failed to fetch platform fee:", err);
+                setPlatformFeePercent(0.1); // fallback to 10%
+            }
+        };
+
+        fetchFee();
+    }, [formData.JobType]);
+
     const validSlotList = useValidSlotList(formData, setFormData, setFieldErrors, slotList);
 
     function useValidSlotList(formData, setFormData, setFieldErrors, slotList) {
@@ -449,6 +470,7 @@ const FamilyJobPostingPage = () => {
     const [baseSalary, setBaseSalary] = useState(0);
     const [platformFee, setPlatformFee] = useState(0);
     const [calculatedPrice, setCalculatedPrice] = useState(0);
+    const [platformFeePercent, setPlatformFeePercent] = useState(0.1); // default 10%
 
     const calculatePrice = () => {
         if (
@@ -487,23 +509,19 @@ const FamilyJobPostingPage = () => {
             }
         }
 
-        // Tổng lương
-        const baseSalary = averagePricePerHour * totalSlots;
-        setBaseSalary(baseSalary);
+        const calculatedBaseSalary = averagePricePerHour * totalSlots;
+        const calculatedPlatformFee = calculatedBaseSalary * platformFeePercent;
+        const calculatedTotal = calculatedBaseSalary + calculatedPlatformFee;
 
-        // Phí nền tảng
-        const feePercent = parseInt(formData.JobType) === 1 ? 0.10 : 0.10;
-        const platformFee = baseSalary * feePercent;
-        setPlatformFee(platformFee);
+        setBaseSalary(calculatedBaseSalary);
+        setPlatformFee(calculatedPlatformFee);
+        setCalculatedPrice(calculatedTotal);
 
-        // Tổng tiền phải trả
-        const totalCharge = baseSalary + platformFee;
-        setCalculatedPrice(totalCharge);
     };
 
     useEffect(() => {
         calculatePrice();
-    }, [formData, services]);
+    }, [formData, services, platformFeePercent]); // ← added dependency
 
     function getMinEndDate(startDate) {
         const start = new Date(startDate);
@@ -786,7 +804,7 @@ const FamilyJobPostingPage = () => {
                                 <li className="job-posting-service-detail-item">
                                     <span>
                                         {t("job.jobPost.platformFee", {
-                                            percent: parseInt(formData.JobType) === 2 ? "10%" : "10%"
+                                            percent: `${(platformFeePercent * 100).toFixed(0)}%`
                                         })}
                                     </span>
                                     <span style={{ float: "right" }}>
