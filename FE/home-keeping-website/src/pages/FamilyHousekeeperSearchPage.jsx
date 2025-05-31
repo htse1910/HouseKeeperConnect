@@ -10,7 +10,6 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import API_BASE_URL from "../config/apiConfig";
-import { getSkillMap } from "../utils/skillUtils";
 
 const FamilyHousekeeperSearchPage = () => {
   const { t } = useTranslation();
@@ -35,7 +34,6 @@ const FamilyHousekeeperSearchPage = () => {
 
     setLoading(true);
     try {
-      const skillMap = await getSkillMap();
       const res = await axios.get(`${API_BASE_URL}/Account/TotalAccount`, { headers });
       const total = res.data.totalHousekeepers;
       const totalPages = Math.ceil(total / cardsPerPage);
@@ -48,21 +46,14 @@ const FamilyHousekeeperSearchPage = () => {
           params: { pageNumber: page, pageSize: cardsPerPage },
         });
 
-        const enriched = await Promise.all(
-          hkRes.data.map(async (hk) => {
-            const rating = await getAverageRating(hk.housekeeperID);
-            const skills = (hk.skillIDs || []).map((id) => skillMap[id]).filter(Boolean);
-            return {
-              ...hk,
-              avatar:
-                hk.localProfilePicture?.trim() !== ""
-                  ? hk.localProfilePicture
-                  : hk.googleProfilePicture,
-              rating,
-              skills,
-            };
-          })
-        );
+        const enriched = hkRes.data.map((hk) => ({
+          ...hk,
+          avatar:
+            hk.localProfilePicture?.trim() !== ""
+              ? hk.localProfilePicture
+              : hk.googleProfilePicture,
+          skills: (hk.skills || []).map((s) => s.name),
+        }));
 
         allResults.push(...enriched);
       }
@@ -83,21 +74,6 @@ const FamilyHousekeeperSearchPage = () => {
     }
   };
 
-  const getAverageRating = async (housekeeperID) => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/Rating/GetRatingListByHK`, {
-        headers,
-        params: { id: housekeeperID, pageNumber: 1, pageSize: 1000 },
-      });
-      const ratings = res.data || [];
-      if (ratings.length === 0) return 0;
-      const total = ratings.reduce((sum, r) => sum + (r.score || 0), 0);
-      return total / ratings.length;
-    } catch {
-      return 0;
-    }
-  };
-
   const fetchTotalHousekeepers = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/Account/TotalAccount`, { headers });
@@ -110,28 +86,19 @@ const FamilyHousekeeperSearchPage = () => {
   const fetchPageData = async (page) => {
     setLoading(true);
     try {
-      const skillMap = await getSkillMap();
       const hkRes = await axios.get(`${API_BASE_URL}/HouseKeeper/HousekeeperDisplay`, {
         headers,
         params: { pageNumber: page, pageSize: cardsPerPage },
       });
 
-      const enriched = await Promise.all(
-        hkRes.data.map(async (hk) => {
-          const rating = await getAverageRating(hk.housekeeperID);
-          const skills = (hk.skillIDs || []).map((id) => skillMap[id]).filter(Boolean);
-
-          return {
-            ...hk,
-            avatar:
-              hk.localProfilePicture?.trim() !== ""
-                ? hk.localProfilePicture
-                : hk.googleProfilePicture,
-            rating,
-            skills,
-          };
-        })
-      );
+      const enriched = hkRes.data.map((hk) => ({
+        ...hk,
+        avatar:
+          hk.localProfilePicture?.trim() !== ""
+            ? hk.localProfilePicture
+            : hk.googleProfilePicture,
+        skills: (hk.skills || []).map((s) => s.name),
+      }));
 
       setHousekeepers(enriched);
     } catch {
@@ -152,7 +119,6 @@ const FamilyHousekeeperSearchPage = () => {
   }, [currentPage]);
 
   const normalize = (s) => (s ?? "").toLowerCase().trim();
-
   const filtered = housekeepers.filter((h) =>
     normalize(h.name).includes(normalize(searchTerm))
   );
@@ -167,7 +133,6 @@ const FamilyHousekeeperSearchPage = () => {
 
   return (
     <div className="container-fluid p-0">
-      {/* Search Input */}
       <div className="d-flex flex-column align-items-center justify-content-center bg-light py-5">
         <div className="position-relative w-75">
           <div className="input-group shadow-sm rounded mb-2">
@@ -188,7 +153,6 @@ const FamilyHousekeeperSearchPage = () => {
         </div>
       </div>
 
-      {/* Results */}
       <div className="container py-4">
         {loading ? (
           <div className="text-center py-5">
@@ -225,12 +189,13 @@ const FamilyHousekeeperSearchPage = () => {
                       <p className="mb-1"><FaMapMarkerAlt className="me-2 text-muted" /> {h.address ?? "Không rõ địa chỉ"}</p>
                       <div className="mb-2">
                         {Array.from({ length: 5 }, (_, i) => (
-                          <FaStar key={i} className={i < Math.round(h.rating) ? "text-warning" : "text-muted"} />
+                          <FaStar key={i} className={i < Math.round(h.rating ?? 0) ? "text-warning" : "text-muted"} />
                         ))}
-                        <span className="ms-2 text-muted">{h.rating?.toFixed(1)}</span>
+                        <span className="ms-2 text-muted">{(h.rating ?? 0).toFixed(1)}</span>
                       </div>
                       {Array.isArray(h.skills) && h.skills.length > 0 && (
                         <div className="mb-2">
+                          <div className="text-muted small fw-semibold mb-1">Kỹ năng</div>
                           {h.skills.map((skill, i) => (
                             <span key={i} className="badge bg-light text-dark me-1">{skill}</span>
                           ))}
@@ -250,7 +215,6 @@ const FamilyHousekeeperSearchPage = () => {
               ))}
             </div>
 
-            {/* Pagination */}
             <div className="d-flex justify-content-between align-items-center mt-4">
               <button className="btn btn-outline-secondary rounded-pill px-4" disabled={currentPage <= 1} onClick={() => setCurrentPage((prev) => prev - 1)}>
                 <FaChevronLeft className="me-2" /> Trang trước
