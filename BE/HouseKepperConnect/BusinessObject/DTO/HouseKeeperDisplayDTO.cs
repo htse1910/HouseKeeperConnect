@@ -15,6 +15,8 @@ namespace BusinessObject.DTO
         [Phone]
         public string? Phone { get; set; }
 
+        public decimal? Rating { get; set; }
+
         public int? WorkType { get; set; }
 
         public string LocalProfilePicture { get; set; }

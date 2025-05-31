@@ -65,6 +65,7 @@ namespace HouseKeeperConnect_API.Controllers
                     {
                         HousekeeperID = item.HousekeeperID,
                         AccountID = item.AccountID,
+                        Rating = item.Rating,
                         Address = item.Account.Address,
                         BackPhoto = item.IDVerification.BackPhoto,
                         BankAccountNumber = item.Account.BankAccountNumber,

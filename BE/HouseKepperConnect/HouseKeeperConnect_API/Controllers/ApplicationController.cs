@@ -323,7 +323,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
-            if(jobDetail.EndDate < vietnamTime)
+            if(jobDetail.EndDate < vietnamTime.Date)
             {
                 Message = "Cộng việc đã quá hạn, không thể ứng tuyển!";
                 return Conflict(Message);
