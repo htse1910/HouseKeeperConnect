@@ -141,7 +141,7 @@ const FamilyJobManagementPage = () => {
   const confirmDelete = async () => {
     if (!jobToDelete) return;
 
-    const content = `Please delete the job ${jobToDelete.jobName}, ID: ${jobToDelete.jobID}`;
+    const content = `Hãy xóa công việc ${jobToDelete.jobName}, Mã công việc: ${jobToDelete.jobID}, Trạng thái: ${jobStatusMap[jobToDelete.status]}.`;
     const formData = new FormData();
     formData.append("Picture", "");
 
