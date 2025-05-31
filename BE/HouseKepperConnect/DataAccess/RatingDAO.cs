@@ -68,7 +68,7 @@ namespace DataAccess
             {
                 using (var context = new PCHWFDBContext())
                 {
-                    trans = await context.Rating.Include(t => t.Housekeeper).Where(t => t.HouseKeeperID == uId).OrderBy(n => n.CreateAt)
+                    trans = await context.Rating.Include(t => t.Housekeeper).Include(t => t.Family.Account).Where(t => t.HouseKeeperID == uId).OrderBy(n => n.CreateAt)
                         .Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
                 }
             }

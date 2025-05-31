@@ -64,20 +64,34 @@ namespace HouseKeeperConnect_API.Controllers
             var hk = await _houseKeeperService.GetHousekeeperByUserAsync(id);
             if (hk == null)
             {
-                Message = "No Housekeeper found!";
+                Message = "Không tìm thấy người giúp việc!";
                 return NotFound(Message);
             }
 
             var ri = await _ratingService.GetRatingsByHKAsync(hk.HousekeeperID, pageNumber, pageSize);
             if (ri == null)
             {
-                Message = "No records!";
+                Message = "Danh sách đánh giá trống!";
                 return NotFound(Message);
             }
 
-            var nRi = _mapper.Map<List<RatingDisplayDTO>>(ri);
+            var display = new List<RatingDisplayDTO>();
 
-            return Ok(nRi);
+            foreach (var r in ri)
+            {
+                var dis = new RatingDisplayDTO();
+                dis.FamilyID = r.FamilyID;
+                dis.FamilyName = r.Family.Account.Name;
+                dis.RatingID = r.RatingID;
+                dis.Content = r.Content;
+                dis.CreateAt = r.CreateAt;
+                dis.HouseKeeperID = r.HouseKeeperID;
+                dis.Score = r.Score;
+
+                display.Add(dis);
+            }
+
+            return Ok(display);
         }
 
         [HttpGet("GetRatingListByFA")]
