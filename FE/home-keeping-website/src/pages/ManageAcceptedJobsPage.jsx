@@ -87,13 +87,15 @@ const ManageAcceptedJobsPage = () => {
         }
       );
 
-      const message = await response.text();
+      const result = await response.json(); // ✅ only this
 
       if (response.ok) {
-        toast.success(message || "✔️ Công việc đã hủy và hoàn tiền!");
+        toast.success(
+          `✔️ ${result.message} (Công việc mới: #${result.newJobId}, Giá: ${result.newPrice?.toLocaleString()} VND)`
+        );
         setJobs((prev) => prev.filter((job) => job.jobID !== jobID));
       } else {
-        toast.error(message || "❌ Không thể từ chối công việc.");
+        toast.error(result.message || "❌ Không thể từ chối công việc.");
       }
     } catch (error) {
       toast.error("❌ Lỗi khi từ chối công việc.");
@@ -222,7 +224,7 @@ const ManageAcceptedJobsPage = () => {
                         className="btn btn-sm btn-danger"
                         onClick={() => handleAbandonJob(job.jobID)}
                       >
-                        ❌ Từ chối & Hoàn tiền
+                        ❌ Hủy
                       </button>
                     )}
 
