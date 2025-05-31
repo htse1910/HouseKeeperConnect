@@ -179,10 +179,10 @@ const FamilyInvitationPage = () => {
                 </div>
                 {housekeeper.skills?.length > 0 && (
                   <div className="col-12">
-                    <div className="text-muted small">{t("user.skills")}</div>
+                    <div className="text-muted small">{t("Kỹ năng chuyên môn")}</div>
                     <div className="d-flex flex-wrap gap-2">
                       {housekeeper.skills.map((skill, i) => (
-                        <span key={i} className="badge bg-secondary">{skill}</span>
+                        <span key={i} className="badge bg-secondary">{skill.name}</span>
                       ))}
                     </div>
                   </div>
