@@ -186,6 +186,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<HousekeeperDisplayForFamilyDTO>> call, Throwable t) {
                 hideLoading();
+                Log.d("API", "Failed to load housekeepers: " + t.getMessage());
                 Toast.makeText(HomeActivity.this, "Failed to load housekeepers", Toast.LENGTH_SHORT).show();
             }
         });

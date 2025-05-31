@@ -1,5 +1,7 @@
 package com.example.housekeeperapplication.Model.DTOs;
 
+import androidx.annotation.Nullable;
+
 import java.util.List;
 
 public class HousekeeperDisplayForFamilyDTO {
@@ -8,44 +10,102 @@ public class HousekeeperDisplayForFamilyDTO {
     private String address;
     private String localProfilePicture;
     private String googleProfilePicture;
-    private List<String> skills;
     private int gender;
     private String workType;
     private double salary;
     private double rating;
     private String introduction;
+    @Nullable
+    private List<SkillDTO> skills ;
 
     // Getters & Setters
-    public int getAccountID() { return accountID; }
-    public void setAccountID(int accountID) { this.accountID = accountID; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public int getAccountID() {
+        return accountID;
+    }
 
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
+    public void setAccountID(int accountID) {
+        this.accountID = accountID;
+    }
 
-    public String getLocalProfilePicture() { return localProfilePicture; }
-    public void setLocalProfilePicture(String localProfilePicture) { this.localProfilePicture = localProfilePicture; }
+    public String getName() {
+        return name;
+    }
 
-    public String getGoogleProfilePicture() { return googleProfilePicture; }
-    public void setGoogleProfilePicture(String googleProfilePicture) { this.googleProfilePicture = googleProfilePicture; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public List<String> getSkills() { return skills; }
-    public void setSkills(List<String> skills) { this.skills = skills; }
+    public String getAddress() {
+        return address;
+    }
 
-    public int getGender() { return gender; }
-    public void setGender(int gender) { this.gender = gender; }
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
-    public String getWorkType() { return workType; }
-    public void setWorkType(String workType) { this.workType = workType; }
+    public String getLocalProfilePicture() {
+        return localProfilePicture;
+    }
 
-    public double getSalary() { return salary; }
-    public void setSalary(double salary) { this.salary = salary; }
+    public void setLocalProfilePicture(String localProfilePicture) {
+        this.localProfilePicture = localProfilePicture;
+    }
 
-    public double getRating() { return rating; }
-    public void setRating(double rating) { this.rating = rating; }
+    public String getGoogleProfilePicture() {
+        return googleProfilePicture;
+    }
 
-    public String getIntroduction() { return introduction; }
-    public void setIntroduction(String introduction) { this.introduction = introduction; }
+    public void setGoogleProfilePicture(String googleProfilePicture) {
+        this.googleProfilePicture = googleProfilePicture;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
+    public String getWorkType() {
+        return workType;
+    }
+
+    public void setWorkType(String workType) {
+        this.workType = workType;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(double salary) {
+        this.salary = salary;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public String getIntroduction() {
+        return introduction;
+    }
+
+    public void setIntroduction(String introduction) {
+        this.introduction = introduction;
+    }
+
+    @Nullable
+    public List<SkillDTO> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(@Nullable List<SkillDTO> skills) {
+        this.skills = skills;
+    }
 }
