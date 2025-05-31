@@ -29,6 +29,7 @@ namespace BusinessObject.DTO
 
         public string? Introduction { get; set; }
 
+        public List<SkillDisplayDTO> Skills { get; set; }
         public int? VerifyID { get; set; }
         public string Address { get; set; }
 
