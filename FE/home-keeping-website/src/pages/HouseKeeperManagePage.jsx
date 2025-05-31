@@ -118,7 +118,7 @@ function HouseKeeperManagePage() {
             },
             {
               label: "Hoàn thành",
-              count: applications.filter(a => a.status === 2 && a.isJobCompleted).length,
+              count: Number(localStorage.getItem("jobCompleted") || 0),
               icon: <FaCheckCircle size={18} className="text-primary" />
             }
           ].map((item, i) => (

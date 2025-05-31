@@ -1,32 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { FaBriefcase, FaCheckCircle, FaClock, FaRocket, FaLifeRing } from "react-icons/fa";
+import {
+  FaBriefcase,
+  FaCheckCircle,
+  FaCheckDouble,
+  FaRocket,
+} from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { Modal, Button, Form } from "react-bootstrap";
-import "../assets/styles/HousekeeperWelcomeCard.css";
-import API_BASE_URL from "../config/apiConfig";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "../assets/styles/HousekeeperWelcomeCard.css";
+import API_BASE_URL from "../config/apiConfig";
 import { useNavigate } from "react-router-dom";
 
 const HousekeeperWelcomeCard = () => {
-  const [fullName, setFullName] = useState("...");
-  const [jobsPending, setJobsPending] = useState(0);
+  const [jobsCompleted, setJobsCompleted] = useState(0);
   const [jobsAccepted, setJobsAccepted] = useState(0);
+
   const accountID = localStorage.getItem("accountID");
   const authToken = localStorage.getItem("authToken");
-  const navigate = useNavigate(); // inside your component
+  const fullName = localStorage.getItem("userName") || "Người dùng";
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (!accountID || !authToken) return;
-
-    fetch(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    })
-      .then(res => res.json())
-      .then(data => setFullName(data.name || "Người dùng"))
-      .catch(console.error);
 
     fetch(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByAccountID?id=${accountID}`, {
       headers: {
@@ -38,26 +34,20 @@ const HousekeeperWelcomeCard = () => {
       .then(async data => {
         localStorage.setItem("housekeeperID", data.housekeeperID);
         localStorage.setItem("verifyID", data.verifyID);
-
-        await Promise.all([
-          fetch(`${API_BASE_URL}/Application/CountPendingApplicationsByAccountID?accountID=${accountID}`, {
-            headers: { Authorization: `Bearer ${authToken}` }
-          }).then(res => res.ok ? res.json() : 0).then(setJobsPending).catch(() => setJobsPending(0)),
-
-          fetch(`${API_BASE_URL}/Application/CountAcceptedApplicationsByAccountID?accountID=${accountID}`, {
-            headers: { Authorization: `Bearer ${authToken}` }
-          }).then(res => res.ok ? res.json() : 0).then(setJobsAccepted).catch(() => setJobsAccepted(0))
-        ]);
+        const completed = data.jobCompleted || 0;
+        setJobsCompleted(completed);
+        localStorage.setItem("jobCompleted", completed.toString());
 
 
-        const apps = await resApp.json();
-        setJobsPending(apps.filter(app => app.status === 1).length);
-        setJobsAccepted(apps.filter(app => app.status === 2).length);
+        await fetch(`${API_BASE_URL}/Application/CountAcceptedApplicationsByAccountID?accountID=${accountID}`, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        })
+          .then(res => res.ok ? res.json() : 0)
+          .then(setJobsAccepted)
+          .catch(() => setJobsAccepted(0));
       })
       .catch(console.error);
   }, [accountID, authToken]);
-
-
 
   return (
     <>
@@ -79,10 +69,10 @@ const HousekeeperWelcomeCard = () => {
         <div className="row g-3 mt-2">
           <div className="col-md-4">
             <div className="p-3 border rounded shadow-sm h-100">
-              <div className="text-muted small mb-1">Đang chờ duyệt</div>
+              <div className="text-muted small mb-1">Số lượng công việc đã hoàn thành</div>
               <div className="d-flex align-items-center">
-                <span className="fs-4 fw-bold">{jobsPending}</span>
-                <FaClock className="ms-auto text-info fs-5" />
+                <span className="fs-4 fw-bold">{jobsCompleted}</span>
+                <FaCheckDouble className="ms-auto text-success fs-5" />
               </div>
             </div>
           </div>
@@ -116,8 +106,6 @@ const HousekeeperWelcomeCard = () => {
           </Link>
         </div>
       </div>
-
-
     </>
   );
 };
