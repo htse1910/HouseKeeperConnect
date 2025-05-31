@@ -11,6 +11,7 @@ namespace BusinessObject.DTO
 
         [EmailAddress]
         public string Email { get; set; }
+        public int JobCompleted { get; set; }
 
         [Phone]
         public string? Phone { get; set; }
