@@ -228,11 +228,14 @@ const FamilyJobDetailsPage = () => {
             },
             headers
         })
-            .then(() => {
+            .then((res) => {
                 toast.success(res.data || "✅ Đã check-in cho ngày hôm nay!");
                 setConfirmedSlots(prev => ({ ...prev, [selectedDayIndex]: true }));
             })
-            .catch(() => toast.error("❌ Không thể xác nhận ca làm."));
+            .catch((err) => {
+                const msg = err.response?.data || "❌ Không thể xác nhận ca làm.";
+                toast.error(msg);
+            });
     };
 
 
@@ -501,7 +504,7 @@ const FamilyJobDetailsPage = () => {
                             {isToday ? (
                                 <div className="text-center mt-4">
                                     <button className="btn btn-success" onClick={handleConfirmSlot}>
-                                        ✅ Check-in
+                                        ✅ Xác nhận Check-in
                                     </button>
                                 </div>
                             ) : (
