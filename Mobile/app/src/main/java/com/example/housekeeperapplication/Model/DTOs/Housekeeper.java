@@ -17,6 +17,7 @@ public class Housekeeper {
     private String frontPhoto;
     private String backPhoto;
     private String facePhoto;
+    private double rating;
 
     public Housekeeper(int housekeeperID, int accountID, String name, int gender, String email, String phone, int workType, String localProfilePicture, String googleProfilePicture, String bankAccountNumber, String introduction, int verifyID, String address, String frontPhoto, String backPhoto, String facePhoto) {
         this.housekeeperID = housekeeperID;
@@ -163,5 +164,13 @@ public class Housekeeper {
 
     public void setFacePhoto(String facePhoto) {
         this.facePhoto = facePhoto;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 }

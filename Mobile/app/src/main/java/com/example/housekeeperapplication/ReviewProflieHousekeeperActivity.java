@@ -127,7 +127,7 @@ public class ReviewProflieHousekeeperActivity extends AppCompatActivity {
         tvGender.setText("Giới tính: " + (housekeeper.getGender() == 1 ? "Nam" : "Nữ"));
         tvAddress.setText("Địa chỉ: " + housekeeper.getAddress());
         tvDescription.setText(housekeeper.getIntroduction());
-
+        ratingBar.setRating((float) housekeeper.getRating());
         // Load avatar
         String avatarUrl = housekeeper.getGoogleProfilePicture() != null ?
                 housekeeper.getGoogleProfilePicture() : housekeeper.getLocalProfilePicture();
@@ -242,13 +242,11 @@ public class ReviewProflieHousekeeperActivity extends AppCompatActivity {
         }
     }
     private void loadFamilyInfo(RatingDisplayDTO rating) {
-        // Bước 1: Lấy thông tin family từ familyID
         api.getFamilyByID(rating.getFamilyID()).enqueue(new Callback<FamilyAccountMappingDTO>() {
             @Override
             public void onResponse(Call<FamilyAccountMappingDTO> call,
                                    Response<FamilyAccountMappingDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Bước 2: Lấy thông tin account từ accountID của family
                     loadAccountName(response.body().accountID, rating);
                 } else {
                     addRatingView(rating, "Người đánh giá #" + rating.getFamilyID());

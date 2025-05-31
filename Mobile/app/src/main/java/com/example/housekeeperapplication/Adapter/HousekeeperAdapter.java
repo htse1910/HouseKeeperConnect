@@ -113,11 +113,11 @@ public class HousekeeperAdapter extends RecyclerView.Adapter<HousekeeperAdapter.
         tvAddress.setText("📍 " + hk.getAddress());
         tvIntro.setText("🗒️ " + hk.getIntroduction());
 
-        if (hk.getSkills() != null && !hk.getSkills().isEmpty()) {
+       /* if (hk.getSkills() != null && !hk.getSkills().isEmpty()) {
             tvSkills.setText("🧹 " + String.join(", ", hk.getSkills()));
         } else {
             tvSkills.setText("🧹 Không có kỹ năng");
-        }
+        }*/
 
         tvSalary.setText("💰 " + hk.getSalary() + " đ/giờ");
         tvWorkType.setText("⏱️ " + hk.getWorkType());

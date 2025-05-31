@@ -1,5 +1,6 @@
 package com.example.housekeeperapplication;
 
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -60,7 +62,7 @@ public class NotificationActivity extends AppCompatActivity {
         testNotiBtn = findViewById(R.id.testNotiBtn);
 
 
-
+        testNotiBtn.setVisibility(View.INVISIBLE);
         createNotificationChannel();
 
         testNotiBtn.setOnClickListener(new View.OnClickListener() {
@@ -69,11 +71,6 @@ public class NotificationActivity extends AppCompatActivity {
                 sendNotification("Thông báo", "Đây là tin nhắn test!");
             }
         });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_CODE);
-            }
-        }
 
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int accountID = prefs.getInt("accountID", 0);
@@ -237,9 +234,33 @@ public class NotificationActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == NOTIFICATION_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permission granted to post notifications", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Bạn đã cho phép ứng dụng gửi thông báo rồi!", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Permission denied to post notifications", Toast.LENGTH_SHORT).show();
+                showGoToSettingsDialog();
+            }
+        }
+    }
+
+    private void showGoToSettingsDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Quyền truy cập bị từ chối")
+                .setMessage("Bạn đã từ chối truy cập thông báo của ứng dụng, bạn có muốn bật lại không?")
+                .setPositiveButton("Tới cài đặt", (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                    intent.setData(uri);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_CODE);
             }
         }
     }
