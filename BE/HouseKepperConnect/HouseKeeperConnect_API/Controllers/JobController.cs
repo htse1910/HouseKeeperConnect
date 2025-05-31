@@ -720,7 +720,7 @@ namespace HouseKeeperConnect_API.Controllers
                     jobDetail.HousekeeperID = hk.HousekeeperID;
                 }
 
-                if (jobDetail.EndDate < vietnamTime)
+                if (jobDetail.EndDate < vietnamTime.Date)
                 {
                     Message = "Cộng việc đã quá hạn, không thể nhận công việc!";
                     return Conflict(Message);
