@@ -102,7 +102,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
 
       if (res.ok) {
         toast.success(message || "Chấp nhận công việc thành công");
-        setTimeout(() => onClose(), 1000);
+        setTimeout(() => onClose(true), 1000); // <-- trigger refresh
       } else {
         toast.error(message || "Chấp nhận công việc thất bại");
       }
@@ -259,7 +259,7 @@ const JobDetailModal = ({ jobID, applicationStatus, onClose }) => {
           </div>
 
           <div className="modal-footer mt-2 border-0">
-            <button className="btn btn-outline-secondary btn-sm" onClick={onClose}>
+            <button className="btn btn-outline-secondary btn-sm" onClick={() => onClose()}>
               Đóng
             </button>
           </div>

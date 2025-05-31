@@ -244,7 +244,7 @@ const FamilyJobDetailsPage = () => {
             params: { jobId: jobID, accountID },
             headers
         })
-            .then(() => {
+            .then((res) => {
                 toast.success(res.data || "🎉 Công việc đã được xác nhận hoàn thành!");
                 setShowRatingModal(true);
             })
@@ -257,7 +257,7 @@ const FamilyJobDetailsPage = () => {
         axios.put(`${API_BASE_URL}/Application/UpdateApplication`, null, {
             params: { AppID: applicationID, status: 2 }, headers
         })
-            .then(() => {
+            .then((res) => {
                 toast.success(res.data || "✅ Đã chấp nhận ứng viên!");
                 setTimeout(() => window.location.reload(), 1500); // give user time to see the toast
             })
@@ -268,7 +268,7 @@ const FamilyJobDetailsPage = () => {
         axios.put(`${API_BASE_URL}/Application/UpdateApplication`, null, {
             params: { AppID: applicationID, status: 3 }, headers
         })
-            .then(() => {
+            .then((res) => {
                 toast.success(res.data || "🚫 Đã từ chối ứng viên.");
                 setTimeout(() => window.location.reload(), 1500); // optional delay for clarity
             })
@@ -295,7 +295,7 @@ const FamilyJobDetailsPage = () => {
             const hkRes = await axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByID?id=${housekeeperID}`, { headers });
             const revieweeAccountID = hkRes.data.accountID;
 
-            await axios.post(`${API_BASE_URL}/Rating/AddRating`, null, {
+            const res = await axios.post(`${API_BASE_URL}/Rating/AddRating`, null, {
                 params: {
                     Reviewer: parseInt(accountID),
                     Reviewee: revieweeAccountID,

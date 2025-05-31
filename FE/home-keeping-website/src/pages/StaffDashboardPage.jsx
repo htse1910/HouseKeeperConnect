@@ -20,6 +20,8 @@ const StaffDashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userName, setUserName] = useState("");
+  const [pendingJobs, setPendingJobs] = useState(0);
+  const [pendingHousekeepers, setPendingHousekeepers] = useState(0);
 
   useEffect(() => {
     const storedName = localStorage.getItem("userName") || t("staff", "Staff");
@@ -38,6 +40,8 @@ const StaffDashboardPage = () => {
         successfulTransactions: 540,
         successfulTransactions7Days: 25,
       });
+      setPendingJobs(3);
+      setPendingHousekeepers(5);
       setLoading(false);
       return;
     }
@@ -60,9 +64,11 @@ const StaffDashboardPage = () => {
       axios.get(`${API_BASE_URL}/Transaction/GetTotalTransactions`, { headers }),
       axios.get(`${API_BASE_URL}/Transaction/TransactionInPastWeek`, { headers }),
       axios.get(`${API_BASE_URL}/Job/CountVerifiedJobsStaff`, { headers }),
+      axios.get(`${API_BASE_URL}/Job/CountPendingJobs`, { headers }),
+      axios.get(`${API_BASE_URL}/HouseKeeper/CountPendingHousekeeper`, { headers }),
     ])
       .then((results) => {
-        const [accStats, newAccs, txTotal, txWeek, jobCount] = results;
+        const [accStats, newAccs, txTotal, txWeek, jobCount, pendingJobsRes, pendingHKRes] = results;
 
         const totalHousekeepers = accStats.status === "fulfilled" ? accStats.value.data.totalHousekeepers : 0;
         const totalFamilies = accStats.status === "fulfilled" ? accStats.value.data.totalFamilies : 0;
@@ -70,6 +76,8 @@ const StaffDashboardPage = () => {
         const successfulTransactions = txTotal.status === "fulfilled" ? txTotal.value.data : 0;
         const successfulTransactions7Days = txWeek.status === "fulfilled" ? txWeek.value.data.length : 0;
         const totalJobs = jobCount.status === "fulfilled" ? jobCount.value.data : 0;
+        const pendingJobsCount = pendingJobsRes.status === "fulfilled" ? pendingJobsRes.value.data : 0;
+        const pendingHKCount = pendingHKRes.status === "fulfilled" ? pendingHKRes.value.data : 0;
 
         setStatsData({
           totalHousekeepers,
@@ -81,6 +89,8 @@ const StaffDashboardPage = () => {
           successfulTransactions,
           successfulTransactions7Days,
         });
+        setPendingJobs(pendingJobsCount);
+        setPendingHousekeepers(pendingHKCount);
       })
       .catch(() => setError(t("error_loading", "Failed to load data.")))
       .finally(() => setLoading(false));
@@ -164,6 +174,8 @@ const StaffDashboardPage = () => {
             <StatCard icon={<FaUsers />} value={statsData.totalFamilies} label={t("misc.total_families", "Total Families")} />
             <StatCard icon={<FaBriefcase />} value={statsData.totalJobs} label={t("misc.total_jobs", "Total Jobs")} />
             <StatCard icon={<FaMoneyBillWave />} value={statsData.successfulTransactions} label={t("misc.total_transactions", "Total Transactions")} />
+            <StatCard icon={<FaBriefcase />} value={pendingJobs} label={t("misc.pending_jobs", "Công việc chờ duyệt")} />
+            <StatCard icon={<FaUserTie />} value={pendingHousekeepers} label={t("misc.pending_housekeepers", "Người giúp việc chờ duyệt")} />
           </div>
 
           <div className="row mt-4">
