@@ -164,11 +164,11 @@ function HouseKeeperManagePage() {
                   <div className="fw-semibold text-dark">{app.jobName}</div>
                 </div>
                 <span className={`badge text-white ${app.applicationStatus === 1 ? "bg-info" :
-                    app.applicationStatus === 2 && app.jobStatus === 4 ? "bg-primary" : // Completed
-                      app.applicationStatus === 2 && app.jobStatus === 6 ? "bg-secondary" : // ❌ Đã hủy → gray
-                        app.applicationStatus === 2 ? "bg-success" :                         // ✅ Đã chấp nhận → green
-                          app.applicationStatus === 3 ? "bg-danger" :
-                            "bg-dark"
+                  app.applicationStatus === 2 && app.jobStatus === 4 ? "bg-primary" : // Completed
+                    app.applicationStatus === 2 && app.jobStatus === 6 ? "bg-secondary" : // ❌ Đã hủy → gray
+                      app.applicationStatus === 2 ? "bg-success" :                         // ✅ Đã chấp nhận → green
+                        app.applicationStatus === 3 ? "bg-danger" :
+                          "bg-dark"
                   }`}>
                   {
                     app.applicationStatus === 1 ? "Đang chờ" :
@@ -244,9 +244,9 @@ function HouseKeeperManagePage() {
         <JobDetailModal
           jobID={selectedApplication.jobID}
           applicationStatus={selectedApplication.applicationStatus}
-          onClose={() => {
+          onClose={(refresh = false) => {
             setSelectedApplication(null);
-            fetchApplicationsByPage(currentPage);
+            if (refresh) fetchApplicationsByPage(currentPage);
           }}
         />
       )}

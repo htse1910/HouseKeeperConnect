@@ -195,7 +195,7 @@ const FamilyHousekeeperSearchPage = () => {
                       </div>
                       {Array.isArray(h.skills) && h.skills.length > 0 && (
                         <div className="mb-2">
-                          <div className="text-muted small fw-semibold mb-1">Kỹ năng</div>
+                          <div className="text-muted small fw-semibold mb-1">Kỹ năng chuyên môn</div>
                           {h.skills.map((skill, i) => (
                             <span key={i} className="badge bg-light text-dark me-1">{skill}</span>
                           ))}

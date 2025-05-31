@@ -415,7 +415,6 @@ const HousekeeperBookingManagementPage = () => {
                               <div className="col-12 col-md-4 small">
                                 <div style={{ display: "inline-block", position: "relative" }}>
                                   <FaCalendarAlt className="me-1 text-primary" /> Thứ (Check-in ở dưới):
-
                                 </div>
                                 <ul className="ps-3 mb-0">
                                   {row.dayofWeek?.map((dayIndex, i) => (
@@ -543,8 +542,8 @@ const HousekeeperBookingManagementPage = () => {
           </Modal.Header>
           <Modal.Body>
             <p><strong>Gia đình:</strong> {selectedBooking.familyName}</p>
-            <p><strong>Bắt đầu:</strong> {selectedBooking.startDate}</p>
-            <p><strong>Kết thúc:</strong> {selectedBooking.endDate}</p>
+            <p><strong>Bắt đầu:</strong> {new Date(selectedBooking.startDate).toLocaleDateString("vi-VN")}</p>
+            <p><strong>Kết thúc:</strong> {new Date(selectedBooking.endDate).toLocaleDateString("vi-VN")}</p>
             <p><strong>Thứ:</strong> {selectedDay}</p>
             <p><strong>Ngày trong tuần này:</strong> {matchedDate?.toLocaleDateString("vi-VN")}</p>
 
