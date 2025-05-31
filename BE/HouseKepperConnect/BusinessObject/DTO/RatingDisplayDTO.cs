@@ -9,6 +9,7 @@ namespace BusinessObject.DTO
         public int FamilyID { get; set; }
 
         public int HouseKeeperID { get; set; }
+        public string FamilyName { get; set; }
 
         [Required]
         [MaxLength(500)]

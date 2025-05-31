@@ -245,6 +245,20 @@ namespace HouseKeeperConnect_API.Controllers
             _mapper.Map(acc, displayHK);
             _mapper.Map(veri, displayHK);
 
+            var skills = await _housekeeperSkillMappingService.GetSkillsByHousekeeperIdAsync(hk.HousekeeperID);
+
+            var skillL = new List<SkillDisplayDTO>();
+
+            foreach (var skill in skills)
+            {
+                var nSkill = new SkillDisplayDTO();
+                nSkill.ID = skill.HouseKeeperSkillID;
+                nSkill.Name = skill.HouseKeeperSkill.Name;
+                skillL.Add(nSkill);
+            }
+
+            displayHK.Skills = skillL;
+
             return Ok(displayHK);
         }
 
