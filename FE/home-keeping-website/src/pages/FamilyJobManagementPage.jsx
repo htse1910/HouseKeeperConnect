@@ -178,9 +178,9 @@ const FamilyJobManagementPage = () => {
             </div>
             <div className="modal-body">
               <p>Bạn có chắc muốn gửi yêu cầu <strong>xóa công việc</strong> này không?</p>
-              <p><strong>Loại yêu cầu:</strong> Công việc (2)</p>
+              <p><strong>Loại yêu cầu:</strong> Công việc</p>
               <p><strong>Nội dung:</strong><br />
-                Hãy xóa công việc <strong>{jobToDelete.jobName}</strong>, ID: <strong>{jobToDelete.jobID}</strong>
+                Hãy xóa công việc <strong>{jobToDelete.jobName}</strong>, Mã công việc: <strong>{jobToDelete.jobID}</strong>, Trạng thái: <strong>{jobStatusMap[jobToDelete.status]}</strong>.
               </p>
             </div>
             <div className="modal-footer">
