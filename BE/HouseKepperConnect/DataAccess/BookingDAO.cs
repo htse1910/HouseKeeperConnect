@@ -58,6 +58,7 @@ namespace DataAccess
                     booking = await context.Booking
                         .Include(b => b.Job)
                         .Include(b => b.Housekeeper)
+                        .Include(b => b.Job.Family)
                         .SingleOrDefaultAsync(b => b.BookingID == id);
                 }
             }
