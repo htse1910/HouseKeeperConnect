@@ -29,7 +29,7 @@ namespace HouseKeeperConnect_API.Controllers
         private string Message;
 
         public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper,
-            IIDVerificationService verificationService, INotificationService notificationService, 
+            IIDVerificationService verificationService, INotificationService notificationService,
             IVerificationTaskService verificationTaskService, Client appWriteClient, IConfiguration configuration, IHousekeeperSkillMappingService housekeeperSkillMappingService)
         {
             _housekeeperService = housekeeperService;
@@ -70,7 +70,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                     var skillL = new List<SkillDisplayDTO>();
 
-                    foreach(var skill in skills)
+                    foreach (var skill in skills)
                     {
                         var nSkill = new SkillDisplayDTO();
                         nSkill.ID = skill.HouseKeeperSkillID;
@@ -84,6 +84,7 @@ namespace HouseKeeperConnect_API.Controllers
                         AccountID = item.AccountID,
                         Rating = item.Rating,
                         Address = item.Account.Address,
+                        JobCompleted = item.JobCompleted,
                         BackPhoto = item.IDVerification.BackPhoto,
                         BankAccountNumber = item.Account.BankAccountNumber,
                         Email = item.Account.Email,
@@ -111,6 +112,7 @@ namespace HouseKeeperConnect_API.Controllers
                         Address = item.Account.Address,
                         BankAccountNumber = item.Account.BankAccountNumber,
                         Email = item.Account.Email,
+                        JobCompleted = item.JobCompleted,
                         GoogleProfilePicture = item.Account.GoogleProfilePicture,
                         Introduction = item.Account.Introduction,
                         LocalProfilePicture = item.Account.LocalProfilePicture,
@@ -139,7 +141,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(count);
         }
-        
+
         [HttpGet("CountPendingHouskeeper")]
         [Authorize]
         public async Task<ActionResult<int>> CountPendingHKAsync()
@@ -363,7 +365,7 @@ namespace HouseKeeperConnect_API.Controllers
 
                 Acc.Phone = newAcc.Phone;
                 Acc.Introduction = newAcc.Introduction;
-                Acc.Name = newAcc.Name;               
+                Acc.Name = newAcc.Name;
                 Acc.BankAccountNumber = newAcc.BankAccountNumber;
                 Acc.Address = newAcc.Address;
                 Acc.UpdatedAt = DateTime.Now;
