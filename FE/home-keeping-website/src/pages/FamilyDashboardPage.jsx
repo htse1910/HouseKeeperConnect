@@ -31,14 +31,13 @@ function FamilyDashboardPage() {
     "Content-Type": "application/json"
   };
 
-  const [userName, setUserName] = useState("...");
   const [balance, setBalance] = useState(0);
   const [jobStats, setJobStats] = useState({ activeJobs: 0, applicants: 0 });
   const [notifications, setNotifications] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const userName = localStorage.getItem("userName") || "...";
   useEffect(() => {
     if (!authToken || !accountID) {
       setError(t("auth.error_auth"));
@@ -49,10 +48,6 @@ function FamilyDashboardPage() {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const accRes = await axios.get(`${API_BASE_URL}/Account/GetAccount?id=${accountID}`, { headers });
-        const accData = accRes.data;
-        if (!accData?.accountID) throw new Error(t("auth.error_auth"));
-        setUserName(accData.name || "...");
 
         try {
           const walletRes = await axios.get(`${API_BASE_URL}/wallet/getWallet?id=${accountID}`, { headers });
