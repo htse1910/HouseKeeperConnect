@@ -155,16 +155,16 @@ const HousekeeperBookingManagementPage = () => {
         }
       );
 
-      const msg = await res.text();
+      const text = await res.text();
 
       if (res.ok) {
-        toast.success(msg || "✅ Check-in thành công!");
+        toast.success(text || "✅ Check-in thành công!");
         setShowModal(false);
       } else {
-        toast.error(msg || "❌ Không thể check-in.");
+        toast.error(text || "❌ Không thể check-in.");
       }
     } catch (err) {
-      toast.error("Lỗi khi check-in.");
+      toast.error("❌ Lỗi khi check-in.");
       console.error(err);
     }
   };
@@ -414,38 +414,8 @@ const HousekeeperBookingManagementPage = () => {
                               </div>
                               <div className="col-12 col-md-4 small">
                                 <div style={{ display: "inline-block", position: "relative" }}>
-                                  <FaCalendarAlt className="me-1 text-primary" /> Thứ:
-                                  <FaInfoCircle
-                                    style={{
-                                      marginLeft: "8px",
-                                      cursor: "pointer",
-                                      color: "#0dcaf0",
-                                      transition: "transform 0.2s ease",
-                                    }}
-                                    onMouseEnter={() => setHoveredTooltipIndex(idx)}
-                                    onMouseLeave={() => setHoveredTooltipIndex(null)}
-                                  />
+                                  <FaCalendarAlt className="me-1 text-primary" /> Thứ (Check-in ở dưới):
 
-                                  {hoveredTooltipIndex === idx && (
-                                    <div
-                                      style={{
-                                        position: "absolute",
-                                        top: "-45px",
-                                        left: "50%",
-                                        transform: "translateX(-50%)",
-                                        backgroundColor: "#0dcaf0",
-                                        color: "white",
-                                        padding: "8px 12px",
-                                        borderRadius: "8px",
-                                        boxShadow: "0 0 12px rgba(13, 202, 240, 0.9)",
-                                        whiteSpace: "nowrap",
-                                        fontSize: "0.85rem",
-                                        zIndex: 999,
-                                      }}
-                                    >
-                                      Check-In tại đây
-                                    </div>
-                                  )}
                                 </div>
                                 <ul className="ps-3 mb-0">
                                   {row.dayofWeek?.map((dayIndex, i) => (
