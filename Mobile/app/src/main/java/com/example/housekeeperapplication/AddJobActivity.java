@@ -68,6 +68,9 @@ public class AddJobActivity extends AppCompatActivity {
     private CardView cvPriceSummary;
     private LinearLayout layoutWarningContainer;
     private ScrollView scrollView;
+    private Spinner spinnerLocation;
+    private String selectedLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,8 +106,21 @@ public class AddJobActivity extends AppCompatActivity {
         cvPriceSummary.setVisibility(View.GONE);
         tvBalanceWarning.setVisibility(View.GONE);
         scrollView = findViewById(R.id.scrollView);
+        spinnerLocation = findViewById(R.id.spinnerLocation);
+        setupLocationSpinner();
     }
+    private void setupLocationSpinner() {
+        spinnerLocation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedLocation = parent.getItemAtPosition(position).toString();
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
     private void setupJobTypeSpinner() {
         Spinner spinner = findViewById(R.id.spinnerJobType);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -448,7 +464,7 @@ public class AddJobActivity extends AppCompatActivity {
 
     private boolean validateForm() {
         EditText edtJobTitle = findViewById(R.id.edtJobTitle);
-        EditText edtLocation = findViewById(R.id.edtLocation);
+
         EditText edtStartDate = findViewById(R.id.edtStartDate);
         EditText edtEndDate = findViewById(R.id.edtEndDate);
         EditText edtDescription = findViewById(R.id.edtDescription);
@@ -457,12 +473,8 @@ public class AddJobActivity extends AppCompatActivity {
             return false;
         }
 
-        if (edtLocation.getText().toString().isEmpty()) {
-            edtLocation.setError("Vui lòng nhập địa điểm");
-            return false;
-        }
         if (edtDescription.getText().toString().isEmpty()) {
-            edtLocation.setError("Vui lòng nhập mô tả");
+            edtDescription.setError("Vui lòng nhập mô tả");
             return false;
         }
 
@@ -625,7 +637,7 @@ public class AddJobActivity extends AppCompatActivity {
     private void createJob(int familyId) {
         // Lấy thông tin từ form
         String jobName = ((EditText) findViewById(R.id.edtJobTitle)).getText().toString();
-        String location = ((EditText) findViewById(R.id.edtLocation)).getText().toString();
+        String location = selectedLocation;
         String description = ((EditText) findViewById(R.id.edtDescription)).getText().toString();
         String startDate = ((EditText) findViewById(R.id.edtStartDate)).getText().toString();
         String endDate = ((EditText) findViewById(R.id.edtEndDate)).getText().toString();

@@ -385,6 +385,7 @@ public class JobDetailActivity extends AppCompatActivity {
         tvSalary.setText("Mức lương: " + String.format("%,d", job.price) + " VNĐ");
         tvDescription.setText("Mô tả công việc: " + (job.description != null ? job.description : ""));
         // Format ngày làm việc
+        layoutDaysContainer.removeAllViews();
         if (job.dayofWeek != null) {
             for (Integer day : job.dayofWeek) {
                 TextView dayTextView = new TextView(this);
@@ -394,12 +395,12 @@ public class JobDetailActivity extends AppCompatActivity {
                 int padding = (int) (8 * getResources().getDisplayMetrics().density);
                 dayTextView.setPadding(padding, padding, padding, padding);
 
-                // Tạo background với bo tròn
                 GradientDrawable shape = new GradientDrawable();
                 shape.setShape(GradientDrawable.RECTANGLE);
                 shape.setCornerRadius(16f);
 
-                if (isToday(day)) {
+                boolean isToday = isToday(day);
+                if (isToday) {
                     shape.setColor(ContextCompat.getColor(this, R.color.colorPrimary));
                     dayTextView.setTextColor(ContextCompat.getColor(this, android.R.color.white));
                 } else {
@@ -414,14 +415,26 @@ public class JobDetailActivity extends AppCompatActivity {
                 );
                 params.setMargins(0, 0, 0, padding/2);
 
+                dayTextView.setOnClickListener(v -> {
+                    if (isToday) {
+                        btnConfirmSlotWorked.setVisibility(View.VISIBLE);
+                    } else {
+                        btnConfirmSlotWorked.setVisibility(View.GONE);
+                        Toast.makeText(JobDetailActivity.this,
+                                "Chỉ có thể xác nhận check-in vào " + getWeekday(day),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 layoutDaysContainer.addView(dayTextView, params);
             }
         }
 
-
-        boolean showCheckInBtn = isTodayWorkDay(job.dayofWeek);
+        boolean hasBooking = job.getBookingID() != -1;
+        boolean isJobAccepted = job.status == 3;
+        boolean isTodayWorkDay = isTodayWorkDay(job.dayofWeek);
+        boolean showCheckInBtn = hasBooking && isJobAccepted && isTodayWorkDay;
         boolean showCompletionBtn = job.status == 8;
-
         btnConfirmSlotWorked.setVisibility(showCheckInBtn ? View.VISIBLE : View.GONE);
         btnConfirmJobCompletion.setVisibility(showCompletionBtn ? View.VISIBLE : View.GONE);
     }
