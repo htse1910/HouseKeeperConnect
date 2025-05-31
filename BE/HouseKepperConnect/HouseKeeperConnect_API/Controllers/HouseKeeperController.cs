@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using Services.Interface;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HouseKeeperConnect_API.Controllers
 {
@@ -21,12 +22,15 @@ namespace HouseKeeperConnect_API.Controllers
         private readonly IIDVerificationService _verificationService;
         private readonly INotificationService _notificationService;
         private readonly IVerificationTaskService _verificationTaskService;
+        private readonly IHousekeeperSkillMappingService _housekeeperSkillMappingService;
         private readonly IConfiguration _configuration;
         private readonly Client _appWriteClient;
         private readonly IMapper _mapper;
         private string Message;
 
-        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper, IIDVerificationService verificationService, INotificationService notificationService, IVerificationTaskService verificationTaskService, Client appWriteClient, IConfiguration configuration)
+        public HouseKeeperController(IHouseKeeperService housekeeperService, IAccountService accountService, IMapper mapper,
+            IIDVerificationService verificationService, INotificationService notificationService, 
+            IVerificationTaskService verificationTaskService, Client appWriteClient, IConfiguration configuration, IHousekeeperSkillMappingService housekeeperSkillMappingService)
         {
             _housekeeperService = housekeeperService;
             _accountService = accountService;
@@ -35,6 +39,7 @@ namespace HouseKeeperConnect_API.Controllers
             _notificationService = notificationService;
             _verificationTaskService = verificationTaskService;
             _configuration = configuration;
+            _housekeeperSkillMappingService = housekeeperSkillMappingService;
             AppwriteSettings appW = new AppwriteSettings()
             {
                 ProjectId = configuration.GetValue<string>("Appwrite:ProjectId"),
@@ -61,6 +66,18 @@ namespace HouseKeeperConnect_API.Controllers
             {
                 if (item.VerifyID.HasValue)
                 {
+                    var skills = await _housekeeperSkillMappingService.GetSkillsByHousekeeperIdAsync(item.HousekeeperID);
+
+                    var skillL = new List<SkillDisplayDTO>();
+
+                    foreach(var skill in skills)
+                    {
+                        var nSkill = new SkillDisplayDTO();
+                        nSkill.ID = skill.HouseKeeperSkillID;
+                        nSkill.Name = skill.HouseKeeperSkill.Name;
+                        skillL.Add(nSkill);
+                    }
+
                     var nHk = new HouseKeeperDisplayDTO
                     {
                         HousekeeperID = item.HousekeeperID,
@@ -75,6 +92,8 @@ namespace HouseKeeperConnect_API.Controllers
                         GoogleProfilePicture = item.Account.GoogleProfilePicture,
                         Introduction = item.Account.Introduction,
                         LocalProfilePicture = item.Account.LocalProfilePicture,
+                        Skills = skillL,
+                        VerifyID = item.VerifyID,
                         Name = item.Account.Name,
                         Phone = item.Account.Phone,
                         WorkType = item.WorkType,

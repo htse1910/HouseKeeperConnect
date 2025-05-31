@@ -33,9 +33,9 @@ namespace DataAccess
                 using (var context = new PCHWFDBContext())
                 {
                     return await context.HousekeeperSkillMapping
-                        .Where(hs => hs.HousekeeperID == housekeeperId)
                         .Include(hs => hs.Housekeeper)
                         .Include(hs => hs.HouseKeeperSkill)
+                        .Where(hs => hs.HousekeeperID == housekeeperId)
                         .ToListAsync();
                 }
             }
