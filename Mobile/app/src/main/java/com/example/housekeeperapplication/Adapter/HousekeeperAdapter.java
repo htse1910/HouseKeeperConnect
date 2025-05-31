@@ -144,7 +144,7 @@ public class HousekeeperAdapter extends RecyclerView.Adapter<HousekeeperAdapter.
             imgProfile = itemView.findViewById(R.id.imgProfile);
             tvName = itemView.findViewById(R.id.tvName);
             tvIntro = itemView.findViewById(R.id.tvIntro);
-            btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
+            //btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
         }
     }
 }

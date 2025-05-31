@@ -27,6 +27,7 @@
         android:numStars="5"
         android:stepSize="1"
         android:rating="5"
+        android:progressTint="#FFD700"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"/>
 
