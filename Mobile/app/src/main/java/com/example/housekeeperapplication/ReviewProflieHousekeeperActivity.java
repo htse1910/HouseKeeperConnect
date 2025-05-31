@@ -1,6 +1,7 @@
 package com.example.housekeeperapplication;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -65,6 +66,10 @@ public class ReviewProflieHousekeeperActivity extends AppCompatActivity {
         api = APIClient.getClient(this).create(APIServices.class);
         initViews();
         loadHousekeeperData();
+        btnMessage.setOnClickListener(v -> {
+            Intent intent = new Intent(ReviewProflieHousekeeperActivity.this, ChatListMockActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void initViews() {

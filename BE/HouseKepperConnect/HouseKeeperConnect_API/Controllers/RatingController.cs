@@ -173,7 +173,7 @@ namespace HouseKeeperConnect_API.Controllers
             noti.Message = fa.Account.Name + " đã đánh giá bạn " + ratingCreateDTO.Score + " sao!";
 
             await _notificationService.AddNotificationAsync(noti);
-            Message = fa.Account.Nickname + " has rated " + hk.Account.Nickname + " !";
+            Message =  "Bạn đã đánh giá " + hk.Account.Nickname + " !";
 
             return Ok(Message);
         }
