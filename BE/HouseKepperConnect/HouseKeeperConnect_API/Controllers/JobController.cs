@@ -87,7 +87,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(display);
         }
-        
+
         [HttpGet("GetExpiredJobs")]
         [Authorize(Policy = "Admin")]
         public async Task<ActionResult<IEnumerable<JobDisplayDTO>>> GetExpiredJobsAsync(int pageNumber, int pageSize)
@@ -232,7 +232,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok(count);
         }
-        
+
         [HttpGet("CountExpiredJobs")]
         [Authorize(Policy = "Admin")]
         public async Task<ActionResult<int>> CountExpiredJobsAsync()
@@ -1086,7 +1086,7 @@ namespace HouseKeeperConnect_API.Controllers
             var notis = new Notification();
             notis.AccountID = hk.AccountID;
             notis.Message = "Công việc #" + oldJob.JobID + " - " + oldJob.JobName + " đã bị hủy! Tổng slot đã làm: " + (allSlots.Count - totalUnworkedSlots)
-                + ". Tiền lương nhận được: " + payoutAmount +" VNĐ";
+                + ". Tiền lương nhận được: " + payoutAmount + " VNĐ";
             notis.CreatedDate = vietnamTime;
 
             await _notificationService.AddNotificationAsync(notis);
@@ -1317,7 +1317,7 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound("Không tìm thấy thông tin chi tiết công việc!");
             }
 
-            if(jobDetail.HousekeeperID != null)
+            if (jobDetail.HousekeeperID != null)
             {
                 Message = "Bạn đã mời 1 người giúp việc cho công việc này rôi!";
                 return Conflict(Message);
@@ -1434,7 +1434,7 @@ namespace HouseKeeperConnect_API.Controllers
         }
 
         [HttpDelete("DeleteJobAdmin")]
-        [Authorize(Policy ="Admin")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> DeleteJobAdmin([FromQuery] int id)
         {
 
@@ -1458,7 +1458,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             var jobSlots = await _jobSlotsService.GetJob_SlotsByJobIDAsync(job.JobID);
-            if(jobSlots == null)
+            if (jobSlots == null)
             {
                 return NotFound("Danh sách slot của công việc trống!");
             }
@@ -1474,7 +1474,7 @@ namespace HouseKeeperConnect_API.Controllers
                 await _jobSlotsService.DeleteJob_SlotsAsync(slot.SlotID);
             }
 
-            foreach(var service in jobService)
+            foreach (var service in jobService)
             {
                 await _jobServiceService.DeleteJob_ServiceAsync(service.ServiceID);
             }
@@ -1495,7 +1495,7 @@ namespace HouseKeeperConnect_API.Controllers
             }
 
             var noti = new Notification();
-            noti.Message = "Công việc #" + job.JobID+" - "+job.JobName+" đã bị xóa do đã quá hạn công việc!";
+            noti.Message = "Công việc #" + job.JobID + " - " + job.JobName + " đã bị xóa do đã quá hạn công việc!";
             noti.AccountID = job.Family.AccountID;
             noti.CreatedDate = vietnamTime;
 
@@ -1632,6 +1632,19 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
+            var booking = await _bookingService.GetBookingByIDAsync(bookingId);
+            if (booking == null)
+            {
+                Message = "Không tìm thấy công việc đã nhận!";
+                return NotFound(Message);
+            }
+
+
+            var noti = new Notification();
+            noti.AccountID = booking.Job.Family.AccountID;
+            noti.Message = "Người giúp việc đã checkin cho ngày hôm nay của công việc #" + booking.JobID + " - " + booking.Job.JobName;
+            noti.CreatedDate = vietnamTime;
+
             return Ok("Đã check-in thành công cho tất cả slot ngày hôm nay!");
         }
 
@@ -1674,7 +1687,20 @@ namespace HouseKeeperConnect_API.Controllers
                 }
             }
 
-            return Ok("Đã xác nhận check0in ngày hôm nay!");
+            var booking = await _bookingService.GetBookingByIDAsync(bookingId);
+            if (booking == null)
+            {
+                Message = "Không tìm thấy công việc đã nhận!";
+                return NotFound(Message);
+            }
+
+
+            var noti = new Notification();
+            noti.AccountID = booking.Housekeeper.AccountID;
+            noti.Message = "Gia đình đã xác nhận checkin cho ngày hôm nay của công việc #" + booking.JobID + " - " + booking.Job.JobName;
+            noti.CreatedDate = vietnamTime;
+
+            return Ok("Đã xác nhận check-in ngày hôm nay!");
         }
 
         [HttpPost("HousekeeperCompleteJob")]
