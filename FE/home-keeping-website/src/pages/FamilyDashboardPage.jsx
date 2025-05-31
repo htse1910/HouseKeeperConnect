@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-import {
-  FaUsers, FaPlusSquare, FaCalendarAlt
-} from "react-icons/fa";
+import { FaUsers, FaPlusSquare, FaCalendarAlt, FaBriefcase } from "react-icons/fa";
 import "../assets/styles/Dashboard.css";
 import { formatTotalCurrency, getTransactionFormatData } from "../utils/formatData";
 import API_BASE_URL from "../config/apiConfig"; // adjust path as needed
@@ -58,14 +56,14 @@ function FamilyDashboardPage() {
         }
 
         try {
-          const jobsRes = await axios.get(`${API_BASE_URL}/Job/GetJobsByAccountID?accountId=${accountID}`, { headers });
-          const jobsData = jobsRes.data;
+          const jobCountRes = await axios.get(`${API_BASE_URL}/Job/CountJobsByAccountID?accountID=${accountID}`, { headers });
+          const jobCount = jobCountRes.data || 0;
           setJobStats({
-            activeJobs: jobsData.length || 0,
-            applicants: jobsData.totalApplicant || 0,
+            activeJobs: jobCount,
+            applicants: 0, // Removed since not supported anymore
           });
         } catch (jobErr) {
-          console.warn("Lỗi khi gọi API job:", jobErr);
+          console.warn("Lỗi khi gọi API đếm công việc:", jobErr);
         }
 
         try {
@@ -181,10 +179,10 @@ function FamilyDashboardPage() {
         <div className="stat-card-container">
           <div className="stat-card">
             <div>
-              <div className="stat-card-label">{t("dashboard.dashboard_applicants")}</div>
-              <div className="stat-card-value">{jobStats.applicants}</div>
+              <div className="stat-card-label">Số lượng công việc</div>
+              <div className="stat-card-value">{jobStats.activeJobs}</div>
             </div>
-            <FaUsers className="stat-card-icon" />
+            <FaBriefcase className="stat-card-icon" />
           </div>
 
           <div className="stat-card">
