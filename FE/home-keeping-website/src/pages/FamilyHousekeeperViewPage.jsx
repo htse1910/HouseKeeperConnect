@@ -21,18 +21,16 @@ const FamilyHousekeeperViewPage = () => {
   const applicantIDs = location.state?.applicantIDs || [];
 
   const [housekeeper, setHousekeeper] = useState(null);
-  const [skills, setSkills] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mainError, setMainError] = useState(null);
-  const [skillError, setSkillError] = useState(null);
   const [reviewError, setReviewError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const reviewsPerPage = 3;
   const [averageScore, setAverageScore] = useState(null);
 
   useEffect(() => {
-    const verifyAndLoad = async () => {
+    const loadData = async () => {
       if (!accountID || !token) {
         setMainError(t("error.error_auth"));
         setLoading(false);
@@ -40,8 +38,8 @@ const FamilyHousekeeperViewPage = () => {
       }
 
       try {
-        const res = await axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByAccountID?id=${housekeeperAccountID}`, { headers });
-        setHousekeeper(res.data);
+        const hkRes = await axios.get(`${API_BASE_URL}/HouseKeeper/GetHousekeeperByAccountID?id=${housekeeperAccountID}`, { headers });
+        setHousekeeper(hkRes.data);
       } catch {
         setMainError(t("error.error_account"));
         setLoading(false);
@@ -49,45 +47,17 @@ const FamilyHousekeeperViewPage = () => {
       }
 
       try {
-        const skillRes = await axios.get(`${API_BASE_URL}/HousekeeperSkillMapping/GetSkillsByAccountID?accountId=${housekeeperAccountID}`, { headers });
-        const ids = Array.isArray(skillRes.data) ? skillRes.data.map(s => s.houseKeeperSkillID) : [];
-
-        const names = await Promise.all(
-          ids.map(async (id) => {
-            try {
-              const res = await axios.get(`${API_BASE_URL}/HouseKeeperSkills/GetHousekeeperSkillById?id=${id}`, { headers });
-              return res.data.skillCode || res.data.name;
-            } catch {
-              return null;
-            }
-          })
-        );
-        setSkills(names.filter(Boolean));
-      } catch {
-        setSkillError(t("error.error_skill"));
-      }
-
-      try {
         const ratingRes = await axios.get(`${API_BASE_URL}/Rating/GetRatingListByHK?id=${housekeeperAccountID}&pageNumber=1&pageSize=100`, { headers });
-        const enriched = await Promise.all(ratingRes.data.map(async (r) => {
-          try {
-            const fam = await axios.get(`${API_BASE_URL}/Families/GetFamilyByID?id=${r.familyID}`, { headers });
-            const acc = await axios.get(`${API_BASE_URL}/Account/GetAccount?id=${fam.data.accountID}`, { headers });
-            return {
-              reviewerName: acc.data.name,
-              score: r.score,
-              content: r.content,
-              date: r.createAt
-            };
-          } catch {
-            return { ...r, reviewerName: t("misc.anonymous") };
-          }
+        const enriched = ratingRes.data.map(r => ({
+          reviewerName: r.familyName || t("misc.anonymous"),
+          score: r.score,
+          content: r.content,
+          date: r.createAt
         }));
         setReviews(enriched);
         if (enriched.length > 0) {
           const total = enriched.reduce((sum, r) => sum + r.score, 0);
-          const avg = total / enriched.length;
-          setAverageScore(avg);
+          setAverageScore(total / enriched.length);
         }
       } catch {
         setReviewError(t("error.error_review"));
@@ -96,7 +66,7 @@ const FamilyHousekeeperViewPage = () => {
       setLoading(false);
     };
 
-    verifyAndLoad();
+    loadData();
   }, [housekeeperAccountID, t]);
 
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
@@ -148,30 +118,16 @@ const FamilyHousekeeperViewPage = () => {
           <div className="col-md-9">
             <h5 className="fw-bold mb-3 text-primary">{t("misc.personal_info")}</h5>
 
-            {/* Ratings */}
-            <div className="mb-3">
-              {housekeeper.rating !== undefined && (
-                <div className="mb-1">
-                  <strong className="text-success">{t("misc.profile_rating")}:</strong>{" "}
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <span key={index} className={`text-warning ${index < Math.round(housekeeper.rating) ? "" : "text-muted"}`}>★</span>
-                  ))}
-                  <span className="ms-2 text-muted">({housekeeper.rating.toFixed(1)})</span>
-                </div>
-              )}
+            {averageScore !== null && (
+              <div className="mb-3">
+                <strong className="text-info">{t("Đánh giá")}:</strong>{" "}
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <span key={index} className={`text-warning ${index < Math.round(averageScore) ? "" : "text-muted"}`}>★</span>
+                ))}
+                <span className="ms-2 text-muted">({averageScore.toFixed(1)})</span>
+              </div>
+            )}
 
-              {averageScore !== null && (
-                <div>
-                  <strong className="text-info">{t("Đánh giá")}:</strong>{" "}
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <span key={index} className={`text-warning ${index < Math.round(averageScore) ? "" : "text-muted"}`}>★</span>
-                  ))}
-                  <span className="ms-2 text-muted">({averageScore.toFixed(1)})</span>
-                </div>
-              )}
-            </div>
-
-            {/* Info */}
             <p className="mb-1"><strong className="text-success">{t("user.gender")}:</strong> {formatGender(housekeeper.gender, t)}</p>
             <p className="mb-1"><strong className="text-success">{t("user.address")}:</strong> {housekeeper.address}</p>
             <p className="mb-1"><strong className="text-success">Email:</strong> {housekeeper.email}</p>
@@ -187,13 +143,11 @@ const FamilyHousekeeperViewPage = () => {
 
       <div className="card mb-4 p-4 shadow rounded-4 border-success-subtle">
         <h5 className="fw-bold mb-3 text-success">🛠 {t("misc.skills")}</h5>
-        {skillError ? (
-          <p className="text-muted">{skillError}</p>
-        ) : skills.length > 0 ? (
+        {Array.isArray(housekeeper.skills) && housekeeper.skills.length > 0 ? (
           <div className="d-flex flex-wrap gap-2">
-            {skills.map((skill, i) => (
+            {housekeeper.skills.map((s, i) => (
               <span key={i} className="badge bg-success-subtle text-dark-emphasis border border-success rounded-pill px-3 py-2">
-                {t(`skills.housekeeperSkillName.${skill}`, skill)}
+                {t(`skills.housekeeperSkillName.${s.name}`, s.name)}
               </span>
             ))}
           </div>
@@ -210,6 +164,9 @@ const FamilyHousekeeperViewPage = () => {
           <p>{t("misc.no_review")}</p>
         ) : (
           <>
+            {/* Adjust current page if out of range */}
+            {currentPage > 0 && currentPage >= Math.ceil(reviews.length / reviewsPerPage) && setCurrentPage(Math.max(0, Math.ceil(reviews.length / reviewsPerPage) - 1))}
+
             {currentReviews.map((r, i) => (
               <div key={i} className="mb-4 border-bottom pb-3">
                 <div className="d-flex justify-content-between">
@@ -221,9 +178,10 @@ const FamilyHousekeeperViewPage = () => {
                     <span key={j} className={j < r.score ? "" : "text-muted"}>★</span>
                   ))}
                 </div>
-                <p className="text-dark-emphasis">{r.content}</p>
+                <p className="text-dark-emphasis mb-0">{r.content}</p>
               </div>
             ))}
+
             <div className="d-flex justify-content-between">
               {currentPage > 0 && (
                 <button className="btn btn-outline-secondary" onClick={() => setCurrentPage(p => p - 1)}>
@@ -231,7 +189,14 @@ const FamilyHousekeeperViewPage = () => {
                 </button>
               )}
               {currentPage < totalPages - 1 && (
-                <button className="btn btn-primary" onClick={() => setCurrentPage(p => p + 1)}>
+                <button className="btn btn-warning fw-bold" onClick={() => {
+                  const nextPageStart = (currentPage + 1) * reviewsPerPage;
+                  if (nextPageStart >= reviews.length) {
+                    setCurrentPage(totalPages - 1); // fallback
+                  } else {
+                    setCurrentPage(p => p + 1);
+                  }
+                }}>
                   {t("pagination.next")} ➡
                 </button>
               )}
