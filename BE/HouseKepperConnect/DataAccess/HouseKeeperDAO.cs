@@ -54,7 +54,7 @@ namespace DataAccess
                     list = await context.Housekeeper.
                         Include(i => i.IDVerification).
                         Include(a => a.Account).
-                        Where(h => h.IDVerification != null && h.IDVerification.Status == 1).
+                        Where(h => h.VerifyID!=null && h.IDVerification.Status == 1).
                         AsNoTracking().
                         Skip((pageNumber - 1) * pageSize).
                         Take(pageSize).
@@ -95,7 +95,7 @@ namespace DataAccess
                     return await context.Housekeeper
                         .AsNoTracking()
                         .Include(a => a.IDVerification)
-                        .CountAsync(h => h.IDVerification != null && h.IDVerification.Status == 1)
+                        .CountAsync(h => h.VerifyID!= null && h.IDVerification.Status == 1)
                         .ConfigureAwait(false);
                 }
             }

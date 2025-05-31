@@ -72,7 +72,7 @@ public class HousekeeperAdapter extends RecyclerView.Adapter<HousekeeperAdapter.
                 : hk.getGoogleProfilePicture();
 
         if (avatar != null && !avatar.isEmpty()) {
-            Glide.with(context).load(avatar).into(holder.imgProfile);
+            Glide.with(context).load(avatar).circleCrop().into(holder.imgProfile);
         } else {
             holder.imgProfile.setImageResource(R.drawable.ic_person); // fallback
         }
