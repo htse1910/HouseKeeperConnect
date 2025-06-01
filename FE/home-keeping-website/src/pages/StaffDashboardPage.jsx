@@ -65,7 +65,7 @@ const StaffDashboardPage = () => {
       axios.get(`${API_BASE_URL}/Transaction/TransactionInPastWeek`, { headers }),
       axios.get(`${API_BASE_URL}/Job/CountVerifiedJobsStaff`, { headers }),
       axios.get(`${API_BASE_URL}/Job/CountPendingJobs`, { headers }),
-      axios.get(`${API_BASE_URL}/HouseKeeper/CountPendingHousekeeper`, { headers }),
+      axios.get(`${API_BASE_URL}/HouseKeeper/CountPendingHouskeeper`, { headers }),
     ])
       .then((results) => {
         const [accStats, newAccs, txTotal, txWeek, jobCount, pendingJobsRes, pendingHKRes] = results;
