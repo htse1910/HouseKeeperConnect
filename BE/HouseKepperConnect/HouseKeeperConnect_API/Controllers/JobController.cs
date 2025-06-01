@@ -1759,17 +1759,24 @@ namespace HouseKeeperConnect_API.Controllers
                 return NotFound(Message);
             }
 
+            // Tính lại tiền dựa trên số slot đã check-in
+            int totalSlots = booking_Slots.Count;
+            int unworkedSlots = booking_Slots.Count(s => !s.IsCheckedIn || !s.IsConfirmedByFamily);
+            int workedSlots = totalSlots - unworkedSlots;
+            decimal payoutAmount = workedSlots * jobDetail.PricePerHour;
+
             foreach (var slot in booking_Slots)
             {
                 slot.Status = BookingSlotStatus.Canceled;
                 await _bookingSlotsService.UpdateBooking_SlotAsync(slot);
             }
+
             //Tạo đơn payout cho HK
             var payout = new Payout();
             payout.PayoutDate = null;
             payout.Status = (int)PayoutStatus.Pending;
             payout.BookingID = booking.BookingID;
-            payout.Amount = jobDetail.Price;
+            payout.Amount = payoutAmount;
             payout.HousekeeperID = hk.HousekeeperID;
 
             await _payoutService.AddPayoutAsync(payout);
@@ -1777,7 +1784,7 @@ namespace HouseKeeperConnect_API.Controllers
             //Cập tiền vào ví OnHold
 
             var wallet = await _walletService.GetWalletByIDAsync(hk.AccountID);
-            wallet.OnHold += jobDetail.Price;
+            wallet.OnHold += payoutAmount;
             wallet.UpdatedAt = vietnamTime;
 
             await _walletService.UpdateWalletAsync(wallet);
@@ -1800,6 +1807,7 @@ namespace HouseKeeperConnect_API.Controllers
 
             return Ok("Đã báo hoàn thành công việc, hãy chờ gia đình xác nhận!");
         }
+
 
         [HttpPost("ConfirmJobCompletion")]
         [Authorize(Policy = "Family")]
