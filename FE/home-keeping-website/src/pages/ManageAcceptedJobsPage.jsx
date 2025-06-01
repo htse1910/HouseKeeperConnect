@@ -87,7 +87,7 @@ const ManageAcceptedJobsPage = () => {
         }
       );
 
-      const result = await response.json(); // ✅ only this
+      const result = await response.json();
 
       if (response.ok) {
         toast.success(
@@ -201,6 +201,7 @@ const ManageAcceptedJobsPage = () => {
                     </h6>
                     <span className="text-muted small">#{job.jobID}</span>
                   </div>
+
                   <div className="text-muted small mb-1">
                     <FaMapMarkerAlt className="me-1 text-danger" />
                     <strong>Địa điểm:</strong> {job.location}
@@ -211,13 +212,20 @@ const ManageAcceptedJobsPage = () => {
                   </div>
 
                   <div className="d-flex justify-content-between align-items-center">
-                    <span
-                      className={`badge px-3 py-2 rounded-pill ${statusFilter === 3 ? "bg-primary" : "bg-success"
+                    {job.status === 10 ? (
+                      <span className="badge px-3 py-2 rounded-pill bg-warning text-dark">
+                        🔁 Công việc được tạo lại
+                      </span>
+                    ) : (
+                      <span
+                        className={`badge px-3 py-2 rounded-pill ${
+                          statusFilter === 3 ? "bg-primary" : "bg-success"
                         }`}
-                    >
-                      <FaCheckCircle className="me-1" />
-                      {statusFilter === 3 ? "Đã nhận" : "Đã xác minh"}
-                    </span>
+                      >
+                        <FaCheckCircle className="me-1" />
+                        {statusFilter === 3 ? "Đã nhận" : "Đã xác minh"}
+                      </span>
+                    )}
 
                     {statusFilter === 3 && (
                       <button
